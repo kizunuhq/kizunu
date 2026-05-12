@@ -23,4 +23,6 @@ MVP e arquitetura ainda em definição.
 
 ## Licença
 
-A definir.
+[GNU Affero General Public License v3.0](LICENSE) (AGPLv3).
+
+A AGPLv3 garante que qualquer uso do Kizunu — incluindo execução como serviço de rede (SaaS) — exige disponibilizar o código-fonte das modificações sob a mesma licença. É a base do modelo open core: o núcleo permanece livre para a comunidade, enquanto extensões comerciais podem ser oferecidas separadamente.
