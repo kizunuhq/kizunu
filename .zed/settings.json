@@ -1,0 +1,52 @@
+{
+  "lsp": {
+    "oxlint": {
+      "initialization_options": {
+        "settings": {
+          "run": "onType",
+          "fixKind": "safe_fix",
+          "typeAware": true,
+          "unusedDisableDirectives": "deny"
+        }
+      }
+    },
+    "oxfmt": {
+      "initialization_options": {
+        "settings": {
+          "configPath": "./vite.config.ts",
+          "run": "onSave"
+        }
+      }
+    }
+  },
+  "languages": {
+    "JavaScript": {
+      "formatter": { "language_server": { "name": "oxfmt" } },
+      "code_actions_on_format": {
+        "source.fixAll.oxc": true,
+        "source.organizeImports.oxfmt": true
+      }
+    },
+    "TypeScript": {
+      "formatter": { "language_server": { "name": "oxfmt" } },
+      "code_actions_on_format": {
+        "source.fixAll.oxc": true,
+        "source.organizeImports.oxfmt": true
+      }
+    },
+    "TSX": {
+      "formatter": { "language_server": { "name": "oxfmt" } },
+      "code_actions_on_format": {
+        "source.fixAll.oxc": true,
+        "source.organizeImports.oxfmt": true
+      }
+    },
+    "JSON": {
+      "formatter": { "language_server": { "name": "oxfmt" } },
+      "code_actions_on_format": {
+        "source.fixAll.oxc": true,
+        "source.organizeImports.oxfmt": true
+      }
+    }
+  }
+}
