@@ -1,0 +1,44 @@
+# claude
+.claude/worktrees
+.claude/settings.local.json
+.claude/projects/
+.claude/session-notes/
+
+# dependencies
+node_modules
+
+# output
+out
+dist
+*.tgz
+tmp
+
+# code coverage
+coverage
+*.lcov
+
+# logs
+logs
+*.log
+.reports
+
+# caches
+.cache
+*.tsbuildinfo
+.vite-hooks
+
+# dotenv
+.env
+.env.development.local
+.env.test.local
+.env.production.local
+.env.local
+
+# IntelliJ
+.idea
+
+# macOS
+.DS_Store
+
+# local data
+data
