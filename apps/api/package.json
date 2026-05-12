@@ -1,0 +1,15 @@
+{
+  "name": "@kizunu/api",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bun run --hot src/main.ts",
+    "build": "nest build --builder swc",
+    "check-types": "tsc --noEmit",
+    "test": "bun test --pass-with-no-tests"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "catalog:"
+  }
+}

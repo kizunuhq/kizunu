@@ -1,0 +1,9 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "paths": {
+      "@kizunu/api/*": ["./src/*"]
+    }
+  },
+  "include": ["src/**/*.ts"]
+}
