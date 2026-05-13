@@ -4,8 +4,8 @@ import type { Config } from '../../../../api.config'
 import { MembershipRepository } from '../../persistence/membership.repository'
 import { SessionRepository } from '../../persistence/session.repository'
 import { UserRepository } from '../../persistence/user.repository'
+import { generateOpaqueToken, hashOpaqueToken } from '../../../../shared/crypto/opaque-token.helper'
 import { hashPassword, verifyPassword } from '../crypto/password.helper'
-import { generateSessionToken, hashSessionToken } from '../crypto/token.helper'
 import { AccountLockedException, InvalidCredentialsException } from '../errors/identity.errors'
 
 const MAX_FAILED_ATTEMPTS = 5
@@ -64,8 +64,8 @@ export class AuthenticateUseCase {
 
     const ttlDays = this.config.get('session.ttlDays')
     const expiresAt = new Date(Date.now() + ttlDays * 24 * 60 * 60 * 1000)
-    const sessionToken = generateSessionToken()
-    const tokenHash = hashSessionToken(sessionToken)
+    const sessionToken = generateOpaqueToken()
+    const tokenHash = hashOpaqueToken(sessionToken)
 
     await this.sessions.create({
       userId: user.id,

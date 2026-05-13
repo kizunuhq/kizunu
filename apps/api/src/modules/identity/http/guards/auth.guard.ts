@@ -9,7 +9,7 @@ import {
 import { Reflector } from '@nestjs/core'
 import type { Request } from 'express'
 import type { Config } from '../../../../api.config'
-import { hashSessionToken } from '../../core/crypto/token.helper'
+import { hashOpaqueToken } from '../../../../shared/crypto/opaque-token.helper'
 import { SessionRepository } from '../../persistence/session.repository'
 import { UserRepository } from '../../persistence/user.repository'
 
@@ -37,7 +37,7 @@ export class AuthGuard implements CanActivate {
     const token = cookies[cookieName]
     if (!token) throw new UnauthorizedException()
 
-    const tokenHash = hashSessionToken(token)
+    const tokenHash = hashOpaqueToken(token)
     const session = await this.sessions.findActiveByTokenHash(tokenHash)
     if (!session) throw new UnauthorizedException()
 
