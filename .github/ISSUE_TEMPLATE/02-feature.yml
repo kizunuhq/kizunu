@@ -1,0 +1,39 @@
+name: Feature Request
+description: Propose a new capability for Kizunu
+title: ''
+labels: ['enhancement']
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What problem or use case is driving this request?
+      placeholder: A clear description of the need behind this request.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      placeholder: Describe the feature you want to see.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      placeholder: Describe any alternatives or workarounds you considered.
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      placeholder: Mockups, examples, screenshots, related links, or how this fits the roadmap.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checklist
+      options:
+        - label: I searched existing issues and discussions first.
+          required: true
+        - label: I read docs/vision.md and docs/v0.1-scope.md and considered whether this fits the current scope.
+          required: false
