@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common'
 import { Reflector } from '@nestjs/core'
 import type { Request } from 'express'
+
 import type { Config } from '../../../../api.config'
 import { hashOpaqueToken } from '../../../../shared/crypto/opaque-token.helper'
 import { SessionRepository } from '../../persistence/session.repository'

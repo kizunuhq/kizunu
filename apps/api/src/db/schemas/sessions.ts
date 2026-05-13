@@ -1,5 +1,6 @@
 import { defaults } from '@kizunu/nestjs-shared/modules/persistence/schemas/defaults'
 import { index, pgTable, text, timestamp, uuid, varchar } from 'drizzle-orm/pg-core'
+
 import { users } from './users'
 import { workspaces } from './workspaces'
 

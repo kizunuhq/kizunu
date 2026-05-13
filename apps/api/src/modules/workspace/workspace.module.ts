@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common'
+
 import { AcceptInvitationUseCase } from './core/use-cases/accept-invitation.use-case'
 import { InviteMemberUseCase } from './core/use-cases/invite-member.use-case'
 import { ListWorkspaceMembersUseCase } from './core/use-cases/list-workspace-members.use-case'

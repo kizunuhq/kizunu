@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common'
+
 import { generateOpaqueToken, hashOpaqueToken } from '../../../../shared/crypto/opaque-token.helper'
 import { VerificationTokenRepository } from '../../persistence/verification-token.repository'
 import { WorkspaceRepository } from '../../persistence/workspace.repository'

@@ -3,6 +3,7 @@ import { ApplicationExceptionFilter } from '@kizunu/nestjs-shared/lib/filters/ap
 import { PersistenceModule } from '@kizunu/nestjs-shared/modules/persistence/persistence.module'
 import { Module } from '@nestjs/common'
 import { APP_FILTER } from '@nestjs/core'
+
 import { load } from './api.config'
 import { IdentityModule } from './modules/identity/identity.module'
 import { WorkspaceModule } from './modules/workspace/workspace.module'

@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common'
+
 import { WorkspaceMemberRepository } from '../../persistence/workspace-member.repository'
 import { MembershipNotFoundException } from '../errors/workspace.errors'
 
