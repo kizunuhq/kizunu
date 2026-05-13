@@ -72,7 +72,7 @@
         "@types/react-dom": "^19.2.0",
         "@vitejs/plugin-react": "^5.1.4",
         "typescript": "catalog:",
-        "vite": "^7.3.1",
+        "vite-plus": "^0.1.20",
       },
     },
     "packages/api-contracts": {

@@ -3,3 +3,18 @@
 @import 'shadcn/tailwind.css';
 
 @custom-variant dark (&:is(.dark *));
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100dvh;
+  font-family: 'Schibsted Grotesk', 'Segoe UI', sans-serif;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: oklch(72% 0.21 44 / 0.72);
+  color: oklch(18% 0.02 226);
+}
