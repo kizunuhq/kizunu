@@ -21,6 +21,7 @@
   },
   "languages": {
     "JavaScript": {
+      "language_servers": ["!biome", "..."],
       "formatter": { "language_server": { "name": "oxfmt" } },
       "code_actions_on_format": {
         "source.fixAll.oxc": true,
@@ -28,6 +29,7 @@
       }
     },
     "TypeScript": {
+      "language_servers": ["!biome", "..."],
       "formatter": { "language_server": { "name": "oxfmt" } },
       "code_actions_on_format": {
         "source.fixAll.oxc": true,
@@ -35,6 +37,7 @@
       }
     },
     "TSX": {
+      "language_servers": ["!biome", "..."],
       "formatter": { "language_server": { "name": "oxfmt" } },
       "code_actions_on_format": {
         "source.fixAll.oxc": true,
@@ -42,6 +45,7 @@
       }
     },
     "JSON": {
+      "language_servers": ["!biome", "..."],
       "formatter": { "language_server": { "name": "oxfmt" } },
       "code_actions_on_format": {
         "source.fixAll.oxc": true,
