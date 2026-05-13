@@ -1,0 +1,34 @@
+version: 2
+
+# Dependabot is configured ONLY for GitHub Actions for now.
+# Bumps action versions in .github/workflows/ and .github/actions/ weekly.
+#
+# Why only Actions: runtime deps (bun, drizzle, nest, etc.) stay manual for
+# now to keep noise low while the project is pre-v0.1. When the team grows
+# and weekly bumps become administrative noise, consider adding the npm/bun
+# ecosystem here (or switch to Renovate, which is more flexible).
+#
+# Outcome: one weekly PR "Bump actions/X from a to b" with changelog and
+# SHA diff. CI validates before merging.
+
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '09:00'
+      timezone: America/Sao_Paulo
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: 'ci'
+      include: scope
+    labels:
+      - dependencies
+      - github-actions
+    groups:
+      # Group minor and patch bumps into a single PR to reduce noise.
+      actions-minor-patch:
+        update-types:
+          - minor
+          - patch
