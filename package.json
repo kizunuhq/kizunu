@@ -7,7 +7,10 @@
       "packages/*"
     ],
     "catalog": {
-      "typescript": "^5.9.3"
+      "typescript": "^5.9.3",
+      "drizzle-orm": "^0.45.1",
+      "drizzle-kit": "^0.31.10",
+      "zod": "^4.3.6"
     }
   },
   "type": "module",
@@ -22,7 +25,13 @@
     "fix": "bunx vp check --fix",
     "check": "bash scripts/check.sh",
     "pre-commit": "bun scripts/hooks/pre-commit.ts",
-    "commitlint": "commitlint"
+    "commitlint": "commitlint",
+    "db:up": "bun scripts/db.ts up",
+    "db:down": "bun scripts/db.ts down",
+    "db:migrate": "bun scripts/db.ts migrate",
+    "db:setup": "bun scripts/db.ts setup",
+    "db:reset": "bun scripts/db.ts reset",
+    "db:generate": "bun --filter @kizunu/api db:generate"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.0.0",
