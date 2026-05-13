@@ -420,6 +420,26 @@ function Hero() {
 }
 
 function Thesis() {
+  const listRef = useRef<HTMLOListElement>(null)
+  const [booted, setBooted] = useState(false)
+
+  useEffect(() => {
+    const node = listRef.current
+    if (!node) return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          setBooted(true)
+          observer.disconnect()
+        }
+      },
+      { threshold: 0.15, rootMargin: '0px 0px -8% 0px' },
+    )
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [])
+
   return (
     <section className="kz-section kz-flip-char" id="thesis">
       <div className="kz-section-coord">
@@ -442,7 +462,10 @@ function Thesis() {
             Closed stacks break between the tools that <em>pretend</em> to cooperate.
           </h2>
 
-          <ol className="kz-counter-list">
+          <ol
+            ref={listRef}
+            className={`kz-counter-list${booted ? ' kz-counter-list--booted' : ''}`}
+          >
             {counterPoints.map((point, idx) => (
               <li key={point.bad} className="kz-counter-item">
                 <span className="kz-counter-num">{String(idx + 1).padStart(2, '0')}</span>
@@ -660,6 +683,26 @@ function OpenCore() {
 }
 
 function Signal() {
+  const colsRef = useRef<HTMLDivElement>(null)
+  const [booted, setBooted] = useState(false)
+
+  useEffect(() => {
+    const node = colsRef.current
+    if (!node) return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          setBooted(true)
+          observer.disconnect()
+        }
+      },
+      { threshold: 0.2, rootMargin: '0px 0px -8% 0px' },
+    )
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [])
+
   return (
     <section className="kz-section" id="signal">
       <div className="kz-section-coord">
@@ -687,7 +730,7 @@ function Signal() {
             the substrate; the model is one more participant on it.
           </p>
 
-          <div className="kz-signal-cols">
+          <div ref={colsRef} className={`kz-signal-cols${booted ? ' kz-signal-cols--booted' : ''}`}>
             <div>
               <h3>What the model sees</h3>
               <p>
@@ -888,8 +931,32 @@ function TypedSegment({
 }
 
 function CtaSection() {
+  const ref = useRef<HTMLElement>(null)
+  const [visible, setVisible] = useState(false)
+
+  useEffect(() => {
+    const node = ref.current
+    if (!node) return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          setVisible(true)
+          observer.disconnect()
+        }
+      },
+      { threshold: 0.15 },
+    )
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [])
+
   return (
-    <section className="kz-cta-section" id="use">
+    <section
+      ref={ref}
+      className={`kz-cta-section${visible ? ' kz-cta-section--visible' : ''}`}
+      id="use"
+    >
       <div className="kz-section-coord">
         <div className="kz-section-coord-side">
           <span className="kz-mono-loud">07 / RUN IT</span>

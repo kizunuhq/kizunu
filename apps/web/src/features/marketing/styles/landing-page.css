@@ -270,6 +270,24 @@
   gap: var(--kz-edge);
   padding: 20px var(--kz-edge);
   border-bottom: 1px solid var(--kz-line);
+  animation: kz-nav-enter 500ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes kz-nav-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kz-nav {
+    animation: none;
+  }
 }
 
 .kz-nav-mark {
@@ -562,6 +580,11 @@
   width: 14px;
   height: 14px;
   flex-shrink: 0;
+  transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.kz-cta:hover .kz-cta-arrow {
+  transform: translateX(3px);
 }
 
 .kz-hero-stats {
@@ -1374,6 +1397,11 @@
 .kz-byo-arrow svg {
   width: 36px;
   height: 14px;
+  transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.kz-byo:hover .kz-byo-arrow svg {
+  transform: translateX(5px);
 }
 
 .kz-chip {
@@ -1916,6 +1944,159 @@
   .kz-hero[data-cinema] .kz-hero-word,
   .kz-hero[data-cinema] .kz-hero-mark .kz-kmark {
     animation: none !important;
+  }
+}
+
+/* ---------- THESIS counter reveal ---------- */
+
+.kz-counter-list:not(.kz-counter-list--booted) .kz-counter-item {
+  opacity: 0;
+  transform: translateY(14px);
+}
+
+.kz-counter-list--booted .kz-counter-item {
+  animation: kz-rise 580ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.kz-counter-list--booted .kz-counter-item:nth-child(1) {
+  animation-delay: 0ms;
+}
+.kz-counter-list--booted .kz-counter-item:nth-child(2) {
+  animation-delay: 130ms;
+}
+.kz-counter-list--booted .kz-counter-item:nth-child(3) {
+  animation-delay: 260ms;
+}
+.kz-counter-list--booted .kz-counter-item:nth-child(4) {
+  animation-delay: 390ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kz-counter-list:not(.kz-counter-list--booted) .kz-counter-item {
+    opacity: 1;
+    transform: none;
+  }
+  .kz-counter-list--booted .kz-counter-item {
+    animation: none;
+  }
+}
+
+/* ---------- SIGNAL column reveal ---------- */
+
+.kz-signal-cols:not(.kz-signal-cols--booted) > div {
+  opacity: 0;
+  transform: translateY(16px);
+}
+
+.kz-signal-cols--booted > div {
+  animation: kz-rise 600ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.kz-signal-cols--booted > div:nth-child(1) {
+  animation-delay: 0ms;
+}
+.kz-signal-cols--booted > div:nth-child(2) {
+  animation-delay: 110ms;
+}
+.kz-signal-cols--booted > div:nth-child(3) {
+  animation-delay: 220ms;
+}
+.kz-signal-cols--booted > div:nth-child(4) {
+  animation-delay: 330ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kz-signal-cols:not(.kz-signal-cols--booted) > div {
+    opacity: 1;
+    transform: none;
+  }
+  .kz-signal-cols--booted > div {
+    animation: none;
+  }
+}
+
+/* ---------- SIGNAL scanned K mark ---------- */
+
+.kz-signal-mark {
+  overflow: hidden;
+}
+
+.kz-kmark--scanned::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1.5px;
+  top: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--kz-cyan) 25%,
+    var(--kz-cyan) 75%,
+    transparent 100%
+  );
+  pointer-events: none;
+  animation: kz-scan-mark 5.5s linear 1s infinite;
+}
+
+.kz-kmark--scanned {
+  position: relative;
+}
+
+@keyframes kz-scan-mark {
+  0% {
+    transform: translateY(-2px);
+    opacity: 0;
+  }
+  6% {
+    opacity: 0.65;
+  }
+  90% {
+    opacity: 0.4;
+  }
+  100% {
+    transform: translateY(600px);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kz-kmark--scanned::after {
+    animation: none;
+    display: none;
+  }
+}
+
+/* ---------- CTA section entrance ---------- */
+
+.kz-cta-section:not(.kz-cta-section--visible) .kz-cta-grid {
+  opacity: 0;
+  transform: translateY(24px);
+}
+
+.kz-cta-section:not(.kz-cta-section--visible) .kz-cta-edge-mark .kz-kmark {
+  clip-path: inset(0 100% 0 0);
+}
+
+.kz-cta-section--visible .kz-cta-grid {
+  animation: kz-rise 700ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.kz-cta-section--visible .kz-cta-edge-mark .kz-kmark {
+  animation: kz-stroke-paint 1200ms cubic-bezier(0.16, 1, 0.3, 1) 360ms both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kz-cta-section:not(.kz-cta-section--visible) .kz-cta-grid {
+    opacity: 1;
+    transform: none;
+  }
+  .kz-cta-section:not(.kz-cta-section--visible) .kz-cta-edge-mark .kz-kmark {
+    clip-path: none;
+  }
+  .kz-cta-section--visible .kz-cta-grid,
+  .kz-cta-section--visible .kz-cta-edge-mark .kz-kmark {
+    animation: none;
   }
 }
 
