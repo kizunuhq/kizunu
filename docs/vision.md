@@ -1,111 +1,131 @@
-# Visão e posicionamento
+# Vision and positioning
 
-## Tese
+## Thesis
 
-O mercado de sales engagement tem dois extremos mal conectados:
+The sales engagement market has two poorly connected extremes:
 
-- **CRMs de registro** (Pipedrive, Twenty, HubSpot): bons em guardar deals, fracos em executar cadência multi-canal — especialmente WhatsApp-first.
-- **Sales engagement tools** (Outreach, Salesloft, Reply, Meetime): caros, US-centric, email/phone-first, WhatsApp tratado como cidadão de segunda.
+- **CRMs of record** (Pipedrive, Twenty, HubSpot): great at storing deals, weak at executing multi-channel cadence — especially WhatsApp-first.
+- **Sales engagement tools** (Outreach, Salesloft, Reply, Meetime): expensive, US-centric, email/phone-first, treat WhatsApp as a second-class citizen.
 
-No Brasil/LatAm/Índia/sudeste asiático, vendas acontecem no WhatsApp. Nenhuma das duas categorias foi desenhada pra isso. A solução padrão hoje é gambiarra: CRM + n8n + API de WhatsApp + planilha. Funciona, mas é frágil e exige engenheiro de automação de plantão.
+In Brazil, LatAm, India, and Southeast Asia, sales happen on WhatsApp. Neither category was designed for that. Today's default solution is a workaround: CRM + n8n + WhatsApp API + spreadsheet. It works, but it's fragile and requires an on-call automation engineer.
 
-**Kizunu é o que falta:** uma plataforma open-source de sales engagement _channel-agnostic_, com canais plugáveis via OpenAPI. WhatsApp é o primeiro canal, mas o motor não é específico de WhatsApp — Telegram, email, SMS, voz, LinkedIn, RCS são plugins.
+**Kizunu is what's missing:** an open-source, _channel-agnostic_ sales engagement platform with channels pluggable via OpenAPI. WhatsApp is the first channel, but the engine is not WhatsApp-specific — Telegram, email, SMS, voice, LinkedIn, RCS are all plugins.
 
-## O que torna Kizunu diferente
+## What makes Kizunu different
 
-1. **Canais como plugins** — Meta Cloud API, Z-API, Evolution, WPPConnect, Twilio, SendGrid — cliente escolhe (ou implementa) o provider.
-2. **Cadência como código** — sequência declarativa de toques com parada automática por resposta, multi-canal.
-3. **API-first** — REST + OpenAPI desde o dia 1. UI é cliente da própria API.
-4. **Open core** — engine + conectores comuns sob licença permissiva; cloud paga e features enterprise comerciais.
-5. **CRM opcional** — Kizunu tem CRM nativo simples, mas integra com Pipedrive/HubSpot/Salesforce via conectores.
+1. **Channels as plugins** — Meta Cloud API, Z-API, Evolution, WPPConnect, Twilio, SendGrid — the customer picks (or implements) the provider.
+2. **Cadence as code** — declarative sequence of touches with automatic reply-stop, multi-channel.
+3. **API-first** — REST + OpenAPI from day one. The UI is a client of the same API.
+4. **Open core** — engine + common connectors under permissive license; paid cloud and commercial enterprise features.
+5. **Optional CRM** — Kizunu has a simple native CRM, but integrates with Pipedrive/HubSpot/Salesforce via connectors.
 
-## Comparáveis mentais
+## Mental comparables
 
-- **Novu pra outbound sales** (plugin system de notificação → plugin system de engagement)
-- **n8n vertical** (workflow engine focado em cadência de vendas)
-- **Twilio Engage open source** (orquestração multi-canal, mas OSS)
-- **Twenty + cadência** (Twenty é CRM bonito; Kizunu adiciona o motor de execução que falta)
+- **Novu for outbound sales** (notification plugin system → engagement plugin system)
+- **Vertical n8n** (workflow engine focused on sales cadence)
+- **Open-source Twilio Engage** (multi-channel orchestration, but OSS)
+- **Twenty + cadence** (Twenty is a beautiful CRM; Kizunu adds the execution engine it lacks)
 
-## Roadmap de visão (não MVP — horizonte longo)
+## Vision roadmap (long-horizon, not MVP)
 
-| Fase | Foco                     | Resolve                                                      |
-| ---- | ------------------------ | ------------------------------------------------------------ |
-| 1    | Engagement engine        | Cadência multi-canal com parada por resposta                 |
-| 2    | CRM nativo + conectores  | Pipeline, deals, contatos; conectores com Pipedrive/HubSpot  |
-| 3    | Captação / top of funnel | Forms, landing pages, enrichment, scoring                    |
-| 4    | Inteligência (IA)        | Classificação de resposta, geração de toque, coaching de BDR |
+| Phase | Focus                   | Solves                                                     |
+| ----- | ----------------------- | ---------------------------------------------------------- |
+| 1     | Engagement engine       | Multi-channel cadence with reply-stop                      |
+| 2     | Native CRM + connectors | Pipeline, deals, contacts; connectors to Pipedrive/HubSpot |
+| 3     | Top of funnel           | Forms, landing pages, enrichment, scoring                  |
+| 4     | Intelligence (AI)       | Reply classification, touch generation, BDR coaching       |
 
-Cada fase abre TAM maior. Não tentar fazer tudo no v0.1.
+Each phase opens a larger TAM. Do not try to do everything in v0.1.
 
-## Posicionamento de mercado
+### v0.1 within the roadmap
 
-**Categoria:** Sales engagement platform (open source, channel-agnostic).
+The v0.1 scope is the **minimum slice of Phase 1** that runs a real pilot end-to-end. Detailed in [v0.1-scope.md](v0.1-scope.md).
 
-**Competição direta:**
+Summary:
 
-- **Outreach / Salesloft / Reply** — enterprise, US-centric, sem WhatsApp decente, fechados.
-- **Kommo / Leadsales / Sleekflow** — BR/LatAm WhatsApp-first, fechados, sem plugin system real.
-- **Twenty** — CRM OSS bonito, mas não faz cadência multi-canal.
+- 1 channel plugin (Evolution / WhatsApp), with the model prepared for N
+- 1 CRM connector (Pipedrive), with the model prepared for N
+- Cadence as the central aggregate — no generic workflow builder
+- Per-BDR channel instances (each BDR with their own WhatsApp number)
+- No native CRM, no AI, no conditional branching, no multi-tenant cloud
 
-**Vantagem defensável:**
+Assumed pre-condition: a real pilot validates the thesis of "cadence + reply-stop + Pipedrive + per-BDR WhatsApp".
 
-1. Plugin system de canal — outros têm canais fixos.
-2. Open source — adoção via comunidade dev (Twenty, Cal, Novu, n8n provam o modelo).
-3. WhatsApp-first sem trair canais ocidentais — único produto que serve LatAm e US/EU igualmente.
+### Phase 1.5 — where differentiation appears
 
-## Estratégia comercial: open core
+v0.1 alone is not differentiated. **"WhatsApp automation for Pipedrive with reply-stop" already exists** in several closed SaaS products (Kommo, Leadsales, partial Sleekflow). Kizunu's defensibility — real plugin system, channel-agnostic, OSS — is only proven once the following ship:
 
-**Core open source** (provavelmente AGPLv3 ou Apache 2.0):
+- A second channel (email SMTP or Telegram) — proves channel plugin isn't WhatsApp in disguise
+- A second CRM connector (HubSpot or RD Station) — proves CRM-agnostic isn't Pipedrive in disguise
+- A first community-contributed plugin — proves open core generates a community
 
-- Engine de cadência
-- Plugin SDK + conectores comuns (WhatsApp Evolution, Email SMTP, etc)
-- API REST + OpenAPI
-- UI básica
-- Self-host (Docker compose)
+This Phase 1.5 should ship **shortly after** v0.1 stabilizes with a real pilot. Delaying too long means becoming a commodity. Pulling it into v0.1 means never finishing v0.1.
 
-**Cloud paga (kizunu.com):**
+## Market positioning
 
-- Hosting gerenciado
-- IA embarcada (classificação de resposta, geração de toque)
+**Category:** Sales engagement platform (open source, channel-agnostic).
+
+**Direct competition:**
+
+- **Outreach / Salesloft / Reply** — enterprise, US-centric, no decent WhatsApp, closed.
+- **Kommo / Leadsales / Sleekflow** — BR/LatAm WhatsApp-first, closed, no real plugin system.
+- **Twenty** — beautiful OSS CRM, but doesn't do multi-channel cadence.
+
+**Defensible advantages:**
+
+1. Channel plugin system — others have fixed channels.
+2. Open source — dev-community adoption (Twenty, Cal, Novu, n8n prove the model).
+3. WhatsApp-first without betraying Western channels — the only product that serves LatAm and US/EU equally well.
+
+## Commercial strategy: open core
+
+**Open source core** (AGPLv3):
+
+- Cadence engine
+- Plugin SDK + common connectors (WhatsApp Evolution, Email SMTP, etc.)
+- REST + OpenAPI
+- Basic UI
+- Self-host (Docker Compose)
+
+**Paid cloud (kizunu.com):**
+
+- Managed hosting
+- Embedded AI (reply classification, touch generation)
 - Multi-tenant
-- SSO, audit log, RBAC avançado
-- Conectores premium (Salesforce, HubSpot Enterprise)
-- Suporte SLA
+- SSO, audit log, advanced RBAC
+- Premium connectors (Salesforce, HubSpot Enterprise)
+- SLA support
 
-**Decisão pendente de licença:**
+**License adopted:** AGPLv3 for the core + separate commercial cloud. Protects against cloud copy (AWS-style) and sustains the open core model. Accepted risk: some enterprises avoid AGPL — reassess if it becomes a real adoption blocker.
 
-- **AGPLv3:** protege contra cloud copy (AWS-style). Mais forte comercialmente. Risco: alguns enterprises evitam.
-- **Apache 2.0 + cloud paga:** mais adoção, menor proteção. Modelo Twenty/Supabase.
-- **Sugestão inicial:** AGPLv3 pro core + cloud comercial separado. Reavaliar se atrapalhar adoção.
-
-## Quem é o usuário-alvo
+## Target user
 
 **v0.1 (early adopters):**
 
-- Operações de outbound de PMEs brasileiras (10-50 funcionários, 1-5 BDRs)
-- Time técnico já familiar com n8n / self-host / APIs
-- Hoje usa Pipedrive ou planilha + WhatsApp manual + n8n quebrado
+- Outbound operations at SMBs (10–50 employees, 1–5 BDRs)
+- Technical teams familiar with n8n / self-host / APIs
+- Currently use Pipedrive or a spreadsheet + manual WhatsApp + broken n8n
 
-**v1.0 (mercado):**
+**v1.0 (broader market):**
 
-- PMEs em qualquer país com WhatsApp/SMS dominante (BR, MX, IN, ID, NG)
-- Times de RevOps em scale-ups que querem alternativa OSS ao Outreach
-- Agências/consultorias que rodam outbound pra clientes (multi-tenant)
+- SMBs in any country with WhatsApp/SMS dominance (BR, MX, IN, ID, NG)
+- RevOps teams at scale-ups looking for an OSS alternative to Outreach
+- Agencies/consultancies running outbound for clients (multi-tenant)
 
-**Não-alvo (deliberadamente):**
+**Deliberately not targeting:**
 
-- Enterprise Fortune 500 (não compram OSS pequeno no início)
-- Comerciantes não-técnicos solo (vão pra Kommo plug-and-play)
+- Fortune 500 enterprises (don't buy small OSS early)
+- Non-technical solo merchants (they go to plug-and-play Kommo)
 
-## Como o produto evita armadilhas comuns
+## How the product avoids common pitfalls
 
-1. **Compliance WhatsApp:** plugin system isola risco — se Evolution banir, troca pro Meta Cloud sem refazer cadência.
-2. **Não vira "faz tudo, mal":** v0.1 é cirúrgico (1 canal real, sem CRM completo). Expansão é guiada por cliente real.
-3. **Não compete com CRM no v0.1:** integra com Pipedrive existente. CRM nativo só na fase 2.
-4. **OSS sustentável:** open core desde o dia 1, sem dilema "tudo grátis pra sempre".
+1. **WhatsApp compliance:** the plugin system isolates risk — if Evolution gets banned, swap to Meta Cloud without rewriting the cadence.
+2. **Doesn't become "does everything, badly":** v0.1 is surgical (1 real channel, no full CRM). Expansion is driven by real customers.
+3. **Doesn't compete with CRMs in v0.1:** integrates with existing Pipedrive. Native CRM only in phase 2.
+4. **Sustainable OSS:** open core from day one, no "everything free forever" dilemma.
 
-## Métricas de sucesso (não MVP, longo prazo)
+## Success metrics (long-term, not MVP)
 
-- **6 meses:** 3-5 clientes piloto usando self-host, feedback validando tese de plugin system.
-- **12 meses:** 100+ GitHub stars, primeiros conectores community-contributed, cloud beta com 10+ usuários pagantes.
-- **24 meses:** $10k+ MRR cloud, comunidade de devs ativa, 3+ canais oficiais maduros.
+- **6 months:** 3–5 pilot customers on self-host, feedback validating the plugin system thesis.
+- **12 months:** 100+ GitHub stars, first community-contributed connectors, cloud beta with 10+ paying users.
+- **24 months:** $10k+ cloud MRR, active dev community, 3+ mature first-party channels.

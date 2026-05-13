@@ -2,27 +2,28 @@
 
 Open-source sales engagement engine — bring your own channels, your own CRM, your own AI.
 
-**Status:** pre-v0.1, em design.
+**Status:** pre-v0.1, in design.
 
-Kizunu unifica cadências de outbound em qualquer canal (WhatsApp, email, SMS, voz) com canais plugáveis via OpenAPI. Resolve a dor de times de BDR que gastam 1/3 do dia em contato manual: a plataforma executa a cadência, para automaticamente quando o lead responde, e o BDR só entra em cena quando há conversa real.
+Kizunu unifies outbound cadences across any channel (WhatsApp, email, SMS, voice) with pluggable providers via OpenAPI. It solves the pain of BDR teams that spend a third of their day on manual outreach: the platform runs the cadence, automatically stops when the lead replies, and hands off to the BDR only when there's a real conversation.
 
-## Origem do nome
+## Name origin
 
-Mutação de **kizuna** (絆), conceito japonês de laço invisível entre pessoas. A plataforma cria esse laço entre você e cada lead — através de qualquer canal, em qualquer momento.
+A mutation of **kizuna** (絆), the Japanese concept of an invisible bond between people. The platform creates that bond between you and every lead — across any channel, at any time.
 
-## Documentação
+## Documentation
 
-- [Visão e posicionamento](docs/vision.md) — tese, mercado, estratégia open core
+- [Vision and positioning](docs/vision.md) — thesis, market, open core strategy
+- [v0.1 scope](docs/v0.1-scope.md) — minimum slice and pilot contract
 
-MVP e arquitetura ainda em definição.
+MVP and architecture are still being defined.
 
 ## Links
 
-- Domínio: kizunu.com
+- Domain: kizunu.com
 - GitHub: github.com/kizunuhq
 
-## Licença
+## License
 
 [GNU Affero General Public License v3.0](LICENSE) (AGPLv3).
 
-A AGPLv3 garante que qualquer uso do Kizunu — incluindo execução como serviço de rede (SaaS) — exige disponibilizar o código-fonte das modificações sob a mesma licença. É a base do modelo open core: o núcleo permanece livre para a comunidade, enquanto extensões comerciais podem ser oferecidas separadamente.
+AGPLv3 ensures that any use of Kizunu — including running it as a network service (SaaS) — requires releasing the source code of modifications under the same license. This is the foundation of the open core model: the core stays free for the community, while commercial extensions can be offered separately.
