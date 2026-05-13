@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Vision and v0.1 scope
+    url: https://github.com/kizunuhq/kizunu/tree/master/docs
+    about: Long-term direction and current scope decisions before opening an issue.
