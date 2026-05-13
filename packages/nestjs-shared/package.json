@@ -1,0 +1,24 @@
+{
+  "name": "@kizunu/nestjs-shared",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./lib/*": "./src/lib/*.ts",
+    "./modules/*": "./src/modules/*.ts"
+  },
+  "scripts": {
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@kizunu/config-module": "workspace:*",
+    "@nestjs/common": "^11.1.17",
+    "@nestjs/core": "^11.1.17",
+    "drizzle-orm": "catalog:",
+    "pg": "^8.20.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/pg": "^8.20.0",
+    "typescript": "catalog:"
+  }
+}

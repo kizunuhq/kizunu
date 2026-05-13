@@ -1,0 +1,19 @@
+{
+  "name": "@kizunu/config-module",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./*": "./src/lib/*.ts"
+  },
+  "scripts": {
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@nestjs/common": "^11.1.17",
+    "@nestjs/config": "^4.0.3",
+    "@nestjs/core": "^11.1.17"
+  },
+  "devDependencies": {
+    "typescript": "catalog:"
+  }
+}
