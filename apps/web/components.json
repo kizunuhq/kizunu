@@ -1,0 +1,23 @@
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "base-nova",
+  "rsc": false,
+  "tsx": true,
+  "tailwind": {
+    "config": "",
+    "css": "src/styles.css",
+    "baseColor": "neutral",
+    "cssVariables": true,
+    "prefix": ""
+  },
+  "iconLibrary": "@phosphor-icons/react",
+  "rtl": false,
+  "aliases": {
+    "components": "@kizunu/web/components",
+    "utils": "@kizunu/web/lib/utils",
+    "ui": "@kizunu/web/components/primitives",
+    "lib": "@kizunu/web/lib",
+    "hooks": "@kizunu/web/hooks"
+  },
+  "registries": {}
+}

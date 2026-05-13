@@ -2,7 +2,7 @@ import { defineConfig } from 'vite-plus'
 
 export default defineConfig({
   lint: {
-    ignorePatterns: ['dist/**', 'node_modules/**', '.claude/**'],
+    ignorePatterns: ['dist/**', 'node_modules/**', '.claude/**', 'apps/web/src/routeTree.gen.ts'],
     options: { typeAware: true, typeCheck: true },
     rules: {
       'no-unused-vars': 'error',
@@ -20,7 +20,7 @@ export default defineConfig({
     ],
   },
   fmt: {
-    ignorePatterns: ['dist/**', '.claude/**'],
+    ignorePatterns: ['dist/**', '.claude/**', 'apps/web/src/routeTree.gen.ts'],
     singleQuote: true,
     semi: false,
     sortPackageJson: true,
