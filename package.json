@@ -20,7 +20,7 @@
     "build": "bunx vp run -r build",
     "test": "bunx vp test",
     "typecheck": "bunx vp run -r check-types",
-    "lint": "bunx vp lint .",
+    "lint": "bunx vp lint apps packages scripts",
     "format": "bunx vp fmt --write .",
     "fix": "bunx vp check --fix",
     "check": "bash scripts/check.sh",
