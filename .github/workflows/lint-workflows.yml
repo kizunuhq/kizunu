@@ -1,0 +1,41 @@
+name: Lint Workflows
+
+# Validate workflow YAML with actionlint. Catches: typos in job names,
+# bad indentation, invalid refs, expression syntax errors, missing
+# required fields, shell quoting issues.
+#
+# Runs only when .github/ changes so it doesn't add noise to app PRs.
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - '.github/**'
+  pull_request:
+    paths:
+      - '.github/**'
+
+permissions:
+  contents: read
+
+jobs:
+  actionlint:
+    name: actionlint
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v6
+
+      # Use the official rhysd/actionlint download script. The
+      # raven-actions/actionlint marketplace action runs `npm install`
+      # at the repo root, which breaks with Bun's `workspace:` protocol.
+      - name: Install actionlint
+        id: install
+        shell: bash
+        run: |
+          bash <(curl -fsSL https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash)
+          echo "path=$(pwd)/actionlint" >> "$GITHUB_OUTPUT"
+
+      - name: Run actionlint
+        shell: bash
+        run: ${{ steps.install.outputs.path }} -color
