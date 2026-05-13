@@ -1,3 +1,5 @@
-// Barrel for Drizzle schemas. Real tables land here in PR 2 (users,
-// workspaces, memberships, sessions, verification_tokens).
-export {}
+export * from './memberships'
+export * from './sessions'
+export * from './users'
+export * from './verification-tokens'
+export * from './workspaces'
