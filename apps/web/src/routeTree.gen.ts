@@ -12,9 +12,10 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as NotFoundRouteImport } from './routes/not-found'
 import { Route as AppRouteRouteImport } from './routes/_app/route'
 import { Route as authRouteRouteImport } from './routes/(auth)/route'
-import { Route as AppIndexRouteImport } from './routes/_app/index'
+import { Route as IndexRouteImport } from './routes/index'
 import { Route as authSignupRouteImport } from './routes/(auth)/signup'
 import { Route as authLoginRouteImport } from './routes/(auth)/login'
+import { Route as AppWorkspaceIndexRouteImport } from './routes/_app/workspace/index'
 import { Route as AppWorkspaceMembersRouteImport } from './routes/_app/workspace/members'
 import { Route as authAcceptInviteTokenRouteImport } from './routes/(auth)/accept-invite.$token'
 
@@ -31,10 +32,10 @@ const authRouteRoute = authRouteRouteImport.update({
   id: '/(auth)',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AppIndexRoute = AppIndexRouteImport.update({
+const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => AppRouteRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
 const authSignupRoute = authSignupRouteImport.update({
   id: '/signup',
@@ -45,6 +46,11 @@ const authLoginRoute = authLoginRouteImport.update({
   id: '/login',
   path: '/login',
   getParentRoute: () => authRouteRoute,
+} as any)
+const AppWorkspaceIndexRoute = AppWorkspaceIndexRouteImport.update({
+  id: '/workspace/',
+  path: '/workspace/',
+  getParentRoute: () => AppRouteRoute,
 } as any)
 const AppWorkspaceMembersRoute = AppWorkspaceMembersRouteImport.update({
   id: '/workspace/members',
@@ -58,31 +64,34 @@ const authAcceptInviteTokenRoute = authAcceptInviteTokenRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof AppIndexRoute
+  '/': typeof IndexRoute
   '/not-found': typeof NotFoundRoute
   '/login': typeof authLoginRoute
   '/signup': typeof authSignupRoute
   '/accept-invite/$token': typeof authAcceptInviteTokenRoute
   '/workspace/members': typeof AppWorkspaceMembersRoute
+  '/workspace/': typeof AppWorkspaceIndexRoute
 }
 export interface FileRoutesByTo {
+  '/': typeof IndexRoute
   '/not-found': typeof NotFoundRoute
   '/login': typeof authLoginRoute
   '/signup': typeof authSignupRoute
-  '/': typeof AppIndexRoute
   '/accept-invite/$token': typeof authAcceptInviteTokenRoute
   '/workspace/members': typeof AppWorkspaceMembersRoute
+  '/workspace': typeof AppWorkspaceIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
   '/(auth)': typeof authRouteRouteWithChildren
   '/_app': typeof AppRouteRouteWithChildren
   '/not-found': typeof NotFoundRoute
   '/(auth)/login': typeof authLoginRoute
   '/(auth)/signup': typeof authSignupRoute
-  '/_app/': typeof AppIndexRoute
   '/(auth)/accept-invite/$token': typeof authAcceptInviteTokenRoute
   '/_app/workspace/members': typeof AppWorkspaceMembersRoute
+  '/_app/workspace/': typeof AppWorkspaceIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -93,27 +102,31 @@ export interface FileRouteTypes {
     | '/signup'
     | '/accept-invite/$token'
     | '/workspace/members'
+    | '/workspace/'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/'
     | '/not-found'
     | '/login'
     | '/signup'
-    | '/'
     | '/accept-invite/$token'
     | '/workspace/members'
+    | '/workspace'
   id:
     | '__root__'
+    | '/'
     | '/(auth)'
     | '/_app'
     | '/not-found'
     | '/(auth)/login'
     | '/(auth)/signup'
-    | '/_app/'
     | '/(auth)/accept-invite/$token'
     | '/_app/workspace/members'
+    | '/_app/workspace/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
   authRouteRoute: typeof authRouteRouteWithChildren
   AppRouteRoute: typeof AppRouteRouteWithChildren
   NotFoundRoute: typeof NotFoundRoute
@@ -142,12 +155,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_app/': {
-      id: '/_app/'
+    '/': {
+      id: '/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof AppIndexRouteImport
-      parentRoute: typeof AppRouteRoute
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/(auth)/signup': {
       id: '/(auth)/signup'
@@ -162,6 +175,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/login'
       preLoaderRoute: typeof authLoginRouteImport
       parentRoute: typeof authRouteRoute
+    }
+    '/_app/workspace/': {
+      id: '/_app/workspace/'
+      path: '/workspace'
+      fullPath: '/workspace/'
+      preLoaderRoute: typeof AppWorkspaceIndexRouteImport
+      parentRoute: typeof AppRouteRoute
     }
     '/_app/workspace/members': {
       id: '/_app/workspace/members'
@@ -197,13 +217,13 @@ const authRouteRouteWithChildren = authRouteRoute._addFileChildren(
 )
 
 interface AppRouteRouteChildren {
-  AppIndexRoute: typeof AppIndexRoute
   AppWorkspaceMembersRoute: typeof AppWorkspaceMembersRoute
+  AppWorkspaceIndexRoute: typeof AppWorkspaceIndexRoute
 }
 
 const AppRouteRouteChildren: AppRouteRouteChildren = {
-  AppIndexRoute: AppIndexRoute,
   AppWorkspaceMembersRoute: AppWorkspaceMembersRoute,
+  AppWorkspaceIndexRoute: AppWorkspaceIndexRoute,
 }
 
 const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
@@ -211,6 +231,7 @@ const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
 )
 
 const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
   authRouteRoute: authRouteRouteWithChildren,
   AppRouteRoute: AppRouteRouteWithChildren,
   NotFoundRoute: NotFoundRoute,
