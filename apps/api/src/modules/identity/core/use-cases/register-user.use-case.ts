@@ -8,7 +8,7 @@ import { users } from '../../../../db/schemas/users'
 import { workspaces } from '../../../../db/schemas/workspaces'
 import type { Config } from '../../../../api.config'
 import { hashPassword } from '../crypto/password.helper'
-import { generateSessionToken, hashSessionToken } from '../crypto/token.helper'
+import { generateOpaqueToken, hashOpaqueToken } from '../../../../shared/crypto/opaque-token.helper'
 import { EmailAlreadyTakenException } from '../errors/identity.errors'
 
 export interface RegisterUserInput {
@@ -56,8 +56,8 @@ export class RegisterUserUseCase {
     const passwordHash = await hashPassword(input.password)
     const ttlDays = this.config.get('session.ttlDays')
     const expiresAt = new Date(Date.now() + ttlDays * 24 * 60 * 60 * 1000)
-    const sessionToken = generateSessionToken()
-    const tokenHash = hashSessionToken(sessionToken)
+    const sessionToken = generateOpaqueToken()
+    const tokenHash = hashOpaqueToken(sessionToken)
 
     const result = await this.drizzle.db.transaction(async (tx) => {
       const insertedUsers = await tx
