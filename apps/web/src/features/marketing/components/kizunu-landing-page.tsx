@@ -1,5 +1,5 @@
 import { ArrowUpRight } from '@phosphor-icons/react'
-import { Fragment, useCallback, useState } from 'react'
+import { Fragment, useCallback, useEffect, useRef, useState } from 'react'
 
 import { KMark } from './kizunu-mark'
 
@@ -172,10 +172,28 @@ const footerLinks = [
   { label: 'License', href: '#license' },
 ]
 
+interface SectionMeta {
+  id: string
+  num: string
+  name: string
+  desc: string
+}
+
+const sectionMeta: SectionMeta[] = [
+  { id: 'hero', num: '01', name: 'Hero', desc: 'kizunu v0.1 · experimental cadence infra' },
+  { id: 'thesis', num: '02', name: 'Thesis', desc: 'closed stacks vs the engine' },
+  { id: 'engine', num: '03', name: 'Engine', desc: 'cadence aggregate · live trace' },
+  { id: 'open-core', num: '04', name: 'Open core', desc: 'providers · models · sdk' },
+  { id: 'signal', num: '05', name: 'Signal', desc: 'the model is a participant' },
+  { id: 'self-host', num: '06', name: 'Take it home', desc: 'self-host · fork · ship' },
+  { id: 'use', num: '07', name: 'Run it', desc: 'engine continues at the edge' },
+]
+
 export function KizunuLandingPage() {
   return (
     <div className="kz-page">
       <Nav />
+      <SectionBreadcrumb />
       <Hero />
       <Thesis />
       <Engine />
@@ -184,6 +202,56 @@ export function KizunuLandingPage() {
       <TakeItHome />
       <CtaSection />
       <Footer />
+    </div>
+  )
+}
+
+function SectionBreadcrumb() {
+  const [currentId, setCurrentId] = useState<string>('hero')
+  const [visible, setVisible] = useState(false)
+
+  useEffect(() => {
+    const onScroll = () => setVisible(window.scrollY > 96)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
+  useEffect(() => {
+    const sections = sectionMeta
+      .map((s) => document.getElementById(s.id))
+      .filter((n): n is HTMLElement => n !== null)
+    if (!sections.length) return
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const top = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0]
+        if (top) setCurrentId(top.target.id)
+      },
+      { rootMargin: '-32% 0px -50% 0px', threshold: [0, 0.2, 0.5, 0.8, 1] },
+    )
+    sections.forEach((s) => observer.observe(s))
+    return () => observer.disconnect()
+  }, [])
+
+  const current = sectionMeta.find((s) => s.id === currentId) ?? sectionMeta[0]
+  if (!current) return null
+  const stepIdx = sectionMeta.findIndex((s) => s.id === currentId)
+
+  return (
+    <div className={`kz-breadcrumb${visible ? ' kz-breadcrumb--visible' : ''}`} aria-hidden="true">
+      <div className="kz-breadcrumb-inner" key={current.id}>
+        <span className="kz-breadcrumb-mark">
+          <span className="kz-breadcrumb-dot" />
+          {current.num} / {current.name}
+        </span>
+        <span className="kz-breadcrumb-desc">{current.desc}</span>
+        <span className="kz-breadcrumb-step">
+          step {String(stepIdx + 1).padStart(2, '0')} /{' '}
+          {String(sectionMeta.length).padStart(2, '0')}
+        </span>
+      </div>
     </div>
   )
 }
@@ -205,18 +273,88 @@ function Nav() {
         ))}
       </nav>
 
-      <a className="kz-nav-cta" href="#use">
-        Use Kizunu
-        <ArrowUpRight size={14} weight="bold" />
-      </a>
+      <div className="kz-nav-tail">
+        <NavUptime />
+        <a className="kz-nav-cta" href="#use">
+          Use Kizunu
+          <ArrowUpRight size={14} weight="bold" />
+        </a>
+      </div>
     </header>
   )
 }
 
-function Hero() {
+function NavUptime() {
+  const [, setTick] = useState(0)
+  const startRef = useRef<number | null>(null)
+
+  if (startRef.current === null) {
+    const stored = typeof window !== 'undefined' ? sessionStorage.getItem('kz-uptime-start') : null
+    if (stored) {
+      startRef.current = Number(stored)
+    } else {
+      const offsetMs = (5 + Math.random() * 10) * 24 * 60 * 60 * 1000
+      const start = Date.now() - offsetMs
+      startRef.current = start
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('kz-uptime-start', String(start))
+      }
+    }
+  }
+
+  useEffect(() => {
+    const id = window.setInterval(() => setTick((t) => t + 1), 1000)
+    return () => window.clearInterval(id)
+  }, [])
+
+  const elapsed = Math.max(0, Date.now() - (startRef.current ?? Date.now()))
+  const days = Math.floor(elapsed / 86_400_000)
+  const hours = Math.floor((elapsed % 86_400_000) / 3_600_000)
+  const mins = Math.floor((elapsed % 3_600_000) / 60_000)
+  const secs = Math.floor((elapsed % 60_000) / 1000)
+  const pad = (n: number) => String(n).padStart(2, '0')
+
   return (
-    <section className="kz-hero">
-      <div className="kz-section-coord" style={{ marginBottom: 'clamp(24px, 2.6vw, 40px)' }}>
+    <span className="kz-nav-uptime" aria-label="System uptime">
+      <span className="kz-nav-uptime-dot" />
+      <span className="kz-nav-uptime-label">uptime</span>
+      <span className="kz-nav-uptime-value">
+        {pad(days)}d {pad(hours)}h {pad(mins)}m{' '}
+        <span className="kz-nav-uptime-secs">{pad(secs)}s</span>
+      </span>
+    </span>
+  )
+}
+
+const headlineWords: Array<{ text: string; em?: boolean }> = [
+  { text: 'Your' },
+  { text: 'CRM' },
+  { text: "shouldn't" },
+  { text: 'own', em: true },
+  { text: 'the' },
+  { text: 'conversation.' },
+]
+
+function Hero() {
+  const [cinema] = useState<'on' | 'off'>(() => {
+    if (typeof window === 'undefined') return 'off'
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return 'off'
+    if (sessionStorage.getItem('kz-hero-seen')) return 'off'
+    return 'on'
+  })
+
+  useEffect(() => {
+    if (cinema === 'on') {
+      sessionStorage.setItem('kz-hero-seen', '1')
+    }
+  }, [cinema])
+
+  return (
+    <section className="kz-hero" id="hero" data-cinema={cinema}>
+      <div
+        className="kz-section-coord kz-reveal kz-reveal-0"
+        style={{ marginBottom: 'clamp(24px, 2.6vw, 40px)' }}
+      >
         <div className="kz-section-coord-side">
           <span className="kz-mono-loud">01 / HERO</span>
           <span className="kz-mono">Kizunu v0.1 · experimental cadence infra</span>
@@ -228,8 +366,15 @@ function Hero() {
 
       <div className="kz-hero-grid">
         <div>
-          <h1 className="kz-hero-headline kz-reveal kz-reveal-1">
-            Your CRM shouldn&apos;t <em>own</em> the conversation.
+          <h1 className="kz-hero-headline">
+            {headlineWords.map((word, i) => (
+              <Fragment key={i}>
+                <span className="kz-hero-word" style={{ animationDelay: `${140 + i * 75}ms` }}>
+                  {word.em ? <em>{word.text}</em> : word.text}
+                </span>
+                {i < headlineWords.length - 1 ? ' ' : ''}
+              </Fragment>
+            ))}
           </h1>
           <p className="kz-hero-sub kz-reveal kz-reveal-3">
             Kizunu is an open-source cadence engine for multi-channel outbound. WhatsApp, email,
@@ -253,9 +398,9 @@ function Hero() {
           </div>
         </div>
 
-        <div className="kz-hero-mark kz-reveal kz-reveal-2" aria-hidden="true">
+        <div className="kz-hero-mark" aria-hidden="true">
           <KMark label="Kizunu mark" />
-          <div className="kz-hero-mark-meta">
+          <div className="kz-hero-mark-meta kz-reveal kz-reveal-3">
             <span>Node · 00</span>
             <span>Routing live</span>
           </div>
@@ -345,15 +490,37 @@ function Engine() {
 }
 
 function CadenceRun() {
+  const ref = useRef<HTMLElement>(null)
+  const [phase, setPhase] = useState<'static' | 'prep' | 'live'>('static')
+
+  useEffect(() => {
+    const node = ref.current
+    if (!node) return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    setPhase('prep')
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          setPhase('live')
+          observer.disconnect()
+        }
+      },
+      { threshold: 0.2, rootMargin: '0px 0px -8% 0px' },
+    )
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [])
+
   return (
-    <article className="kz-run" aria-label="Live cadence run trace">
+    <article ref={ref} data-phase={phase} className="kz-run" aria-label="Live cadence run trace">
       <header className="kz-run-head">
         <span className="kz-run-head-id">trace · cdn_28aaf01b6e</span>
         <span>5 events</span>
         <span>4 channels touched</span>
         <span>final: reply_stop</span>
         <span className="kz-run-live">
-          <span className="kz-run-live-dot" /> replay · paused at T+5d
+          <span className="kz-run-live-dot" />
+          {phase === 'live' ? 'streaming · captured T+5d' : 'replay · paused at T+5d'}
         </span>
       </header>
       <ol className="kz-run-rows">
@@ -385,18 +552,20 @@ function RunRow({ event }: { event: RunEvent }) {
         </dl>
         {event.intervention && (
           <div className="kz-run-intervention">
-            <div className="kz-run-intervention-head">
-              <span className="kz-run-intervention-glyph">◢</span>
-              Model intervention · accepted
+            <div className="kz-run-intervention-inner">
+              <div className="kz-run-intervention-head">
+                <span className="kz-run-intervention-glyph">◢</span>
+                Model intervention · accepted
+              </div>
+              <dl className="kz-run-fields kz-run-fields--intervention">
+                {event.intervention.map((f) => (
+                  <Fragment key={f.key}>
+                    <dt>{f.key}</dt>
+                    <dd className={f.accent ? 'kz-run-fields-accent' : undefined}>{f.val}</dd>
+                  </Fragment>
+                ))}
+              </dl>
             </div>
-            <dl className="kz-run-fields kz-run-fields--intervention">
-              {event.intervention.map((f) => (
-                <Fragment key={f.key}>
-                  <dt>{f.key}</dt>
-                  <dd className={f.accent ? 'kz-run-fields-accent' : undefined}>{f.val}</dd>
-                </Fragment>
-              ))}
-            </dl>
           </div>
         )}
       </div>
@@ -406,6 +575,26 @@ function RunRow({ event }: { event: RunEvent }) {
 }
 
 function OpenCore() {
+  const manifestRef = useRef<HTMLOListElement>(null)
+  const [booted, setBooted] = useState(false)
+
+  useEffect(() => {
+    const node = manifestRef.current
+    if (!node) return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          setBooted(true)
+          observer.disconnect()
+        }
+      },
+      { threshold: 0.18, rootMargin: '0px 0px -8% 0px' },
+    )
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [])
+
   return (
     <section className="kz-section kz-open" id="open-core">
       <div className="kz-section-coord">
@@ -428,7 +617,11 @@ function OpenCore() {
         </p>
       </div>
 
-      <ol className="kz-manifest" aria-label="Provider catalog">
+      <ol
+        ref={manifestRef}
+        className={`kz-manifest${booted ? ' kz-manifest--booted' : ''}`}
+        aria-label="Provider catalog"
+      >
         <li className="kz-manifest-head" aria-hidden="true">
           <span>Port</span>
           <span>Provider</span>
@@ -567,8 +760,52 @@ function TakeItHome() {
   )
 }
 
+const CHAR_INTERVAL_MS = 24
+const LINE_HOLD_MS = 480
+
 function CodeBlock() {
+  const ref = useRef<HTMLDivElement>(null)
+  const [phase, setPhase] = useState<'static' | 'prep' | 'armed'>(() => {
+    if (typeof window === 'undefined') return 'static'
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return 'static'
+    return 'prep'
+  })
   const [copied, setCopied] = useState(false)
+  const [ready, setReady] = useState(false)
+
+  useEffect(() => {
+    if (phase !== 'prep') return
+    const node = ref.current
+    if (!node) return
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          setPhase('armed')
+          observer.disconnect()
+        }
+      },
+      { threshold: 0.35 },
+    )
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [phase])
+
+  useEffect(() => {
+    if (phase !== 'armed') return
+    const total =
+      quickstart.reduce(
+        (sum, line) => sum + `${line.dollar} ${line.cmd}${line.arg ? ` ${line.arg}` : ''}`.length,
+        0,
+      ) *
+        CHAR_INTERVAL_MS +
+      (quickstart.length - 1) * LINE_HOLD_MS +
+      280
+    const t = window.setTimeout(() => {
+      setReady(true)
+      window.setTimeout(() => setReady(false), 900)
+    }, total)
+    return () => window.clearTimeout(t)
+  }, [phase])
 
   const onCopy = useCallback(() => {
     const text = quickstart
@@ -579,22 +816,74 @@ function CodeBlock() {
     window.setTimeout(() => setCopied(false), 1600)
   }, [])
 
+  let cumulativeDelay = 0
+  const lines = quickstart.map((line) => {
+    const dollarPart = `${line.dollar} `
+    const cmdPart = line.cmd
+    const argPart = line.arg ? ` ${line.arg}` : ''
+    const fullText = `${dollarPart}${cmdPart}${argPart}`
+    const startDelay = cumulativeDelay
+    cumulativeDelay += fullText.length * CHAR_INTERVAL_MS + LINE_HOLD_MS
+    return { line, dollarPart, cmdPart, argPart, startDelay }
+  })
+
+  const copyLabel = copied ? '[ copied ]' : ready ? '[ ready ]' : '[ copy ]'
+
   return (
-    <div className="kz-codeblock" role="figure" aria-label="Quickstart commands">
+    <div
+      ref={ref}
+      data-phase={phase}
+      className="kz-codeblock"
+      role="figure"
+      aria-label="Quickstart commands"
+    >
       <div className="kz-codeblock-head">
         <span>quickstart · bash</span>
         <button type="button" className="kz-codeblock-copy" onClick={onCopy}>
-          {copied ? '[ copied ]' : '[ copy ]'}
+          {copyLabel}
         </button>
       </div>
-      {quickstart.map((line) => (
+      {lines.map(({ line, dollarPart, cmdPart, argPart, startDelay }) => (
         <span key={line.cmd + line.arg} className="kz-codeblock-line">
-          <span className="kz-codeblock-dollar">{line.dollar} </span>
-          {line.cmd}
-          {line.arg ? <span className="kz-codeblock-arg">{` ${line.arg}`}</span> : null}
+          <TypedSegment text={dollarPart} startDelay={startDelay} className="kz-codeblock-dollar" />
+          <TypedSegment
+            text={cmdPart}
+            startDelay={startDelay + dollarPart.length * CHAR_INTERVAL_MS}
+          />
+          {argPart && (
+            <TypedSegment
+              text={argPart}
+              startDelay={startDelay + (dollarPart.length + cmdPart.length) * CHAR_INTERVAL_MS}
+              className="kz-codeblock-arg"
+            />
+          )}
         </span>
       ))}
     </div>
+  )
+}
+
+function TypedSegment({
+  text,
+  startDelay,
+  className,
+}: {
+  text: string
+  startDelay: number
+  className?: string
+}) {
+  return (
+    <span className={className}>
+      {text.split('').map((char, i) => (
+        <span
+          key={i}
+          className="kz-codeblock-char"
+          style={{ animationDelay: `${startDelay + i * CHAR_INTERVAL_MS}ms` }}
+        >
+          {char === ' ' ? ' ' : char}
+        </span>
+      ))}
+    </span>
   )
 }
 
