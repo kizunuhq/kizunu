@@ -8,6 +8,11 @@ const configSchema = z.object({
   database: z.object({
     url: z.string().startsWith('postgresql://'),
   }),
+  session: z.object({
+    cookieName: z.string().default('kizunu_session'),
+    ttlDays: z.coerce.number().int().positive().default(30),
+    cookieSecure: z.coerce.boolean().default(false),
+  }),
 })
 
 export type Config = z.infer<typeof configSchema>
@@ -22,6 +27,11 @@ export function load(): Config {
     cors: toArray(process.env.APP_CORS_ORIGINS),
     database: {
       url: process.env.APP_DATABASE_URL,
+    },
+    session: {
+      cookieName: process.env.APP_SESSION_COOKIE_NAME,
+      ttlDays: process.env.APP_SESSION_TTL_DAYS,
+      cookieSecure: process.env.APP_SESSION_COOKIE_SECURE,
     },
   })
 
