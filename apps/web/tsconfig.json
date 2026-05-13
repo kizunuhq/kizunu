@@ -4,9 +4,9 @@
     "jsx": "react-jsx",
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "noEmit": true,
+    "types": ["vite/client", "bun"],
     "paths": {
-      "@kizunu/web/*": ["./src/*"],
-      "@/*": ["./src/*"]
+      "@kizunu/web/*": ["./src/*"]
     }
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "vite.config.ts"]
