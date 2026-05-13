@@ -1,2 +1,4 @@
-// Identity contracts land here in PR 3 (register, login, logout, me).
-export {}
+export * from './login.contract'
+export * from './me.contract'
+export * from './register.contract'
+export * from './switch-workspace.contract'

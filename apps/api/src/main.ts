@@ -3,6 +3,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { ConfigService } from '@kizunu/config-module/config.service'
 import { NestFactory } from '@nestjs/core'
+import cookieParser from 'cookie-parser'
 import { drizzle } from 'drizzle-orm/node-postgres'
 import { migrate } from 'drizzle-orm/node-postgres/migrator'
 import { ZodValidationPipe } from 'nestjs-zod'
@@ -34,6 +35,7 @@ async function bootstrap(): Promise<void> {
   const port = config.get('port')
 
   application.enableShutdownHooks()
+  application.use(cookieParser())
   application.useGlobalPipes(new ZodValidationPipe())
 
   await application.listen(port)
