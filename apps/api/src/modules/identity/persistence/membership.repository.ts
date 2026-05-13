@@ -1,6 +1,7 @@
 import { DrizzleService } from '@kizunu/nestjs-shared/modules/persistence/services/drizzle.service'
 import { Injectable } from '@nestjs/common'
 import { and, eq } from 'drizzle-orm'
+
 import { memberships } from '../../../db/schemas/memberships'
 import { workspaces } from '../../../db/schemas/workspaces'
 

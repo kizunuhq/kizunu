@@ -4,6 +4,9 @@ export default defineConfig({
   lint: {
     ignorePatterns: ['dist/**', 'node_modules/**', '.claude/**'],
     options: { typeAware: true, typeCheck: true },
+    rules: {
+      'no-unused-vars': 'error',
+    },
     overrides: [
       {
         files: ['apps/web/**'],
@@ -21,6 +24,7 @@ export default defineConfig({
     singleQuote: true,
     semi: false,
     sortPackageJson: true,
+    sortImports: true,
   },
   run: {
     cache: true,

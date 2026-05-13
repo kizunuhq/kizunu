@@ -2,13 +2,14 @@ import { ConfigService } from '@kizunu/config-module/config.service'
 import { DrizzleService } from '@kizunu/nestjs-shared/modules/persistence/services/drizzle.service'
 import { Injectable } from '@nestjs/common'
 import { eq } from 'drizzle-orm'
+
+import type { Config } from '../../../../api.config'
 import { memberships } from '../../../../db/schemas/memberships'
 import { sessions } from '../../../../db/schemas/sessions'
 import { users } from '../../../../db/schemas/users'
 import { workspaces } from '../../../../db/schemas/workspaces'
-import type { Config } from '../../../../api.config'
-import { hashPassword } from '../crypto/password.helper'
 import { generateOpaqueToken, hashOpaqueToken } from '../../../../shared/crypto/opaque-token.helper'
+import { hashPassword } from '../crypto/password.helper'
 import { EmailAlreadyTakenException } from '../errors/identity.errors'
 
 export interface RegisterUserInput {

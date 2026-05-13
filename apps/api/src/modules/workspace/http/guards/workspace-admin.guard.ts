@@ -6,8 +6,9 @@ import {
   UnauthorizedException,
 } from '@nestjs/common'
 import type { Request } from 'express'
-import { WorkspaceMemberRepository } from '../../persistence/workspace-member.repository'
+
 import { NotWorkspaceAdminException } from '../../core/errors/workspace.errors'
+import { WorkspaceMemberRepository } from '../../persistence/workspace-member.repository'
 
 interface AuthenticatedRequest extends Request {
   user?: AuthenticatedUser

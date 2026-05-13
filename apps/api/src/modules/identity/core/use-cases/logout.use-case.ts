@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common'
+
 import { SessionRepository } from '../../persistence/session.repository'
 
 @Injectable()

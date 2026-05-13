@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common'
 import { APP_GUARD } from '@nestjs/core'
+
 import { AuthenticateUseCase } from './core/use-cases/authenticate.use-case'
 import { GetMeUseCase } from './core/use-cases/get-me.use-case'
 import { LogoutUseCase } from './core/use-cases/logout.use-case'

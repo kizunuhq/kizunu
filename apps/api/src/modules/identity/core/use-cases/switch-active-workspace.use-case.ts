@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common'
+
 import { MembershipRepository } from '../../persistence/membership.repository'
 import { SessionRepository } from '../../persistence/session.repository'
 import { WorkspaceMembershipRequiredException } from '../errors/identity.errors'

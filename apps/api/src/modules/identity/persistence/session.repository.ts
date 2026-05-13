@@ -1,6 +1,7 @@
 import { DrizzleService } from '@kizunu/nestjs-shared/modules/persistence/services/drizzle.service'
 import { Injectable } from '@nestjs/common'
 import { and, eq, gt, isNull } from 'drizzle-orm'
+
 import { type Session, sessions } from '../../../db/schemas/sessions'
 
 export interface CreateSessionInput {

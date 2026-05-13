@@ -1,10 +1,11 @@
 import { ConfigService } from '@kizunu/config-module/config.service'
 import { Injectable } from '@nestjs/common'
+
 import type { Config } from '../../../../api.config'
+import { generateOpaqueToken, hashOpaqueToken } from '../../../../shared/crypto/opaque-token.helper'
 import { MembershipRepository } from '../../persistence/membership.repository'
 import { SessionRepository } from '../../persistence/session.repository'
 import { UserRepository } from '../../persistence/user.repository'
-import { generateOpaqueToken, hashOpaqueToken } from '../../../../shared/crypto/opaque-token.helper'
 import { hashPassword, verifyPassword } from '../crypto/password.helper'
 import { AccountLockedException, InvalidCredentialsException } from '../errors/identity.errors'
 

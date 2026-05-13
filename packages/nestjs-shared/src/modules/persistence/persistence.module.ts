@@ -1,5 +1,6 @@
 import { ConfigService } from '@kizunu/config-module/config.service'
 import { Global, Module } from '@nestjs/common'
+
 import { DrizzleService } from './services/drizzle.service'
 
 type WithDatabaseUrl = { database: { url: string } }

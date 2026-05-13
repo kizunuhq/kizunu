@@ -1,6 +1,7 @@
 import 'reflect-metadata'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+
 import { ConfigService } from '@kizunu/config-module/config.service'
 import { NestFactory } from '@nestjs/core'
 import cookieParser from 'cookie-parser'
@@ -8,6 +9,7 @@ import { drizzle } from 'drizzle-orm/node-postgres'
 import { migrate } from 'drizzle-orm/node-postgres/migrator'
 import { ZodValidationPipe } from 'nestjs-zod'
 import { Pool } from 'pg'
+
 import { type Config, load } from './api.config'
 import { ApiModule } from './api.module'
 
