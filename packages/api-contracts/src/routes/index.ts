@@ -34,4 +34,9 @@ export const Routes = {
   connectorAccounts: {
     collection: (workspaceId: string) => `/workspaces/${workspaceId}/connector-accounts`,
   },
+  templates: {
+    collection: (workspaceId: string) => `/workspaces/${workspaceId}/templates`,
+    item: (workspaceId: string, templateId: string) =>
+      `/workspaces/${workspaceId}/templates/${templateId}`,
+  },
 } as const
