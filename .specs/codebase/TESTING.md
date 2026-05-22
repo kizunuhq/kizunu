@@ -13,10 +13,14 @@ This matches the existing suite: `AuthenticateUseCase` is fat (lock-after-5, gen
 ## Test Frameworks
 
 - **Unit / Integration / E2E:** Vitest via `vite-plus/test` (import `{ describe, it, expect, vi, beforeEach, afterEach }` from `vite-plus/test`)
-- **E2E HTTP:** `supertest` against an in-process Nest app (`Test.createTestingModule`)
+- **E2E HTTP:** `supertest` against an in-process Nest app (`Test.createTestingModule` + `createTestApp`)
+- **Web (frontend):** jsdom + `@testing-library/react`; jest-dom matchers wired into `expect` at setup
 - **Coverage:** `@vitest/coverage-v8` (`bun test:coverage`)
 
-Three Vitest projects are defined in root `vite.config.ts` (`unit`, `integration`, `e2e`), all aliasing `@kizunu/api` → `apps/api/src`.
+Four Vitest projects run from root `vite.config.ts`: `unit`, `integration`, `e2e`
+(all aliasing `@kizunu/api` → `apps/api/src`), plus `web`. The `web` project is
+defined inside `apps/web/vite.config.ts` (referenced from the root `projects`
+array) so its jsdom environment and the React plugin resolve from the web package.
 
 ## Test Organization
 
@@ -33,7 +37,20 @@ Pure logic, no DB. Dependencies replaced with hand-rolled fakes cast at the boun
 Hits the real `kizunu_test` Postgres via `__test__/integration/db.ts` (`db`, `closeDb`, `truncateAll`). `setup.ts` defaults `TEST_DATABASE_URL`. Currently only a harness smoke test exists. **Not parallel-safe** (shared DB, TRUNCATE) — `fileParallelism: false`.
 
 ### E2E (`apps/api/src/**/__test__/e2e/**/*.spec.ts`, node env)
-Boots `ApiModule` in-process and drives HTTP with `supertest` (`health.spec.ts`). E2E here = an HTTP call, not browser automation. **Not parallel-safe** (shared `kizunu_test`) — `fileParallelism: false`.
+Boots `ApiModule` in-process via `createTestApp` (which applies the same
+`applyHttpMiddleware` — cookie-parser + zod pipe — that `main.ts` does, so the
+session cookie is parsed and authenticated flows work) and drives HTTP with
+`supertest`. E2E here = an HTTP call, not browser automation. Covers the auth
+lifecycle (`auth-flow.spec.ts`), workspace templates CRUD (`templates-flow.spec.ts`),
+rate limiting, OpenAPI, and health. The node worker has no `Bun` global, so
+`__test__/bun-polyfill.ts` shims `Bun.randomUUIDv7` + `Bun.password` (scrypt).
+**Not parallel-safe** (shared `kizunu_test`) — `fileParallelism: false`.
+
+### Web (`apps/web/src/**/__test__/**/*.spec.{ts,tsx}`, jsdom env)
+Pure frontend logic and component rendering. Fat lib functions get focused unit
+tests (`build-cadence-request`, `get-api-error-message`, `parse-json-object`);
+thin components/hooks are left to e2e per the thin/fat policy. `setup.ts` wires
+jest-dom matchers and runs Testing Library `cleanup` after each test. Parallel-safe.
 
 `global-setup.ts` runs once for integration+e2e: if `kizunu_test` is unreachable it runs `bun db:test:setup` (idempotent compose up + create + migrate), so `bun check` is self-sufficient.
 
@@ -50,7 +67,7 @@ Boots `ApiModule` in-process and drives HTTP with `supertest` (`health.spec.ts`)
 
 ## Coverage Targets
 
-No numeric threshold is configured or enforced. Philosophy (from `generate-tests`): coverage is an indicator of what's untested, not an objective. Current real coverage is concentrated in identity/workspace use cases; integration/e2e are smoke-level only (see `CONCERNS.md`).
+No numeric threshold is configured or enforced. Philosophy (from `generate-tests`): coverage is an indicator of what's untested, not an objective. Real coverage is concentrated in identity/workspace use cases and repository integration specs; e2e covers the auth lifecycle and workspace templates flows (plus rate-limit/OpenAPI/health); the web project covers fat frontend logic. Broader flow coverage is still tracked in `CONCERNS.md`.
 
 ## Test Coverage Matrix
 
@@ -62,7 +79,8 @@ No numeric threshold is configured or enforced. Philosophy (from `generate-tests
 | HTTP controllers / guards / pipes | e2e | `apps/api/src/**/__test__/e2e/*.spec.ts` | `bun test:e2e` |
 | Domain models / pure helpers (fat) | unit | `__test__/unit/*.spec.ts` beside source | `bun test:unit` |
 | Shared schema↔domain conformance | compile-time (`Assert<Equal>`) | `db/schemas/*.ts` | `bun typecheck` |
-| Web components / routes | none yet (no FE test setup) | — | — |
+| Web fat logic (transforms, error mapping, parsing) | web (jsdom) | `apps/web/src/**/__test__/*.spec.ts` | `bunx vp test --project web` |
+| Web components / hooks (thin) | none (browser e2e covers them) | — | — |
 
 Let `generate-tests` confirm thin/fat for each target before assigning a row above.
 
@@ -71,6 +89,7 @@ Let `generate-tests` confirm thin/fat for each target before assigning a row abo
 | Test Type | Parallel-Safe? | Isolation Model | Evidence |
 | --- | --- | --- | --- |
 | unit | Yes | no shared state; fakes + boundary mocks | `authenticate.use-case.spec.ts` (in-memory fakes) |
+| web | Yes | jsdom per worker; `cleanup` after each test | `apps/web/src/__test__/setup.ts` |
 | integration | No | shared `kizunu_test` DB, `truncateAll` | `vite.config.ts` `fileParallelism: false`; `integration/db.ts` |
 | e2e | No | shared `kizunu_test` DB, in-process app | `vite.config.ts` `fileParallelism: false`; `e2e/health.spec.ts` |
 
