@@ -16,10 +16,10 @@ limit; CSRF is `sameSite: 'lax'` + the CORS allowlist (documented, no token in v
 
 ## Medium
 
-### Password reset is not implemented (needs a mail boundary)
-**Evidence:** The `verification_tokens` table supports a `password_reset` type, but there is no request-reset / confirm-reset use case or endpoint, and no mail provider. The Identity & Auth roadmap line lists password reset.
-**Impact:** Users who forget their password cannot self-recover; an admin would have to intervene out of band.
-**Fix:** Add a mail boundary + request-reset (issues a `password_reset` token) and confirm-reset use cases; until a provider exists, surface the token like invitations do.
+### Mail is delivered by a console logger, not a real provider
+**Evidence:** Password reset (feature `020`) sends via the `MailSender` port, bound in v0.1 to `ConsoleMailSender` (`apps/api/src/modules/identity/core/mail/`), which logs the message instead of delivering it. `INTEGRATIONS.md` still shows no mail provider.
+**Impact:** The reset flow is correct and secure (single-use hashed token, out-of-band, never in a response, revokes all sessions on confirm), but a real user cannot receive the email — an operator must read the server log for the link. Not pilot-deliverable as-is.
+**Fix:** Implement an SMTP/API `MailSender` and bind it behind the existing port (no caller changes). The invitation flow (which still returns its token in the response) should move onto the same boundary at that point.
 
 ### Provider credentials are stored unencrypted
 **Evidence:** `channel_accounts.credentials` and `connector_accounts.credentials` are plaintext `jsonb` columns (`apps/api/src/db/schemas/`); features `002`/`004` validate the shape against the plugin/connector `configSchema` but do not encrypt at rest. These hold a Meta system token and a Pipedrive API token respectively (`docs/v0.1-scope.md`).
@@ -46,10 +46,10 @@ limit; CSRF is `sameSite: 'lax'` + the CORS allowlist (documented, no token in v
 **Impact:** Convenient for single-instance/dev, but multiple replicas starting concurrently can race on `drizzle-kit`'s migration table; a long migration also blocks readiness. Not a problem at pilot scale, a problem at deploy scale.
 **Fix:** For multi-replica deploys, move migrations to a dedicated pre-deploy step (`bun db:migrate`) and drop the boot-time call, or guard with an advisory lock.
 
-### Email-dependent flows are scaffolded but inert
-**Evidence:** `verification_tokens` table + `VerificationTokenType` (`email_verification`, `password_reset`, `invitation`) exist, but only invitation accept has a use case; no password-reset/email-verification flows and no email-sending integration (`INTEGRATIONS.md` shows no mail provider).
-**Impact:** Password reset and email verification (auth primitives the scope expects) are not usable end to end.
-**Fix:** Add a mail boundary + the reset/verify use cases when closing out the auth feature; keep the boundary swappable.
+### Email verification flow is scaffolded but inert
+**Evidence:** `verification_tokens` supports an `email_verification` type, but no request/confirm use case consumes it (unlike `password_reset`, built in feature `020`, and `invitation`). `users.emailVerifiedAt` is never set after registration.
+**Impact:** Email verification (an auth primitive the scope mentions) is not usable end to end; registered emails are trusted without proof of ownership.
+**Fix:** Add request/confirm-email-verification use cases reusing the `MailSender` port (feature `020`) and `VerificationTokenRepository`; set `emailVerifiedAt` on confirm.
 
 ## Low
 
