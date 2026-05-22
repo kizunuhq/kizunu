@@ -11,7 +11,10 @@ runs:
   steps:
     - name: Extract coverage summary
       shell: bash
-      run: awk '/Coverage summary/{c=1} c' coverage-summary.txt | head -n 8 > coverage-table.txt || true
+      # The v8 text reporter prints the `All files` totals row right after the
+      # table header (no "Coverage summary" footer under --reporter
+      # github-actions). Capture header → All files; strip any ANSI codes.
+      run: awk '/% Stmts/{p=1} p; /^All files/{exit}' coverage-summary.txt | sed 's/\x1b\[[0-9;]*m//g' > coverage-table.txt || true
 
     - name: Upload coverage artifact
       uses: actions/upload-artifact@v4
