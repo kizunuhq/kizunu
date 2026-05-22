@@ -1,9 +1,8 @@
+import { memberships } from '@kizunu/api/db/schemas/memberships'
+import { users } from '@kizunu/api/db/schemas/users'
 import { DrizzleService } from '@kizunu/nestjs-shared/modules/persistence/services/drizzle.service'
 import { Injectable } from '@nestjs/common'
 import { and, eq } from 'drizzle-orm'
-
-import { memberships } from '../../../db/schemas/memberships'
-import { users } from '../../../db/schemas/users'
 
 export interface WorkspaceMemberRow {
   membershipId: string

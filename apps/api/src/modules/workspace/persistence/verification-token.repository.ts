@@ -1,10 +1,9 @@
+import { verificationTokens } from '@kizunu/api/db/schemas/verification-tokens'
 import { DrizzleService } from '@kizunu/nestjs-shared/modules/persistence/services/drizzle.service'
 import { Injectable } from '@nestjs/common'
 import { and, eq, gt, isNull } from 'drizzle-orm'
 
-import { verificationTokens } from '../../../db/schemas/verification-tokens'
-
-export type VerificationTokenType = 'email_verification' | 'password_reset' | 'invitation'
+import { VerificationTokenType } from '../core/domain/verification-token'
 
 export interface VerificationTokenRecord {
   id: string

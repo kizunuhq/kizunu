@@ -1,8 +1,7 @@
+import { type Workspace, workspaces } from '@kizunu/api/db/schemas/workspaces'
 import { DrizzleService } from '@kizunu/nestjs-shared/modules/persistence/services/drizzle.service'
 import { Injectable } from '@nestjs/common'
 import { eq } from 'drizzle-orm'
-
-import { type Workspace, workspaces } from '../../../db/schemas/workspaces'
 
 @Injectable()
 export class WorkspaceRepository {
