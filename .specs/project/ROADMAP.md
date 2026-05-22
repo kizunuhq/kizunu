@@ -43,13 +43,18 @@ deal → exhaustion marks the deal lost. Self-hostable via Docker Compose.
   parseInbound, send) registered into the registry. The app-level inbound webhook is
   deferred to the Engine slice, where its `LeadJourney` consumer lives._
 
-**CRM connector + Pipedrive** - PLANNED
+**CRM connector + Pipedrive** - IN PROGRESS
 
 - `CRMConnector` contract (`parseWebhook`, `fetchLead`, `logActivity`, `moveStage`, `markLost`, `setField`)
 - Normalized vocabulary (`lead.stage_entered`, …); cadences never see Pipedrive
 - `deal.updated` webhook filtered by `stage_id` transition; idempotency key `pipedrive:deal:{id}:event:{event}:{timestamp}`
 - Throttled outbound queue (~100 req / 10s), exponential backoff, max 3 retries → `error_state`
 - `EntryTrigger` mapping (pipeline + stage → cadence)
+- _Landed (feature `004`): the `CRMConnector` port + registry, per-workspace
+  `ConnectorAccount` CRUD, and the Pipedrive connector (`parseWebhook` normalization +
+  outbound actions). `EntryTrigger` (needs `cadenceId`), the webhook-ingestion endpoint
+  (needs `LeadJourney`), and the throttled outbound queue ship with the Cadence/Engine
+  slices._
 
 **Cadence aggregate + Templates** - PLANNED
 
