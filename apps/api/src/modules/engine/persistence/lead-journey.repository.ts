@@ -144,6 +144,40 @@ export class LeadJourneyRepository {
       .where(and(...filters))
   }
 
+  /** Parks an inactive owner's running journeys (admin reassignment, manual). */
+  async pauseRunningForOwner(workspaceId: string, ownerUserId: string): Promise<void> {
+    const owned = this.drizzle.db
+      .select({ id: leads.id })
+      .from(leads)
+      .where(and(eq(leads.workspaceId, workspaceId), eq(leads.ownerUserId, ownerUserId)))
+    await this.drizzle.db
+      .update(leadJourneys)
+      .set({ status: LeadJourneyStatus.PausedOwnerInactive, nextTouchAt: null })
+      .where(
+        and(
+          eq(leadJourneys.status, LeadJourneyStatus.Running),
+          inArray(leadJourneys.leadId, owned),
+        ),
+      )
+  }
+
+  /** Resumes journeys parked for an owner (e.g. after reassignment), due immediately. */
+  async resumePausedForOwner(workspaceId: string, ownerUserId: string, now: Date): Promise<void> {
+    const owned = this.drizzle.db
+      .select({ id: leads.id })
+      .from(leads)
+      .where(and(eq(leads.workspaceId, workspaceId), eq(leads.ownerUserId, ownerUserId)))
+    await this.drizzle.db
+      .update(leadJourneys)
+      .set({ status: LeadJourneyStatus.Running, nextTouchAt: now })
+      .where(
+        and(
+          eq(leadJourneys.status, LeadJourneyStatus.PausedOwnerInactive),
+          inArray(leadJourneys.leadId, owned),
+        ),
+      )
+  }
+
   /** Inbound seam: a running journey for the lead reachable at this phone in a workspace. */
   async findRunningByLeadPhone(
     workspaceId: string,
