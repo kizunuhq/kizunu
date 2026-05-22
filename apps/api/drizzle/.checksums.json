@@ -5,10 +5,12 @@
   "0002_regular_wrecker.sql": "7553b5f7ce09bb124b5331a57b00ab8aa431e262421c8980f925c3387b2756ae",
   "0003_clever_mojo.sql": "1c9cbe42c05d5d08eb6f4e8d2ee5474dcc86c5474dda6a13cb3a7856d2c2e257",
   "0004_sleepy_tana_nile.sql": "0bc71024156941f9f5828647a30f16cac3b261683f31098df3c93f4dbb45ecd1",
-  "meta/_journal.json": "3da068a04a79fdb926ce14041aadf5ddeda33a58e9ccf9b9f628b818f98270f6",
+  "0005_clever_captain_flint.sql": "2a0e316a4349a9e4c0d9e560657648b4104cd82b16b198d00a577c922b234bb0",
+  "meta/_journal.json": "82a89a936599c35c8b1714e60adcf5b0de5ea2efc6bad5de4503d2f056855dd1",
   "meta/0000_snapshot.json": "a81ba439bfa84371f482b455fc81427ce83d90653ae4fb255c0ee8f6df15625e",
   "meta/0001_snapshot.json": "b69c2989ae84f8be1600cffe26619893780387abe9d05ef730274d2054378e8d",
   "meta/0002_snapshot.json": "0c40fdaf5da5490c0c066aa56cf815e08b6e52a2a11c2e7f9e27f303ecc4f328",
   "meta/0003_snapshot.json": "82eb00ad22eeb60e35233d586fa095f99cfe4cebc25c8d91b6634ab94b1b3010",
-  "meta/0004_snapshot.json": "501d6bfde16760eb809c8026288c0448295662fd8298e71eaeca45a63eb8760e"
+  "meta/0004_snapshot.json": "501d6bfde16760eb809c8026288c0448295662fd8298e71eaeca45a63eb8760e",
+  "meta/0005_snapshot.json": "b7699e6953def41b279b1256e4bfc622dc18afee01447d5dbe0c098459138970"
 }
