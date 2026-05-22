@@ -1,0 +1,23 @@
+{
+  "name": "@kizunu/api-client",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@kizunu/api-contracts": "workspace:*",
+    "@tanstack/react-query": "^5.94.5",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.0",
+    "typescript": "catalog:"
+  },
+  "peerDependencies": {
+    "react": ">=19"
+  }
+}

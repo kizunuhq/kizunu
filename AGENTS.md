@@ -1,58 +1,212 @@
-## Project overview
+# Kizunu — Agent Guide
 
-- Kizunu is an open-source sales engagement engine: multi-channel outbound cadences with reply-stop and pluggable providers.
-- Bun-based monorepo with apps under `apps/` (currently `apps/api`, `apps/web`) and shared code under `packages/`.
-- Long-form product and architecture docs live under `docs/` (vision, v0.1 scope).
+This file is the entry point for any agent working in this repo. Read it, then
+follow the links into `.specs/` for depth. Keep changes aligned with what is
+documented here.
+
+## What Kizunu is
+
+Kizunu is an open-source, channel-agnostic **sales engagement engine**:
+multi-channel outbound cadences with automatic reply-stop and pluggable
+providers. WhatsApp is the first channel, but the engine is not WhatsApp-specific
+— channels (Meta Cloud API, Telegram, email, SMS) and CRMs (Pipedrive, HubSpot)
+enter as plugins/connectors behind frozen contracts.
+
+- **Vision & positioning:** `docs/vision.md`
+- **Product voice & design north star:** `PRODUCT.md`, `DESIGN.md`
+- **v0.1 scope (the current contract):** `docs/v0.1-scope.md` — a real pilot run
+  end-to-end (Pipedrive stage → WhatsApp cadence → reply-stop → mark lost). If any
+  part of that doesn't run, v0.1 is not done.
+
+Bun-based monorepo: `apps/` (`api` = NestJS 11, `web` = React 19 + TanStack +
+Vite) and shared code in `packages/`.
+
+## Source of truth: `.specs/`
+
+Planning and codebase knowledge live under `.specs/`. Load on demand; do not
+duplicate their content here.
+
+### `.specs/project/` — vision and memory
+
+- **`PROJECT.md`** — vision, goals, tech stack, scope boundaries, constraints.
+- **`ROADMAP.md`** — the v0.1 milestone broken into features, each with a status
+  (`PLANNED` / `IN PROGRESS` / `COMPLETE`); plus Phase 1.5 and future phases.
+- **`STATE.md`** — persistent memory across sessions: settled decisions (D1–D7),
+  open questions, blockers, lessons, preferences. Update it as work progresses.
+
+### `.specs/codebase/` — brownfield map (read before touching code)
+
+- **`STACK.md`** — frameworks, languages, dependencies, tooling.
+- **`ARCHITECTURE.md`** — patterns (per-module hexagonal, use-case unit, nominated
+  errors, the end-to-end type-safe API boundary, the `@kizunu/api-client` layout).
+- **`CONVENTIONS.md`** — naming/format/zod/drizzle/error rules as the code does them,
+  each tied to its enforcing script.
+- **`STRUCTURE.md`** — directory tree and where each capability lives.
+- **`TESTING.md`** — test frameworks, the coverage matrix, parallelism, gate
+  commands, and the test-authoring policy (see "Testing" below).
+- **`INTEGRATIONS.md`** — external services (Postgres today; Meta/Pipedrive planned).
+- **`CONCERNS.md`** — evidence-backed risks and tech debt, prioritized.
+
+### `docs/adr/` — Architecture Decision Records
+
+Significant decisions are recorded as ADRs, indexed in **`docs/adr/README.md`**.
+ADRs are **immutable**: never edit an Accepted ADR — supersede it with a new ADR
+and link back. Use the `create-adr` skill to add one.
+
+## Type-safe API boundary
+
+Endpoint shapes are **born in `@kizunu/api-contracts`** and shared by both ends, so
+the API and the web client cannot drift. See `.specs/codebase/ARCHITECTURE.md`
+("End-to-end type-safe API boundary") for the full flow. In short:
+
+1. **`@kizunu/api-contracts`** owns the truth. Each `*.contract.ts` exports zod
+   schemas (top-level v4 formats: `z.email()`, `z.uuid()`, `z.iso.datetime()`) and
+   their inferred types. All paths live in one `Routes` table
+   (`src/routes/index.ts`): strings for static routes, functions for parameterized
+   ones. The error envelope is `{ code, message, context }`.
+2. **`apps/api`** turns each schema into a DTO via `createZodDto(...)`; the global
+   `ZodValidationPipe` validates input and the `ApplicationExceptionFilter` renders
+   the error envelope. Controller paths must match `Routes`.
+3. **`@kizunu/api-client`** is the typed browser client — `get/post/patch/put/del<T>`
+   over `fetch` (`credentials: 'include'`, no version prefix), `ApiError` (status +
+   `code` + intent getters), per-domain `*.api.ts` calling `Routes.*`, and per-action
+   `use-*.ts` TanStack Query hooks keyed by `query-keys.ts`.
+
+**Rule:** new endpoints start with a contract in `@kizunu/api-contracts` (schema +
+`Routes` entry), then the API controller, then the `*.api.ts` + `use-*.ts` in
+`@kizunu/api-client`. The web app consumes the client package
+(`@kizunu/api-client/identity/use-current-user`) — do not write bespoke `fetch`
+wrappers inside `apps/web`.
+
+## Conventions and rules
+
+Project rules are codified in `.agents/rules/` and enforced by `scripts/check-*.ts`
++ `vp lint`/`vp fmt` (configured in `vite.config.ts`). Read the rule files before
+writing code in their area:
+
+- **`conventions.md`** — zod v4 top-level formats, no explicit Drizzle column names,
+  migrations are immutable (regenerate via `bun db:generate`), no `../../../` deep
+  imports (use `@kizunu/api/*` / `@kizunu/web/*`). All four are script-gated.
+- **`code-standards.md`** — English identifiers, camelCase/PascalCase, no magic
+  numbers, ≤2 nested `if/else`, ≤3 positional params, no `switch/case`, verb-first
+  function names, no `var`, functions under 30 lines, one type per file.
+- **`http.md`** — REST resource modeling, plural kebab-case names, JSON, status codes
+  (200 ok / 422 business-rule / 500 infra).
+- **`react.md`** — functional `.tsx` components, explicit props, state kept local,
+  Tailwind utilities, `use`-prefixed hooks, components under ~50 lines.
+- **`test.md`** — see Testing below.
+
+### Style basics (always)
+
+- File and folder names in **kebab-case**; avoid vague names (`utils.ts`,
+  `helpers.ts`, `misc.ts`) when a better name exists.
+- No semicolons, single quotes, sorted imports + Tailwind classes (formatter).
+- No emojis in code, commits, logs, or docs.
+- Prefer self-explanatory code; comment *why*, not *what*.
+- Delete unused variables — never prefix with underscore.
+
+## Testing
+
+**All test implementation goes through the `generate-tests` skill.** It classifies
+code on the thin/fat spectrum and writes the right level:
+
+- **Fat** (business rules, branches, validation, transforms) → focused unit/integration
+  tests, one rule per test, real objects over mocks (mock only at boundaries).
+- **Thin** (orchestration/passthrough) → covered by E2E (an HTTP call); skip dedicated
+  tests unless there is a specific reason.
+
+Do not mechanically turn every criterion or every layer into a test. Test details,
+the coverage matrix, parallelism, and gate commands are in `.specs/codebase/TESTING.md`
+and `.agents/rules/test.md`. Tests use Vitest via `vite-plus/test`; e2e uses
+`supertest`. Integration/e2e share `kizunu_test` (serialized, not parallel-safe).
 
 ## Setup and validation
 
-- Always use Bun for repo scripts and package management.
-- Required: Bun `1.3.13+`, Node.js `22+`.
-- Install with `bun install`.
-- Dev: `bun dev` (runs all apps in parallel).
-- Build: `bun build`.
-- Typecheck: `bun typecheck`.
-- Lint: `bun lint`.
-- Format: `bun format`.
-- Auto-fix: `bun fix`.
-- Full local check pipeline: `bun check`.
+- Use **Bun** for all repo scripts and package management. Required: Bun `1.3.13+`,
+  Node.js `22+`. Install with `bun install`.
+- Dev: `bun dev` (all apps in parallel). Build: `bun build`.
+- Typecheck: `bun typecheck`. Lint: `bun lint`. Format: `bun format`. Auto-fix: `bun fix`.
+- DB lifecycle: `bun db:setup` / `bun db:test:setup` (Docker Compose under `deploy/`).
+- **Full local gate:** `bun check` (see Definition of Done).
+- Run the relevant checks after changes — do not stop at code edits.
 
-## Workflow rules
+## Definition of Done
 
-- Never change `AGENTS.md` unless the user explicitly asks.
-- Do not prefix unused variables with an underscore; delete them.
-- Do not use emojis in commit messages, logs, or documentation.
-- Run the relevant checks after making changes — do not stop at code edits.
+A change is **done** only when all of the following hold. The flow below does not
+advance past a feature until they do.
+
+1. **Behavior is complete and matches the spec** — every requirement in the
+   feature's `spec.md` is implemented; no `SPEC_DEVIATION` left unresolved.
+2. **Tests exist for the behavior** — authored via the `generate-tests` skill (fat
+   code has focused tests; thin code is covered by e2e). New/changed behavior is
+   covered.
+3. **`bun check` is green.** This is the build gate and runs:
+   - `bun typecheck` (all packages, `tsc --noEmit`)
+   - `bunx vp check` — lint (oxlint, **warnings are errors in CI**) + format check + tests
+   - `bun scripts/check-import-depth.ts` (no `../../../` imports)
+   - `bun scripts/check-zod-v4.ts` (top-level zod v4 formats only)
+   - `bun scripts/check-drizzle-schema-naming.ts` (no explicit column names)
+   - `bun scripts/drizzle-checksums.ts verify` (migrations unchanged)
+4. **Lint is clean under CI strictness** — `CI=1 bunx vp lint` reports 0 warnings, 0
+   errors (CI fails on warnings). Resolve them; do not disable rules except at the
+   documented boundaries in `vite.config.ts`.
+5. **Conventional Commits** — focused commits, one logical change each, subjects
+   describing the outcome; commitlint clean with no warnings.
+6. **Docs updated** — if scope/behavior changed, update the relevant `.specs/*`,
+   `docs/v0.1-scope.md`, or an ADR. Keep `ROADMAP.md`/`STATE.md` current.
+
+## Default development flow
+
+Every feature — **even one not yet on the roadmap** — runs through this flow,
+end to end and autonomously:
+
+1. **Plan with `tlc-spec-driven`.** Run the feature through **Specify → (Context if
+   gray areas) → Design → Tasks**, auto-sized to complexity. This produces
+   `spec.md` (+ `context.md`/`design.md`/`tasks.md` as needed) under
+   `.specs/features/<feature>/`. If the feature isn't on `ROADMAP.md`, add it.
+2. **Branch with `new-branch-and-pr`.** Sync `master`, then
+   `git switch -c <type>/<short-description>`. Keep the branch scoped to one
+   change set.
+3. **Implement the tasks.** Follow the conventions and the type-safe API boundary.
+   Keep commits focused and conventional.
+4. **Test with `generate-tests`.** For every task, classify thin/fat and author the
+   right tests — never skip this skill for test work.
+5. **Reach Definition of Done.** Make `bun check` green and confirm every DoD item.
+6. **`thermo-nuclear-code-quality-review`.** Run the strict maintainability audit on
+   the branch diff. **Fix everything it raises** — pursue the structural
+   simplifications, not just cosmetic nits. Re-run `bun check` after fixing.
+7. **Verify alignment with the spec.** Confirm the implemented behavior matches
+   `spec.md` (and the v0.1 contract). Resolve any deviation before shipping.
+8. **Ship with `review-and-ship`.** Final correctness/regression/intent review,
+   commit, push, open or update the PR against `master` with verification notes.
+9. **Watch CI with `ci-watcher`.** Monitor the PR's checks.
+10. **Fix CI with `fix-ci`** if anything is red — diagnose and apply focused fixes
+    until all checks pass. Loop back to `ci-watcher`.
+11. **Squash to `master`.** Once CI is green and every Definition-of-Done item is
+    satisfied and the feature is spec-aligned, **squash-merge to `master`**
+    (autonomous — no human gate). Delete the branch.
+
+Guardrails: never commit or merge with a red `bun check`, failing tests, or red CI;
+never bypass git hooks; keep unrelated work on separate branches.
 
 ## Branches and commits
 
-- Default branch is `master`. Branch from `master` when a branch is needed.
-- Keep branch names short and descriptive (e.g., `docs/v0.1-scope`, `feat/cadence-engine`).
-- Use Conventional Commits (enforced by commitlint).
-- Keep commits focused: one logical change per commit.
-- Commit subjects are short and describe the outcome.
-- Add a short body when extra context helps; explain what changed and why, not how.
-- Wrap body lines before the commitlint line-length limit.
-- Never leave commitlint warnings unresolved.
-
-## Code style
-
-- Follow existing code style; keep changes aligned with nearby code.
-- Use kebab-case for file and folder names by default.
-- Avoid vague filenames like `helpers.ts`, `misc.ts`, or `utils.ts` when a better name exists.
-- Avoid unnecessary comments; prefer self-explanatory code and naming.
-- Interactive UI elements must remain accessible (keyboard, focus, accessible names for icon-only controls).
+- Default branch is `master`. Branch from `master` (`<type>/<short-description>`,
+  e.g. `feat/cadence-engine`, `fix/auth-token-expiry`).
+- Conventional Commits (enforced by commitlint); one logical change per commit;
+  short outcome-describing subjects; wrap body lines; never leave commitlint
+  warnings unresolved.
 
 ## Code organization
 
-- Group feature-specific code under `apps/[app]/src/features/[feature]/` when applicable.
-- Keep shared primitives in `src/components`, shared hooks in `src/hooks`, generic helpers in `src/utils`.
-- Do not promote feature-specific code into shared folders just because it is convenient.
-- Use subfolders (`components`, `hooks`, `services`, `stores`, `types`, `tests`) inside each feature folder.
-- Cross-app shared code lives in `packages/`, not inside an app.
+- Feature-specific code: `apps/[app]/src/features/[feature]/` (subfolders
+  `components`, `hooks`, `services`, `stores`, `types`, `tests`).
+- Shared primitives in `src/components`, shared hooks in `src/hooks`, generic
+  helpers in `src/lib`. Don't promote feature code into shared folders for convenience.
+- Cross-app shared code lives in `packages/`, never inside an app.
 
 ## Documentation
 
-- Product and architecture decisions live in `docs/`.
-- Update `docs/v0.1-scope.md` when v0.1 scope changes — do not silently drift.
-- Update `docs/vision.md` when long-term positioning or roadmap shifts.
+- Update `docs/v0.1-scope.md` when v0.1 scope changes; update `docs/vision.md` when
+  long-term positioning shifts. Keep `.specs/` current. Do not let docs silently drift.
+- Never change this file (`AGENTS.md`) unless the user explicitly asks.

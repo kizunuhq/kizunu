@@ -53,7 +53,7 @@ export default defineConfig({
       {
         // Generic typed-fetch boundary: parsed JSON cannot be statically proven
         // to match the caller's `T`, so casts at this seam are intentional.
-        files: ['apps/web/src/lib/api-client.ts'],
+        files: ['packages/api-client/src/client/api-client.ts'],
         plugins: ['typescript'],
         rules: { 'no-unsafe-type-assertion': 'off' },
       },
