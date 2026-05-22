@@ -3,6 +3,7 @@ import {
   RegisterRequestSchema,
   SwitchWorkspaceRequestSchema,
 } from '@kizunu/api-contracts/identity'
+import type { Config } from '@kizunu/api/api.config'
 import { ConfigService } from '@kizunu/config-module/config.service'
 import { CurrentUser } from '@kizunu/nestjs-shared/lib/decorators/current-user.decorator'
 import type { AuthenticatedUser } from '@kizunu/nestjs-shared/lib/decorators/current-user.decorator'
@@ -20,7 +21,6 @@ import {
 import type { Request, Response } from 'express'
 import { createZodDto } from 'nestjs-zod'
 
-import type { Config } from '../../../../api.config'
 import type { ActiveSession } from '../../core/models/authenticated-user'
 import { AuthenticateUseCase } from '../../core/use-cases/authenticate.use-case'
 import { GetMeUseCase } from '../../core/use-cases/get-me.use-case'
