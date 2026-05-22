@@ -10,13 +10,14 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as NotFoundRouteImport } from './routes/not-found'
+import { Route as AuthRouteRouteImport } from './routes/auth/route'
 import { Route as AppRouteRouteImport } from './routes/_app/route'
-import { Route as authRouteRouteImport } from './routes/(auth)/route'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as authVerifyEmailRouteImport } from './routes/(auth)/verify-email'
-import { Route as authSignupRouteImport } from './routes/(auth)/signup'
-import { Route as authLoginRouteImport } from './routes/(auth)/login'
+import { Route as AuthVerifyEmailRouteImport } from './routes/auth/verify-email'
+import { Route as AuthSignupRouteImport } from './routes/auth/signup'
+import { Route as AuthLoginRouteImport } from './routes/auth/login'
 import { Route as AppWorkspaceIndexRouteImport } from './routes/_app/workspace/index'
+import { Route as AuthAcceptInviteTokenRouteImport } from './routes/auth/accept-invite.$token'
 import { Route as AppWorkspaceSecurityRouteImport } from './routes/_app/workspace/security'
 import { Route as AppWorkspaceMyChannelsRouteImport } from './routes/_app/workspace/my-channels'
 import { Route as AppWorkspaceMembersRouteImport } from './routes/_app/workspace/members'
@@ -24,19 +25,19 @@ import { Route as AppWorkspaceJourneysRouteImport } from './routes/_app/workspac
 import { Route as AppWorkspaceConnectorsRouteImport } from './routes/_app/workspace/connectors'
 import { Route as AppWorkspaceChannelsRouteImport } from './routes/_app/workspace/channels'
 import { Route as AppWorkspaceCadencesRouteImport } from './routes/_app/workspace/cadences'
-import { Route as authAcceptInviteTokenRouteImport } from './routes/(auth)/accept-invite.$token'
 
 const NotFoundRoute = NotFoundRouteImport.update({
   id: '/not-found',
   path: '/not-found',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AppRouteRoute = AppRouteRouteImport.update({
-  id: '/_app',
+const AuthRouteRoute = AuthRouteRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const authRouteRoute = authRouteRouteImport.update({
-  id: '/(auth)',
+const AppRouteRoute = AppRouteRouteImport.update({
+  id: '/_app',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -44,25 +45,30 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const authVerifyEmailRoute = authVerifyEmailRouteImport.update({
+const AuthVerifyEmailRoute = AuthVerifyEmailRouteImport.update({
   id: '/verify-email',
   path: '/verify-email',
-  getParentRoute: () => authRouteRoute,
+  getParentRoute: () => AuthRouteRoute,
 } as any)
-const authSignupRoute = authSignupRouteImport.update({
+const AuthSignupRoute = AuthSignupRouteImport.update({
   id: '/signup',
   path: '/signup',
-  getParentRoute: () => authRouteRoute,
+  getParentRoute: () => AuthRouteRoute,
 } as any)
-const authLoginRoute = authLoginRouteImport.update({
+const AuthLoginRoute = AuthLoginRouteImport.update({
   id: '/login',
   path: '/login',
-  getParentRoute: () => authRouteRoute,
+  getParentRoute: () => AuthRouteRoute,
 } as any)
 const AppWorkspaceIndexRoute = AppWorkspaceIndexRouteImport.update({
   id: '/workspace/',
   path: '/workspace/',
   getParentRoute: () => AppRouteRoute,
+} as any)
+const AuthAcceptInviteTokenRoute = AuthAcceptInviteTokenRouteImport.update({
+  id: '/accept-invite/$token',
+  path: '/accept-invite/$token',
+  getParentRoute: () => AuthRouteRoute,
 } as any)
 const AppWorkspaceSecurityRoute = AppWorkspaceSecurityRouteImport.update({
   id: '/workspace/security',
@@ -99,19 +105,14 @@ const AppWorkspaceCadencesRoute = AppWorkspaceCadencesRouteImport.update({
   path: '/workspace/cadences',
   getParentRoute: () => AppRouteRoute,
 } as any)
-const authAcceptInviteTokenRoute = authAcceptInviteTokenRouteImport.update({
-  id: '/accept-invite/$token',
-  path: '/accept-invite/$token',
-  getParentRoute: () => authRouteRoute,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRouteRouteWithChildren
   '/not-found': typeof NotFoundRoute
-  '/login': typeof authLoginRoute
-  '/signup': typeof authSignupRoute
-  '/verify-email': typeof authVerifyEmailRoute
-  '/accept-invite/$token': typeof authAcceptInviteTokenRoute
+  '/auth/login': typeof AuthLoginRoute
+  '/auth/signup': typeof AuthSignupRoute
+  '/auth/verify-email': typeof AuthVerifyEmailRoute
   '/workspace/cadences': typeof AppWorkspaceCadencesRoute
   '/workspace/channels': typeof AppWorkspaceChannelsRoute
   '/workspace/connectors': typeof AppWorkspaceConnectorsRoute
@@ -119,15 +120,16 @@ export interface FileRoutesByFullPath {
   '/workspace/members': typeof AppWorkspaceMembersRoute
   '/workspace/my-channels': typeof AppWorkspaceMyChannelsRoute
   '/workspace/security': typeof AppWorkspaceSecurityRoute
+  '/auth/accept-invite/$token': typeof AuthAcceptInviteTokenRoute
   '/workspace/': typeof AppWorkspaceIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRouteRouteWithChildren
   '/not-found': typeof NotFoundRoute
-  '/login': typeof authLoginRoute
-  '/signup': typeof authSignupRoute
-  '/verify-email': typeof authVerifyEmailRoute
-  '/accept-invite/$token': typeof authAcceptInviteTokenRoute
+  '/auth/login': typeof AuthLoginRoute
+  '/auth/signup': typeof AuthSignupRoute
+  '/auth/verify-email': typeof AuthVerifyEmailRoute
   '/workspace/cadences': typeof AppWorkspaceCadencesRoute
   '/workspace/channels': typeof AppWorkspaceChannelsRoute
   '/workspace/connectors': typeof AppWorkspaceConnectorsRoute
@@ -135,18 +137,18 @@ export interface FileRoutesByTo {
   '/workspace/members': typeof AppWorkspaceMembersRoute
   '/workspace/my-channels': typeof AppWorkspaceMyChannelsRoute
   '/workspace/security': typeof AppWorkspaceSecurityRoute
+  '/auth/accept-invite/$token': typeof AuthAcceptInviteTokenRoute
   '/workspace': typeof AppWorkspaceIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/(auth)': typeof authRouteRouteWithChildren
   '/_app': typeof AppRouteRouteWithChildren
+  '/auth': typeof AuthRouteRouteWithChildren
   '/not-found': typeof NotFoundRoute
-  '/(auth)/login': typeof authLoginRoute
-  '/(auth)/signup': typeof authSignupRoute
-  '/(auth)/verify-email': typeof authVerifyEmailRoute
-  '/(auth)/accept-invite/$token': typeof authAcceptInviteTokenRoute
+  '/auth/login': typeof AuthLoginRoute
+  '/auth/signup': typeof AuthSignupRoute
+  '/auth/verify-email': typeof AuthVerifyEmailRoute
   '/_app/workspace/cadences': typeof AppWorkspaceCadencesRoute
   '/_app/workspace/channels': typeof AppWorkspaceChannelsRoute
   '/_app/workspace/connectors': typeof AppWorkspaceConnectorsRoute
@@ -154,17 +156,18 @@ export interface FileRoutesById {
   '/_app/workspace/members': typeof AppWorkspaceMembersRoute
   '/_app/workspace/my-channels': typeof AppWorkspaceMyChannelsRoute
   '/_app/workspace/security': typeof AppWorkspaceSecurityRoute
+  '/auth/accept-invite/$token': typeof AuthAcceptInviteTokenRoute
   '/_app/workspace/': typeof AppWorkspaceIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/auth'
     | '/not-found'
-    | '/login'
-    | '/signup'
-    | '/verify-email'
-    | '/accept-invite/$token'
+    | '/auth/login'
+    | '/auth/signup'
+    | '/auth/verify-email'
     | '/workspace/cadences'
     | '/workspace/channels'
     | '/workspace/connectors'
@@ -172,15 +175,16 @@ export interface FileRouteTypes {
     | '/workspace/members'
     | '/workspace/my-channels'
     | '/workspace/security'
+    | '/auth/accept-invite/$token'
     | '/workspace/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/auth'
     | '/not-found'
-    | '/login'
-    | '/signup'
-    | '/verify-email'
-    | '/accept-invite/$token'
+    | '/auth/login'
+    | '/auth/signup'
+    | '/auth/verify-email'
     | '/workspace/cadences'
     | '/workspace/channels'
     | '/workspace/connectors'
@@ -188,17 +192,17 @@ export interface FileRouteTypes {
     | '/workspace/members'
     | '/workspace/my-channels'
     | '/workspace/security'
+    | '/auth/accept-invite/$token'
     | '/workspace'
   id:
     | '__root__'
     | '/'
-    | '/(auth)'
     | '/_app'
+    | '/auth'
     | '/not-found'
-    | '/(auth)/login'
-    | '/(auth)/signup'
-    | '/(auth)/verify-email'
-    | '/(auth)/accept-invite/$token'
+    | '/auth/login'
+    | '/auth/signup'
+    | '/auth/verify-email'
     | '/_app/workspace/cadences'
     | '/_app/workspace/channels'
     | '/_app/workspace/connectors'
@@ -206,13 +210,14 @@ export interface FileRouteTypes {
     | '/_app/workspace/members'
     | '/_app/workspace/my-channels'
     | '/_app/workspace/security'
+    | '/auth/accept-invite/$token'
     | '/_app/workspace/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  authRouteRoute: typeof authRouteRouteWithChildren
   AppRouteRoute: typeof AppRouteRouteWithChildren
+  AuthRouteRoute: typeof AuthRouteRouteWithChildren
   NotFoundRoute: typeof NotFoundRoute
 }
 
@@ -225,18 +230,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof NotFoundRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_app': {
       id: '/_app'
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof AppRouteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/(auth)': {
-      id: '/(auth)'
-      path: ''
-      fullPath: ''
-      preLoaderRoute: typeof authRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -246,26 +251,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/(auth)/verify-email': {
-      id: '/(auth)/verify-email'
+    '/auth/verify-email': {
+      id: '/auth/verify-email'
       path: '/verify-email'
-      fullPath: '/verify-email'
-      preLoaderRoute: typeof authVerifyEmailRouteImport
-      parentRoute: typeof authRouteRoute
+      fullPath: '/auth/verify-email'
+      preLoaderRoute: typeof AuthVerifyEmailRouteImport
+      parentRoute: typeof AuthRouteRoute
     }
-    '/(auth)/signup': {
-      id: '/(auth)/signup'
+    '/auth/signup': {
+      id: '/auth/signup'
       path: '/signup'
-      fullPath: '/signup'
-      preLoaderRoute: typeof authSignupRouteImport
-      parentRoute: typeof authRouteRoute
+      fullPath: '/auth/signup'
+      preLoaderRoute: typeof AuthSignupRouteImport
+      parentRoute: typeof AuthRouteRoute
     }
-    '/(auth)/login': {
-      id: '/(auth)/login'
+    '/auth/login': {
+      id: '/auth/login'
       path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof authLoginRouteImport
-      parentRoute: typeof authRouteRoute
+      fullPath: '/auth/login'
+      preLoaderRoute: typeof AuthLoginRouteImport
+      parentRoute: typeof AuthRouteRoute
     }
     '/_app/workspace/': {
       id: '/_app/workspace/'
@@ -273,6 +278,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/workspace/'
       preLoaderRoute: typeof AppWorkspaceIndexRouteImport
       parentRoute: typeof AppRouteRoute
+    }
+    '/auth/accept-invite/$token': {
+      id: '/auth/accept-invite/$token'
+      path: '/accept-invite/$token'
+      fullPath: '/auth/accept-invite/$token'
+      preLoaderRoute: typeof AuthAcceptInviteTokenRouteImport
+      parentRoute: typeof AuthRouteRoute
     }
     '/_app/workspace/security': {
       id: '/_app/workspace/security'
@@ -323,33 +335,8 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppWorkspaceCadencesRouteImport
       parentRoute: typeof AppRouteRoute
     }
-    '/(auth)/accept-invite/$token': {
-      id: '/(auth)/accept-invite/$token'
-      path: '/accept-invite/$token'
-      fullPath: '/accept-invite/$token'
-      preLoaderRoute: typeof authAcceptInviteTokenRouteImport
-      parentRoute: typeof authRouteRoute
-    }
   }
 }
-
-interface authRouteRouteChildren {
-  authLoginRoute: typeof authLoginRoute
-  authSignupRoute: typeof authSignupRoute
-  authVerifyEmailRoute: typeof authVerifyEmailRoute
-  authAcceptInviteTokenRoute: typeof authAcceptInviteTokenRoute
-}
-
-const authRouteRouteChildren: authRouteRouteChildren = {
-  authLoginRoute: authLoginRoute,
-  authSignupRoute: authSignupRoute,
-  authVerifyEmailRoute: authVerifyEmailRoute,
-  authAcceptInviteTokenRoute: authAcceptInviteTokenRoute,
-}
-
-const authRouteRouteWithChildren = authRouteRoute._addFileChildren(
-  authRouteRouteChildren,
-)
 
 interface AppRouteRouteChildren {
   AppWorkspaceCadencesRoute: typeof AppWorkspaceCadencesRoute
@@ -377,10 +364,28 @@ const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
   AppRouteRouteChildren,
 )
 
+interface AuthRouteRouteChildren {
+  AuthLoginRoute: typeof AuthLoginRoute
+  AuthSignupRoute: typeof AuthSignupRoute
+  AuthVerifyEmailRoute: typeof AuthVerifyEmailRoute
+  AuthAcceptInviteTokenRoute: typeof AuthAcceptInviteTokenRoute
+}
+
+const AuthRouteRouteChildren: AuthRouteRouteChildren = {
+  AuthLoginRoute: AuthLoginRoute,
+  AuthSignupRoute: AuthSignupRoute,
+  AuthVerifyEmailRoute: AuthVerifyEmailRoute,
+  AuthAcceptInviteTokenRoute: AuthAcceptInviteTokenRoute,
+}
+
+const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(
+  AuthRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  authRouteRoute: authRouteRouteWithChildren,
   AppRouteRoute: AppRouteRouteWithChildren,
+  AuthRouteRoute: AuthRouteRouteWithChildren,
   NotFoundRoute: NotFoundRoute,
 }
 export const routeTree = rootRouteImport

@@ -3,7 +3,7 @@ import { LoginForm } from '@kizunu/web/features/identity/components/login-form'
 import { OAuthButtons } from '@kizunu/web/features/identity/components/oauth-buttons'
 import { createFileRoute, Navigate } from '@tanstack/react-router'
 
-export const Route = createFileRoute('/(auth)/login')({
+export const Route = createFileRoute('/auth/login')({
   component: LoginPage,
 })
 

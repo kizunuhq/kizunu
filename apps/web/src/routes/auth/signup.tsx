@@ -4,7 +4,7 @@ import { RegistrationDisabledNotice } from '@kizunu/web/features/identity/compon
 import { SignupForm } from '@kizunu/web/features/identity/components/signup-form'
 import { createFileRoute, Navigate } from '@tanstack/react-router'
 
-export const Route = createFileRoute('/(auth)/signup')({
+export const Route = createFileRoute('/auth/signup')({
   component: SignupPage,
 })
 

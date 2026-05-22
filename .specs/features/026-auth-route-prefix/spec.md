@@ -51,6 +51,8 @@ inspect the mailed verify link in an e2e.
 
 - WHEN the verification email is generated THEN the link SHALL use the **web** origin
   (`webUrl`), not the API origin, since the verify page is a web route.
+- The password-reset link is aligned to the same scheme (`${webUrl}/auth/reset-password`)
+  for forward-consistency, even though its web page is still deferred (no route yet).
 
 ---
 

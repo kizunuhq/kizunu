@@ -37,7 +37,7 @@ export class RequestPasswordResetUseCase {
       expiresAt: new Date(Date.now() + RESET_TTL_MS),
     })
 
-    const link = `${this.config.get('appUrl')}/reset-password?token=${token}`
+    const link = `${this.config.get('webUrl')}/auth/reset-password?token=${token}`
     await this.mail.send({
       to: user.email,
       subject: 'Reset your Kizunu password',

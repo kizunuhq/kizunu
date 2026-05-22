@@ -9,7 +9,7 @@ import type { VerificationTokenRepository } from '@kizunu/api/modules/workspace/
 import type { ConfigService } from '@kizunu/config-module/config.service'
 import { describe, expect, it } from 'vite-plus/test'
 
-const APP_URL = 'https://app.kizunu.test'
+const WEB_URL = 'https://app.kizunu.test'
 
 function createUser(overrides: Partial<User> = {}): User {
   return {
@@ -63,7 +63,7 @@ function buildFakes(user: User | undefined): Fakes {
   } as unknown as MailSender
 
   const config = {
-    get: (key: string) => (key === 'appUrl' ? APP_URL : undefined),
+    get: (key: string) => (key === 'webUrl' ? WEB_URL : undefined),
   } as unknown as ConfigService<Config>
 
   return {
@@ -91,7 +91,7 @@ describe('RequestEmailVerificationUseCase', () => {
 
     expect(fakes.sentMail).toHaveLength(1)
     expect(fakes.sentMail[0]?.to).toBe('ada@example.com')
-    expect(fakes.sentMail[0]?.body).toContain(`${APP_URL}/verify-email?token=`)
+    expect(fakes.sentMail[0]?.body).toContain(`${WEB_URL}/auth/verify-email?token=`)
   })
 
   it('is a no-op when the user is already verified', async () => {

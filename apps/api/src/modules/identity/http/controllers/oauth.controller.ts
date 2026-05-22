@@ -95,6 +95,6 @@ export class OAuthController {
   }
 
   private loginError(code: string): string {
-    return `${this.config.get('webUrl')}/login?error=${code}`
+    return `${this.config.get('webUrl')}/auth/login?error=${code}`
   }
 }

@@ -37,7 +37,7 @@ export class RequestEmailVerificationUseCase {
       expiresAt: new Date(Date.now() + VERIFICATION_TTL_MS),
     })
 
-    const link = `${this.config.get('appUrl')}/verify-email?token=${token}`
+    const link = `${this.config.get('webUrl')}/auth/verify-email?token=${token}`
     await this.mail.send({
       to: user.email,
       subject: 'Verify your Kizunu email',

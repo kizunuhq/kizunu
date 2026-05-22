@@ -10,7 +10,7 @@ function ProtectedLayout() {
   const { user, isPending } = useCurrentUser()
 
   if (isPending) return null
-  if (!user) return <Navigate replace to="/login" />
+  if (!user) return <Navigate replace to="/auth/login" />
 
   return <AppShell userName={user.name} />
 }

@@ -91,7 +91,7 @@ describe('OAuth login (e2e)', () => {
     )
 
     expect(response.status).toBe(FOUND)
-    expect(response.headers.location).toContain('/login?error=oauth_state')
+    expect(response.headers.location).toContain('/auth/login?error=oauth_state')
     expect(hasSessionCookie(response.headers['set-cookie'])).toBe(false)
   })
 

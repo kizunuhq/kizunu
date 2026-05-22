@@ -19,7 +19,7 @@ export function AppShell({ userName }: { userName: string }) {
   const logout = useLogout()
 
   function signOut() {
-    logout.mutate(undefined, { onSuccess: () => navigate({ to: '/login' }) })
+    logout.mutate(undefined, { onSuccess: () => navigate({ to: '/auth/login' }) })
   }
 
   return (
