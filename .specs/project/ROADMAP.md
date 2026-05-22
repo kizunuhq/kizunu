@@ -32,7 +32,10 @@ deal → exhaustion marks the deal lost. Self-hostable via Docker Compose.
 - Home-grown `User` (email, password hash) + session table
 - Login / logout, session expiry, CSRF, login rate-limit, password reset
 - Auth boundary isolated from domain (no auth-library org/teams schema)
-- _Backend landed (#13, #14); magic-link-vs-password choice and the remaining primitives still open._
+- _Backend landed (#13, #14). Auth method settled (email/password) and CSRF posture
+  (`sameSite`-lax + CORS) + IP login rate-limit landed in feature `018` (ADR-006).
+  Session expiry/revocation is enforced. **Password reset** remains open (needs a mail
+  boundary — tracked in CONCERNS)._
 
 **Workspace & Membership** - IN PROGRESS
 

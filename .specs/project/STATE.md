@@ -16,8 +16,9 @@ Settled before code (from `docs/v0.1-scope.md`; rationale in `docs/adr/`):
 
 ## Open questions / todos
 
-- **OPEN — Auth method:** magic link vs. email/password for v0.1. Pick one before finishing the auth feature.
-- **OPEN — Remaining auth primitives:** password reset, session expiry, CSRF, login rate-limit (scope acknowledges ~2 extra weeks).
+- **SETTLED — Auth method:** email/password (not magic link) — ADR-006.
+- **SETTLED — CSRF + rate-limit:** `sameSite`-lax + CORS allowlist for CSRF, `@nestjs/throttler` IP rate-limit on `auth/*` (feature `018`, ADR-006). Session expiry/revocation already enforced.
+- **OPEN — Password reset:** still unbuilt; needs a mail boundary (tracked in CONCERNS).
 - Pilot assumptions to confirm (from scope §"Assumptions to confirm with the pilot"): Pipedrive pipeline shape (per-BDR vs shared); Meta number per BDR + 14-day CoEx upkeep + per-conversation pricing accepted; five follow-up messages approved as HSM templates before pilot; simple auth acceptable; manual lead reassignment acceptable.
 
 ## Blockers
