@@ -108,10 +108,10 @@ error handling.
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| CRM-01 | P1: port + registry | Tasks | Pending |
-| CRM-02 | P1: ConnectorAccount CRUD | Tasks | Pending |
-| CRM-03 | P1: Pipedrive parseWebhook | Tasks | Pending |
-| CRM-04 | P2: Pipedrive outbound actions | Tasks | Pending |
+| CRM-01 | P1: port + registry | Tasks | Verified |
+| CRM-02 | P1: ConnectorAccount CRUD | Tasks | Verified |
+| CRM-03 | P1: Pipedrive parseWebhook | Tasks | Verified |
+| CRM-04 | P2: Pipedrive outbound actions | Tasks | Verified |
 
 **Coverage:** 4 total, mapped to tasks.
 

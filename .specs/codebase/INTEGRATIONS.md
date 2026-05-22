@@ -1,6 +1,6 @@
 # External Integrations
 
-**State:** PostgreSQL is wired, and the **Meta Cloud API (WhatsApp) outbound** integration now exists as a registered channel plugin (feature `003`). Pipedrive and the Meta inbound webhook are still designed-only (frozen contracts in `docs/v0.1-scope.md`).
+**State:** PostgreSQL is wired; the **Meta Cloud API (WhatsApp) outbound** channel plugin (feature `003`) and the **Pipedrive** CRM connector (feature `004`, normalization + outbound actions) now exist as registered plugins. The inbound webhooks (Meta + Pipedrive `deal.updated`) remain designed-only — they wire into `LeadJourney`/cadences and ship with the engine slice.
 
 ## Datastore — PostgreSQL
 
@@ -30,15 +30,14 @@
 **Implementation:** `validate` decides freeform vs. HSM template against the 24h customer-service window; `parseInbound` normalizes webhook payloads (routing by `phone_number_id`, never throws); `send` POSTs text/template to the Graph API (`META_GRAPH_API_BASE`, base/fetch injectable for tests). Meta specifics (24h window, HSM, `waba_id`/`phone_number_id`/system token) stay inside the plugin.
 **Auth:** system token in `ChannelAccount.credentials` (validated by the plugin `configSchema`).
 
-## Planned (v0.1 — not yet built)
+The shape of these integrations is fixed by accepted ADRs (index: `docs/adr/README.md`) — notably ADR 004 (Meta CoEx channel) and ADR 005 (DB-poller scheduler). ADRs are immutable; supersede rather than edit.
 
-The shape of the items below is fixed by accepted ADRs (index: `docs/adr/README.md`) — notably ADR 004 (Meta CoEx channel) and ADR 005 (DB-poller scheduler). ADRs are immutable; supersede rather than edit.
+## CRM connector — Pipedrive
 
-### CRM connector — Pipedrive
-
-**Purpose:** Inbound stage-change events normalized to internal vocabulary; outbound Activity / move-stage / mark-lost.
-**Contract:** `CRMConnector { parseWebhook, fetchLead, logActivity, moveStage, markLost, setField }`; per-workspace API token.
-**Rate limits:** ~100 req / 10s → throttled outbound queue, exponential backoff (max 3) → `error_state`.
+**Purpose:** Inbound stage-change events normalized to internal vocabulary; outbound Activity / move-stage / mark-lost / set-field.
+**Status:** Built in feature `004` — `PipedriveConnector` (`apps/api/src/modules/crm/plugins/pipedrive/`) implements the frozen `CRMConnector` port and is registered into `CRM_CONNECTORS`; per-workspace `ConnectorAccount` holds the API token.
+**Implementation:** `parseWebhook` normalizes `deal.updated` stage transitions into `lead.stage_entered` (idempotency key `pipedrive:deal:{id}:event:{event}:{timestamp}`, never throws); outbound actions POST/PUT to `https://{companyDomain}.pipedrive.com/api/v1` with `?api_token=` (base/fetch injectable for tests). Non-OK → `CrmRequestFailedException`.
+**Planned (engine slice):** throttled outbound queue (~100 req / 10s, exponential backoff, max 3 → `error_state`) and the `EntryTrigger` pipeline+stage → cadence mapping.
 
 ## Webhooks (planned)
 
