@@ -36,6 +36,11 @@ Evidence-backed warnings, prioritized by risk. Each item cites a file and a fix 
 **Impact:** Anyone who learns a connector-account id could post forged stage-entered events and start journeys. Pilot risk is low (id is a random UUIDv7, not exposed), but it is not defense-in-depth. Event-key idempotency is also journey-level only (no `processed_events` table), so redeliveries with distinct keys are not deduped.
 **Fix:** Add per-connector webhook secret/HMAC verification when hardening, and a `processed_events` idempotency table keyed by `NormalizedEvent.idempotencyKey`.
 
+### Inbox has no backend (inbound messages are not stored)
+**Evidence:** `MarkReplyUseCase` (feature `010`) transitions the journey to `replied` and runs `onReply`, but the inbound message body/sender is never persisted; there is no conversations/messages table or API.
+**Impact:** The roadmap's BDR "inbox (filter by instance / my leads)" UI cannot be built — there is no data source. Only the reply *signal* is consumed, not the content.
+**Fix:** Add an inbound-message/conversation store written by the Meta webhook + a read API, then the inbox screen. Out of v0.1 minimal core.
+
 ### Dispatcher gaps: owner mapping, sendingWindow, template variables
 **Evidence:** The dispatcher (feature `009`) resolves the send channel by `lead.ownerUserId`, but ingestion never maps the CRM owner (`ownerExternalId`) to a Kizunu user, so `ownerUserId` is null and every journey hits `error_state` (no channel) until owner mapping exists. It also ignores the cadence `sendingWindow` (dispatch is gated only by `nextTouchAt`), and sends templates without resolving `variables` values.
 **Impact:** The pilot cannot actually deliver touches until CRM-owner → user mapping is built; messages may go out off-hours; templated messages send without filled variables (Meta rejects if it expects parameters).
