@@ -96,8 +96,12 @@ deal → exhaustion marks the deal lost. Self-hostable via Docker Compose.
 
 - _Foundation: shadcn-first primitives baseline + convention (`.specs/features/001-shadcn-first-primitives/`). Primitives in `apps/web` originate from shadcn/ui via the shadcn skill, customized in-project; bespoke only when no primitive fits._
 - _Landed (feature `012`): auth login form + protected app shell with logout — the
-  foundation every screen sits inside. Admin/BDR feature screens remain. The web app has
-  no automated test harness yet (TESTING.md); UI is verified via `bun check` + build._
+  foundation every screen sits inside. The web app has no automated test harness yet
+  (TESTING.md); UI is verified via `bun check` + build._
+- _Landed (feature `013`): members admin screen (table + status toggle + invite that
+  surfaces the token). shadcn `table`/`badge` primitives added. Remaining admin screens
+  (channels, connectors) and the BDR screens (my channels, cadences/templates, inbox,
+  journeys) follow._
 - Auth (login)
 - Admin: user management, workspace channels (create/configure/grant access/webhook URL), Pipedrive connector mapping
 - BDR: my channels (set primary), cadences & templates CRUD, inbox (filter by instance / my leads), journey list (active/paused/error)
