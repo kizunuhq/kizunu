@@ -1,5 +1,6 @@
 import { useLogout } from '@kizunu/api-client/identity/use-logout'
 import { Button } from '@kizunu/web/components/primitives/button'
+import { EmailVerificationBanner } from '@kizunu/web/features/identity/components/email-verification-banner'
 import { Link, Outlet, useNavigate } from '@tanstack/react-router'
 
 const NAV_LINKS = [
@@ -42,6 +43,7 @@ export function AppShell({ userName }: { userName: string }) {
           </Button>
         </div>
       </header>
+      <EmailVerificationBanner />
       <main className="p-6">
         <Outlet />
       </main>

@@ -1,5 +1,6 @@
 import type {
   AuthCapabilitiesResponse,
+  ConfirmEmailVerification,
   ConfirmPasswordReset,
   LoginRequest,
   LoginResponse,
@@ -35,3 +36,9 @@ export const requestPasswordReset = (body: RequestPasswordReset): Promise<void> 
 
 export const confirmPasswordReset = (body: ConfirmPasswordReset): Promise<void> =>
   post<void>(Routes.auth.passwordResetConfirm, body)
+
+export const resendEmailVerification = (): Promise<void> =>
+  post<void>(Routes.auth.emailVerification)
+
+export const confirmEmailVerification = (body: ConfirmEmailVerification): Promise<void> =>
+  post<void>(Routes.auth.emailVerificationConfirm, body)

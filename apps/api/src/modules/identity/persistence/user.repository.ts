@@ -21,6 +21,10 @@ export class UserRepository {
     await this.drizzle.db.update(users).set({ passwordHash }).where(eq(users.id, id))
   }
 
+  async markEmailVerified(id: string, verifiedAt: Date): Promise<void> {
+    await this.drizzle.db.update(users).set({ emailVerifiedAt: verifiedAt }).where(eq(users.id, id))
+  }
+
   async incrementFailedAttempts(id: string): Promise<number> {
     const rows = await this.drizzle.db
       .update(users)

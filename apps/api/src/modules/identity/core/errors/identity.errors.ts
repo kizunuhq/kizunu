@@ -39,6 +39,16 @@ export class RegistrationDisabledException extends ApplicationException {
   }
 }
 
+export class InvalidVerificationTokenException extends ApplicationException {
+  constructor() {
+    super(
+      'identity.invalid-verification-token',
+      'This email verification link is invalid or expired.',
+      422,
+    )
+  }
+}
+
 export class SessionExpiredException extends ApplicationException {
   constructor() {
     super('identity.session-expired', 'Session has expired or has been revoked.', 401)
