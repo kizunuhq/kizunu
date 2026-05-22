@@ -49,6 +49,12 @@ export class InvalidVerificationTokenException extends ApplicationException {
   }
 }
 
+export class SessionNotFoundException extends ApplicationException {
+  constructor() {
+    super('identity.session-not-found', 'Session not found.', 422)
+  }
+}
+
 export class SessionExpiredException extends ApplicationException {
   constructor() {
     super('identity.session-expired', 'Session has expired or has been revoked.', 401)

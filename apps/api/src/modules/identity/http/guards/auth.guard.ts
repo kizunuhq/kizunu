@@ -16,6 +16,10 @@ import { UserRepository } from '../../persistence/user.repository'
 
 type CookieJar = Record<string, string | undefined>
 
+// Bound last-seen writes: refresh at most this often per session rather than on
+// every authenticated request.
+const LAST_SEEN_COALESCE_MS = 5 * 60 * 1000
+
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(
@@ -45,6 +49,8 @@ export class AuthGuard implements CanActivate {
     const user = await this.users.findById(session.userId)
     if (!user) throw new UnauthorizedException()
 
+    await this.refreshLastSeen(session.id, session.lastSeenAt)
+
     Object.assign(request, {
       user: {
         id: user.id,
@@ -59,5 +65,11 @@ export class AuthGuard implements CanActivate {
       },
     })
     return true
+  }
+
+  private async refreshLastSeen(sessionId: string, lastSeenAt: Date | null): Promise<void> {
+    const now = Date.now()
+    const isStale = !lastSeenAt || now - lastSeenAt.getTime() >= LAST_SEEN_COALESCE_MS
+    if (isStale) await this.sessions.touchLastSeen(sessionId, new Date(now))
   }
 }

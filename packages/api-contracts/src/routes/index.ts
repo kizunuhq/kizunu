@@ -16,6 +16,8 @@ export const Routes = {
     passwordResetConfirm: '/auth/password-reset/confirm',
     emailVerification: '/auth/email-verification',
     emailVerificationConfirm: '/auth/email-verification/confirm',
+    sessions: '/auth/sessions',
+    session: (sessionId: string) => `/auth/sessions/${sessionId}`,
   },
   workspaces: {
     invite: (workspaceId: string) => `/workspaces/${workspaceId}/invitations`,

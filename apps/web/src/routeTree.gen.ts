@@ -17,6 +17,7 @@ import { Route as authVerifyEmailRouteImport } from './routes/(auth)/verify-emai
 import { Route as authSignupRouteImport } from './routes/(auth)/signup'
 import { Route as authLoginRouteImport } from './routes/(auth)/login'
 import { Route as AppWorkspaceIndexRouteImport } from './routes/_app/workspace/index'
+import { Route as AppWorkspaceSecurityRouteImport } from './routes/_app/workspace/security'
 import { Route as AppWorkspaceMyChannelsRouteImport } from './routes/_app/workspace/my-channels'
 import { Route as AppWorkspaceMembersRouteImport } from './routes/_app/workspace/members'
 import { Route as AppWorkspaceJourneysRouteImport } from './routes/_app/workspace/journeys'
@@ -61,6 +62,11 @@ const authLoginRoute = authLoginRouteImport.update({
 const AppWorkspaceIndexRoute = AppWorkspaceIndexRouteImport.update({
   id: '/workspace/',
   path: '/workspace/',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const AppWorkspaceSecurityRoute = AppWorkspaceSecurityRouteImport.update({
+  id: '/workspace/security',
+  path: '/workspace/security',
   getParentRoute: () => AppRouteRoute,
 } as any)
 const AppWorkspaceMyChannelsRoute = AppWorkspaceMyChannelsRouteImport.update({
@@ -112,6 +118,7 @@ export interface FileRoutesByFullPath {
   '/workspace/journeys': typeof AppWorkspaceJourneysRoute
   '/workspace/members': typeof AppWorkspaceMembersRoute
   '/workspace/my-channels': typeof AppWorkspaceMyChannelsRoute
+  '/workspace/security': typeof AppWorkspaceSecurityRoute
   '/workspace/': typeof AppWorkspaceIndexRoute
 }
 export interface FileRoutesByTo {
@@ -127,6 +134,7 @@ export interface FileRoutesByTo {
   '/workspace/journeys': typeof AppWorkspaceJourneysRoute
   '/workspace/members': typeof AppWorkspaceMembersRoute
   '/workspace/my-channels': typeof AppWorkspaceMyChannelsRoute
+  '/workspace/security': typeof AppWorkspaceSecurityRoute
   '/workspace': typeof AppWorkspaceIndexRoute
 }
 export interface FileRoutesById {
@@ -145,6 +153,7 @@ export interface FileRoutesById {
   '/_app/workspace/journeys': typeof AppWorkspaceJourneysRoute
   '/_app/workspace/members': typeof AppWorkspaceMembersRoute
   '/_app/workspace/my-channels': typeof AppWorkspaceMyChannelsRoute
+  '/_app/workspace/security': typeof AppWorkspaceSecurityRoute
   '/_app/workspace/': typeof AppWorkspaceIndexRoute
 }
 export interface FileRouteTypes {
@@ -162,6 +171,7 @@ export interface FileRouteTypes {
     | '/workspace/journeys'
     | '/workspace/members'
     | '/workspace/my-channels'
+    | '/workspace/security'
     | '/workspace/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -177,6 +187,7 @@ export interface FileRouteTypes {
     | '/workspace/journeys'
     | '/workspace/members'
     | '/workspace/my-channels'
+    | '/workspace/security'
     | '/workspace'
   id:
     | '__root__'
@@ -194,6 +205,7 @@ export interface FileRouteTypes {
     | '/_app/workspace/journeys'
     | '/_app/workspace/members'
     | '/_app/workspace/my-channels'
+    | '/_app/workspace/security'
     | '/_app/workspace/'
   fileRoutesById: FileRoutesById
 }
@@ -260,6 +272,13 @@ declare module '@tanstack/react-router' {
       path: '/workspace'
       fullPath: '/workspace/'
       preLoaderRoute: typeof AppWorkspaceIndexRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/_app/workspace/security': {
+      id: '/_app/workspace/security'
+      path: '/workspace/security'
+      fullPath: '/workspace/security'
+      preLoaderRoute: typeof AppWorkspaceSecurityRouteImport
       parentRoute: typeof AppRouteRoute
     }
     '/_app/workspace/my-channels': {
@@ -339,6 +358,7 @@ interface AppRouteRouteChildren {
   AppWorkspaceJourneysRoute: typeof AppWorkspaceJourneysRoute
   AppWorkspaceMembersRoute: typeof AppWorkspaceMembersRoute
   AppWorkspaceMyChannelsRoute: typeof AppWorkspaceMyChannelsRoute
+  AppWorkspaceSecurityRoute: typeof AppWorkspaceSecurityRoute
   AppWorkspaceIndexRoute: typeof AppWorkspaceIndexRoute
 }
 
@@ -349,6 +369,7 @@ const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppWorkspaceJourneysRoute: AppWorkspaceJourneysRoute,
   AppWorkspaceMembersRoute: AppWorkspaceMembersRoute,
   AppWorkspaceMyChannelsRoute: AppWorkspaceMyChannelsRoute,
+  AppWorkspaceSecurityRoute: AppWorkspaceSecurityRoute,
   AppWorkspaceIndexRoute: AppWorkspaceIndexRoute,
 }
 
