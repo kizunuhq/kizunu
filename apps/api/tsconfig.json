@@ -5,5 +5,5 @@
       "@kizunu/api/*": ["./src/*"]
     }
   },
-  "include": ["src/**/*.ts", "drizzle.config.ts"]
+  "include": ["src/**/*.ts", "drizzle.config.ts", "seed.ts"]
 }

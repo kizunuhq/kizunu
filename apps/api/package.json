@@ -9,7 +9,8 @@
     "check-types": "tsc --noEmit",
     "test": "bun test --pass-with-no-tests",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate"
+    "db:migrate": "drizzle-kit migrate",
+    "db:seed": "bun run seed.ts"
   },
   "dependencies": {
     "@kizunu/api-contracts": "workspace:*",

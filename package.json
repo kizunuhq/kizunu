@@ -42,7 +42,8 @@
     "db:reset": "bun scripts/db.ts reset",
     "db:test:setup": "bun scripts/db.ts test:setup",
     "db:test:reset": "bun scripts/db.ts test:reset",
-    "db:generate": "bun --filter @kizunu/api db:generate && bun scripts/drizzle-checksums.ts generate"
+    "db:generate": "bun --filter @kizunu/api db:generate && bun scripts/drizzle-checksums.ts generate",
+    "db:seed": "bun --filter @kizunu/api db:seed"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.0.0",
