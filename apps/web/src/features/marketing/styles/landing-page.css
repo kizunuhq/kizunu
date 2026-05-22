@@ -1,22 +1,22 @@
 @import url('https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800;900&family=JetBrains+Mono:wght@400;500;600&family=Schibsted+Grotesk:wght@400;500;600;700&display=swap');
 
 .kz-page {
-  --kz-carbon-void: oklch(0.065 0.01 50);
-  --kz-carbon-deep: oklch(0.09 0.012 50);
-  --kz-carbon: oklch(0.122 0.014 50);
+  --kz-carbon-void: oklch(0.065 0.01 300);
+  --kz-carbon-deep: oklch(0.09 0.012 300);
+  --kz-carbon: oklch(0.122 0.014 300);
   --kz-carbon-cool: oklch(0.118 0.006 240);
-  --kz-carbon-warm: oklch(0.156 0.022 52);
-  --kz-carbon-rail: oklch(0.18 0.012 50);
-  --kz-char: oklch(0.32 0.09 45);
-  --kz-char-deep: oklch(0.22 0.07 45);
-  --kz-anchor: oklch(0.64 0.16 48);
-  --kz-anchor-bright: oklch(0.74 0.17 50);
-  --kz-cream: oklch(0.94 0.006 60);
-  --kz-fog: oklch(0.58 0.014 60);
-  --kz-line: oklch(0.26 0.04 50);
-  --kz-line-bright: oklch(0.42 0.08 48);
-  --kz-dot: oklch(0.48 0.07 48 / 0.22);
-  --kz-dot-bright: oklch(0.58 0.1 48 / 0.3);
+  --kz-carbon-warm: oklch(0.156 0.022 300);
+  --kz-carbon-rail: oklch(0.18 0.012 300);
+  --kz-char: oklch(0.32 0.09 300);
+  --kz-char-deep: oklch(0.22 0.07 300);
+  --kz-anchor: oklch(0.64 0.16 300);
+  --kz-anchor-bright: oklch(0.74 0.17 300);
+  --kz-cream: oklch(0.94 0.006 300);
+  --kz-fog: oklch(0.58 0.014 300);
+  --kz-line: oklch(0.26 0.04 300);
+  --kz-line-bright: oklch(0.42 0.08 300);
+  --kz-dot: oklch(0.48 0.07 300 / 0.22);
+  --kz-dot-bright: oklch(0.58 0.1 300 / 0.3);
 
   --kz-cyan: oklch(0.72 0.1 220);
   --kz-magenta: oklch(0.62 0.18 340);
@@ -57,7 +57,7 @@
   --kz-dot-size: 26px;
   --kz-dot-color: var(--kz-dot);
   --kz-halo-size: 90% 80%;
-  --kz-halo-color: oklch(0.2 0.022 50);
+  --kz-halo-color: oklch(0.2 0.022 300);
 }
 
 .kz-hero {
@@ -88,7 +88,7 @@
 .kz-section.kz-takehome {
   --kz-spotlight: 76% 50%;
   --kz-section-bg: var(--kz-carbon-void);
-  --kz-halo-color: oklch(0.16 0.02 50);
+  --kz-halo-color: oklch(0.16 0.02 300);
 }
 .kz-cta-section {
   --kz-spotlight: 82% 78%;
@@ -193,16 +193,16 @@
   stroke: var(--kz-cream);
 }
 .kz-page svg .kz-stroke-fog {
-  stroke: oklch(0.55 0.08 45 / 0.18);
+  stroke: oklch(0.55 0.08 300 / 0.18);
 }
 .kz-page svg .kz-stroke-rail {
-  stroke: oklch(0.55 0.08 45 / 0.18);
+  stroke: oklch(0.55 0.08 300 / 0.18);
 }
 .kz-page svg .kz-fill-mark-text-loud {
   fill: var(--kz-cream);
 }
 .kz-page svg .kz-fill-mark-text-dim {
-  fill: oklch(0.78 0.05 60);
+  fill: oklch(0.78 0.05 300);
 }
 
 /* ---------- TYPE ATOMS ---------- */
@@ -246,7 +246,7 @@
   font-weight: 400;
   font-size: clamp(16px, 1.15vw, 18px);
   line-height: 1.62;
-  color: oklch(0.88 0.008 60);
+  color: oklch(0.88 0.008 300);
   max-width: 56ch;
   text-wrap: pretty;
 }
@@ -256,7 +256,7 @@
   font-weight: 400;
   font-size: clamp(15px, 0.95vw, 16px);
   line-height: 1.62;
-  color: oklch(0.85 0.008 60);
+  color: oklch(0.85 0.008 300);
   max-width: 60ch;
   text-wrap: pretty;
 }
@@ -507,7 +507,7 @@
   font-size: clamp(16px, 1.08vw, 18px);
   font-weight: 500;
   line-height: 1.58;
-  color: oklch(0.86 0.008 60);
+  color: oklch(0.86 0.008 300);
   text-wrap: pretty;
 }
 
@@ -693,7 +693,7 @@
   text-transform: uppercase;
   letter-spacing: -0.01em;
   font-size: clamp(15px, 1.2vw, 19px);
-  color: oklch(0.62 0.04 60);
+  color: oklch(0.62 0.04 300);
   line-height: 1.05;
 }
 
@@ -758,7 +758,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background-image: radial-gradient(circle, oklch(0.42 0.06 48 / 0.12) 1px, transparent 1.4px);
+  background-image: radial-gradient(circle, oklch(0.42 0.06 300 / 0.12) 1px, transparent 1.4px);
   background-size: 18px 18px;
   pointer-events: none;
   z-index: 0;
@@ -929,7 +929,7 @@
 }
 
 .kz-run-fields dd {
-  color: oklch(0.86 0.008 60);
+  color: oklch(0.86 0.008 300);
   margin: 0;
   word-break: break-word;
 }
@@ -941,7 +941,7 @@
 .kz-run-intervention {
   margin-top: 6px;
   border: 1px solid var(--kz-anchor);
-  background: oklch(0.18 0.038 48);
+  background: oklch(0.18 0.038 300);
   padding: 14px 18px 16px;
   position: relative;
   display: grid;
@@ -957,7 +957,7 @@
   content: '';
   position: absolute;
   inset: 4px;
-  border: 1px dashed oklch(0.5 0.12 48 / 0.3);
+  border: 1px dashed oklch(0.5 0.12 300 / 0.3);
   pointer-events: none;
 }
 
@@ -1010,7 +1010,7 @@
   left: 0;
   right: 0;
   z-index: 25;
-  background: oklch(0.085 0.012 50 / 0.94);
+  background: oklch(0.085 0.012 300 / 0.94);
   border-bottom: 1px solid var(--kz-line-bright);
   padding: 12px var(--kz-edge);
   font-family: var(--kz-mono);
@@ -1372,7 +1372,7 @@
   font-family: var(--kz-body);
   font-size: clamp(15px, 1vw, 16px);
   line-height: 1.62;
-  color: oklch(0.82 0.012 60);
+  color: oklch(0.82 0.012 300);
   max-width: 56ch;
   text-wrap: pretty;
 }
@@ -1540,13 +1540,13 @@
 
 @keyframes kz-chip-flash {
   0% {
-    box-shadow: 0 0 0 0 oklch(0.74 0.17 50 / 0);
+    box-shadow: 0 0 0 0 oklch(0.74 0.17 300 / 0);
   }
   35% {
-    box-shadow: 0 0 0 5px oklch(0.74 0.17 50 / 0.22);
+    box-shadow: 0 0 0 5px oklch(0.74 0.17 300 / 0.22);
   }
   100% {
-    box-shadow: 0 0 0 0 oklch(0.74 0.17 50 / 0);
+    box-shadow: 0 0 0 0 oklch(0.74 0.17 300 / 0);
   }
 }
 
@@ -1616,7 +1616,7 @@
   font-family: var(--kz-body);
   font-size: clamp(15px, 1vw, 16px);
   line-height: 1.62;
-  color: oklch(0.86 0.008 60);
+  color: oklch(0.86 0.008 300);
   margin: 0;
   max-width: 36ch;
   text-wrap: pretty;
@@ -1724,7 +1724,7 @@
 }
 
 .kz-codeblock-dollar {
-  color: oklch(0.78 0.05 60);
+  color: oklch(0.78 0.05 300);
 }
 
 .kz-codeblock-arg {
@@ -1802,7 +1802,7 @@
   font-size: clamp(16px, 1.15vw, 18px);
   font-weight: 500;
   line-height: 1.58;
-  color: oklch(0.86 0.008 60);
+  color: oklch(0.86 0.008 300);
   max-width: 48ch;
   text-wrap: pretty;
 }
