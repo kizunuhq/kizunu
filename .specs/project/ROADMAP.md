@@ -241,14 +241,19 @@ a separate slice and keeps the auth boundary isolated from the domain.
 
 ## Phase 1.7 — Delivery & infra
 
-**CI validation gate & repo governance** - IN PROGRESS
-- _Feature `027` (spec written; discovery in `.specs/features/027-ci-validation-gate/`)._
-- Bring CI to full `scripts/check.sh` parity: a reusable-workflow orchestrator
-  (`_quality` / `_unit` / `_integration` / `_e2e`, Postgres-only service containers),
-  a single `Required (CI)` aggregator as the only branch-protection check, docs-only
-  skip, and draft-gated e2e. Plus a sticky `ci-summary` PR comment, semantic PR-title
-  validation, Dependabot (Actions) + `deps-outdated`, and governance-as-code:
-  `ruleset.json`, `CODEOWNERS`, `CODE_OF_CONDUCT.md`. Trunk-only (`master`).
+**CI validation gate & repo governance** - COMPLETE
+- _Landed (feature `027`, PR #47): CI now mirrors `scripts/check.sh`. `ci.yml` is an
+  orchestrator calling reusables — `_quality` (`vp check` + the four `check-*`
+  scripts), `_unit` (`unit`+`web`), and a parameterized `_db-tests`
+  (`integration`|`e2e`; `postgres:16-alpine` service + `db:migrate`, bypassing the
+  Docker-bound `db:test:setup`) — with a shared `coverage-summary` composite action. A
+  single `Required (CI)` aggregator is the only branch-protection check, posts a sticky
+  `ci-summary` comment, skips code jobs on docs-only diffs, and gates e2e to non-draft
+  PRs. Plus `pr-title`, `deps-outdated`, and governance-as-code: `ruleset.json`,
+  `CODEOWNERS`, `CODE_OF_CONDUCT.md`. Trunk-only (`master`)._
+- Follow-ups: the sticky comment's per-project coverage tables don't render yet
+  (report-only, cosmetic); live branch protection should require the renamed
+  `Required (CI)` check or import `.github/ruleset.json` (manual admin action).
 - Prerequisite for `028` — deploy must never auto-stage an untested merge.
 
 **Deploy pipeline (staging + production)** - PLANNED (blocked on infra decisions)
