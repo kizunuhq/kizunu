@@ -1,13 +1,13 @@
 import { z } from 'zod'
 
 export const WorkspaceMemberSchema = z.object({
-  membershipId: z.string().uuid(),
-  userId: z.string().uuid(),
-  userEmail: z.string().email(),
+  membershipId: z.uuid(),
+  userId: z.uuid(),
+  userEmail: z.email(),
   userName: z.string(),
   role: z.enum(['admin', 'member']),
   status: z.enum(['active', 'inactive']),
-  joinedAt: z.string().datetime(),
+  joinedAt: z.iso.datetime(),
 })
 
 export type WorkspaceMember = z.infer<typeof WorkspaceMemberSchema>

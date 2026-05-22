@@ -7,7 +7,7 @@ export const UpdateMemberRequestSchema = z.object({
 export type UpdateMemberRequest = z.infer<typeof UpdateMemberRequestSchema>
 
 export const UpdateMemberResponseSchema = z.object({
-  membershipId: z.string().uuid(),
+  membershipId: z.uuid(),
   status: z.enum(['active', 'inactive']),
 })
 
