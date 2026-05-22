@@ -1,11 +1,20 @@
 # Roadmap
 
 **Current Milestone:** v0.1 — Pilot end-to-end
-**Status:** In Progress
+**Status:** Feature-complete; pilot-hardening follow-ups open
 
 The single goal of v0.1 is to run the reference pilot end-to-end (see PROJECT.md). The
 features below are the slices required for that contract to execute. Phase 1.5 and beyond
 are deliberately deferred to avoid freezing API decisions too early.
+
+**All v0.1 feature lines are implemented** (features `002`–`017`): identity/workspace,
+the channel plugin system + Meta/WhatsApp, the CRM connector + Pipedrive, the cadence
+aggregate + templates, the full engine (state machine, ingestion, dispatcher/poller,
+inbound reply), the REST + OpenAPI surface, and the Minimum UI. Before a *real* pilot
+run can deliver, a set of documented hardening follow-ups in `.specs/codebase/CONCERNS.md`
+must close — notably CRM-owner → Kizunu-user mapping (else journeys hit `error_state`),
+`sendingWindow`, template-variable resolution, `paused_owner_inactive` + reassign, the
+inbox/conversations store, and credential encryption / webhook signing.
 
 ---
 
@@ -92,7 +101,7 @@ deal → exhaustion marks the deal lost. Self-hostable via Docker Compose.
 - Closed-vocabulary actions: `move_stage`, `mark_lost`, `log_activity`, `notify_user`, `set_field`, `webhook_out`
 - Inactive-membership journeys → `paused_owner_inactive` (manual bulk reassign)
 
-**Minimum UI** - IN PROGRESS
+**Minimum UI** - COMPLETE (v0.1 scope; inbox deferred — see CONCERNS)
 
 - _Foundation: shadcn-first primitives baseline + convention (`.specs/features/001-shadcn-first-primitives/`). Primitives in `apps/web` originate from shadcn/ui via the shadcn skill, customized in-project; bespoke only when no primitive fits._
 - _Landed (feature `012`): auth login form + protected app shell with logout — the
@@ -105,9 +114,11 @@ deal → exhaustion marks the deal lost. Self-hostable via Docker Compose.
 - _Landed (feature `015`): channels admin (add channel account, grant access, list).
   shadcn `select`/`textarea` added._
 - _Landed (feature `016`): CRM connectors + entry-triggers admin (add connector account,
-  map stage → cadence, list/remove triggers). Remaining: cadences/templates CRUD. The
-  **inbox** is not buildable in v0.1 — inbound messages aren't stored (documented in
-  CONCERNS)._
+  map stage → cadence, list/remove triggers)._
+- _Landed (feature `017`): cadences & templates CRUD — template create/list/remove and a
+  cadence builder (ordered steps + onReply move-stage) + cadence list. This completes the
+  v0.1 Minimum UI; the **inbox** is the only deferred screen (no inbound-message store —
+  documented in CONCERNS)._
 - Auth (login)
 - Admin: user management, workspace channels (create/configure/grant access/webhook URL), Pipedrive connector mapping
 - BDR: my channels (set primary), cadences & templates CRUD, inbox (filter by instance / my leads), journey list (active/paused/error)
