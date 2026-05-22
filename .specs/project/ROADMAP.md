@@ -163,6 +163,50 @@ deal → exhaustion marks the deal lost. Self-hostable via Docker Compose.
 
 ---
 
+## Phase 1.6 — Auth & identity enrichment
+
+**Goal:** Harden the home-grown auth boundary for real self-host operation without
+coupling to an auth library — building on the v0.1 Identity & Auth slice (login/logout,
+session expiry/revocation, CSRF, login rate-limit, password reset). Each feature below is
+a separate slice and keeps the auth boundary isolated from the domain.
+
+**Self-host registration gate** - IN PROGRESS
+- A single global toggle (env-backed config, e.g. `DISABLE_USER_REGISTRATION`) that blocks
+  the public `POST /auth/register` use-case with a business-rule error (`422`) when on.
+- novu style: no instance-admin role. The operator boots with the gate open, registers the
+  first/master user (who becomes a normal workspace `admin`, as `register` already does),
+  then sets the toggle on to lock down public signup. No first-user bypass in code.
+- Further members keep arriving through the existing invite / `accept-invite` flow, which is
+  a separate path and stays ungated.
+- Web: `(auth)/signup` reflects the gate (hidden/disabled with a "registration disabled"
+  state) driven by a public capability flag, not a hardcoded build switch.
+- Config surfaced in `docker/.env.example`, the config module, and env validation.
+
+**Email verification** - PLANNED
+- Reuse the existing `verification-tokens` table and the `MailSender` boundary (v0.1
+  `ConsoleMailSender`) to carry a single-use, hashed verification token out-of-band on
+  register — never in the HTTP response, mirroring the password-reset slice (`020`).
+- `users.emailVerifiedAt` already exists and is set on confirm. The enforcement posture
+  (allow login but restrict vs. block until verified) and resend throttling are settled in
+  the slice's Specify.
+- Endpoints: request/resend verification + confirm; web post-signup "check your email"
+  state + a verify route. Contracts + api-client hooks per the type-safe boundary.
+
+**Session management UX** - PLANNED
+- List a user's active sessions (device / user-agent / IP / last-seen / expiry), revoke an
+  individual session, and "log out everywhere" (revoke all but the current). Builds on the
+  existing `sessions` table and `SessionRepository`; no new session model.
+- New read/revoke contracts + api-client hooks + a security screen in the app shell.
+
+**OAuth / SSO login** - PLANNED
+- Social login providers (set TBD in Specify; Google / GitHub the likely first) alongside
+  email + password. Account linking by verified email; a new identities table; per-provider
+  callback routes and client-id/secret/redirect config.
+- Distinct from the managed-cloud enterprise SSO/SAML noted under Future Considerations
+  (Paid cloud) — this slice is self-host social OAuth, not multi-tenant SAML.
+
+---
+
 ## Future Considerations (Phase 2+)
 
 - Native CRM (deals, own pipeline, contacts)

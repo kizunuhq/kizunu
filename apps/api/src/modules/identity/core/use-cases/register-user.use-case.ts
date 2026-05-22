@@ -10,7 +10,10 @@ import { Injectable } from '@nestjs/common'
 import { eq } from 'drizzle-orm'
 
 import { hashPassword } from '../crypto/password.helper'
-import { EmailAlreadyTakenException } from '../errors/identity.errors'
+import {
+  EmailAlreadyTakenException,
+  RegistrationDisabledException,
+} from '../errors/identity.errors'
 
 export interface RegisterUserInput {
   email: string
@@ -45,6 +48,10 @@ export class RegisterUserUseCase {
   ) {}
 
   async execute(input: RegisterUserInput): Promise<RegisterUserOutput> {
+    if (this.config.get('auth.registrationDisabled')) {
+      throw new RegistrationDisabledException()
+    }
+
     const existing = await this.drizzle.db
       .select({ id: users.id })
       .from(users)

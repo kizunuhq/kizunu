@@ -1,4 +1,5 @@
 import type {
+  AuthCapabilitiesResponse,
   ConfirmPasswordReset,
   LoginRequest,
   LoginResponse,
@@ -12,6 +13,9 @@ import type {
 import { Routes } from '@kizunu/api-contracts/routes'
 
 import { get, post } from '../client/api-client'
+
+export const getAuthCapabilities = (): Promise<AuthCapabilitiesResponse> =>
+  get<AuthCapabilitiesResponse>(Routes.auth.capabilities)
 
 export const register = (body: RegisterRequest): Promise<RegisterResponse> =>
   post<RegisterResponse>(Routes.auth.register, body)

@@ -13,6 +13,11 @@ const configSchema = z.object({
     ttlDays: z.coerce.number().int().positive().default(30),
     cookieSecure: z.coerce.boolean().default(false),
   }),
+  auth: z.object({
+    // Self-host registration gate. stringbool (not coerce.boolean, which maps
+    // "false" -> true) so DISABLE_USER_REGISTRATION=false really means open.
+    registrationDisabled: z.stringbool().default(false),
+  }),
   meta: z.object({
     verifyToken: z.string().default(''),
   }),
@@ -35,6 +40,9 @@ export function load(): Config {
       cookieName: process.env.APP_SESSION_COOKIE_NAME,
       ttlDays: process.env.APP_SESSION_TTL_DAYS,
       cookieSecure: process.env.APP_SESSION_COOKIE_SECURE,
+    },
+    auth: {
+      registrationDisabled: process.env.DISABLE_USER_REGISTRATION,
     },
     meta: {
       verifyToken: process.env.APP_META_VERIFY_TOKEN,
