@@ -1,3 +1,5 @@
+export * from './channel-accesses'
+export * from './channel-accounts'
 export * from './memberships'
 export * from './sessions'
 export * from './users'
