@@ -40,7 +40,7 @@ deal → exhaustion marks the deal lost. Self-hostable via Docker Compose.
   reset token out-of-band — never in the HTTP response — and a confirm revokes all
   the user's sessions. Swapping in a real mail transport is tracked in CONCERNS._
 
-**Workspace & Membership** - IN PROGRESS
+**Workspace & Membership** - COMPLETE (v0.1 scope)
 
 - `Workspace` and `Membership` (`role: admin | member`, `status: active | inactive`) as domain entities
 - Admin user management: create, mark inactive, reassign leads
@@ -48,7 +48,7 @@ deal → exhaustion marks the deal lost. Self-hostable via Docker Compose.
   reassignment + pausing an inactive owner's journeys landed in feature `019` (manual
   admin actions, per scope)._
 
-**Channel plugin system + Meta/WhatsApp** - IN PROGRESS
+**Channel plugin system + Meta/WhatsApp** - COMPLETE (v0.1 scope)
 
 - `ChannelPlugin` contract (`manifest`, `send`, `parseInbound`, `validate → Decision`) as a monorepo module
 - `ChannelAccount` (workspace-owned instance) + `ChannelAccess` (`isPrimary` per user/plugin)
@@ -60,7 +60,7 @@ deal → exhaustion marks the deal lost. Self-hostable via Docker Compose.
   parseInbound, send) registered into the registry. The app-level inbound webhook is
   deferred to the Engine slice, where its `LeadJourney` consumer lives._
 
-**CRM connector + Pipedrive** - IN PROGRESS
+**CRM connector + Pipedrive** - COMPLETE (v0.1 scope)
 
 - `CRMConnector` contract (`parseWebhook`, `fetchLead`, `logActivity`, `moveStage`, `markLost`, `setField`)
 - Normalized vocabulary (`lead.stage_entered`, …); cadences never see Pipedrive
@@ -73,7 +73,7 @@ deal → exhaustion marks the deal lost. Self-hostable via Docker Compose.
   (needs `LeadJourney`), and the throttled outbound queue ship with the Cadence/Engine
   slices._
 
-**Cadence aggregate + Templates** - IN PROGRESS
+**Cadence aggregate + Templates** - COMPLETE (v0.1 scope)
 
 - `Cadence` (entry trigger, ordered `Step`s, stop policy, hooks `onReply`/`onExhausted`/`onComplete`)
 - `Step` (`order`, `delay`, `jitter`, `channelRef`, `template`); `Template` as HSM reference for Meta
@@ -84,7 +84,7 @@ deal → exhaustion marks the deal lost. Self-hostable via Docker Compose.
   validation. `EntryTrigger` ships with the engine slice; `Lead` is mirrored during
   ingestion._
 
-**Engine: scheduler + inbound** - IN PROGRESS
+**Engine: scheduler + inbound** - COMPLETE (v0.1 scope; hardening in CONCERNS)
 
 - _Landed (feature `007`): the pure `LeadJourney` state machine (D1 transitions) and
   `EntryTrigger` CRUD (pipeline+stage → cadence)._
@@ -132,7 +132,7 @@ deal → exhaustion marks the deal lost. Self-hostable via Docker Compose.
 - Admin: user management, workspace channels (create/configure/grant access/webhook URL), Pipedrive connector mapping
 - BDR: my channels (set primary), cadences & templates CRUD, inbox (filter by instance / my leads), journey list (active/paused/error)
 
-**REST + OpenAPI surface** - IN PROGRESS
+**REST + OpenAPI surface** - COMPLETE (v0.1 scope)
 
 - CRUD for every domain entity; OpenAPI from day one
 - Authenticated public endpoints: CRM webhook ingestion + channel inbound (URL per `ChannelAccount`)
