@@ -51,5 +51,6 @@ export const Routes = {
   },
   webhooks: {
     crm: (connectorAccountId: string) => `/webhooks/crm/${connectorAccountId}`,
+    meta: '/webhooks/meta',
   },
 } as const

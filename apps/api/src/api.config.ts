@@ -13,6 +13,9 @@ const configSchema = z.object({
     ttlDays: z.coerce.number().int().positive().default(30),
     cookieSecure: z.coerce.boolean().default(false),
   }),
+  meta: z.object({
+    verifyToken: z.string().default(''),
+  }),
 })
 
 export type Config = z.infer<typeof configSchema>
@@ -32,6 +35,9 @@ export function load(): Config {
       cookieName: process.env.APP_SESSION_COOKIE_NAME,
       ttlDays: process.env.APP_SESSION_TTL_DAYS,
       cookieSecure: process.env.APP_SESSION_COOKIE_SECURE,
+    },
+    meta: {
+      verifyToken: process.env.APP_META_VERIFY_TOKEN,
     },
   })
 
