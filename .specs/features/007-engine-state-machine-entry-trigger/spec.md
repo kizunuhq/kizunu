@@ -79,10 +79,10 @@ reply (which create/advance journeys and write touch attempts) follow.
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| ENG-01 | P1: state machine transitions | Tasks | Pending |
-| ENG-02 | P1: illegal transition rejection | Tasks | Pending |
-| ENG-03 | P1: EntryTrigger create + validation | Tasks | Pending |
-| ENG-04 | P1: EntryTrigger list/delete | Tasks | Pending |
+| ENG-01 | P1: state machine transitions | Tasks | Verified |
+| ENG-02 | P1: illegal transition rejection | Tasks | Verified |
+| ENG-03 | P1: EntryTrigger create + validation | Tasks | Verified |
+| ENG-04 | P1: EntryTrigger list/delete | Tasks | Verified |
 
 **Coverage:** 4 total, mapped to tasks.
 
