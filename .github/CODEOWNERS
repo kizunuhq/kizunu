@@ -1,0 +1,26 @@
+# Code owners for Kizunu.
+#
+# Owners are auto-requested for review on PRs that touch matching paths.
+# When the master ruleset enables "require code owner review", these paths
+# also require an owner's approval to merge.
+#
+# Swap @nothingrotf for a team handle (e.g. @kizunuhq/maintainers) once a
+# maintainers team exists.
+
+# Default owner for everything in the repo.
+*                           @nothingrotf
+
+# CI, automation, and repo configuration.
+/.github/                   @nothingrotf
+
+# Planning and codebase knowledge — the source of truth.
+/.specs/                    @nothingrotf
+
+# Architecture Decision Records are immutable once accepted.
+/docs/adr/                  @nothingrotf
+
+# The type-safe API boundary. Contract changes ripple to both ends.
+/packages/api-contracts/    @nothingrotf
+
+# Project rules enforced by the quality gate.
+/.agents/rules/             @nothingrotf

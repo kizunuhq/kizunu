@@ -1,0 +1,52 @@
+name: PR title
+
+# Validates the PR title as a Conventional Commit. We squash-merge, so the PR
+# title becomes the commit subject on `master` — keep it changelog-clean.
+# Types and scopes are kept in sync with commitlint.config.cjs.
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+    branches: [master]
+
+permissions:
+  pull-requests: read
+
+jobs:
+  lint:
+    name: Lint PR title
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: amannn/action-semantic-pull-request@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          # Keep in sync with commitlint.config.cjs (type-enum).
+          types: |
+            feat
+            fix
+            docs
+            style
+            refactor
+            perf
+            test
+            build
+            ci
+            chore
+            revert
+          # Keep in sync with commitlint.config.cjs (scope-enum). Scope is
+          # optional, but when present it must be one of these.
+          scopes: |
+            api
+            web
+            infra
+            deps
+            release
+          requireScope: false
+          subjectPattern: ^(?![A-Z]).+$
+          subjectPatternError: |
+            The subject "{subject}" must start with a lowercase letter.
+            Examples:
+              feat(api): add session refresh endpoint
+              fix(web): correct redirect after login
