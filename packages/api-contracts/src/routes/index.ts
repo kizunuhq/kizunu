@@ -49,4 +49,7 @@ export const Routes = {
     item: (workspaceId: string, triggerId: string) =>
       `/workspaces/${workspaceId}/entry-triggers/${triggerId}`,
   },
+  webhooks: {
+    crm: (connectorAccountId: string) => `/webhooks/crm/${connectorAccountId}`,
+  },
 } as const

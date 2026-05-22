@@ -70,6 +70,24 @@ export class EntryTriggerRepository {
       .where(eq(entryTriggers.workspaceId, workspaceId))
   }
 
+  /** Ingestion seam: the cadence to start when a deal enters a stage. */
+  async findCadenceByStage(
+    connectorAccountId: string,
+    stageId: string,
+  ): Promise<{ cadenceId: string } | undefined> {
+    const rows = await this.drizzle.db
+      .select({ cadenceId: entryTriggers.cadenceId })
+      .from(entryTriggers)
+      .where(
+        and(
+          eq(entryTriggers.connectorAccountId, connectorAccountId),
+          eq(entryTriggers.stageId, stageId),
+        ),
+      )
+      .limit(1)
+    return rows[0]
+  }
+
   async delete(id: string): Promise<void> {
     await this.drizzle.db.delete(entryTriggers).where(eq(entryTriggers.id, id))
   }
