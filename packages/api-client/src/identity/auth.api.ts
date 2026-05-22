@@ -1,9 +1,11 @@
 import type {
+  ConfirmPasswordReset,
   LoginRequest,
   LoginResponse,
   MeResponse,
   RegisterRequest,
   RegisterResponse,
+  RequestPasswordReset,
   SwitchWorkspaceRequest,
   SwitchWorkspaceResponse,
 } from '@kizunu/api-contracts/identity'
@@ -23,3 +25,9 @@ export const getMe = (): Promise<MeResponse> => get<MeResponse>(Routes.auth.me)
 
 export const switchWorkspace = (body: SwitchWorkspaceRequest): Promise<SwitchWorkspaceResponse> =>
   post<SwitchWorkspaceResponse>(Routes.auth.switchWorkspace, body)
+
+export const requestPasswordReset = (body: RequestPasswordReset): Promise<void> =>
+  post<void>(Routes.auth.passwordReset, body)
+
+export const confirmPasswordReset = (body: ConfirmPasswordReset): Promise<void> =>
+  post<void>(Routes.auth.passwordResetConfirm, body)

@@ -22,6 +22,6 @@ import { WorkspaceRepository } from './persistence/workspace.repository'
     UpdateMemberStatusUseCase,
     WorkspaceAdminGuard,
   ],
-  exports: [WorkspaceMemberRepository, WorkspaceAdminGuard],
+  exports: [WorkspaceMemberRepository, WorkspaceAdminGuard, VerificationTokenRepository],
 })
 export class WorkspaceModule {}

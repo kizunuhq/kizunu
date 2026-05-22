@@ -23,14 +23,13 @@ import { Throttle } from '@nestjs/throttler'
 import type { Request, Response } from 'express'
 import { createZodDto } from 'nestjs-zod'
 
-const AUTH_THROTTLE = { default: { limit: 10, ttl: 60_000 } }
-
 import type { ActiveSession } from '../../core/models/authenticated-user'
 import { AuthenticateUseCase } from '../../core/use-cases/authenticate.use-case'
 import { GetMeUseCase } from '../../core/use-cases/get-me.use-case'
 import { LogoutUseCase } from '../../core/use-cases/logout.use-case'
 import { RegisterUserUseCase } from '../../core/use-cases/register-user.use-case'
 import { SwitchActiveWorkspaceUseCase } from '../../core/use-cases/switch-active-workspace.use-case'
+import { AUTH_THROTTLE } from '../auth-throttle'
 import { CurrentSession } from '../decorators/current-session.decorator'
 
 class RegisterDto extends createZodDto(RegisterRequestSchema) {}

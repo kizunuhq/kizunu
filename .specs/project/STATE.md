@@ -18,7 +18,9 @@ Settled before code (from `docs/v0.1-scope.md`; rationale in `docs/adr/`):
 
 - **SETTLED — Auth method:** email/password (not magic link) — ADR-006.
 - **SETTLED — CSRF + rate-limit:** `sameSite`-lax + CORS allowlist for CSRF, `@nestjs/throttler` IP rate-limit on `auth/*` (feature `018`, ADR-006). Session expiry/revocation already enforced.
-- **OPEN — Password reset:** still unbuilt; needs a mail boundary (tracked in CONCERNS).
+- **SETTLED — Password reset:** built securely in feature `020` behind a `MailSender`
+  boundary (v0.1 `ConsoleMailSender` logs the message); the token travels out-of-band,
+  never in a response. A real mail transport is the only remaining swap (CONCERNS).
 - Pilot assumptions to confirm (from scope §"Assumptions to confirm with the pilot"): Pipedrive pipeline shape (per-BDR vs shared); Meta number per BDR + 14-day CoEx upkeep + per-conversation pricing accepted; five follow-up messages approved as HSM templates before pilot; simple auth acceptable; manual lead reassignment acceptable.
 
 ## Blockers
@@ -39,6 +41,17 @@ Settled before code (from `docs/v0.1-scope.md`; rationale in `docs/adr/`):
 - The dispatcher (feature `009`, `modules/engine/`): `JourneyDispatcher.dispatchDue` finds due running journeys (`findDueIds`), then per id runs `dispatchOne` inside `db.transaction` under `lockById` (`SELECT … FOR UPDATE`). Per step: resolve the lead-owner's primary channel (none → `error_state`), `touchAttempts.tryInsert` (unique `(journey, step)` = idempotency), `plugin.validate` (error → `error_state`), send the **template** touch (variables not yet resolved — v0.1 limitation), `connector.logActivity`, `advance` with `Jitter`. Past the last step → `transition(exhaust)` + `CadenceActionExecutor` runs `onExhausted` (flat guards, not a switch; `move_stage/mark_lost/log_activity/set_field` → connector, `notify_user` no-op, `webhook_out` → fetch). An in-process `setInterval` `JourneyPoller` (D5, disabled under `NODE_ENV=test`) ticks `dispatchDue`. `persistence/transaction.ts` types the tx executor threaded to repos. **Deferred:** CRM-owner → Kizunu-user mapping (until then `ownerUserId=null` → `error_state`) and `sendingWindow` (dispatch respects only `nextTouchAt`).
 - Lead ownership (feature `019`, `modules/engine/`): manual admin actions — `PauseOwnerJourneysUseCase` parks an owner's running journeys → `paused_owner_inactive`; `ReassignLeadsUseCase` re-owns an owner's leads and resumes their parked journeys → `running` (due now). Engine admin endpoints (`POST /workspaces/:id/owners/:userId/pause-journeys`, `POST /workspaces/:id/lead-reassignments`) — no workspace↔engine cycle. With this, every v0.1 roadmap item that can be built without a mail provider is implemented; only **password reset** remains (blocked on a mail boundary — see ADR-006/CONCERNS).
 - Inbound reply (feature `010`, `modules/engine/`): the app-level `MetaWebhookController` (`@Public`) — `GET /webhooks/meta` verifies `hub.verify_token` against `meta.verifyToken` config; `POST` parses via the Meta plugin and routes each message to its `ChannelAccount` by `phone_number_id` (`ChannelAccountRepository.findByPluginAndCredential`). `MarkReplyUseCase` finds the running journey by `(workspaceId, lead.phone)`, takes the row lock **only** for `transition(Running, Reply) → replied` (serializing with the dispatcher per D1), and runs `onReply` actions **after** commit (off the lock). `paused_owner_inactive` + bulk reassign are deferred (avoid a workspace↔engine module cycle).
+- Password reset (feature `020`, `modules/identity/`): a `MailSender` abstract-class
+  port (DI token) with a v0.1 `ConsoleMailSender` is the out-of-band boundary.
+  `RequestPasswordResetUseCase` always resolves (no account enumeration) and, only when
+  the email maps to a user, mints a single-use `password_reset` token (1h, hashed) and
+  mails the `${appUrl}/reset-password?token=…` link. `ResetPasswordUseCase` validates
+  via `VerificationTokenRepository.findActiveByHashedToken` (consumed/expired never
+  validate), replaces the hash, consumes the token, and revokes **all** the user's
+  sessions. `IdentityModule` imports `WorkspaceModule` (which now exports
+  `VerificationTokenRepository`) — acyclic, since Workspace never imports Identity.
+  With this, **every v0.1 roadmap line is implemented**; remaining items are
+  pilot-hardening follow-ups in CONCERNS (notably a real mail transport).
 - REST + OpenAPI (feature `011`): `@nestjs/swagger` + nestjs-zod `cleanupOpenApiDoc` build the OpenAPI 3 doc from controllers + zod DTOs (`shared/http/openapi.ts`), served at `/docs` + `/docs-json` from `main.ts`; controllers carry `@ApiTags`. Added `GET /workspaces/:id/lead-journeys` (status-filterable) — the journey-view read. Known CRUD gaps (connector update/delete, entry-trigger update) are documented, not built. With this, the only remaining v0.1 roadmap line is **Minimum UI** (the `apps/web` screens; the api-client hooks for every domain already exist).
 
 ## Deferred ideas

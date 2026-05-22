@@ -52,6 +52,13 @@ export class SessionRepository {
     await this.drizzle.db.update(sessions).set({ revokedAt: new Date() }).where(eq(sessions.id, id))
   }
 
+  async revokeAllForUser(userId: string): Promise<void> {
+    await this.drizzle.db
+      .update(sessions)
+      .set({ revokedAt: new Date() })
+      .where(and(eq(sessions.userId, userId), isNull(sessions.revokedAt)))
+  }
+
   async updateActiveWorkspace(id: string, activeWorkspaceId: string): Promise<void> {
     await this.drizzle.db.update(sessions).set({ activeWorkspaceId }).where(eq(sessions.id, id))
   }

@@ -7,10 +7,11 @@ The single goal of v0.1 is to run the reference pilot end-to-end (see PROJECT.md
 features below are the slices required for that contract to execute. Phase 1.5 and beyond
 are deliberately deferred to avoid freezing API decisions too early.
 
-**All v0.1 feature lines are implemented** (features `002`–`017`): identity/workspace,
+**All v0.1 feature lines are implemented** (features `002`–`020`): identity/workspace,
 the channel plugin system + Meta/WhatsApp, the CRM connector + Pipedrive, the cadence
 aggregate + templates, the full engine (state machine, ingestion, dispatcher/poller,
-inbound reply), the REST + OpenAPI surface, and the Minimum UI. Before a *real* pilot
+inbound reply), the REST + OpenAPI surface, the Minimum UI, CSRF + login rate-limit
+(`018`), manual lead reassignment (`019`), and password reset (`020`). Before a *real* pilot
 run can deliver, a set of documented hardening follow-ups in `.specs/codebase/CONCERNS.md`
 must close — notably CRM-owner → Kizunu-user mapping (else journeys hit `error_state`),
 `sendingWindow`, template-variable resolution, `paused_owner_inactive` + reassign, the
@@ -27,15 +28,17 @@ deal → exhaustion marks the deal lost. Self-hostable via Docker Compose.
 
 ### Features
 
-**Identity & Auth** - IN PROGRESS
+**Identity & Auth** - COMPLETE
 
 - Home-grown `User` (email, password hash) + session table
 - Login / logout, session expiry, CSRF, login rate-limit, password reset
 - Auth boundary isolated from domain (no auth-library org/teams schema)
 - _Backend landed (#13, #14). Auth method settled (email/password) and CSRF posture
   (`sameSite`-lax + CORS) + IP login rate-limit landed in feature `018` (ADR-006).
-  Session expiry/revocation is enforced. **Password reset** remains open (needs a mail
-  boundary — tracked in CONCERNS)._
+  Session expiry/revocation is enforced. **Password reset** landed in feature `020`:
+  a `MailSender` boundary (v0.1 `ConsoleMailSender`) carries a single-use, hashed
+  reset token out-of-band — never in the HTTP response — and a confirm revokes all
+  the user's sessions. Swapping in a real mail transport is tracked in CONCERNS._
 
 **Workspace & Membership** - IN PROGRESS
 
