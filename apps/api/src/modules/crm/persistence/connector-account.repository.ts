@@ -41,6 +41,25 @@ export class ConnectorAccountRepository {
       .where(eq(connectorAccounts.workspaceId, workspaceId))
   }
 
+  /** Resolves an account (with workspace + credentials) by id alone — for the public CRM webhook. */
+  async findById(
+    id: string,
+  ): Promise<
+    { id: string; workspaceId: string; connectorId: string; credentials: unknown } | undefined
+  > {
+    const rows = await this.drizzle.db
+      .select({
+        id: connectorAccounts.id,
+        workspaceId: connectorAccounts.workspaceId,
+        connectorId: connectorAccounts.connectorId,
+        credentials: connectorAccounts.credentials,
+      })
+      .from(connectorAccounts)
+      .where(eq(connectorAccounts.id, id))
+      .limit(1)
+    return rows[0]
+  }
+
   async findByIdInWorkspace(id: string, workspaceId: string): Promise<{ id: string } | undefined> {
     const rows = await this.drizzle.db
       .select({ id: connectorAccounts.id })

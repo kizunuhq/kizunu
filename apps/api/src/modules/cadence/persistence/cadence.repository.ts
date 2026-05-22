@@ -130,6 +130,17 @@ export class CadenceRepository {
       .groupBy(cadences.id)
   }
 
+  /** Delay (minutes) of the cadence's first step — the engine uses it for the first touch. */
+  async firstStepDelayMinutes(cadenceId: string): Promise<number | undefined> {
+    const rows = await this.drizzle.db
+      .select({ delayMinutes: cadenceSteps.delayMinutes })
+      .from(cadenceSteps)
+      .where(eq(cadenceSteps.cadenceId, cadenceId))
+      .orderBy(cadenceSteps.stepOrder)
+      .limit(1)
+    return rows[0]?.delayMinutes
+  }
+
   async delete(id: string): Promise<void> {
     await this.drizzle.db.delete(cadences).where(eq(cadences.id, id))
   }

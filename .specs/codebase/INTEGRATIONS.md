@@ -39,12 +39,10 @@ The shape of these integrations is fixed by accepted ADRs (index: `docs/adr/READ
 **Implementation:** `parseWebhook` normalizes `deal.updated` stage transitions into `lead.stage_entered` (idempotency key `pipedrive:deal:{id}:event:{event}:{timestamp}`, never throws); outbound actions POST/PUT to `https://{companyDomain}.pipedrive.com/api/v1` with `?api_token=` (base/fetch injectable for tests). Non-OK → `CrmRequestFailedException`.
 **Planned (engine slice):** throttled outbound queue (~100 req / 10s, exponential backoff, max 3 → `error_state`) and the `EntryTrigger` pipeline+stage → cadence mapping.
 
-## Webhooks (planned)
+## Webhooks
 
-- **Pipedrive `deal.updated`** — filtered by `stage_id` transition; idempotency key `pipedrive:deal:{id}:event:{event}:{timestamp}`.
-- **Meta inbound** — single app-level webhook with `hub.verify_token` verification; plugin routes by `phone_number_id`; per-`ChannelAccount` URL also available.
-
-Both will be authenticated public endpoints on the API.
+- **Pipedrive `deal.updated`** — **built (feature `008`)**: `POST /webhooks/crm/:connectorAccountId` (`@Public`; the unguessable account id is the v0.1 shared secret). Resolves the account, runs `connector.parseWebhook` (filtered by `stage_id` transition; idempotency key `pipedrive:deal:{id}:event:{event}:{timestamp}`), and starts a `LeadJourney` per event. Journey-level idempotency (no event-key table yet).
+- **Meta inbound** (planned — inbound reply slice) — single app-level webhook with `hub.verify_token` verification; plugin routes by `phone_number_id`; per-`ChannelAccount` URL also available.
 
 ## Background Jobs
 
