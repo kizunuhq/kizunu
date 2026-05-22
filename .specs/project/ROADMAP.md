@@ -205,13 +205,19 @@ a separate slice and keeps the auth boundary isolated from the domain.
 - Endpoints: request/resend verification + confirm; web post-signup "check your email"
   state + a verify route. Contracts + api-client hooks per the type-safe boundary.
 
-**Session management UX** - IN PROGRESS
+**Session management UX** - COMPLETE
+- _Landed (feature `024`): `sessions.lastSeenAt` (migration `0008`) refreshed by the auth
+  guard coalesced to ~5 min; `SessionRepository` list/touch/ownership-scoped revoke;
+  `ListSessionsUseCase` (current flagged), `RevokeSessionUseCase` (foreign/missing id →
+  `422 identity.session-not-found`), `RevokeOtherSessionsUseCase` (keeps current).
+  `SessionController` (`GET /auth/sessions`, `DELETE /auth/sessions/:id`,
+  `DELETE /auth/sessions`). Web: a Security screen with per-row revoke + log-out-others._
 - List a user's active sessions (device / user-agent / IP / last-seen / expiry), revoke an
   individual session, and "log out everywhere" (revoke all but the current). Builds on the
   existing `sessions` table and `SessionRepository`; no new session model.
 - New read/revoke contracts + api-client hooks + a security screen in the app shell.
 
-**OAuth / SSO login** - PLANNED
+**OAuth / SSO login** - IN PROGRESS
 - Social login providers (set TBD in Specify; Google / GitHub the likely first) alongside
   email + password. Account linking by verified email; a new identities table; per-provider
   callback routes and client-id/secret/redirect config.
