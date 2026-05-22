@@ -170,7 +170,12 @@ coupling to an auth library — building on the v0.1 Identity & Auth slice (logi
 session expiry/revocation, CSRF, login rate-limit, password reset). Each feature below is
 a separate slice and keeps the auth boundary isolated from the domain.
 
-**Self-host registration gate** - IN PROGRESS
+**Self-host registration gate** - COMPLETE
+- _Landed (feature `022`): `DISABLE_USER_REGISTRATION` env toggle (`z.stringbool`) makes
+  `RegisterUserUseCase` throw a `422` `identity.registration-disabled` before any DB access;
+  invite/accept-invite stays ungated by construction. Public `GET /auth/capabilities`
+  (`{ registrationEnabled }`) drives the web `(auth)/signup` form-vs-disabled-notice. Surfaced
+  in `apps/api/.env.example` + `deploy/docker-compose.yml`._
 - A single global toggle (env-backed config, e.g. `DISABLE_USER_REGISTRATION`) that blocks
   the public `POST /auth/register` use-case with a business-rule error (`422`) when on.
 - novu style: no instance-admin role. The operator boots with the gate open, registers the
@@ -182,7 +187,7 @@ a separate slice and keeps the auth boundary isolated from the domain.
   state) driven by a public capability flag, not a hardcoded build switch.
 - Config surfaced in `docker/.env.example`, the config module, and env validation.
 
-**Email verification** - PLANNED
+**Email verification** - IN PROGRESS
 - Reuse the existing `verification-tokens` table and the `MailSender` boundary (v0.1
   `ConsoleMailSender`) to carry a single-use, hashed verification token out-of-band on
   register — never in the HTTP response, mirroring the password-reset slice (`020`).

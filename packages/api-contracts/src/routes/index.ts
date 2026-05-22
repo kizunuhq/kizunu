@@ -14,6 +14,8 @@ export const Routes = {
     switchWorkspace: '/auth/switch-workspace',
     passwordReset: '/auth/password-reset',
     passwordResetConfirm: '/auth/password-reset/confirm',
+    emailVerification: '/auth/email-verification',
+    emailVerificationConfirm: '/auth/email-verification/confirm',
   },
   workspaces: {
     invite: (workspaceId: string) => `/workspaces/${workspaceId}/invitations`,

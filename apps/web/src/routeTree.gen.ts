@@ -13,6 +13,7 @@ import { Route as NotFoundRouteImport } from './routes/not-found'
 import { Route as AppRouteRouteImport } from './routes/_app/route'
 import { Route as authRouteRouteImport } from './routes/(auth)/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as authVerifyEmailRouteImport } from './routes/(auth)/verify-email'
 import { Route as authSignupRouteImport } from './routes/(auth)/signup'
 import { Route as authLoginRouteImport } from './routes/(auth)/login'
 import { Route as AppWorkspaceIndexRouteImport } from './routes/_app/workspace/index'
@@ -41,6 +42,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const authVerifyEmailRoute = authVerifyEmailRouteImport.update({
+  id: '/verify-email',
+  path: '/verify-email',
+  getParentRoute: () => authRouteRoute,
 } as any)
 const authSignupRoute = authSignupRouteImport.update({
   id: '/signup',
@@ -98,6 +104,7 @@ export interface FileRoutesByFullPath {
   '/not-found': typeof NotFoundRoute
   '/login': typeof authLoginRoute
   '/signup': typeof authSignupRoute
+  '/verify-email': typeof authVerifyEmailRoute
   '/accept-invite/$token': typeof authAcceptInviteTokenRoute
   '/workspace/cadences': typeof AppWorkspaceCadencesRoute
   '/workspace/channels': typeof AppWorkspaceChannelsRoute
@@ -112,6 +119,7 @@ export interface FileRoutesByTo {
   '/not-found': typeof NotFoundRoute
   '/login': typeof authLoginRoute
   '/signup': typeof authSignupRoute
+  '/verify-email': typeof authVerifyEmailRoute
   '/accept-invite/$token': typeof authAcceptInviteTokenRoute
   '/workspace/cadences': typeof AppWorkspaceCadencesRoute
   '/workspace/channels': typeof AppWorkspaceChannelsRoute
@@ -129,6 +137,7 @@ export interface FileRoutesById {
   '/not-found': typeof NotFoundRoute
   '/(auth)/login': typeof authLoginRoute
   '/(auth)/signup': typeof authSignupRoute
+  '/(auth)/verify-email': typeof authVerifyEmailRoute
   '/(auth)/accept-invite/$token': typeof authAcceptInviteTokenRoute
   '/_app/workspace/cadences': typeof AppWorkspaceCadencesRoute
   '/_app/workspace/channels': typeof AppWorkspaceChannelsRoute
@@ -145,6 +154,7 @@ export interface FileRouteTypes {
     | '/not-found'
     | '/login'
     | '/signup'
+    | '/verify-email'
     | '/accept-invite/$token'
     | '/workspace/cadences'
     | '/workspace/channels'
@@ -159,6 +169,7 @@ export interface FileRouteTypes {
     | '/not-found'
     | '/login'
     | '/signup'
+    | '/verify-email'
     | '/accept-invite/$token'
     | '/workspace/cadences'
     | '/workspace/channels'
@@ -175,6 +186,7 @@ export interface FileRouteTypes {
     | '/not-found'
     | '/(auth)/login'
     | '/(auth)/signup'
+    | '/(auth)/verify-email'
     | '/(auth)/accept-invite/$token'
     | '/_app/workspace/cadences'
     | '/_app/workspace/channels'
@@ -221,6 +233,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/(auth)/verify-email': {
+      id: '/(auth)/verify-email'
+      path: '/verify-email'
+      fullPath: '/verify-email'
+      preLoaderRoute: typeof authVerifyEmailRouteImport
+      parentRoute: typeof authRouteRoute
     }
     '/(auth)/signup': {
       id: '/(auth)/signup'
@@ -298,12 +317,14 @@ declare module '@tanstack/react-router' {
 interface authRouteRouteChildren {
   authLoginRoute: typeof authLoginRoute
   authSignupRoute: typeof authSignupRoute
+  authVerifyEmailRoute: typeof authVerifyEmailRoute
   authAcceptInviteTokenRoute: typeof authAcceptInviteTokenRoute
 }
 
 const authRouteRouteChildren: authRouteRouteChildren = {
   authLoginRoute: authLoginRoute,
   authSignupRoute: authSignupRoute,
+  authVerifyEmailRoute: authVerifyEmailRoute,
   authAcceptInviteTokenRoute: authAcceptInviteTokenRoute,
 }
 

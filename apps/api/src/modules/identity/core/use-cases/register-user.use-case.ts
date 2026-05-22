@@ -14,6 +14,7 @@ import {
   EmailAlreadyTakenException,
   RegistrationDisabledException,
 } from '../errors/identity.errors'
+import { RequestEmailVerificationUseCase } from './request-email-verification.use-case'
 
 export interface RegisterUserInput {
   email: string
@@ -45,6 +46,7 @@ export class RegisterUserUseCase {
   constructor(
     private readonly drizzle: DrizzleService,
     private readonly config: ConfigService<Config>,
+    private readonly requestEmailVerification: RequestEmailVerificationUseCase,
   ) {}
 
   async execute(input: RegisterUserInput): Promise<RegisterUserOutput> {
@@ -112,6 +114,8 @@ export class RegisterUserUseCase {
 
       return { user, workspace }
     })
+
+    await this.requestEmailVerification.execute(result.user.id)
 
     return {
       user: result.user,
