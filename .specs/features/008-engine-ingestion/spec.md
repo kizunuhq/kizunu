@@ -79,10 +79,10 @@ ingestion use-case unit/integration and a controller-level check of resolve + pa
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| ING-01 | P1: start journey + cadence resolution | Tasks | Pending |
-| ING-02 | P1: idempotent re-entry | Tasks | Pending |
-| ING-03 | P1: lead upsert + nextTouchAt | Tasks | Pending |
-| ING-04 | P1: CRM webhook endpoint | Tasks | Pending |
+| ING-01 | P1: start journey + cadence resolution | Tasks | Verified |
+| ING-02 | P1: idempotent re-entry | Tasks | Verified |
+| ING-03 | P1: lead upsert + nextTouchAt | Tasks | Verified |
+| ING-04 | P1: CRM webhook endpoint | Tasks | Verified |
 
 **Coverage:** 4 total, mapped to tasks.
 

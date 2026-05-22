@@ -31,6 +31,11 @@ Evidence-backed warnings, prioritized by risk. Each item cites a file and a fix 
 **Impact:** A database read (backup, dump, compromised replica) exposes live provider tokens. Read endpoints already exclude `credentials`, so the exposure is at-rest only.
 **Fix:** Encrypt `credentials` at rest (app-level envelope encryption with a KMS/managed key, or `pgcrypto`) before real tokens are used in production. Keep decryption inside the persistence boundary so use-cases stay unaware.
 
+### CRM webhook authenticates only by an unguessable URL
+**Evidence:** `POST /webhooks/crm/:connectorAccountId` (`crm-webhook.controller.ts`, feature `008`) is `@Public` and trusts the connector-account UUID in the path as the shared secret; there is no signature/HMAC verification of the payload.
+**Impact:** Anyone who learns a connector-account id could post forged stage-entered events and start journeys. Pilot risk is low (id is a random UUIDv7, not exposed), but it is not defense-in-depth. Event-key idempotency is also journey-level only (no `processed_events` table), so redeliveries with distinct keys are not deduped.
+**Fix:** Add per-connector webhook secret/HMAC verification when hardening, and a `processed_events` idempotency table keyed by `NormalizedEvent.idempotencyKey`.
+
 ### Migrations run on every API boot
 **Evidence:** `main.ts` `runMigrations()` runs before `bootstrap()` on every start.
 **Impact:** Convenient for single-instance/dev, but multiple replicas starting concurrently can race on `drizzle-kit`'s migration table; a long migration also blocks readiness. Not a problem at pilot scale, a problem at deploy scale.

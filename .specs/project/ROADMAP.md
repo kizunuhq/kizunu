@@ -70,9 +70,12 @@ deal → exhaustion marks the deal lost. Self-hostable via Docker Compose.
 **Engine: scheduler + inbound** - IN PROGRESS
 
 - _Landed (feature `007`): the pure `LeadJourney` state machine (D1 transitions) and
-  `EntryTrigger` CRUD (pipeline+stage → cadence). Ingestion (start journeys from CRM
-  events), the scheduler/dispatcher (poller + row lock + `TouchAttempt`), and inbound
-  reply handling remain — they add the `Lead`/`LeadJourney`/`TouchAttempt` tables._
+  `EntryTrigger` CRUD (pipeline+stage → cadence)._
+- _Landed (feature `008`): ingestion — the `Lead` + `LeadJourney` tables and
+  `StartJourneyUseCase`, driven by the public per-connector CRM webhook
+  (`POST /webhooks/crm/:connectorAccountId`). A `lead.stage_entered` event with a
+  matching trigger creates exactly one running journey. The scheduler/dispatcher
+  (poller + row lock + `TouchAttempt`) and inbound reply handling remain._
 - In-process DB poller over `LeadJourney.nextTouchAt <= now`; respects `sendingWindow`, applies `jitter`
 - `LeadJourney` state machine (`running → paused | replied | exhausted | stopped | error_state | paused_owner_inactive`)
 - Pessimistic row lock (`SELECT … FOR UPDATE`) resolving the dispatch/reply race; `TouchAttempt` idempotency on `(leadJourneyId, stepOrder)`
