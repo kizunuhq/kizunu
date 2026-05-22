@@ -5,14 +5,13 @@ import { fileURLToPath } from 'node:url'
 import { ConfigService } from '@kizunu/config-module/config.service'
 import { NestFactory } from '@nestjs/core'
 import { SwaggerModule } from '@nestjs/swagger'
-import cookieParser from 'cookie-parser'
 import { drizzle } from 'drizzle-orm/node-postgres'
 import { migrate } from 'drizzle-orm/node-postgres/migrator'
-import { ZodValidationPipe } from 'nestjs-zod'
 import { Pool } from 'pg'
 
 import { type Config, load } from './api.config'
 import { ApiModule } from './api.module'
+import { applyHttpMiddleware } from './shared/http/apply-http-middleware'
 import { buildOpenApiDocument } from './shared/http/openapi'
 
 async function runMigrations(): Promise<void> {
@@ -39,8 +38,7 @@ async function bootstrap(): Promise<void> {
   const port = config.get('port')
 
   application.enableShutdownHooks()
-  application.use(cookieParser())
-  application.useGlobalPipes(new ZodValidationPipe())
+  applyHttpMiddleware(application)
 
   const corsOrigins = config.get('cors')
   if (corsOrigins?.length) {
