@@ -61,9 +61,11 @@ deal → exhaustion marks the deal lost. Self-hostable via Docker Compose.
 - `Cadence` (entry trigger, ordered `Step`s, stop policy, hooks `onReply`/`onExhausted`/`onComplete`)
 - `Step` (`order`, `delay`, `jitter`, `channelRef`, `template`); `Template` as HSM reference for Meta
 - `Lead` (mirrored owner from Pipedrive), CRUD for cadences and templates
-- _Templates landed (feature `005`): workspace-owned HSM-reference templates with CRUD.
-  The `Cadence`/`Step` aggregate + `EntryTrigger` are feature `006`; `Lead` is mirrored
-  during ingestion in the engine slice._
+- _Templates landed (feature `005`): workspace-owned HSM-reference templates with CRUD._
+- _Cadence aggregate landed (feature `006`): `Cadence` + ordered `Step`s + closed
+  vocabulary hook actions + stop policy, transactional CRUD with step/template
+  validation. `EntryTrigger` ships with the engine slice; `Lead` is mirrored during
+  ingestion._
 
 **Engine: scheduler + inbound** - PLANNED
 

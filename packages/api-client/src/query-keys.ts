@@ -11,4 +11,6 @@ export const QueryKeys = Object.freeze({
   channelPlugins: 'channelPlugins',
   workspaceConnectors: 'workspaceConnectors',
   workspaceTemplates: 'workspaceTemplates',
+  workspaceCadences: 'workspaceCadences',
+  cadence: 'cadence',
 })
