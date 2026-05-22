@@ -29,12 +29,9 @@ export class ChannelAccountRepository {
     return created
   }
 
-  async findByIdInWorkspace(
-    id: string,
-    workspaceId: string,
-  ): Promise<{ id: string; pluginId: string } | undefined> {
+  async findByIdInWorkspace(id: string, workspaceId: string): Promise<{ id: string } | undefined> {
     const rows = await this.drizzle.db
-      .select({ id: channelAccounts.id, pluginId: channelAccounts.pluginId })
+      .select({ id: channelAccounts.id })
       .from(channelAccounts)
       .where(and(eq(channelAccounts.id, id), eq(channelAccounts.workspaceId, workspaceId)))
       .limit(1)
