@@ -14,4 +14,5 @@ export const QueryKeys = Object.freeze({
   workspaceCadences: 'workspaceCadences',
   cadence: 'cadence',
   workspaceEntryTriggers: 'workspaceEntryTriggers',
+  workspaceLeadJourneys: 'workspaceLeadJourneys',
 })
