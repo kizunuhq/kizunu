@@ -43,6 +43,13 @@
       "when": 1779443863827,
       "tag": "0005_clever_captain_flint",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1779444488350,
+      "tag": "0006_wide_wallop",
+      "breakpoints": true
     }
   ]
 }
