@@ -1,5 +1,6 @@
 import { useCurrentUser } from '@kizunu/api-client/identity/use-current-user'
-import { createFileRoute, Navigate, Outlet } from '@tanstack/react-router'
+import { AppShell } from '@kizunu/web/features/app-shell/components/app-shell'
+import { createFileRoute, Navigate } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/_app')({
   component: ProtectedLayout,
@@ -11,9 +12,5 @@ function ProtectedLayout() {
   if (isPending) return null
   if (!user) return <Navigate replace to="/login" />
 
-  return (
-    <div className="min-h-dvh">
-      <Outlet />
-    </div>
-  )
+  return <AppShell userName={user.name} />
 }
