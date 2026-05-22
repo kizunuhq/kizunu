@@ -99,6 +99,9 @@ export default defineConfig({
   test: {
     passWithNoTests: true,
     projects: [
+      // The web project lives in apps/web/vite.config.ts so its jsdom
+      // environment and React plugin resolve from the web package, not root.
+      './apps/web/vite.config.ts',
       {
         resolve: { alias: { '@kizunu/api': apiSrc } },
         test: {
