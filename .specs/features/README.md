@@ -1,7 +1,9 @@
 # Feature specs
 
-Each feature gets its own directory here, holding its `spec.md` (and, when scope
-warrants, `context.md` / `design.md` / `tasks.md`) per the `tlc-spec-driven` flow.
+Each feature gets its own directory here. Per the enforced `tlc-spec-driven` flow
+(see `AGENTS.md` — every phase is an actual skill invocation, not a read), every
+feature has at minimum `spec.md` and `tasks.md`. It also gets `context.md` when the
+feature has gray areas and `design.md` when the scope warrants it.
 
 ## Rule: sequential numbering — never skip
 

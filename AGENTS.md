@@ -155,20 +155,42 @@ advance past a feature until they do.
 6. **Docs updated** — if scope/behavior changed, update the relevant `.specs/*`,
    `docs/v0.1-scope.md`, or an ADR. Keep `ROADMAP.md`/`STATE.md` current.
 
+## Skills are invoked, not just read
+
+When this guide names a skill (in **bold**, e.g. `tlc-spec-driven`,
+`generate-tests`, `review-and-ship`), that is a **mandatory directive to INVOKE the
+skill through the Skill tool** — running it, phase by phase where it has phases —
+not an invitation to read its reference files. Reading a skill's markdown is never
+a substitute for running it, and producing by hand the artifact a skill would have
+produced (a `spec.md`, a `tasks.md`, a test file) does not satisfy the step. Each
+skill named in the flow below is required at its step.
+
+If a named skill is genuinely not installed, say so explicitly and stop — do not
+silently hand-roll its work. Verify availability from the repo root
+(`ls .claude/skills/`), not a subdirectory.
+
 ## Default development flow
 
 Every feature — **even one not yet on the roadmap** — runs through this flow,
 end to end and autonomously:
 
-1. **Plan with `tlc-spec-driven`.** Run the feature through **Specify → (Context if
-   gray areas) → Design → Tasks**, auto-sized to complexity. This produces
-   `spec.md` (+ `context.md`/`design.md`/`tasks.md` as needed) under
-   `.specs/features/<feature>/`. If the feature isn't on `ROADMAP.md`, add it.
+1. **Plan by invoking `tlc-spec-driven` at each phase.** Invoke the skill — do not
+   just read it — once per phase, in order, producing files under
+   `.specs/features/<feature>/`:
+   - **Specify** — always → `spec.md`
+   - **Context** — when the feature has ambiguous gray areas → `context.md`
+   - **Design** — when the scope warrants it (architectural decisions, new
+     patterns); you decide per feature whether to invoke it → `design.md`
+   - **Tasks** — always → `tasks.md`
+   Every feature ends with at minimum `spec.md` and `tasks.md`; never let the
+   skill's auto-sizing skip Tasks. If the feature isn't on `ROADMAP.md`, add it.
 2. **Branch with `new-branch-and-pr`.** Sync `master`, then
    `git switch -c <type>/<short-description>`. Keep the branch scoped to one
    change set.
-3. **Implement the tasks.** Follow the conventions and the type-safe API boundary.
-   Keep commits focused and conventional.
+3. **Implement by invoking `tlc-spec-driven` (Execute/implement phase).** Drive the
+   build through the skill's Execute phase — one task at a time, plan → implement →
+   verify → commit — not free-form coding. Follow the conventions and the type-safe
+   API boundary; keep commits focused and conventional.
 4. **Test with `generate-tests`.** For every task, classify thin/fat and author the
    right tests — never skip this skill for test work.
 5. **Reach Definition of Done.** Make `bun check` green and confirm every DoD item.
