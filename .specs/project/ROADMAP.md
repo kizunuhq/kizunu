@@ -217,7 +217,20 @@ a separate slice and keeps the auth boundary isolated from the domain.
   existing `sessions` table and `SessionRepository`; no new session model.
 - New read/revoke contracts + api-client hooks + a security screen in the app shell.
 
-**OAuth / SSO login** - IN PROGRESS
+**OAuth / SSO login** - COMPLETE
+- _Landed (feature `025`): `OAuthProvider` port + `OAuthProviderRegistry` with
+  `GithubOAuthProvider` (zod-parsed); `identities` table + nullable `users.passwordHash`
+  (migration `0009`); `HandleOAuthCallbackUseCase` (existing identity → link by verified
+  email → provision new, gated by `DISABLE_USER_REGISTRATION`); `OAuthController` with the
+  state-cookie redirect flow; `GET /auth/capabilities` lists enabled providers; login-screen
+  provider buttons. Extracted `SessionIssuer` + `UserProvisioningService` shared by
+  register/login. Google/etc. are new providers behind the same port._
+
+**Web `/auth/*` route prefix** - COMPLETE
+- _Landed (feature `026`): the web auth pages moved from the pathless `(auth)` group to a
+  real `/auth/*` prefix (`/auth/login`, `/auth/signup`, `/auth/verify-email`,
+  `/auth/accept-invite/$token`); in-app redirects and the OAuth/verification link targets
+  updated to match._
 - Social login providers (set TBD in Specify; Google / GitHub the likely first) alongside
   email + password. Account linking by verified email; a new identities table; per-provider
   callback routes and client-id/secret/redirect config.
