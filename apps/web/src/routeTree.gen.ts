@@ -21,6 +21,7 @@ import { Route as AppWorkspaceMembersRouteImport } from './routes/_app/workspace
 import { Route as AppWorkspaceJourneysRouteImport } from './routes/_app/workspace/journeys'
 import { Route as AppWorkspaceConnectorsRouteImport } from './routes/_app/workspace/connectors'
 import { Route as AppWorkspaceChannelsRouteImport } from './routes/_app/workspace/channels'
+import { Route as AppWorkspaceCadencesRouteImport } from './routes/_app/workspace/cadences'
 import { Route as authAcceptInviteTokenRouteImport } from './routes/(auth)/accept-invite.$token'
 
 const NotFoundRoute = NotFoundRouteImport.update({
@@ -81,6 +82,11 @@ const AppWorkspaceChannelsRoute = AppWorkspaceChannelsRouteImport.update({
   path: '/workspace/channels',
   getParentRoute: () => AppRouteRoute,
 } as any)
+const AppWorkspaceCadencesRoute = AppWorkspaceCadencesRouteImport.update({
+  id: '/workspace/cadences',
+  path: '/workspace/cadences',
+  getParentRoute: () => AppRouteRoute,
+} as any)
 const authAcceptInviteTokenRoute = authAcceptInviteTokenRouteImport.update({
   id: '/accept-invite/$token',
   path: '/accept-invite/$token',
@@ -93,6 +99,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof authLoginRoute
   '/signup': typeof authSignupRoute
   '/accept-invite/$token': typeof authAcceptInviteTokenRoute
+  '/workspace/cadences': typeof AppWorkspaceCadencesRoute
   '/workspace/channels': typeof AppWorkspaceChannelsRoute
   '/workspace/connectors': typeof AppWorkspaceConnectorsRoute
   '/workspace/journeys': typeof AppWorkspaceJourneysRoute
@@ -106,6 +113,7 @@ export interface FileRoutesByTo {
   '/login': typeof authLoginRoute
   '/signup': typeof authSignupRoute
   '/accept-invite/$token': typeof authAcceptInviteTokenRoute
+  '/workspace/cadences': typeof AppWorkspaceCadencesRoute
   '/workspace/channels': typeof AppWorkspaceChannelsRoute
   '/workspace/connectors': typeof AppWorkspaceConnectorsRoute
   '/workspace/journeys': typeof AppWorkspaceJourneysRoute
@@ -122,6 +130,7 @@ export interface FileRoutesById {
   '/(auth)/login': typeof authLoginRoute
   '/(auth)/signup': typeof authSignupRoute
   '/(auth)/accept-invite/$token': typeof authAcceptInviteTokenRoute
+  '/_app/workspace/cadences': typeof AppWorkspaceCadencesRoute
   '/_app/workspace/channels': typeof AppWorkspaceChannelsRoute
   '/_app/workspace/connectors': typeof AppWorkspaceConnectorsRoute
   '/_app/workspace/journeys': typeof AppWorkspaceJourneysRoute
@@ -137,6 +146,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/signup'
     | '/accept-invite/$token'
+    | '/workspace/cadences'
     | '/workspace/channels'
     | '/workspace/connectors'
     | '/workspace/journeys'
@@ -150,6 +160,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/signup'
     | '/accept-invite/$token'
+    | '/workspace/cadences'
     | '/workspace/channels'
     | '/workspace/connectors'
     | '/workspace/journeys'
@@ -165,6 +176,7 @@ export interface FileRouteTypes {
     | '/(auth)/login'
     | '/(auth)/signup'
     | '/(auth)/accept-invite/$token'
+    | '/_app/workspace/cadences'
     | '/_app/workspace/channels'
     | '/_app/workspace/connectors'
     | '/_app/workspace/journeys'
@@ -266,6 +278,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppWorkspaceChannelsRouteImport
       parentRoute: typeof AppRouteRoute
     }
+    '/_app/workspace/cadences': {
+      id: '/_app/workspace/cadences'
+      path: '/workspace/cadences'
+      fullPath: '/workspace/cadences'
+      preLoaderRoute: typeof AppWorkspaceCadencesRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
     '/(auth)/accept-invite/$token': {
       id: '/(auth)/accept-invite/$token'
       path: '/accept-invite/$token'
@@ -293,6 +312,7 @@ const authRouteRouteWithChildren = authRouteRoute._addFileChildren(
 )
 
 interface AppRouteRouteChildren {
+  AppWorkspaceCadencesRoute: typeof AppWorkspaceCadencesRoute
   AppWorkspaceChannelsRoute: typeof AppWorkspaceChannelsRoute
   AppWorkspaceConnectorsRoute: typeof AppWorkspaceConnectorsRoute
   AppWorkspaceJourneysRoute: typeof AppWorkspaceJourneysRoute
@@ -302,6 +322,7 @@ interface AppRouteRouteChildren {
 }
 
 const AppRouteRouteChildren: AppRouteRouteChildren = {
+  AppWorkspaceCadencesRoute: AppWorkspaceCadencesRoute,
   AppWorkspaceChannelsRoute: AppWorkspaceChannelsRoute,
   AppWorkspaceConnectorsRoute: AppWorkspaceConnectorsRoute,
   AppWorkspaceJourneysRoute: AppWorkspaceJourneysRoute,

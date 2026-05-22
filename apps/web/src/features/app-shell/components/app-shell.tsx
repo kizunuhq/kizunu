@@ -7,6 +7,7 @@ const NAV_LINKS = [
   { to: '/workspace/members', label: 'Members' },
   { to: '/workspace/channels', label: 'Channels' },
   { to: '/workspace/connectors', label: 'Connectors' },
+  { to: '/workspace/cadences', label: 'Cadences' },
   { to: '/workspace/journeys', label: 'Journeys' },
   { to: '/workspace/my-channels', label: 'My channels' },
 ] as const
