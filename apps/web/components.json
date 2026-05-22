@@ -19,5 +19,7 @@
     "lib": "@kizunu/web/lib",
     "hooks": "@kizunu/web/hooks"
   },
+  "menuColor": "default",
+  "menuAccent": "subtle",
   "registries": {}
 }
