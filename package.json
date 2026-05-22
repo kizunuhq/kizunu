@@ -16,7 +16,7 @@
   "type": "module",
   "scripts": {
     "prepare": "simple-git-hooks",
-    "dev": "bunx vp run --parallel dev",
+    "dev": "bunx vp run --filter './apps/*' --parallel dev",
     "build": "bunx vp run -r build",
     "test": "bunx vp test",
     "test:unit": "bunx vp test --project unit",
