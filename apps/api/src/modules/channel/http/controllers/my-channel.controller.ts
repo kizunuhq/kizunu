@@ -1,11 +1,13 @@
 import { CurrentUser } from '@kizunu/nestjs-shared/lib/decorators/current-user.decorator'
 import type { AuthenticatedUser } from '@kizunu/nestjs-shared/lib/decorators/current-user.decorator'
 import { Controller, Get, HttpCode, Param, Patch, UnauthorizedException } from '@nestjs/common'
+import { ApiTags } from '@nestjs/swagger'
 
 import { ListAvailablePluginsUseCase } from '../../core/use-cases/list-available-plugins.use-case'
 import { ListMyChannelsUseCase } from '../../core/use-cases/list-my-channels.use-case'
 import { SetPrimaryChannelUseCase } from '../../core/use-cases/set-primary-channel.use-case'
 
+@ApiTags('channels')
 @Controller()
 export class MyChannelController {
   constructor(

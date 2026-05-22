@@ -11,6 +11,7 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common'
+import { ApiTags } from '@nestjs/swagger'
 import { createZodDto } from 'nestjs-zod'
 
 import { CreateCadenceUseCase } from '../../core/use-cases/create-cadence.use-case'
@@ -22,6 +23,7 @@ import { UpdateCadenceUseCase } from '../../core/use-cases/update-cadence.use-ca
 class CadenceDto extends createZodDto(CadenceRequestSchema) {}
 
 @UseGuards(WorkspaceAdminGuard)
+@ApiTags('cadences')
 @Controller('workspaces')
 export class CadenceController {
   constructor(

@@ -14,6 +14,7 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common'
+import { ApiTags } from '@nestjs/swagger'
 import { createZodDto } from 'nestjs-zod'
 
 import { CreateTemplateUseCase } from '../../core/use-cases/create-template.use-case'
@@ -25,6 +26,7 @@ class CreateTemplateDto extends createZodDto(CreateTemplateRequestSchema) {}
 class UpdateTemplateDto extends createZodDto(UpdateTemplateRequestSchema) {}
 
 @UseGuards(WorkspaceAdminGuard)
+@ApiTags('templates')
 @Controller('workspaces')
 export class TemplateController {
   constructor(

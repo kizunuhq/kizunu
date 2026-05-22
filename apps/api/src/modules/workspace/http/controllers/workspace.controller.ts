@@ -16,6 +16,7 @@ import {
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common'
+import { ApiTags } from '@nestjs/swagger'
 import { createZodDto } from 'nestjs-zod'
 
 import { AcceptInvitationUseCase } from '../../core/use-cases/accept-invitation.use-case'
@@ -28,6 +29,7 @@ class InviteMemberDto extends createZodDto(InviteMemberRequestSchema) {}
 class AcceptInvitationDto extends createZodDto(AcceptInvitationRequestSchema) {}
 class UpdateMemberDto extends createZodDto(UpdateMemberRequestSchema) {}
 
+@ApiTags('workspaces')
 @Controller('workspaces')
 export class WorkspaceController {
   constructor(

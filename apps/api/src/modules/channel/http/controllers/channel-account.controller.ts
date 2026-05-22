@@ -4,6 +4,7 @@ import {
 } from '@kizunu/api-contracts/channel'
 import { WorkspaceAdminGuard } from '@kizunu/api/modules/workspace/http/guards/workspace-admin.guard'
 import { Body, Controller, Delete, Get, HttpCode, Param, Post, UseGuards } from '@nestjs/common'
+import { ApiTags } from '@nestjs/swagger'
 import { createZodDto } from 'nestjs-zod'
 
 import { CreateChannelAccountUseCase } from '../../core/use-cases/create-channel-account.use-case'
@@ -15,6 +16,7 @@ class CreateChannelAccountDto extends createZodDto(CreateChannelAccountRequestSc
 class GrantChannelAccessDto extends createZodDto(GrantChannelAccessRequestSchema) {}
 
 @UseGuards(WorkspaceAdminGuard)
+@ApiTags('channels')
 @Controller('workspaces')
 export class ChannelAccountController {
   constructor(

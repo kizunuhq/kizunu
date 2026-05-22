@@ -2,6 +2,7 @@ import { CrmConnectorRegistry } from '@kizunu/api/modules/crm/core/connector/crm
 import { ConnectorAccountRepository } from '@kizunu/api/modules/crm/persistence/connector-account.repository'
 import { Public } from '@kizunu/nestjs-shared/lib/decorators/public.decorator'
 import { Body, Controller, HttpCode, NotFoundException, Param, Post } from '@nestjs/common'
+import { ApiTags } from '@nestjs/swagger'
 
 import { StartJourneyUseCase } from '../../core/use-cases/start-journey.use-case'
 
@@ -12,6 +13,7 @@ import { StartJourneyUseCase } from '../../core/use-cases/start-journey.use-case
  * not retry a delivery we accepted.
  */
 @Public()
+@ApiTags('webhooks')
 @Controller('webhooks/crm')
 export class CrmWebhookController {
   constructor(

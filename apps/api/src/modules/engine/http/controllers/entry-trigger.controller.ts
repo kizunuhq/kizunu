@@ -1,6 +1,7 @@
 import { CreateEntryTriggerRequestSchema } from '@kizunu/api-contracts/engine'
 import { WorkspaceAdminGuard } from '@kizunu/api/modules/workspace/http/guards/workspace-admin.guard'
 import { Body, Controller, Delete, Get, HttpCode, Param, Post, UseGuards } from '@nestjs/common'
+import { ApiTags } from '@nestjs/swagger'
 import { createZodDto } from 'nestjs-zod'
 
 import { CreateEntryTriggerUseCase } from '../../core/use-cases/create-entry-trigger.use-case'
@@ -10,6 +11,7 @@ import { ListEntryTriggersUseCase } from '../../core/use-cases/list-entry-trigge
 class CreateEntryTriggerDto extends createZodDto(CreateEntryTriggerRequestSchema) {}
 
 @UseGuards(WorkspaceAdminGuard)
+@ApiTags('entry-triggers')
 @Controller('workspaces')
 export class EntryTriggerController {
   constructor(

@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url'
 
 import { ConfigService } from '@kizunu/config-module/config.service'
 import { NestFactory } from '@nestjs/core'
+import { SwaggerModule } from '@nestjs/swagger'
 import cookieParser from 'cookie-parser'
 import { drizzle } from 'drizzle-orm/node-postgres'
 import { migrate } from 'drizzle-orm/node-postgres/migrator'
@@ -12,6 +13,7 @@ import { Pool } from 'pg'
 
 import { type Config, load } from './api.config'
 import { ApiModule } from './api.module'
+import { buildOpenApiDocument } from './shared/http/openapi'
 
 async function runMigrations(): Promise<void> {
   const { database } = load()
@@ -39,6 +41,8 @@ async function bootstrap(): Promise<void> {
   application.enableShutdownHooks()
   application.use(cookieParser())
   application.useGlobalPipes(new ZodValidationPipe())
+
+  SwaggerModule.setup('docs', application, buildOpenApiDocument(application))
 
   await application.listen(port)
   console.log(`Kizunu API listening on port ${port}`)
