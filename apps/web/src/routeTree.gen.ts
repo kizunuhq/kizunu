@@ -16,7 +16,9 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as authSignupRouteImport } from './routes/(auth)/signup'
 import { Route as authLoginRouteImport } from './routes/(auth)/login'
 import { Route as AppWorkspaceIndexRouteImport } from './routes/_app/workspace/index'
+import { Route as AppWorkspaceMyChannelsRouteImport } from './routes/_app/workspace/my-channels'
 import { Route as AppWorkspaceMembersRouteImport } from './routes/_app/workspace/members'
+import { Route as AppWorkspaceJourneysRouteImport } from './routes/_app/workspace/journeys'
 import { Route as authAcceptInviteTokenRouteImport } from './routes/(auth)/accept-invite.$token'
 
 const NotFoundRoute = NotFoundRouteImport.update({
@@ -52,9 +54,19 @@ const AppWorkspaceIndexRoute = AppWorkspaceIndexRouteImport.update({
   path: '/workspace/',
   getParentRoute: () => AppRouteRoute,
 } as any)
+const AppWorkspaceMyChannelsRoute = AppWorkspaceMyChannelsRouteImport.update({
+  id: '/workspace/my-channels',
+  path: '/workspace/my-channels',
+  getParentRoute: () => AppRouteRoute,
+} as any)
 const AppWorkspaceMembersRoute = AppWorkspaceMembersRouteImport.update({
   id: '/workspace/members',
   path: '/workspace/members',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const AppWorkspaceJourneysRoute = AppWorkspaceJourneysRouteImport.update({
+  id: '/workspace/journeys',
+  path: '/workspace/journeys',
   getParentRoute: () => AppRouteRoute,
 } as any)
 const authAcceptInviteTokenRoute = authAcceptInviteTokenRouteImport.update({
@@ -69,7 +81,9 @@ export interface FileRoutesByFullPath {
   '/login': typeof authLoginRoute
   '/signup': typeof authSignupRoute
   '/accept-invite/$token': typeof authAcceptInviteTokenRoute
+  '/workspace/journeys': typeof AppWorkspaceJourneysRoute
   '/workspace/members': typeof AppWorkspaceMembersRoute
+  '/workspace/my-channels': typeof AppWorkspaceMyChannelsRoute
   '/workspace/': typeof AppWorkspaceIndexRoute
 }
 export interface FileRoutesByTo {
@@ -78,7 +92,9 @@ export interface FileRoutesByTo {
   '/login': typeof authLoginRoute
   '/signup': typeof authSignupRoute
   '/accept-invite/$token': typeof authAcceptInviteTokenRoute
+  '/workspace/journeys': typeof AppWorkspaceJourneysRoute
   '/workspace/members': typeof AppWorkspaceMembersRoute
+  '/workspace/my-channels': typeof AppWorkspaceMyChannelsRoute
   '/workspace': typeof AppWorkspaceIndexRoute
 }
 export interface FileRoutesById {
@@ -90,7 +106,9 @@ export interface FileRoutesById {
   '/(auth)/login': typeof authLoginRoute
   '/(auth)/signup': typeof authSignupRoute
   '/(auth)/accept-invite/$token': typeof authAcceptInviteTokenRoute
+  '/_app/workspace/journeys': typeof AppWorkspaceJourneysRoute
   '/_app/workspace/members': typeof AppWorkspaceMembersRoute
+  '/_app/workspace/my-channels': typeof AppWorkspaceMyChannelsRoute
   '/_app/workspace/': typeof AppWorkspaceIndexRoute
 }
 export interface FileRouteTypes {
@@ -101,7 +119,9 @@ export interface FileRouteTypes {
     | '/login'
     | '/signup'
     | '/accept-invite/$token'
+    | '/workspace/journeys'
     | '/workspace/members'
+    | '/workspace/my-channels'
     | '/workspace/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -110,7 +130,9 @@ export interface FileRouteTypes {
     | '/login'
     | '/signup'
     | '/accept-invite/$token'
+    | '/workspace/journeys'
     | '/workspace/members'
+    | '/workspace/my-channels'
     | '/workspace'
   id:
     | '__root__'
@@ -121,7 +143,9 @@ export interface FileRouteTypes {
     | '/(auth)/login'
     | '/(auth)/signup'
     | '/(auth)/accept-invite/$token'
+    | '/_app/workspace/journeys'
     | '/_app/workspace/members'
+    | '/_app/workspace/my-channels'
     | '/_app/workspace/'
   fileRoutesById: FileRoutesById
 }
@@ -183,11 +207,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppWorkspaceIndexRouteImport
       parentRoute: typeof AppRouteRoute
     }
+    '/_app/workspace/my-channels': {
+      id: '/_app/workspace/my-channels'
+      path: '/workspace/my-channels'
+      fullPath: '/workspace/my-channels'
+      preLoaderRoute: typeof AppWorkspaceMyChannelsRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
     '/_app/workspace/members': {
       id: '/_app/workspace/members'
       path: '/workspace/members'
       fullPath: '/workspace/members'
       preLoaderRoute: typeof AppWorkspaceMembersRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/_app/workspace/journeys': {
+      id: '/_app/workspace/journeys'
+      path: '/workspace/journeys'
+      fullPath: '/workspace/journeys'
+      preLoaderRoute: typeof AppWorkspaceJourneysRouteImport
       parentRoute: typeof AppRouteRoute
     }
     '/(auth)/accept-invite/$token': {
@@ -217,12 +255,16 @@ const authRouteRouteWithChildren = authRouteRoute._addFileChildren(
 )
 
 interface AppRouteRouteChildren {
+  AppWorkspaceJourneysRoute: typeof AppWorkspaceJourneysRoute
   AppWorkspaceMembersRoute: typeof AppWorkspaceMembersRoute
+  AppWorkspaceMyChannelsRoute: typeof AppWorkspaceMyChannelsRoute
   AppWorkspaceIndexRoute: typeof AppWorkspaceIndexRoute
 }
 
 const AppRouteRouteChildren: AppRouteRouteChildren = {
+  AppWorkspaceJourneysRoute: AppWorkspaceJourneysRoute,
   AppWorkspaceMembersRoute: AppWorkspaceMembersRoute,
+  AppWorkspaceMyChannelsRoute: AppWorkspaceMyChannelsRoute,
   AppWorkspaceIndexRoute: AppWorkspaceIndexRoute,
 }
 
