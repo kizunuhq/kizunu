@@ -1,3 +1,5 @@
+import { useCurrentUser } from '@kizunu/api-client/identity/use-current-user'
+import { MembersManager } from '@kizunu/web/features/workspace/components/members-manager'
 import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/_app/workspace/members')({
@@ -5,10 +7,16 @@ export const Route = createFileRoute('/_app/workspace/members')({
 })
 
 function WorkspaceMembersPage() {
+  const { activeWorkspaceId } = useCurrentUser()
+
   return (
-    <div className="p-6">
+    <div className="flex flex-col gap-4">
       <h1 className="text-2xl font-semibold">Members</h1>
-      <p className="mt-2 text-sm text-neutral-500">TODO: members table + invite flow</p>
+      {activeWorkspaceId ? (
+        <MembersManager workspaceId={activeWorkspaceId} />
+      ) : (
+        <p className="text-muted-foreground text-sm">No active workspace selected.</p>
+      )}
     </div>
   )
 }
