@@ -25,6 +25,10 @@ export class FakeChannelPlugin implements ChannelPlugin {
     name: 'Fake Channel',
     capabilities: ['freeform', 'template'],
     configSchema: fakeConfigSchema,
+    credentialFields: [
+      { key: 'apiKey', label: 'API key', type: 'secret', required: true },
+      { key: 'sender', label: 'Sender', type: 'text', required: true },
+    ],
   }
 
   async send(_payload: SendPayload, _credentials: unknown): Promise<SendResult> {

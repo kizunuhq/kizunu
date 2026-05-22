@@ -23,6 +23,11 @@ export class MetaWhatsappPlugin implements ChannelPlugin {
     name: 'WhatsApp (Meta Cloud API)',
     capabilities: ['freeform', 'template'],
     configSchema: metaCredentialsSchema,
+    credentialFields: [
+      { key: 'wabaId', label: 'WABA ID', type: 'text', required: true },
+      { key: 'phoneNumberId', label: 'Phone number ID', type: 'text', required: true },
+      { key: 'systemToken', label: 'System token', type: 'secret', required: true },
+    ],
   }
 
   private readonly baseUrl: string

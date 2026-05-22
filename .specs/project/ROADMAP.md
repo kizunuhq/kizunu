@@ -148,6 +148,15 @@ deal → exhaustion marks the deal lost. Self-hostable via Docker Compose.
 
 **Goal:** Prove the plugin system is real, not WhatsApp/Pipedrive in disguise.
 
+**Declarative channel credential fields + generated account form** - COMPLETE
+- Plugin manifests declare a `credentialFields` descriptor (key/label/type/required)
+  beside the zod `configSchema`; the `channel-plugins` contract carries it and the web
+  channel-account form renders generated, secret-masked inputs instead of a raw JSON
+  textarea. Mirrors novu's shared credential-metadata pattern within the type-safe
+  boundary; lowers the cost of onboarding the second channel. A plugin-local drift
+  guard keeps the descriptor and `configSchema` in lockstep. Credentials are still
+  stored unencrypted (unchanged; tracked in CONCERNS). Spec: feature `021`.
+
 **Second channel (email SMTP or Telegram)** - PLANNED
 **Second CRM connector (HubSpot or RD Station)** - PLANNED
 **First community-contributed plugin** - PLANNED

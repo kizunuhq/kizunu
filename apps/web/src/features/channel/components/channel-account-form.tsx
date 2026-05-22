@@ -1,45 +1,52 @@
+import { useChannelPlugins } from '@kizunu/api-client/channel/use-channel-plugins'
 import { useCreateChannelAccount } from '@kizunu/api-client/channel/use-create-channel-account'
 import { Button } from '@kizunu/web/components/primitives/button'
-import { Field, FieldError, FieldLabel } from '@kizunu/web/components/primitives/field'
+import { Field, FieldLabel } from '@kizunu/web/components/primitives/field'
 import { Input } from '@kizunu/web/components/primitives/input'
-import { Textarea } from '@kizunu/web/components/primitives/textarea'
+import { CredentialFieldsInput } from '@kizunu/web/features/channel/components/credential-fields-input'
 import { PluginSelect } from '@kizunu/web/features/channel/components/plugin-select'
-import { parseJsonObject } from '@kizunu/web/lib/parse-json-object'
+import { hasRequiredCredentials } from '@kizunu/web/features/channel/lib/has-required-credentials'
 import { useState } from 'react'
 
 export function ChannelAccountForm({ workspaceId }: { workspaceId: string }) {
   const [pluginId, setPluginId] = useState('')
   const [name, setName] = useState('')
-  const [credentials, setCredentials] = useState('{}')
-  const create = useCreateChannelAccount(workspaceId, { onSuccess: () => setName('') })
-  const parsed = parseJsonObject(credentials)
+  const [credentials, setCredentials] = useState<Record<string, string>>({})
+  const plugins = useChannelPlugins()
+  const create = useCreateChannelAccount(workspaceId, {
+    onSuccess: () => {
+      setName('')
+      setCredentials({})
+    },
+  })
+
+  const fields =
+    plugins.data?.plugins.find((plugin) => plugin.id === pluginId)?.credentialFields ?? []
+
+  function selectPlugin(next: string) {
+    setPluginId(next)
+    setCredentials({})
+  }
 
   function submit(event: React.FormEvent) {
     event.preventDefault()
-    if (parsed) create.mutate({ pluginId, name, credentials: parsed })
+    create.mutate({ pluginId, name, credentials })
   }
+
+  const canSubmit = pluginId !== '' && hasRequiredCredentials(fields, credentials)
 
   return (
     <form className="flex flex-col gap-3" onSubmit={submit}>
       <Field>
         <FieldLabel>Plugin</FieldLabel>
-        <PluginSelect value={pluginId} onChange={setPluginId} />
+        <PluginSelect value={pluginId} onChange={selectPlugin} />
       </Field>
       <Field>
         <FieldLabel htmlFor="channel-name">Name</FieldLabel>
         <Input id="channel-name" value={name} required onChange={(e) => setName(e.target.value)} />
       </Field>
-      <Field>
-        <FieldLabel htmlFor="channel-credentials">Credentials (JSON)</FieldLabel>
-        <Textarea
-          id="channel-credentials"
-          value={credentials}
-          rows={4}
-          onChange={(e) => setCredentials(e.target.value)}
-        />
-        {parsed === null ? <FieldError>Invalid JSON.</FieldError> : null}
-      </Field>
-      <Button type="submit" disabled={create.isPending || !pluginId}>
+      <CredentialFieldsInput fields={fields} values={credentials} onChange={setCredentials} />
+      <Button type="submit" disabled={create.isPending || !canSubmit}>
         Add channel account
       </Button>
     </form>
