@@ -18,6 +18,7 @@ export const Routes = {
     emailVerificationConfirm: '/auth/email-verification/confirm',
     sessions: '/auth/sessions',
     session: (sessionId: string) => `/auth/sessions/${sessionId}`,
+    oauthBegin: (provider: string) => `/auth/oauth/${provider}`,
   },
   workspaces: {
     invite: (workspaceId: string) => `/workspaces/${workspaceId}/invitations`,

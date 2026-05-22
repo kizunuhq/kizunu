@@ -24,6 +24,7 @@ import type { Request, Response } from 'express'
 import { createZodDto } from 'nestjs-zod'
 
 import type { ActiveSession } from '../../core/models/authenticated-user'
+import { OAuthProviderRegistry } from '../../core/oauth/oauth-provider-registry'
 import { AuthenticateUseCase } from '../../core/use-cases/authenticate.use-case'
 import { GetMeUseCase } from '../../core/use-cases/get-me.use-case'
 import { LogoutUseCase } from '../../core/use-cases/logout.use-case'
@@ -31,6 +32,10 @@ import { RegisterUserUseCase } from '../../core/use-cases/register-user.use-case
 import { SwitchActiveWorkspaceUseCase } from '../../core/use-cases/switch-active-workspace.use-case'
 import { AUTH_THROTTLE } from '../auth-throttle'
 import { CurrentSession } from '../decorators/current-session.decorator'
+import {
+  clearSessionCookie as removeSessionCookie,
+  setSessionCookie as writeSessionCookie,
+} from '../session-cookie'
 
 class RegisterDto extends createZodDto(RegisterRequestSchema) {}
 class LoginDto extends createZodDto(LoginRequestSchema) {}
@@ -46,26 +51,29 @@ export class AuthController {
     private readonly switchUseCase: SwitchActiveWorkspaceUseCase,
     private readonly getMeUseCase: GetMeUseCase,
     private readonly config: ConfigService<Config>,
+    private readonly oauthProviders: OAuthProviderRegistry,
   ) {}
 
   private setSessionCookie(res: Response, token: string, expiresAt: Date): void {
-    res.cookie(this.config.get('session.cookieName'), token, {
-      httpOnly: true,
+    writeSessionCookie(res, {
+      name: this.config.get('session.cookieName'),
       secure: this.config.get('session.cookieSecure'),
-      sameSite: 'lax',
-      expires: expiresAt,
-      path: '/',
+      token,
+      expiresAt,
     })
   }
 
   private clearSessionCookie(res: Response): void {
-    res.clearCookie(this.config.get('session.cookieName'), { path: '/' })
+    removeSessionCookie(res, this.config.get('session.cookieName'))
   }
 
   @Public()
   @Get('capabilities')
   capabilities() {
-    return { registrationEnabled: !this.config.get('auth.registrationDisabled') }
+    return {
+      registrationEnabled: !this.config.get('auth.registrationDisabled'),
+      oauthProviders: this.oauthProviders.listManifests(),
+    }
   }
 
   @Public()
