@@ -52,6 +52,11 @@ export const Routes = {
   leadJourneys: {
     collection: (workspaceId: string) => `/workspaces/${workspaceId}/lead-journeys`,
   },
+  leadOwnership: {
+    pauseJourneys: (workspaceId: string, userId: string) =>
+      `/workspaces/${workspaceId}/owners/${userId}/pause-journeys`,
+    reassign: (workspaceId: string) => `/workspaces/${workspaceId}/lead-reassignments`,
+  },
   webhooks: {
     crm: (connectorAccountId: string) => `/webhooks/crm/${connectorAccountId}`,
     meta: '/webhooks/meta',

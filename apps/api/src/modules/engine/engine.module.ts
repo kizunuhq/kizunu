@@ -14,10 +14,13 @@ import { DeleteEntryTriggerUseCase } from './core/use-cases/delete-entry-trigger
 import { ListEntryTriggersUseCase } from './core/use-cases/list-entry-triggers.use-case'
 import { ListLeadJourneysUseCase } from './core/use-cases/list-lead-journeys.use-case'
 import { MarkReplyUseCase } from './core/use-cases/mark-reply.use-case'
+import { PauseOwnerJourneysUseCase } from './core/use-cases/pause-owner-journeys.use-case'
+import { ReassignLeadsUseCase } from './core/use-cases/reassign-leads.use-case'
 import { StartJourneyUseCase } from './core/use-cases/start-journey.use-case'
 import { CrmWebhookController } from './http/controllers/crm-webhook.controller'
 import { EntryTriggerController } from './http/controllers/entry-trigger.controller'
 import { LeadJourneyController } from './http/controllers/lead-journey.controller'
+import { LeadOwnershipController } from './http/controllers/lead-ownership.controller'
 import { MetaWebhookController } from './http/controllers/meta-webhook.controller'
 import { EntryTriggerRepository } from './persistence/entry-trigger.repository'
 import { LeadJourneyRepository } from './persistence/lead-journey.repository'
@@ -31,6 +34,7 @@ import { TouchAttemptRepository } from './persistence/touch-attempt.repository'
     CrmWebhookController,
     MetaWebhookController,
     LeadJourneyController,
+    LeadOwnershipController,
   ],
   providers: [
     Clock,
@@ -48,6 +52,8 @@ import { TouchAttemptRepository } from './persistence/touch-attempt.repository'
     StartJourneyUseCase,
     MarkReplyUseCase,
     ListLeadJourneysUseCase,
+    PauseOwnerJourneysUseCase,
+    ReassignLeadsUseCase,
   ],
   exports: [EntryTriggerRepository, LeadRepository, LeadJourneyRepository],
 })
