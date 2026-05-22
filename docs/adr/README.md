@@ -7,3 +7,5 @@ Decisions are immutable historical records. Never edit a decision after the fact
 | [001](001-domain-owns-vocabulary.md) | Domain Owns the Vocabulary; Dependencies Point Inward | Accepted |
 | [002](002-enum-as-const-object.md) | Enum-like Types as a Derived `const` Object | Accepted |
 | [003](003-schema-domain-guard.md) | Compile-Time Layer-Boundary Guard for Schema↔Domain Conformance | Accepted |
+| [004](004-meta-coex-channel.md) | Meta Cloud API (Coexistence) as the v0.1 WhatsApp Channel | Accepted |
+| [005](005-db-poller-scheduler.md) | In-Process DB Poller as the Scheduler, Not BullMQ/Redis | Accepted |

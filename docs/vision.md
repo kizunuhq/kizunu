@@ -43,7 +43,7 @@ The v0.1 scope is the **minimum slice of Phase 1** that runs a real pilot end-to
 
 Summary:
 
-- 1 channel plugin (Evolution / WhatsApp), with the model prepared for N
+- 1 channel plugin (Meta Cloud API / WhatsApp, onboarded via Coexistence), with the model prepared for N
 - 1 CRM connector (Pipedrive), with the model prepared for N
 - Cadence as the central aggregate — no generic workflow builder
 - Per-BDR channel instances (each BDR with their own WhatsApp number)
@@ -119,7 +119,7 @@ This Phase 1.5 should ship **shortly after** v0.1 stabilizes with a real pilot. 
 
 ## How the product avoids common pitfalls
 
-1. **WhatsApp compliance:** the plugin system isolates risk — if Evolution gets banned, swap to Meta Cloud without rewriting the cadence.
+1. **WhatsApp compliance:** the plugin system isolates risk — v0.1 ships on the official Meta Cloud API (via Coexistence) to avoid ban risk; if a workspace prefers a non-official provider like Evolution, it swaps the plugin without rewriting the cadence.
 2. **Doesn't become "does everything, badly":** v0.1 is surgical (1 real channel, no full CRM). Expansion is driven by real customers.
 3. **Doesn't compete with CRMs in v0.1:** integrates with existing Pipedrive. Native CRM only in phase 2.
 4. **Sustainable OSS:** open core from day one, no "everything free forever" dilemma.
