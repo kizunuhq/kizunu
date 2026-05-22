@@ -187,7 +187,15 @@ a separate slice and keeps the auth boundary isolated from the domain.
   state) driven by a public capability flag, not a hardcoded build switch.
 - Config surfaced in `docker/.env.example`, the config module, and env validation.
 
-**Email verification** - IN PROGRESS
+**Email verification** - COMPLETE
+- _Landed (feature `023`): `RequestEmailVerificationUseCase` mints a single-use
+  `email_verification` token and mails the verify link out-of-band (no-op when the user
+  is missing or already verified); `ConfirmEmailVerificationUseCase` consumes it and sets
+  `users.emailVerifiedAt` (invalid → `422 identity.invalid-verification-token`). Register
+  composes the request use-case post-commit. `EmailVerificationController` exposes authed
+  resend + public confirm. Web: an unverified banner in the app shell + a public
+  `/verify-email` route. Soft posture for v0.1 (login never blocked; verification exposed
+  via `me.emailVerifiedAt` for later hard-gating). Resend is authenticated (no enumeration)._
 - Reuse the existing `verification-tokens` table and the `MailSender` boundary (v0.1
   `ConsoleMailSender`) to carry a single-use, hashed verification token out-of-band on
   register — never in the HTTP response, mirroring the password-reset slice (`020`).
@@ -197,7 +205,7 @@ a separate slice and keeps the auth boundary isolated from the domain.
 - Endpoints: request/resend verification + confirm; web post-signup "check your email"
   state + a verify route. Contracts + api-client hooks per the type-safe boundary.
 
-**Session management UX** - PLANNED
+**Session management UX** - IN PROGRESS
 - List a user's active sessions (device / user-agent / IP / last-seen / expiry), revoke an
   individual session, and "log out everywhere" (revoke all but the current). Builds on the
   existing `sessions` table and `SessionRepository`; no new session model.
