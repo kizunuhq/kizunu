@@ -221,7 +221,7 @@ function SectionBreadcrumb() {
     const sections = sectionMeta
       .map((s) => document.getElementById(s.id))
       .filter((n): n is HTMLElement => n !== null)
-    if (!sections.length) return
+    if (!sections.length) return undefined
     const observer = new IntersectionObserver(
       (entries) => {
         const top = entries
@@ -425,8 +425,8 @@ function Thesis() {
 
   useEffect(() => {
     const node = listRef.current
-    if (!node) return
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    if (!node) return undefined
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0]?.isIntersecting) {
@@ -518,8 +518,8 @@ function CadenceRun() {
 
   useEffect(() => {
     const node = ref.current
-    if (!node) return
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    if (!node) return undefined
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined
     setPhase('prep')
     const observer = new IntersectionObserver(
       (entries) => {
@@ -603,8 +603,8 @@ function OpenCore() {
 
   useEffect(() => {
     const node = manifestRef.current
-    if (!node) return
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    if (!node) return undefined
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0]?.isIntersecting) {
@@ -688,8 +688,8 @@ function Signal() {
 
   useEffect(() => {
     const node = colsRef.current
-    if (!node) return
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    if (!node) return undefined
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0]?.isIntersecting) {
@@ -817,9 +817,9 @@ function CodeBlock() {
   const [ready, setReady] = useState(false)
 
   useEffect(() => {
-    if (phase !== 'prep') return
+    if (phase !== 'prep') return undefined
     const node = ref.current
-    if (!node) return
+    if (!node) return undefined
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0]?.isIntersecting) {
@@ -834,7 +834,7 @@ function CodeBlock() {
   }, [phase])
 
   useEffect(() => {
-    if (phase !== 'armed') return
+    if (phase !== 'armed') return undefined
     const total =
       quickstart.reduce(
         (sum, line) => sum + `${line.dollar} ${line.cmd}${line.arg ? ` ${line.arg}` : ''}`.length,
@@ -936,8 +936,8 @@ function CtaSection() {
 
   useEffect(() => {
     const node = ref.current
-    if (!node) return
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    if (!node) return undefined
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0]?.isIntersecting) {
