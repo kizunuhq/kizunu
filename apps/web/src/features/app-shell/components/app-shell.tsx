@@ -5,6 +5,7 @@ import { Link, Outlet, useNavigate } from '@tanstack/react-router'
 const NAV_LINKS = [
   { to: '/workspace', label: 'Overview' },
   { to: '/workspace/members', label: 'Members' },
+  { to: '/workspace/channels', label: 'Channels' },
   { to: '/workspace/journeys', label: 'Journeys' },
   { to: '/workspace/my-channels', label: 'My channels' },
 ] as const
