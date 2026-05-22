@@ -60,9 +60,9 @@ delete, assert not-found on a foreign id.
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| TPL-01 | P1: create + unique name | Tasks | Pending |
-| TPL-02 | P1: list | Tasks | Pending |
-| TPL-03 | P1: update/delete + not-found | Tasks | Pending |
+| TPL-01 | P1: create + unique name | Tasks | Verified |
+| TPL-02 | P1: list | Tasks | Verified |
+| TPL-03 | P1: update/delete + not-found | Tasks | Verified |
 
 **Coverage:** 3 total, mapped to tasks.
 

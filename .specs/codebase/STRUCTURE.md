@@ -45,6 +45,7 @@ kizunu/
 - `workspace` — memberships and invitations; use cases invite-member/accept-invitation/update-member-status/list-members.
 - `channel` — channel plugin port (`core/plugin/`: frozen `ChannelPlugin` contract + `ChannelPluginRegistry`), the `ChannelAccount`/`ChannelAccess` domain, and concrete plugins under `plugins/` (`meta-whatsapp/` = `MetaWhatsappPlugin`); use cases create-channel-account/list-workspace-channel-accounts/grant-channel-access/revoke-channel-access/set-primary-channel/list-my-channels/list-available-plugins.
 - `crm` — CRM connector port (`core/connector/`: frozen `CRMConnector` contract + `CrmConnectorRegistry` + the `NormalizedEvent`/`NormalizedLead` vocabulary), the workspace-owned `ConnectorAccount` domain, and connectors under `plugins/` (`pipedrive/` = `PipedriveConnector`); use cases create-connector-account/list-workspace-connector-accounts.
+- `cadence` — the cadence aggregate. Today holds the `Template` sub-area (HSM-reference templates, workspace CRUD: create/list/update/delete); the `Cadence`/`Step` aggregate + `EntryTrigger` join here in feature `006`.
 Each splits into `core/` (use-cases, models, domain, errors, crypto), `http/` (controllers, guards, decorators), `persistence/` (repositories).
 
 ### Shared packages
