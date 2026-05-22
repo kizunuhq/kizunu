@@ -13,12 +13,13 @@ import { ChannelAccountController } from './http/controllers/channel-account.con
 import { MyChannelController } from './http/controllers/my-channel.controller'
 import { ChannelAccessRepository } from './persistence/channel-access.repository'
 import { ChannelAccountRepository } from './persistence/channel-account.repository'
+import { MetaWhatsappPlugin } from './plugins/meta-whatsapp/meta-whatsapp.plugin'
 
 @Module({
   imports: [WorkspaceModule],
   controllers: [ChannelAccountController, MyChannelController],
   providers: [
-    { provide: CHANNEL_PLUGINS, useValue: [] },
+    { provide: CHANNEL_PLUGINS, useValue: [new MetaWhatsappPlugin()] },
     ChannelPluginRegistry,
     ChannelAccountRepository,
     ChannelAccessRepository,
