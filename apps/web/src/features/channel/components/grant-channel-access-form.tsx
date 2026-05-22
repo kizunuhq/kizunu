@@ -1,9 +1,9 @@
 import { useGrantChannelAccess } from '@kizunu/api-client/channel/use-grant-channel-access'
 import { useWorkspaceChannels } from '@kizunu/api-client/channel/use-workspace-channels'
 import { useMembers } from '@kizunu/api-client/workspace/use-members'
+import { LookupSelect } from '@kizunu/web/components/lookup-select'
 import { Button } from '@kizunu/web/components/primitives/button'
 import { Field, FieldLabel } from '@kizunu/web/components/primitives/field'
-import { LookupSelect } from '@kizunu/web/features/channel/components/lookup-select'
 import { useState } from 'react'
 
 export function GrantChannelAccessForm({ workspaceId }: { workspaceId: string }) {

@@ -4,28 +4,15 @@ import { Field, FieldError, FieldLabel } from '@kizunu/web/components/primitives
 import { Input } from '@kizunu/web/components/primitives/input'
 import { Textarea } from '@kizunu/web/components/primitives/textarea'
 import { PluginSelect } from '@kizunu/web/features/channel/components/plugin-select'
+import { parseJsonObject } from '@kizunu/web/lib/parse-json-object'
 import { useState } from 'react'
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value)
-}
-
-function parseCredentials(raw: string): Record<string, unknown> | null {
-  let parsed: unknown
-  try {
-    parsed = JSON.parse(raw)
-  } catch {
-    return null
-  }
-  return isRecord(parsed) ? parsed : null
-}
 
 export function ChannelAccountForm({ workspaceId }: { workspaceId: string }) {
   const [pluginId, setPluginId] = useState('')
   const [name, setName] = useState('')
   const [credentials, setCredentials] = useState('{}')
   const create = useCreateChannelAccount(workspaceId, { onSuccess: () => setName('') })
-  const parsed = parseCredentials(credentials)
+  const parsed = parseJsonObject(credentials)
 
   function submit(event: React.FormEvent) {
     event.preventDefault()
