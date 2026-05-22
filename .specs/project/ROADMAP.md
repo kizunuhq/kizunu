@@ -251,9 +251,9 @@ a separate slice and keeps the auth boundary isolated from the domain.
   `ci-summary` comment, skips code jobs on docs-only diffs, and gates e2e to non-draft
   PRs. Plus `pr-title`, `deps-outdated`, and governance-as-code: `ruleset.json`,
   `CODEOWNERS`, `CODE_OF_CONDUCT.md`. Trunk-only (`master`)._
-- Follow-ups: the sticky comment's per-project coverage tables don't render yet
-  (report-only, cosmetic); live branch protection should require the renamed
-  `Required (CI)` check or import `.github/ruleset.json` (manual admin action).
+- _Follow-ups resolved: coverage tables render in the `ci-summary` comment (PR #51);
+  the `master protection` ruleset is active — require PR + `Required (CI)` + `Lint PR
+  title`, squash-only, no direct push (applied from `.github/ruleset.json`, PR #50)._
 - Prerequisite for `028` — deploy must never auto-stage an untested merge.
 
 **Deploy pipeline (staging + production)** - PLANNED (blocked on infra decisions)
