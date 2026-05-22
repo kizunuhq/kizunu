@@ -39,4 +39,9 @@ export const Routes = {
     item: (workspaceId: string, templateId: string) =>
       `/workspaces/${workspaceId}/templates/${templateId}`,
   },
+  cadences: {
+    collection: (workspaceId: string) => `/workspaces/${workspaceId}/cadences`,
+    item: (workspaceId: string, cadenceId: string) =>
+      `/workspaces/${workspaceId}/cadences/${cadenceId}`,
+  },
 } as const
