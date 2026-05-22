@@ -31,12 +31,15 @@ deal → exhaustion marks the deal lost. Self-hostable via Docker Compose.
 - Admin user management: create, mark inactive, reassign leads
 - _Backend use-cases landed (#13, #14)._
 
-**Channel plugin system + Meta/WhatsApp** - PLANNED
+**Channel plugin system + Meta/WhatsApp** - IN PROGRESS
 
 - `ChannelPlugin` contract (`manifest`, `send`, `parseInbound`, `validate → Decision`) as a monorepo module
 - `ChannelAccount` (workspace-owned instance) + `ChannelAccess` (`isPrimary` per user/plugin)
 - Meta Cloud API via Coexistence: 24h-window vs. HSM template decision inside `validate`; credentials `waba_id`, `phone_number_id`, system token
 - App-level inbound webhook with `hub.verify_token`; routes by `phone_number_id`
+- _Slice 1 landed (feature `002`): frozen port + registry + ChannelAccount/ChannelAccess
+  domain and CRUD, proven with a fake plugin. Meta plugin + inbound webhook are slice 2
+  (feature `003`)._
 
 **CRM connector + Pipedrive** - PLANNED
 

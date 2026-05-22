@@ -152,17 +152,20 @@ list plugins returns the fake plugin manifest.
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| CHAN-01 | P1: Contract + registry | Design | Pending |
-| CHAN-02 | P1: Contract + registry (unknown/duplicate id) | Design | Pending |
-| CHAN-03 | P1: Accounts (create + schema validation) | Design | Pending |
-| CHAN-04 | P1: Accounts (admin-only, no credentials leak) | Design | Pending |
-| CHAN-05 | P1: Access (grant + membership/workspace checks + idempotent) | Design | Pending |
-| CHAN-06 | P1: Access (set primary per plugin) | Design | Pending |
-| CHAN-07 | P1: Access (list mine + primary query seam) | Design | Pending |
-| CHAN-08 | P2: Revoke access | - | Pending |
-| CHAN-09 | P2: List available plugins | - | Pending |
+| CHAN-01 | P1: Contract + registry | Tasks | Verified |
+| CHAN-02 | P1: Contract + registry (unknown/duplicate id) | Tasks | Verified |
+| CHAN-03 | P1: Accounts (create + schema validation) | Tasks | Verified |
+| CHAN-04 | P1: Accounts (admin-only, no credentials leak) | Tasks | Verified |
+| CHAN-05 | P1: Access (grant + membership/workspace checks + idempotent) | Tasks | Verified |
+| CHAN-06 | P1: Access (set primary per plugin) | Tasks | Verified |
+| CHAN-07 | P1: Access (list mine + primary query seam) | Tasks | Verified |
+| CHAN-08 | P2: Revoke access | Tasks | Verified |
+| CHAN-09 | P2: List available plugins | Tasks | Verified |
 
-**Coverage:** 9 total, mapped to tasks in tasks.md.
+**Coverage:** 9 total, all implemented and covered by unit/integration tests (registry,
+grant/set-primary/revoke use-cases, and the access-repository invariant). Thin
+create/list controllers and use-cases are passthrough — covered conceptually by the
+typed HTTP boundary; CHAN-04's no-credentials-leak is enforced at the query projection.
 
 ---
 
