@@ -63,6 +63,12 @@ export class AuthController {
   }
 
   @Public()
+  @Get('capabilities')
+  capabilities() {
+    return { registrationEnabled: !this.config.get('auth.registrationDisabled') }
+  }
+
+  @Public()
   @Throttle(AUTH_THROTTLE)
   @Post('register')
   async register(

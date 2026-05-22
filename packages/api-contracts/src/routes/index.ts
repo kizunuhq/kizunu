@@ -6,6 +6,7 @@
  */
 export const Routes = {
   auth: {
+    capabilities: '/auth/capabilities',
     register: '/auth/register',
     login: '/auth/login',
     logout: '/auth/logout',

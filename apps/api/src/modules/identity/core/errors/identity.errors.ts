@@ -29,6 +29,16 @@ export class InvalidResetTokenException extends ApplicationException {
   }
 }
 
+export class RegistrationDisabledException extends ApplicationException {
+  constructor() {
+    super(
+      'identity.registration-disabled',
+      'Public registration is disabled on this instance.',
+      422,
+    )
+  }
+}
+
 export class SessionExpiredException extends ApplicationException {
   constructor() {
     super('identity.session-expired', 'Session has expired or has been revoked.', 401)
