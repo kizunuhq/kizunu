@@ -5,6 +5,7 @@ import { Module } from '@nestjs/common'
 import { APP_FILTER } from '@nestjs/core'
 
 import { load } from './api.config'
+import { ChannelModule } from './modules/channel/channel.module'
 import { IdentityModule } from './modules/identity/identity.module'
 import { WorkspaceModule } from './modules/workspace/workspace.module'
 import { HealthController } from './shared/http/health.controller'
@@ -18,6 +19,7 @@ import { HealthController } from './shared/http/health.controller'
     PersistenceModule,
     IdentityModule,
     WorkspaceModule,
+    ChannelModule,
   ],
   controllers: [HealthController],
   providers: [
