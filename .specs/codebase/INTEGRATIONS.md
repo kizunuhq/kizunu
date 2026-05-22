@@ -42,7 +42,7 @@ The shape of these integrations is fixed by accepted ADRs (index: `docs/adr/READ
 ## Webhooks
 
 - **Pipedrive `deal.updated`** — **built (feature `008`)**: `POST /webhooks/crm/:connectorAccountId` (`@Public`; the unguessable account id is the v0.1 shared secret). Resolves the account, runs `connector.parseWebhook` (filtered by `stage_id` transition; idempotency key `pipedrive:deal:{id}:event:{event}:{timestamp}`), and starts a `LeadJourney` per event. Journey-level idempotency (no event-key table yet).
-- **Meta inbound** (planned — inbound reply slice) — single app-level webhook with `hub.verify_token` verification; plugin routes by `phone_number_id`; per-`ChannelAccount` URL also available.
+- **Meta inbound** — **built (feature `010`)**: single app-level webhook — `GET /webhooks/meta` (`hub.verify_token` subscribe verification against `APP_META_VERIFY_TOKEN`) + `POST /webhooks/meta` (the Meta plugin parses messages; routed to a `ChannelAccount` by `phone_number_id`; a matching running journey is marked `replied` and `onReply` runs).
 
 ## Background Jobs
 

@@ -114,4 +114,24 @@ export class LeadJourneyRepository {
   async setStatus(tx: DbTransaction, id: string, status: LeadJourneyStatusType): Promise<void> {
     await tx.update(leadJourneys).set({ status, nextTouchAt: null }).where(eq(leadJourneys.id, id))
   }
+
+  /** Inbound seam: a running journey for the lead reachable at this phone in a workspace. */
+  async findRunningByLeadPhone(
+    workspaceId: string,
+    phone: string,
+  ): Promise<{ id: string } | undefined> {
+    const rows = await this.drizzle.db
+      .select({ id: leadJourneys.id })
+      .from(leadJourneys)
+      .innerJoin(leads, eq(leadJourneys.leadId, leads.id))
+      .where(
+        and(
+          eq(leads.workspaceId, workspaceId),
+          eq(leads.phone, phone),
+          eq(leadJourneys.status, LeadJourneyStatus.Running),
+        ),
+      )
+      .limit(1)
+    return rows[0]
+  }
 }
