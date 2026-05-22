@@ -71,9 +71,9 @@ running journey → `replied` + `onReply` ran; terminal journey → unchanged.
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| RPL-01 | P1: webhook verify | Tasks | Pending |
-| RPL-02 | P1: route + mark replied + onReply | Tasks | Pending |
-| RPL-03 | P1: ignore non-matching / terminal | Tasks | Pending |
+| RPL-01 | P1: webhook verify | Tasks | Verified |
+| RPL-02 | P1: route + mark replied + onReply | Tasks | Verified |
+| RPL-03 | P1: ignore non-matching / terminal | Tasks | Verified |
 
 **Coverage:** 3 total, mapped to tasks.
 

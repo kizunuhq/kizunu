@@ -78,9 +78,12 @@ deal → exhaustion marks the deal lost. Self-hostable via Docker Compose.
 - _Landed (feature `009`): the dispatcher + in-process poller — row-locked per-journey
   dispatch, `TouchAttempt` idempotency, channel resolution (no channel → `error_state`),
   validate → send the template touch, CRM activity logging, advance with jitter, and
-  exhaustion → `onExhausted` via the closed-vocabulary action executor. Remaining:
-  inbound reply (`replied` → `onReply`) + `paused_owner_inactive`; deferred:
-  `sendingWindow` and CRM-owner → user mapping (flagged in CONCERNS)._
+  exhaustion → `onExhausted` via the closed-vocabulary action executor._
+- _Landed (feature `010`): inbound reply — the app-level Meta webhook
+  (`hub.verify_token` verify + `phone_number_id` routing) and `MarkReplyUseCase`, which
+  transitions a running journey → `replied` under the D1 row lock and runs `onReply`.
+  Remaining: `paused_owner_inactive` + bulk reassign; deferred: `sendingWindow` and
+  CRM-owner → user mapping (flagged in CONCERNS)._
 - In-process DB poller over `LeadJourney.nextTouchAt <= now`; respects `sendingWindow`, applies `jitter`
 - `LeadJourney` state machine (`running → paused | replied | exhausted | stopped | error_state | paused_owner_inactive`)
 - Pessimistic row lock (`SELECT … FOR UPDATE`) resolving the dispatch/reply race; `TouchAttempt` idempotency on `(leadJourneyId, stepOrder)`
