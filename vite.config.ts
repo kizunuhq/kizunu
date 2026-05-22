@@ -60,6 +60,13 @@ export default defineConfig({
       {
         files: ['**/__test__/**/*.spec.ts'],
         plugins: ['typescript', 'vitest'],
+        // Test doubles cast structural fakes to repository class types (whose
+        // private members can't be satisfied structurally), and inline vi.fn()
+        // stubs don't need explicit generics — both are intentional in specs.
+        rules: {
+          'no-unsafe-type-assertion': 'off',
+          'vitest/require-mock-type-parameters': 'off',
+        },
       },
     ],
   },
@@ -93,6 +100,7 @@ export default defineConfig({
     passWithNoTests: true,
     projects: [
       {
+        resolve: { alias: { '@kizunu/api': apiSrc } },
         test: {
           name: 'unit',
           environment: 'node',
