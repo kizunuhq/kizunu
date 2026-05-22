@@ -4,6 +4,7 @@ import { ChannelAccountRepository } from '@kizunu/api/modules/channel/persistenc
 import { ConfigService } from '@kizunu/config-module/config.service'
 import { Public } from '@kizunu/nestjs-shared/lib/decorators/public.decorator'
 import { Body, Controller, ForbiddenException, Get, HttpCode, Post, Query } from '@nestjs/common'
+import { ApiTags } from '@nestjs/swagger'
 
 import { MarkReplyUseCase } from '../../core/use-cases/mark-reply.use-case'
 
@@ -17,6 +18,7 @@ const PHONE_NUMBER_KEY = 'phoneNumberId'
  * matching running journey replied. `@Public` — Meta calls it unauthenticated.
  */
 @Public()
+@ApiTags('webhooks')
 @Controller('webhooks/meta')
 export class MetaWebhookController {
   constructor(

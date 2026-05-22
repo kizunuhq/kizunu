@@ -99,10 +99,15 @@ deal → exhaustion marks the deal lost. Self-hostable via Docker Compose.
 - Admin: user management, workspace channels (create/configure/grant access/webhook URL), Pipedrive connector mapping
 - BDR: my channels (set primary), cadences & templates CRUD, inbox (filter by instance / my leads), journey list (active/paused/error)
 
-**REST + OpenAPI surface** - PLANNED
+**REST + OpenAPI surface** - IN PROGRESS
 
 - CRUD for every domain entity; OpenAPI from day one
 - Authenticated public endpoints: CRM webhook ingestion + channel inbound (URL per `ChannelAccount`)
+- _Landed (feature `011`): OpenAPI 3 document + Swagger UI at `/docs` (and `/docs-json`),
+  built from the controllers + zod DTOs (`@nestjs/swagger` + nestjs-zod), every controller
+  tagged by domain; plus the `GET /workspaces/:id/lead-journeys` list (status-filterable).
+  The public CRM + Meta webhooks landed with the engine. Minor remaining CRUD gaps
+  (connector update/delete, entry-trigger update) are documented, not yet built._
 
 ---
 

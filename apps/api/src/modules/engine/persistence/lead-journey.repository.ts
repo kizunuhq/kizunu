@@ -15,6 +15,15 @@ const NON_TERMINAL_STATUSES = [
   LeadJourneyStatus.PausedOwnerInactive,
 ]
 
+export interface LeadJourneySummary {
+  id: string
+  leadName: string
+  cadenceId: string
+  status: LeadJourneyStatusType
+  currentStepOrder: number
+  nextTouchAt: Date | null
+}
+
 export interface LockedJourney {
   id: string
   status: LeadJourneyStatusType
@@ -113,6 +122,26 @@ export class LeadJourneyRepository {
 
   async setStatus(tx: DbTransaction, id: string, status: LeadJourneyStatusType): Promise<void> {
     await tx.update(leadJourneys).set({ status, nextTouchAt: null }).where(eq(leadJourneys.id, id))
+  }
+
+  async listByWorkspace(
+    workspaceId: string,
+    status?: LeadJourneyStatusType,
+  ): Promise<LeadJourneySummary[]> {
+    const filters = [eq(leads.workspaceId, workspaceId)]
+    if (status) filters.push(eq(leadJourneys.status, status))
+    return await this.drizzle.db
+      .select({
+        id: leadJourneys.id,
+        leadName: leads.name,
+        cadenceId: leadJourneys.cadenceId,
+        status: leadJourneys.status,
+        currentStepOrder: leadJourneys.currentStepOrder,
+        nextTouchAt: leadJourneys.nextTouchAt,
+      })
+      .from(leadJourneys)
+      .innerJoin(leads, eq(leadJourneys.leadId, leads.id))
+      .where(and(...filters))
   }
 
   /** Inbound seam: a running journey for the lead reachable at this phone in a workspace. */

@@ -18,6 +18,7 @@ import {
   Res,
   UnauthorizedException,
 } from '@nestjs/common'
+import { ApiTags } from '@nestjs/swagger'
 import type { Request, Response } from 'express'
 import { createZodDto } from 'nestjs-zod'
 
@@ -33,6 +34,7 @@ class RegisterDto extends createZodDto(RegisterRequestSchema) {}
 class LoginDto extends createZodDto(LoginRequestSchema) {}
 class SwitchWorkspaceDto extends createZodDto(SwitchWorkspaceRequestSchema) {}
 
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(

@@ -49,6 +49,9 @@ export const Routes = {
     item: (workspaceId: string, triggerId: string) =>
       `/workspaces/${workspaceId}/entry-triggers/${triggerId}`,
   },
+  leadJourneys: {
+    collection: (workspaceId: string) => `/workspaces/${workspaceId}/lead-journeys`,
+  },
   webhooks: {
     crm: (connectorAccountId: string) => `/webhooks/crm/${connectorAccountId}`,
     meta: '/webhooks/meta',

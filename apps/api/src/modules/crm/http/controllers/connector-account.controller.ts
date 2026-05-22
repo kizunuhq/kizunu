@@ -1,6 +1,7 @@
 import { CreateConnectorAccountRequestSchema } from '@kizunu/api-contracts/crm'
 import { WorkspaceAdminGuard } from '@kizunu/api/modules/workspace/http/guards/workspace-admin.guard'
 import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common'
+import { ApiTags } from '@nestjs/swagger'
 import { createZodDto } from 'nestjs-zod'
 
 import { CreateConnectorAccountUseCase } from '../../core/use-cases/create-connector-account.use-case'
@@ -9,6 +10,7 @@ import { ListWorkspaceConnectorAccountsUseCase } from '../../core/use-cases/list
 class CreateConnectorAccountDto extends createZodDto(CreateConnectorAccountRequestSchema) {}
 
 @UseGuards(WorkspaceAdminGuard)
+@ApiTags('crm')
 @Controller('workspaces')
 export class ConnectorAccountController {
   constructor(
