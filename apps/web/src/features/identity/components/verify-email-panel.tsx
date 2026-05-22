@@ -27,17 +27,19 @@ export function VerifyEmailPanel({ token }: { token: string }) {
 
   const state = !token || confirm.isError ? 'error' : confirm.isSuccess ? 'success' : 'pending'
 
+  const descriptions = {
+    pending: 'Confirming the link from your email.',
+    success: 'Your email address is now confirmed.',
+    error: token
+      ? getApiErrorMessage(confirm.error)
+      : 'This verification link is missing its token.',
+  } as const
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>{TITLES[state]}</CardTitle>
-        <CardDescription>
-          {state === 'error'
-            ? token
-              ? getApiErrorMessage(confirm.error)
-              : 'This verification link is missing its token.'
-            : 'Confirming the link from your email.'}
-        </CardDescription>
+        <CardDescription>{descriptions[state]}</CardDescription>
       </CardHeader>
       {state !== 'pending' ? (
         <CardContent>
