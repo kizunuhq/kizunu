@@ -6,8 +6,8 @@ Evidence-backed warnings, prioritized by risk. Each item cites a file and a fix 
 
 ### Core v0.1 scope is unbuilt
 **Evidence:** `apps/api/src/modules/` contains only `identity` and `workspace`. None of the v0.1 contract exists yet — channel plugin (Meta/WhatsApp), CRM connector (Pipedrive), `Cadence`/`Step`/`Template`, `Lead`/`LeadJourney`/`TouchAttempt`, `ChannelAccount`/`ChannelAccess`/`EntryTrigger`, or the scheduler/inbound engine (`docs/v0.1-scope.md`).
-**Impact:** The pilot contract (the one thing v0.1 must do) cannot run. The frozen plugin/connector contracts are the riskiest design surface and are unvalidated against real APIs.
-**Fix:** Sequence per ROADMAP.md — channel plugin contract first (engine depends on it), then CRM connector, cadence aggregate, engine. Validate `ChannelPlugin.validate → Decision` against the real Meta 24h-window/HSM behavior early.
+**Impact:** The pilot contract (the one thing v0.1 must do) cannot run. The frozen plugin/connector contracts are the riskiest design surface and are unvalidated against real APIs. The web app is likewise a skeleton — routes are TODO placeholders (`docs/web-structure.md` maps the intended layout; `components/primitives/` now holds the shadcn baseline, but no real screens yet).
+**Fix:** Sequence per ROADMAP.md — channel plugin contract first (engine depends on it), then CRM connector, cadence aggregate, engine. Validate `ChannelPlugin.validate → Decision` against the real Meta 24h-window/HSM behavior early. For UI, build screens shadcn-first per `.agents/rules/react.md` §0.
 
 ### CORS is configured but never enabled
 **Evidence:** `api.config.ts` parses `APP_CORS_ORIGINS` into `cors`, but `main.ts` never calls `app.enableCors(...)`. The web client uses `credentials: 'include'` (`apps/web/src/lib/api-client.ts`) and runs on a different origin (`:3000` vs API `:3001`).

@@ -18,11 +18,12 @@ kizunu/
 │   │   │   └── __test__/         # global-setup + integration/ + e2e/ harness
 │   │   ├── drizzle/              # generated migrations + .checksums.json (immutable)
 │   │   └── drizzle.config.ts
-│   └── web/                      # React 19 SPA (TanStack Router/Query, Vite, Tailwind v4)
+│   └── web/                      # React 19 SPA (TanStack Router/Query, Vite, Tailwind v4) — full map: docs/web-structure.md
 │       └── src/
 │           ├── routes/           # file-based routes ((auth), _app, index, not-found)
 │           ├── features/         # feature-scoped code (marketing/…)
-│           ├── components/ hooks/ lib/ _shell/  # shared primitives, api-client, providers
+│           ├── components/         # shared UI; components/primitives/ = shadcn-installed (ui alias)
+│           ├── hooks/ lib/ _shell/  # api-client, helpers, providers
 │           └── routeTree.gen.ts  # generated (lint/fmt-ignored)
 ├── packages/
 │   ├── api-contracts/            # shared zod request/response schemas + Routes table (identity, workspace)

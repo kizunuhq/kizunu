@@ -1,6 +1,52 @@
 # React Standards
 
-These rules apply to React code in `frontend/`.
+These rules apply to React code in `apps/web`.
+
+## 0. Source UI Primitives From shadcn/ui First (foundational)
+
+Every primitive UI building block in `apps/web` — buttons, inputs, labels, fields,
+cards, separators, dialogs, toasts, tables, and the like — **originates from
+shadcn/ui**, installed as source into `src/components/primitives/` (the `ui` alias in
+`apps/web/components.json`). Customize the installed source in-project; do not
+hand-roll a styled `div`/`span`/`button` when a shadcn primitive exists for it.
+
+Write a bespoke component **only** when no shadcn primitive (in `@shadcn` or a
+community registry) fits the need — and even then, compose it from installed
+primitives where possible.
+
+**Always go through the `shadcn` skill** for this work. Before adding, fixing, or
+composing UI: get project context (`shadcn info`), search registries
+(`shadcn search`), read component docs (`shadcn docs <component>`), then install
+(`shadcn add <component>`). Use the project's runner (`bunx --bun shadcn@latest`).
+After install, verify the generated files: imports resolve to `@kizunu/web/*`, the
+`cn` helper points at `@kizunu/web/lib/utils`, and icons use `@phosphor-icons/react`
+(the project's `iconLibrary`) — never `lucide-react`.
+
+Compose, don't reinvent: prefer built-in variants (`variant="outline"`, `size="sm"`)
+and semantic tokens (`bg-primary`, `text-muted-foreground`) over custom styling. See
+the `shadcn` skill's rules for the full styling/composition contract.
+
+Bad:
+
+```tsx
+// Hand-rolled primitive — bypasses shadcn entirely.
+function SaveButton() {
+  return (
+    <button className="rounded-md bg-blue-600 px-3 py-2 text-white">Save</button>
+  )
+}
+```
+
+Good:
+
+```tsx
+// Installed from shadcn into components/primitives, used via its variants.
+import { Button } from '@kizunu/web/components/primitives/button'
+
+function SaveButton() {
+  return <Button>Save</Button>
+}
+```
 
 ## 1. Use Functional Components
 

@@ -37,6 +37,8 @@ Settled before code (from `docs/v0.1-scope.md`; rationale in `docs/adr/`):
 - **Tests → always use the `generate-tests` skill.** All test implementation in this project routes through `.claude/skills/generate-tests` (thin/fat classification), not mechanical per-criterion tests. Codified in `.specs/codebase/TESTING.md` ("Test Authoring Policy").
 - **ADRs are immutable.** Architectural decisions live in `docs/adr/` indexed by `docs/adr/README.md`; never edit an Accepted ADR — supersede with a new one and link back. Referenced from `.specs/codebase/ARCHITECTURE.md` and `INTEGRATIONS.md`.
 - Lightweight steps (state updates, validation, session handoff) run fine on a faster/cheaper model.
+- **UI is shadcn-first.** `apps/web` primitives originate from shadcn/ui (via the `shadcn` skill) into `components/primitives/`, customized in-project; bespoke only when no primitive fits. Codified in `.agents/rules/react.md` §0 and `.specs/codebase/CONVENTIONS.md`. Baseline installed (button, input, label, field, card, separator, sonner) under feature `001-shadcn-first-primitives`. Style `base-nova`, base lib `@base-ui/react`, icons `@phosphor-icons/react`.
+- **Feature specs are sequentially numbered.** `.specs/features/NNN-<slug>/`, starting `001`, incrementing by one, never skipping or reusing a number (rule in `.specs/features/README.md`).
 
 ## Codebase map
 
