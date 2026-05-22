@@ -36,6 +36,11 @@ Evidence-backed warnings, prioritized by risk. Each item cites a file and a fix 
 **Impact:** Anyone who learns a connector-account id could post forged stage-entered events and start journeys. Pilot risk is low (id is a random UUIDv7, not exposed), but it is not defense-in-depth. Event-key idempotency is also journey-level only (no `processed_events` table), so redeliveries with distinct keys are not deduped.
 **Fix:** Add per-connector webhook secret/HMAC verification when hardening, and a `processed_events` idempotency table keyed by `NormalizedEvent.idempotencyKey`.
 
+### Dispatcher gaps: owner mapping, sendingWindow, template variables
+**Evidence:** The dispatcher (feature `009`) resolves the send channel by `lead.ownerUserId`, but ingestion never maps the CRM owner (`ownerExternalId`) to a Kizunu user, so `ownerUserId` is null and every journey hits `error_state` (no channel) until owner mapping exists. It also ignores the cadence `sendingWindow` (dispatch is gated only by `nextTouchAt`), and sends templates without resolving `variables` values.
+**Impact:** The pilot cannot actually deliver touches until CRM-owner → user mapping is built; messages may go out off-hours; templated messages send without filled variables (Meta rejects if it expects parameters).
+**Fix:** Add an owner-identity mapping (e.g. per-membership external id per connector) consumed at ingestion to set `ownerUserId`; add `sendingWindow` (timezone/days/hours) to the cadence and honor it in `dispatchOne`; add a template-variable resolver from lead fields.
+
 ### Migrations run on every API boot
 **Evidence:** `main.ts` `runMigrations()` runs before `bootstrap()` on every start.
 **Impact:** Convenient for single-instance/dev, but multiple replicas starting concurrently can race on `drizzle-kit`'s migration table; a long migration also blocks readiness. Not a problem at pilot scale, a problem at deploy scale.

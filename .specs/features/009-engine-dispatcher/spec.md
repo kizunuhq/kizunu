@@ -88,11 +88,11 @@ validate-error both → `error_state`; assert a second dispatch of the same step
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| DSP-01 | P1: dispatch a step (send/attempt/activity/advance) | Tasks | Pending |
-| DSP-02 | P1: no-channel / validate-error → error_state | Tasks | Pending |
-| DSP-03 | P1: TouchAttempt idempotency | Tasks | Pending |
-| DSP-04 | P1: exhaustion → onExhausted | Tasks | Pending |
-| DSP-05 | P1: poller dispatches due journeys | Tasks | Pending |
+| DSP-01 | P1: dispatch a step (send/attempt/activity/advance) | Tasks | Verified |
+| DSP-02 | P1: no-channel / validate-error → error_state | Tasks | Verified |
+| DSP-03 | P1: TouchAttempt idempotency | Tasks | Verified |
+| DSP-04 | P1: exhaustion → onExhausted | Tasks | Verified |
+| DSP-05 | P1: poller dispatches due journeys | Tasks | Verified |
 
 **Coverage:** 5 total, mapped to tasks.
 
