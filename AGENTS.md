@@ -197,14 +197,6 @@ never bypass git hooks; keep unrelated work on separate branches.
   short outcome-describing subjects; wrap body lines; never leave commitlint
   warnings unresolved.
 
-## Code organization
-
-- Feature-specific code: `apps/[app]/src/features/[feature]/` (subfolders
-  `components`, `hooks`, `services`, `stores`, `types`, `tests`).
-- Shared primitives in `src/components`, shared hooks in `src/hooks`, generic
-  helpers in `src/lib`. Don't promote feature code into shared folders for convenience.
-- Cross-app shared code lives in `packages/`, never inside an app.
-
 ## Documentation
 
 - Update `docs/v0.1-scope.md` when v0.1 scope changes; update `docs/vision.md` when
