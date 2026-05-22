@@ -38,8 +38,10 @@ deal → exhaustion marks the deal lost. Self-hostable via Docker Compose.
 - Meta Cloud API via Coexistence: 24h-window vs. HSM template decision inside `validate`; credentials `waba_id`, `phone_number_id`, system token
 - App-level inbound webhook with `hub.verify_token`; routes by `phone_number_id`
 - _Slice 1 landed (feature `002`): frozen port + registry + ChannelAccount/ChannelAccess
-  domain and CRUD, proven with a fake plugin. Meta plugin + inbound webhook are slice 2
-  (feature `003`)._
+  domain and CRUD, proven with a fake plugin._
+- _Slice 2 landed (feature `003`): `MetaWhatsappPlugin` (validate 24h-window/HSM,
+  parseInbound, send) registered into the registry. The app-level inbound webhook is
+  deferred to the Engine slice, where its `LeadJourney` consumer lives._
 
 **CRM connector + Pipedrive** - PLANNED
 

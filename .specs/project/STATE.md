@@ -29,6 +29,7 @@ Settled before code (from `docs/v0.1-scope.md`; rationale in `docs/adr/`):
 - Domain owns the enum vocabulary; infra (pgEnum) conforms via a compile-time `Assert<Equal<...>>` guard. See memory `layer-boundary-type-guard` and `docs/adr/003`.
 - Vitest runs integration/e2e specs in a **Node** worker with no `Bun` global, but the Drizzle id default (`defaults()`) calls `Bun.randomUUIDv7()` at insert time. The integration/e2e `setup.ts` files polyfill it with `crypto.randomUUID()` so DB-backed inserts work. Any future DB-backed test relies on this.
 - The `ChannelPlugin` port (D2) is frozen in `apps/api/src/modules/channel/core/plugin/` and proven with a fake plugin; `ChannelAccount.credentials` is opaque `unknown` at the port and validated per-plugin via `configSchema`. The engine's channel-resolution seam is `ChannelAccessRepository.findPrimaryAccount(userId, pluginId)`.
+- The real `MetaWhatsappPlugin` (feature `003`, `modules/channel/plugins/meta-whatsapp/`) is registered into `CHANNEL_PLUGINS`. `validate` never returns freeform once the 24h window closes (returns `template` or `error: template_required`). The app-level Meta inbound webhook (`hub.verify_token` + route by `phone_number_id`) is intentionally deferred to the Engine slice — it pauses `LeadJourney`s, which don't exist yet, so building it now would be a dead seam.
 
 ## Deferred ideas
 

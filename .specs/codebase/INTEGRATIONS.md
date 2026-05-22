@@ -1,6 +1,6 @@
 # External Integrations
 
-**State:** Only PostgreSQL is wired today. The v0.1 contract's external integrations — Meta Cloud API (WhatsApp) and Pipedrive — are designed (frozen contracts in `docs/v0.1-scope.md`) but **not yet implemented**. They are documented here as planned so feature work has a target.
+**State:** PostgreSQL is wired, and the **Meta Cloud API (WhatsApp) outbound** integration now exists as a registered channel plugin (feature `003`). Pipedrive and the Meta inbound webhook are still designed-only (frozen contracts in `docs/v0.1-scope.md`).
 
 ## Datastore — PostgreSQL
 
@@ -23,16 +23,16 @@
 
 ---
 
+## Channel plugin — Meta Cloud API / WhatsApp (Coexistence)
+
+**Purpose:** Outbound WhatsApp touches (inbound replies once the webhook lands with the engine); per-BDR numbers.
+**Status:** Built in feature `003` — `MetaWhatsappPlugin` (`apps/api/src/modules/channel/plugins/meta-whatsapp/`) implements the frozen port and is registered into `CHANNEL_PLUGINS`. Per ADR 004 it is a monorepo module, not a separate process.
+**Implementation:** `validate` decides freeform vs. HSM template against the 24h customer-service window; `parseInbound` normalizes webhook payloads (routing by `phone_number_id`, never throws); `send` POSTs text/template to the Graph API (`META_GRAPH_API_BASE`, base/fetch injectable for tests). Meta specifics (24h window, HSM, `waba_id`/`phone_number_id`/system token) stay inside the plugin.
+**Auth:** system token in `ChannelAccount.credentials` (validated by the plugin `configSchema`).
+
 ## Planned (v0.1 — not yet built)
 
 The shape of the items below is fixed by accepted ADRs (index: `docs/adr/README.md`) — notably ADR 004 (Meta CoEx channel) and ADR 005 (DB-poller scheduler). ADRs are immutable; supersede rather than edit.
-
-### Channel plugin — Meta Cloud API / WhatsApp (Coexistence)
-
-**Purpose:** Outbound WhatsApp touches + inbound replies; per-BDR numbers.
-**Planned location:** monorepo channel-plugin module (not a separate process — ADR 004 *Meta Cloud API (Coexistence) as the v0.1 WhatsApp Channel*).
-**Contract:** `ChannelPlugin { manifest, send, parseInbound, validate → Decision }`; Meta specifics (24h window, HSM templates, `waba_id`/`phone_number_id`/system token) stay inside the plugin.
-**Auth:** system token in `ChannelAccount.credentials`.
 
 ### CRM connector — Pipedrive
 

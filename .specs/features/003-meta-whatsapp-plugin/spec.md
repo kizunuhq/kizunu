@@ -134,10 +134,10 @@ result mapping for ok / non-ok.
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| META-01 | P1: schema + registration | Tasks | Pending |
-| META-02 | P1: validate 24h window | Tasks | Pending |
-| META-03 | P1: parseInbound | Tasks | Pending |
-| META-04 | P2: send text/template | Tasks | Pending |
+| META-01 | P1: schema + registration | Tasks | Verified |
+| META-02 | P1: validate 24h window | Tasks | Verified |
+| META-03 | P1: parseInbound | Tasks | Verified |
+| META-04 | P2: send text/template | Tasks | Verified |
 
 **Coverage:** 4 total, mapped to tasks.
 
