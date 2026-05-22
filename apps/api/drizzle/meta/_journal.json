@@ -64,6 +64,13 @@
       "when": 1779471643267,
       "tag": "0008_careful_moondragon",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1779472505622,
+      "tag": "0009_sweet_ricochet",
+      "breakpoints": true
     }
   ]
 }

@@ -1,17 +1,15 @@
-import type { Config } from '@kizunu/api/api.config'
 import type { User } from '@kizunu/api/db/schemas/users'
 import {
   AccountLockedException,
   InvalidCredentialsException,
 } from '@kizunu/api/modules/identity/core/errors/identity.errors'
+import type {
+  IssueSessionInput,
+  SessionIssuer,
+} from '@kizunu/api/modules/identity/core/services/session-issuer'
 import { AuthenticateUseCase } from '@kizunu/api/modules/identity/core/use-cases/authenticate.use-case'
 import type { MembershipRepository } from '@kizunu/api/modules/identity/persistence/membership.repository'
-import type {
-  CreateSessionInput,
-  SessionRepository,
-} from '@kizunu/api/modules/identity/persistence/session.repository'
 import type { UserRepository } from '@kizunu/api/modules/identity/persistence/user.repository'
-import type { ConfigService } from '@kizunu/config-module/config.service'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 
 // `password.helper` wraps `Bun.password` (argon2id), which is unavailable in the
@@ -23,10 +21,9 @@ vi.mock('@kizunu/api/modules/identity/core/crypto/password.helper', () => ({
   verifyPassword: vi.fn(async (plain: string, hash: string) => hash === `hashed:${plain}`),
 }))
 
-const SESSION_TTL_DAYS = 30
 const NOW = new Date('2026-05-22T12:00:00.000Z')
+const ISSUED_EXPIRES = new Date('2026-06-21T12:00:00.000Z')
 const LOCK_DURATION_MS = 15 * 60 * 1000
-const DAY_MS = 24 * 60 * 60 * 1000
 
 function createUser(overrides: Partial<User> = {}): User {
   return {
@@ -46,19 +43,18 @@ function createUser(overrides: Partial<User> = {}): User {
 
 interface Fakes {
   user: User | undefined
-  createdSessions: CreateSessionInput[]
+  issuedFor: IssueSessionInput[]
   lockCalls: Array<{ id: string; until: Date }>
   resetCalls: string[]
   users: UserRepository
-  sessions: SessionRepository
   memberships: MembershipRepository
-  config: ConfigService<Config>
+  sessionIssuer: SessionIssuer
 }
 
 function buildFakes(user: User | undefined, activeWorkspaceId: string | null): Fakes {
-  const state: Pick<Fakes, 'user' | 'createdSessions' | 'lockCalls' | 'resetCalls'> = {
+  const state: Pick<Fakes, 'user' | 'issuedFor' | 'lockCalls' | 'resetCalls'> = {
     user,
-    createdSessions: [],
+    issuedFor: [],
     lockCalls: [],
     resetCalls: [],
   }
@@ -77,13 +73,6 @@ function buildFakes(user: User | undefined, activeWorkspaceId: string | null): F
       state.resetCalls.push(id)
     },
   } as unknown as UserRepository
-
-  const sessions = {
-    create: async (input: CreateSessionInput) => {
-      state.createdSessions.push(input)
-      return { id: 'session-1' }
-    },
-  } as unknown as SessionRepository
 
   const memberships = {
     listForUser: async () =>
@@ -107,15 +96,18 @@ function buildFakes(user: User | undefined, activeWorkspaceId: string | null): F
         : [],
   } as unknown as MembershipRepository
 
-  const config = {
-    get: (key: string) => (key === 'session.ttlDays' ? SESSION_TTL_DAYS : undefined),
-  } as unknown as ConfigService<Config>
+  const sessionIssuer = {
+    issue: async (input: IssueSessionInput) => {
+      state.issuedFor.push(input)
+      return { sessionToken: 'session-token', expiresAt: ISSUED_EXPIRES }
+    },
+  } as unknown as SessionIssuer
 
-  return { ...state, users, sessions, memberships, config }
+  return { ...state, users, memberships, sessionIssuer }
 }
 
 function createUseCase(fakes: Fakes): AuthenticateUseCase {
-  return new AuthenticateUseCase(fakes.users, fakes.sessions, fakes.memberships, fakes.config)
+  return new AuthenticateUseCase(fakes.users, fakes.memberships, fakes.sessionIssuer)
 }
 
 describe('AuthenticateUseCase', () => {
@@ -148,14 +140,26 @@ describe('AuthenticateUseCase', () => {
       await expect(result).rejects.toBeInstanceOf(InvalidCredentialsException)
     })
 
-    it('does not create a session when authentication fails', async () => {
+    it('rejects an OAuth-only account (null password hash) on password login', async () => {
+      const fakes = buildFakes(createUser({ passwordHash: null }), null)
+
+      const result = createUseCase(fakes).execute({
+        email: 'ada@example.com',
+        password: 'correct',
+      })
+
+      await expect(result).rejects.toBeInstanceOf(InvalidCredentialsException)
+      expect(fakes.issuedFor).toHaveLength(0)
+    })
+
+    it('does not issue a session when authentication fails', async () => {
       const fakes = buildFakes(createUser(), null)
 
       await createUseCase(fakes)
         .execute({ email: 'ada@example.com', password: 'wrong' })
         .catch(() => undefined)
 
-      expect(fakes.createdSessions).toHaveLength(0)
+      expect(fakes.issuedFor).toHaveLength(0)
     })
   })
 
@@ -213,7 +217,7 @@ describe('AuthenticateUseCase', () => {
         password: 'correct',
       })
 
-      expect(result.sessionToken).toBeTruthy()
+      expect(result.sessionToken).toBe('session-token')
     })
   })
 
@@ -248,7 +252,7 @@ describe('AuthenticateUseCase', () => {
       expect(result.activeWorkspaceId).toBeNull()
     })
 
-    it('returns the user and a session expiring after the configured TTL', async () => {
+    it('issues a session for the resolved active workspace', async () => {
       const fakes = buildFakes(createUser(), 'ws-active')
 
       const result = await createUseCase(fakes).execute({
@@ -257,9 +261,9 @@ describe('AuthenticateUseCase', () => {
       })
 
       expect(result.user).toEqual({ id: 'user-1', email: 'ada@example.com', name: 'Ada Lovelace' })
-      expect(result.expiresAt).toEqual(new Date(NOW.getTime() + SESSION_TTL_DAYS * DAY_MS))
-      expect(fakes.createdSessions).toHaveLength(1)
-      expect(fakes.createdSessions[0]?.activeWorkspaceId).toBe('ws-active')
+      expect(result.expiresAt).toEqual(ISSUED_EXPIRES)
+      expect(fakes.issuedFor).toHaveLength(1)
+      expect(fakes.issuedFor[0]?.activeWorkspaceId).toBe('ws-active')
     })
   })
 })

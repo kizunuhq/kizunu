@@ -49,6 +49,28 @@ export class InvalidVerificationTokenException extends ApplicationException {
   }
 }
 
+export class UnknownOAuthProviderException extends ApplicationException {
+  constructor(provider: string) {
+    super('identity.unknown-oauth-provider', 'Unknown OAuth provider.', 422, { provider })
+  }
+}
+
+export class OAuthEmailUnverifiedException extends ApplicationException {
+  constructor() {
+    super(
+      'identity.oauth-email-unverified',
+      'Your provider email is not verified, so it cannot be used to sign in.',
+      422,
+    )
+  }
+}
+
+export class OAuthStateMismatchException extends ApplicationException {
+  constructor() {
+    super('identity.oauth-state-mismatch', 'OAuth state did not match. Please try again.', 422)
+  }
+}
+
 export class SessionNotFoundException extends ApplicationException {
   constructor() {
     super('identity.session-not-found', 'Session not found.', 422)

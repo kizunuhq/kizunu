@@ -8,6 +8,7 @@ import { z } from 'zod'
  */
 export const AuthCapabilitiesResponseSchema = z.object({
   registrationEnabled: z.boolean(),
+  oauthProviders: z.array(z.object({ id: z.string(), label: z.string() })),
 })
 
 export type AuthCapabilitiesResponse = z.infer<typeof AuthCapabilitiesResponseSchema>

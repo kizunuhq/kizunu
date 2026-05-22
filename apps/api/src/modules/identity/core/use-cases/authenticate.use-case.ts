@@ -1,13 +1,10 @@
-import type { Config } from '@kizunu/api/api.config'
-import { generateOpaqueToken, hashOpaqueToken } from '@kizunu/api/shared/crypto/opaque-token.helper'
-import { ConfigService } from '@kizunu/config-module/config.service'
 import { Injectable } from '@nestjs/common'
 
 import { MembershipRepository } from '../../persistence/membership.repository'
-import { SessionRepository } from '../../persistence/session.repository'
 import { UserRepository } from '../../persistence/user.repository'
 import { hashPassword, verifyPassword } from '../crypto/password.helper'
 import { AccountLockedException, InvalidCredentialsException } from '../errors/identity.errors'
+import { SessionIssuer } from '../services/session-issuer'
 
 const MAX_FAILED_ATTEMPTS = 5
 const LOCK_DURATION_MS = 15 * 60 * 1000
@@ -30,9 +27,8 @@ export interface AuthenticateOutput {
 export class AuthenticateUseCase {
   constructor(
     private readonly users: UserRepository,
-    private readonly sessions: SessionRepository,
     private readonly memberships: MembershipRepository,
-    private readonly config: ConfigService<Config>,
+    private readonly sessionIssuer: SessionIssuer,
   ) {}
 
   async execute(input: AuthenticateInput): Promise<AuthenticateOutput> {
@@ -46,6 +42,12 @@ export class AuthenticateUseCase {
 
     if (user.lockedUntil && user.lockedUntil > new Date()) {
       throw new AccountLockedException(user.lockedUntil)
+    }
+
+    if (!user.passwordHash) {
+      // OAuth-only account: no password set, so password login cannot succeed.
+      await hashPassword(input.password)
+      throw new InvalidCredentialsException()
     }
 
     const valid = await verifyPassword(input.password, user.passwordHash)
@@ -63,18 +65,11 @@ export class AuthenticateUseCase {
     const active = userMemberships.find((m) => m.status === 'active')
     const activeWorkspaceId = active?.workspaceId ?? null
 
-    const ttlDays = this.config.get('session.ttlDays')
-    const expiresAt = new Date(Date.now() + ttlDays * 24 * 60 * 60 * 1000)
-    const sessionToken = generateOpaqueToken()
-    const tokenHash = hashOpaqueToken(sessionToken)
-
-    await this.sessions.create({
+    const { sessionToken, expiresAt } = await this.sessionIssuer.issue({
       userId: user.id,
-      tokenHash,
       activeWorkspaceId,
-      expiresAt,
-      userAgent: input.userAgent ?? null,
-      ipAddress: input.ipAddress ?? null,
+      userAgent: input.userAgent,
+      ipAddress: input.ipAddress,
     })
 
     return {
