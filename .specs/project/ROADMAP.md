@@ -102,9 +102,10 @@ deal → exhaustion marks the deal lost. Self-hostable via Docker Compose.
   surfaces the token). shadcn `table`/`badge` primitives added._
 - _Landed (feature `014`): journeys list (status-filtered) + my-channels (set primary)
   views._
-- _Landed (feature `015`): channels admin (add channel account with plugin select +
-  credentials JSON, grant member access, list accounts). shadcn `select`/`textarea`
-  added. Remaining: connectors/entry-triggers admin and cadences/templates CRUD. The
+- _Landed (feature `015`): channels admin (add channel account, grant access, list).
+  shadcn `select`/`textarea` added._
+- _Landed (feature `016`): CRM connectors + entry-triggers admin (add connector account,
+  map stage → cadence, list/remove triggers). Remaining: cadences/templates CRUD. The
   **inbox** is not buildable in v0.1 — inbound messages aren't stored (documented in
   CONCERNS)._
 - Auth (login)
