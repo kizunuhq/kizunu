@@ -23,6 +23,12 @@ export class AccountLockedException extends ApplicationException {
   }
 }
 
+export class InvalidResetTokenException extends ApplicationException {
+  constructor() {
+    super('identity.invalid-reset-token', 'This password reset link is invalid or expired.', 422)
+  }
+}
+
 export class SessionExpiredException extends ApplicationException {
   constructor() {
     super('identity.session-expired', 'Session has expired or has been revoked.', 401)

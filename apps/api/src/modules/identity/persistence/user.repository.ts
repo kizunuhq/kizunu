@@ -17,6 +17,10 @@ export class UserRepository {
     return rows[0]
   }
 
+  async setPasswordHash(id: string, passwordHash: string): Promise<void> {
+    await this.drizzle.db.update(users).set({ passwordHash }).where(eq(users.id, id))
+  }
+
   async incrementFailedAttempts(id: string): Promise<number> {
     const rows = await this.drizzle.db
       .update(users)

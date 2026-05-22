@@ -1,4 +1,5 @@
 export * from './login.contract'
 export * from './me.contract'
+export * from './password-reset.contract'
 export * from './register.contract'
 export * from './switch-workspace.contract'

@@ -11,6 +11,8 @@ export const Routes = {
     logout: '/auth/logout',
     me: '/auth/me',
     switchWorkspace: '/auth/switch-workspace',
+    passwordReset: '/auth/password-reset',
+    passwordResetConfirm: '/auth/password-reset/confirm',
   },
   workspaces: {
     invite: (workspaceId: string) => `/workspaces/${workspaceId}/invitations`,
