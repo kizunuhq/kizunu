@@ -38,6 +38,16 @@ export class ChannelAccountRepository {
     return rows[0]
   }
 
+  /** Engine seam: the credentials the channel plugin needs to send. */
+  async findCredentials(id: string): Promise<{ credentials: unknown } | undefined> {
+    const rows = await this.drizzle.db
+      .select({ credentials: channelAccounts.credentials })
+      .from(channelAccounts)
+      .where(eq(channelAccounts.id, id))
+      .limit(1)
+    return rows[0]
+  }
+
   async listByWorkspace(workspaceId: string): Promise<ChannelAccountSummary[]> {
     return await this.drizzle.db
       .select({

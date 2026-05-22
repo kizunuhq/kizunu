@@ -31,6 +31,6 @@ import { MetaWhatsappPlugin } from './plugins/meta-whatsapp/meta-whatsapp.plugin
     ListMyChannelsUseCase,
     ListAvailablePluginsUseCase,
   ],
-  exports: [ChannelPluginRegistry, ChannelAccessRepository],
+  exports: [ChannelPluginRegistry, ChannelAccessRepository, ChannelAccountRepository],
 })
 export class ChannelModule {}
