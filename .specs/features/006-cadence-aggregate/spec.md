@@ -80,10 +80,10 @@ template-channel-mismatch rejections.
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| CAD-01 | P1: create + transaction | Tasks | Pending |
-| CAD-02 | P1: step plugin/template validation | Tasks | Pending |
-| CAD-03 | P1: hook action vocabulary | Tasks | Pending |
-| CAD-04 | P1: list/get/update/delete | Tasks | Pending |
+| CAD-01 | P1: create + transaction | Tasks | Verified |
+| CAD-02 | P1: step plugin/template validation | Tasks | Verified |
+| CAD-03 | P1: hook action vocabulary | Tasks | Verified |
+| CAD-04 | P1: list/get/update/delete | Tasks | Verified |
 
 **Coverage:** 4 total, mapped to tasks.
 
