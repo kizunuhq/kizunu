@@ -1,3 +1,5 @@
+import type { Config } from '@kizunu/api/api.config'
+import { hashOpaqueToken } from '@kizunu/api/shared/crypto/opaque-token.helper'
 import { ConfigService } from '@kizunu/config-module/config.service'
 import { IS_PUBLIC_KEY } from '@kizunu/nestjs-shared/lib/decorators/public.decorator'
 import {
@@ -9,8 +11,6 @@ import {
 import { Reflector } from '@nestjs/core'
 import type { Request } from 'express'
 
-import type { Config } from '../../../../api.config'
-import { hashOpaqueToken } from '../../../../shared/crypto/opaque-token.helper'
 import { SessionRepository } from '../../persistence/session.repository'
 import { UserRepository } from '../../persistence/user.repository'
 

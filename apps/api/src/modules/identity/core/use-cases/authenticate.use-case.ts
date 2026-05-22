@@ -1,8 +1,8 @@
+import type { Config } from '@kizunu/api/api.config'
+import { generateOpaqueToken, hashOpaqueToken } from '@kizunu/api/shared/crypto/opaque-token.helper'
 import { ConfigService } from '@kizunu/config-module/config.service'
 import { Injectable } from '@nestjs/common'
 
-import type { Config } from '../../../../api.config'
-import { generateOpaqueToken, hashOpaqueToken } from '../../../../shared/crypto/opaque-token.helper'
 import { MembershipRepository } from '../../persistence/membership.repository'
 import { SessionRepository } from '../../persistence/session.repository'
 import { UserRepository } from '../../persistence/user.repository'

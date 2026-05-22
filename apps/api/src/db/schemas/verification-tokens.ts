@@ -1,14 +1,25 @@
+import type { Assert, Equal } from '@kizunu/nestjs-shared/lib/types/type-assert'
 import { defaults } from '@kizunu/nestjs-shared/modules/persistence/schemas/defaults'
 import { pgEnum, pgTable, timestamp, uuid, varchar } from 'drizzle-orm/pg-core'
 
+import { VerificationTokenType } from '../../modules/workspace/core/domain/verification-token'
 import { users } from './users'
 import { workspaces } from './workspaces'
 
-export const verificationTokenTypeEnum = pgEnum('verification_token_type', [
+const verificationTokenTypeEnumValues = [
   'email_verification',
   'password_reset',
   'invitation',
-])
+] as const
+
+export const verificationTokenTypeEnum = pgEnum(
+  'verification_token_type',
+  verificationTokenTypeEnumValues,
+)
+
+export type _SchemaMatchesDomain = Assert<
+  Equal<(typeof verificationTokenTypeEnumValues)[number], VerificationTokenType>
+>
 
 export const verificationTokens = pgTable('verification_tokens', {
   ...defaults(),

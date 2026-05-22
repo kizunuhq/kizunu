@@ -28,12 +28,15 @@
   },
   "devDependencies": {
     "@nestjs/cli": "^11.0.10",
+    "@nestjs/testing": "^11.1.17",
     "@swc/cli": "^0.7.8",
     "@swc/core": "^1.13.5",
     "@types/cookie-parser": "^1.4.10",
     "@types/express": "^5.0.6",
     "@types/pg": "^8.20.0",
+    "@types/supertest": "^6.0.2",
     "drizzle-kit": "catalog:",
+    "supertest": "^7.1.1",
     "typescript": "catalog:"
   }
 }

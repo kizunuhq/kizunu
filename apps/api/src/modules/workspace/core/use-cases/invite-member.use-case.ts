@@ -1,8 +1,9 @@
+import { generateOpaqueToken, hashOpaqueToken } from '@kizunu/api/shared/crypto/opaque-token.helper'
 import { Injectable } from '@nestjs/common'
 
-import { generateOpaqueToken, hashOpaqueToken } from '../../../../shared/crypto/opaque-token.helper'
 import { VerificationTokenRepository } from '../../persistence/verification-token.repository'
 import { WorkspaceRepository } from '../../persistence/workspace.repository'
+import { VerificationTokenType } from '../domain/verification-token'
 import { WorkspaceNotFoundException } from '../errors/workspace.errors'
 
 const DEFAULT_INVITATION_DAYS = 7
@@ -35,7 +36,7 @@ export class InviteMemberUseCase {
     const hashedToken = hashOpaqueToken(invitationToken)
 
     await this.verificationTokens.create({
-      type: 'invitation',
+      type: VerificationTokenType.Invitation,
       email: input.email.toLowerCase(),
       workspaceId: input.workspaceId,
       hashedToken,

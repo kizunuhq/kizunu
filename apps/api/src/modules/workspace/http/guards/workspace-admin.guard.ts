@@ -23,8 +23,10 @@ export class WorkspaceAdminGuard implements CanActivate {
     const user = request.user
     if (!user) throw new UnauthorizedException()
 
-    const workspaceId = (request.params as Record<string, string | undefined>)?.id
-    if (!workspaceId) throw new NotWorkspaceAdminException('')
+    const workspaceId = request.params.id
+    if (typeof workspaceId !== 'string' || !workspaceId) {
+      throw new NotWorkspaceAdminException('')
+    }
 
     const isAdmin = await this.members.findActiveAdmin(user.id, workspaceId)
     if (!isAdmin) throw new NotWorkspaceAdminException(workspaceId)

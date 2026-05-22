@@ -7,7 +7,7 @@ export const AcceptInvitationRequestSchema = z.object({
 export type AcceptInvitationRequest = z.infer<typeof AcceptInvitationRequestSchema>
 
 export const AcceptInvitationResponseSchema = z.object({
-  workspaceId: z.string().uuid(),
+  workspaceId: z.uuid(),
   workspaceName: z.string(),
   workspaceSlug: z.string(),
   role: z.enum(['admin', 'member']),

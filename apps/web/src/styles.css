@@ -15,6 +15,6 @@ body {
 }
 
 ::selection {
-  background: oklch(72% 0.21 44 / 0.72);
+  background: oklch(72% 0.21 300 / 0.72);
   color: oklch(18% 0.02 226);
 }

@@ -1,9 +1,10 @@
+import { hashOpaqueToken } from '@kizunu/api/shared/crypto/opaque-token.helper'
 import { Injectable } from '@nestjs/common'
 
-import { hashOpaqueToken } from '../../../../shared/crypto/opaque-token.helper'
 import { VerificationTokenRepository } from '../../persistence/verification-token.repository'
 import { WorkspaceMemberRepository } from '../../persistence/workspace-member.repository'
 import { WorkspaceRepository } from '../../persistence/workspace.repository'
+import { VerificationTokenType } from '../domain/verification-token'
 import {
   AlreadyMemberException,
   InvitationEmailMismatchException,
@@ -33,7 +34,10 @@ export class AcceptInvitationUseCase {
 
   async execute(input: AcceptInvitationInput): Promise<AcceptInvitationOutput> {
     const hashedToken = hashOpaqueToken(input.token)
-    const record = await this.verificationTokens.findActiveByHashedToken('invitation', hashedToken)
+    const record = await this.verificationTokens.findActiveByHashedToken(
+      VerificationTokenType.Invitation,
+      hashedToken,
+    )
     if (!record || !record.workspaceId) {
       throw new InvitationTokenInvalidException()
     }

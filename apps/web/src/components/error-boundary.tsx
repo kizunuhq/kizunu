@@ -8,8 +8,8 @@ interface RouteErrorProps {
 export function RouteError({ error, reset }: RouteErrorProps) {
   return (
     <div className="flex min-h-dvh flex-col items-center justify-center gap-4 p-6 text-center">
-      <h1 className="font-semibold text-2xl">Something went wrong</h1>
-      <pre className="max-w-prose whitespace-pre-wrap text-red-600 text-sm">
+      <h1 className="text-2xl font-semibold">Something went wrong</h1>
+      <pre className="max-w-prose text-sm whitespace-pre-wrap text-red-600">
         {getApiErrorMessage(error)}
       </pre>
       <button

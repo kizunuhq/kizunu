@@ -1,8 +1,7 @@
+import { type User, users } from '@kizunu/api/db/schemas/users'
 import { DrizzleService } from '@kizunu/nestjs-shared/modules/persistence/services/drizzle.service'
 import { Injectable } from '@nestjs/common'
 import { eq, sql } from 'drizzle-orm'
-
-import { type User, users } from '../../../db/schemas/users'
 
 @Injectable()
 export class UserRepository {
