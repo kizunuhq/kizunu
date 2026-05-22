@@ -239,6 +239,29 @@ a separate slice and keeps the auth boundary isolated from the domain.
 
 ---
 
+## Phase 1.7 — Delivery & infra
+
+**CI validation gate & repo governance** - IN PROGRESS
+- _Feature `027` (spec written; discovery in `.specs/features/027-ci-validation-gate/`)._
+- Bring CI to full `scripts/check.sh` parity: a reusable-workflow orchestrator
+  (`_quality` / `_unit` / `_integration` / `_e2e`, Postgres-only service containers),
+  a single `Required (CI)` aggregator as the only branch-protection check, docs-only
+  skip, and draft-gated e2e. Plus a sticky `ci-summary` PR comment, semantic PR-title
+  validation, Dependabot (Actions) + `deps-outdated`, and governance-as-code:
+  `ruleset.json`, `CODEOWNERS`, `CODE_OF_CONDUCT.md`. Trunk-only (`master`).
+- Prerequisite for `028` — deploy must never auto-stage an untested merge.
+
+**Deploy pipeline (staging + production)** - PLANNED (blocked on infra decisions)
+- _Feature `028` (discovery in `.specs/features/028-deploy-pipeline/`)._
+- Trunk-only: every `master` push builds one GHCR image per app (`:sha-<short>` +
+  `:latest`); staging auto-tracks `:latest`; production is a manual, pinned promotion.
+  Rollout via **Kamal** to internal servers (`kamal deploy --skip-push --version=<sha>`,
+  staging/production destinations, `pre-deploy` migrations, `kamal rollback`). Optional
+  release-please for semver tags.
+- Blocked on: where Kamal runs in CI + secrets, and server topology (see discovery).
+
+---
+
 ## Future Considerations (Phase 2+)
 
 - Native CRM (deals, own pipeline, contacts)
