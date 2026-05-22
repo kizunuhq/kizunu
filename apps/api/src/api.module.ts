@@ -2,7 +2,8 @@ import { ConfigModule } from '@kizunu/config-module/config.module'
 import { ApplicationExceptionFilter } from '@kizunu/nestjs-shared/lib/filters/application-exception.filter'
 import { PersistenceModule } from '@kizunu/nestjs-shared/modules/persistence/persistence.module'
 import { Module } from '@nestjs/common'
-import { APP_FILTER } from '@nestjs/core'
+import { APP_FILTER, APP_GUARD } from '@nestjs/core'
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler'
 
 import { load } from './api.config'
 import { CadenceModule } from './modules/cadence/cadence.module'
@@ -19,6 +20,7 @@ import { HealthController } from './shared/http/health.controller'
       load: [load],
       isGlobal: true,
     }),
+    ThrottlerModule.forRoot([{ ttl: 60_000, limit: 120 }]),
     PersistenceModule,
     IdentityModule,
     WorkspaceModule,
@@ -32,6 +34,10 @@ import { HealthController } from './shared/http/health.controller'
     {
       provide: APP_FILTER,
       useClass: ApplicationExceptionFilter,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
     },
   ],
 })

@@ -42,6 +42,11 @@ async function bootstrap(): Promise<void> {
   application.use(cookieParser())
   application.useGlobalPipes(new ZodValidationPipe())
 
+  const corsOrigins = config.get('cors')
+  if (corsOrigins?.length) {
+    application.enableCors({ origin: corsOrigins, credentials: true })
+  }
+
   SwaggerModule.setup('docs', application, buildOpenApiDocument(application))
 
   await application.listen(port)

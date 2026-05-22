@@ -9,22 +9,17 @@ Evidence-backed warnings, prioritized by risk. Each item cites a file and a fix 
 **Impact:** The pilot contract (the one thing v0.1 must do) cannot run. The frozen plugin/connector contracts are the riskiest design surface and are unvalidated against real APIs. The web app is likewise a skeleton — routes are TODO placeholders (`docs/web-structure.md` maps the intended layout; `components/primitives/` now holds the shadcn baseline, but no real screens yet).
 **Fix:** Sequence per ROADMAP.md — channel plugin contract first (engine depends on it), then CRM connector, cadence aggregate, engine. Validate `ChannelPlugin.validate → Decision` against the real Meta 24h-window/HSM behavior early. For UI, build screens shadcn-first per `.agents/rules/react.md` §0.
 
-### CORS is configured but never enabled
-**Evidence:** `api.config.ts` parses `APP_CORS_ORIGINS` into `cors`, but `main.ts` never calls `app.enableCors(...)`. The web client uses `credentials: 'include'` (`apps/web/src/lib/api-client.ts`) and runs on a different origin (`:3000` vs API `:3001`).
-**Impact:** Cross-origin cookie auth from the SPA will be blocked by the browser in any non-proxied setup; the parsed `cors` config is dead.
-**Fix:** Call `application.enableCors({ origin: config.get('cors'), credentials: true })` in `bootstrap()`.
+_(Resolved) CORS, login rate-limit, and CSRF posture — addressed in feature `018` /
+ADR-006: `main.ts` now `enableCors`s the configured allowlist with credentials;
+`@nestjs/throttler` adds a global default + a stricter `auth/login`+`auth/register`
+limit; CSRF is `sameSite: 'lax'` + the CORS allowlist (documented, no token in v0.1)._
 
 ## Medium
 
-### No login rate-limiting at the IP/request layer
-**Evidence:** Protection is per-account only (`AuthenticateUseCase` locks after `MAX_FAILED_ATTEMPTS = 5`). No `@nestjs/throttler` or middleware (grep for `Throttler`/`rate` found none).
-**Impact:** Distributed credential stuffing across many emails, or enumeration via the register endpoint, is unthrottled. Listed as an open primitive in `.specs/project/STATE.md`.
-**Fix:** Add request throttling (e.g. `@nestjs/throttler`) on `auth/*`, keyed by IP, in addition to the existing per-account lock.
-
-### No CSRF protection for cookie-based mutations
-**Evidence:** Auth is an `httpOnly` cookie with `sameSite: 'lax'` (`auth.controller.ts`); no CSRF token mechanism.
-**Impact:** `lax` blocks cross-site cookies on most cross-origin POSTs, so risk is limited, but state-changing endpoints have no defense-in-depth. Flagged as an open primitive in STATE.
-**Fix:** Decide on CSRF strategy when the auth method is finalized (double-submit token, or rely on `sameSite` + CORS allowlist). Document the decision.
+### Password reset is not implemented (needs a mail boundary)
+**Evidence:** The `verification_tokens` table supports a `password_reset` type, but there is no request-reset / confirm-reset use case or endpoint, and no mail provider. The Identity & Auth roadmap line lists password reset.
+**Impact:** Users who forget their password cannot self-recover; an admin would have to intervene out of band.
+**Fix:** Add a mail boundary + request-reset (issues a `password_reset` token) and confirm-reset use cases; until a provider exists, surface the token like invitations do.
 
 ### Provider credentials are stored unencrypted
 **Evidence:** `channel_accounts.credentials` and `connector_accounts.credentials` are plaintext `jsonb` columns (`apps/api/src/db/schemas/`); features `002`/`004` validate the shape against the plugin/connector `configSchema` but do not encrypt at rest. These hold a Meta system token and a Pipedrive API token respectively (`docs/v0.1-scope.md`).
