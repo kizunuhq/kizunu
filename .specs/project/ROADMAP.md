@@ -41,7 +41,9 @@ deal → exhaustion marks the deal lost. Self-hostable via Docker Compose.
 
 - `Workspace` and `Membership` (`role: admin | member`, `status: active | inactive`) as domain entities
 - Admin user management: create, mark inactive, reassign leads
-- _Backend use-cases landed (#13, #14)._
+- _Backend use-cases landed (#13, #14); members admin UI in feature `013`. Lead
+  reassignment + pausing an inactive owner's journeys landed in feature `019` (manual
+  admin actions, per scope)._
 
 **Channel plugin system + Meta/WhatsApp** - IN PROGRESS
 
@@ -93,9 +95,10 @@ deal → exhaustion marks the deal lost. Self-hostable via Docker Compose.
   exhaustion → `onExhausted` via the closed-vocabulary action executor._
 - _Landed (feature `010`): inbound reply — the app-level Meta webhook
   (`hub.verify_token` verify + `phone_number_id` routing) and `MarkReplyUseCase`, which
-  transitions a running journey → `replied` under the D1 row lock and runs `onReply`.
-  Remaining: `paused_owner_inactive` + bulk reassign; deferred: `sendingWindow` and
-  CRM-owner → user mapping (flagged in CONCERNS)._
+  transitions a running journey → `replied` under the D1 row lock and runs `onReply`._
+- _Landed (feature `019`): `paused_owner_inactive` + bulk reassign (manual admin actions).
+  Deferred (pilot-hardening, in CONCERNS): `sendingWindow`, CRM-owner → user mapping,
+  template-variable resolution._
 - In-process DB poller over `LeadJourney.nextTouchAt <= now`; respects `sendingWindow`, applies `jitter`
 - `LeadJourney` state machine (`running → paused | replied | exhausted | stopped | error_state | paused_owner_inactive`)
 - Pessimistic row lock (`SELECT … FOR UPDATE`) resolving the dispatch/reply race; `TouchAttempt` idempotency on `(leadJourneyId, stepOrder)`
