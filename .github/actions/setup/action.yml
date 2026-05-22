@@ -7,7 +7,7 @@ runs:
     # Node 22 is required by Vite to load TypeScript config files
     # (`vite.config.ts`). Bun is the primary runtime, but the lint
     # pipeline shells into vite-plus which depends on Node's loader.
-    - uses: actions/setup-node@v4
+    - uses: actions/setup-node@v6
       with:
         node-version: '22'
 
@@ -18,7 +18,7 @@ runs:
     # Cache Bun's global install cache. Invalidated when bun.lock changes;
     # restore-keys cover branch/main fallbacks.
     - name: Restore Bun install cache
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: ~/.bun/install/cache
         key: bun-install-${{ runner.os }}-${{ hashFiles('bun.lock') }}

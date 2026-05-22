@@ -16,9 +16,21 @@ jobs:
     if: github.repository == 'kizunuhq/kizunu'
     name: Typecheck and lint
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v6
       - uses: ./.github/actions/setup
+
+      # Restore tsc incremental build info so unchanged packages are
+      # skipped on typecheck. Keyed per-commit with a rolling fallback so
+      # every run saves a fresh entry and restores the most recent one.
+      - name: Restore typecheck cache
+        uses: actions/cache@v5
+        with:
+          path: '**/*.tsbuildinfo'
+          key: tsbuildinfo-${{ runner.os }}-${{ github.sha }}
+          restore-keys: |
+            tsbuildinfo-${{ runner.os }}-
 
       - name: Typecheck
         run: bun typecheck

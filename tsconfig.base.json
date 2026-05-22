@@ -6,6 +6,7 @@
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "noEmit": true,
+    "incremental": true,
     "lib": ["ESNext"],
     "verbatimModuleSyntax": true,
     "strict": true,
