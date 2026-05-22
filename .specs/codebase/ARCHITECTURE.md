@@ -102,5 +102,5 @@ The web app consumes the package directly (`@kizunu/api-client/identity/use-curr
 
 ## Code Organization
 
-**Approach:** Domain-driven modular monolith. Backend grouped by domain module then by layer; frontend grouped by feature (`apps/web/src/features/<feature>/`) with shared primitives in `components`/`hooks`/`lib`.
+**Approach:** Domain-driven modular monolith. Backend grouped by domain module then by layer; frontend grouped by feature (`apps/web/src/features/<feature>/`) with shared primitives in `components`/`hooks`/`lib`. The web app's full layout — route sigils, the `features/` vs `components/` vs `components/primitives/` layering, and where each kind of code goes — is mapped in `docs/web-structure.md` (human-readable companion to STRUCTURE.md). UI primitives are shadcn-first (see CONVENTIONS.md and `.agents/rules/react.md` §0): installed into `components/primitives/` via the `shadcn` skill, customized in-project; bespoke only when no primitive fits.
 **Module boundaries:** Cross-app shared code lives in `packages/`, never inside an app. Path aliases (`@kizunu/api/*`, `@kizunu/web/*`) replace deep relative imports (enforced — see CONVENTIONS.md).

@@ -64,6 +64,7 @@ deal → exhaustion marks the deal lost. Self-hostable via Docker Compose.
 
 **Minimum UI** - PLANNED
 
+- _Foundation: shadcn-first primitives baseline + convention (`.specs/features/001-shadcn-first-primitives/`). Primitives in `apps/web` originate from shadcn/ui via the shadcn skill, customized in-project; bespoke only when no primitive fits._
 - Auth (login)
 - Admin: user management, workspace channels (create/configure/grant access/webhook URL), Pipedrive connector mapping
 - BDR: my channels (set primary), cadences & templates CRUD, inbox (filter by instance / my leads), journey list (active/paused/error)

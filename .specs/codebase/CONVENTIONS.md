@@ -35,7 +35,13 @@ Use cases throw `ApplicationException` subclasses with a dot-namespaced `code`, 
 
 ## React (frontend, `apps/web`)
 
-Codified in `.agents/rules/react.md`. Components are **functional** + TypeScript `.tsx` only — no class components (the error-boundary fallback is a function, `components/error-boundary.tsx`). Props typed explicitly via a `XxxProps` interface, passed by name rather than spread. State lives in the smallest component that reads it; lift only to share. Styling is **Tailwind utility classes** (sorted via `cn`/`clsx`/`cva`); inline `style` is reserved for values Tailwind cannot express (dynamic animation delays in `kizunu-landing-page.tsx`). Custom hooks are `use`-prefixed (`use-session.ts`). `useMemo` only for genuinely expensive derived work, not trivial expressions. Keep components focused and small (rule of thumb: under ~50 lines — extract children/hooks past that).
+Codified in `.agents/rules/react.md`. **Primitives are shadcn-first** (rule §0): every
+UI building block originates from shadcn/ui, installed as source into
+`apps/web/src/components/primitives/` (the `ui` alias in `components.json`) via the
+`shadcn` skill, customized in-project; bespoke components only when no shadcn primitive
+fits. The project uses style `base-nova`, base lib `@base-ui/react`, and
+`@phosphor-icons/react` — installed files import `cn` from `@kizunu/web/lib/utils` and
+must use Phosphor (never `lucide-react`). Components are **functional** + TypeScript `.tsx` only — no class components (the error-boundary fallback is a function, `components/error-boundary.tsx`). Props typed explicitly via a `XxxProps` interface, passed by name rather than spread. State lives in the smallest component that reads it; lift only to share. Styling is **Tailwind utility classes** (sorted via `cn`/`clsx`/`cva`); inline `style` is reserved for values Tailwind cannot express (dynamic animation delays in `kizunu-landing-page.tsx`). Custom hooks are `use`-prefixed (`use-session.ts`). `useMemo` only for genuinely expensive derived work, not trivial expressions. Keep components focused and small (rule of thumb: under ~50 lines — extract children/hooks past that).
 
 ## Code Limits
 
