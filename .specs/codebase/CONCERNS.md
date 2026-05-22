@@ -4,8 +4,8 @@ Evidence-backed warnings, prioritized by risk. Each item cites a file and a fix 
 
 ## High
 
-### Core v0.1 scope is unbuilt
-**Evidence:** `apps/api/src/modules/` contains only `identity` and `workspace`. None of the v0.1 contract exists yet — channel plugin (Meta/WhatsApp), CRM connector (Pipedrive), `Cadence`/`Step`/`Template`, `Lead`/`LeadJourney`/`TouchAttempt`, `ChannelAccount`/`ChannelAccess`/`EntryTrigger`, or the scheduler/inbound engine (`docs/v0.1-scope.md`).
+### Core v0.1 scope is largely unbuilt
+**Evidence:** `apps/api/src/modules/` has `identity`, `workspace`, and now `channel` (feature `002`: the frozen `ChannelPlugin` port + registry and `ChannelAccount`/`ChannelAccess` CRUD, proven with a fake plugin). Still missing: the Meta/WhatsApp plugin + inbound webhook (feature `003`), CRM connector (Pipedrive), `Cadence`/`Step`/`Template`, `Lead`/`LeadJourney`/`TouchAttempt`, `EntryTrigger`, and the scheduler/inbound engine (`docs/v0.1-scope.md`).
 **Impact:** The pilot contract (the one thing v0.1 must do) cannot run. The frozen plugin/connector contracts are the riskiest design surface and are unvalidated against real APIs. The web app is likewise a skeleton — routes are TODO placeholders (`docs/web-structure.md` maps the intended layout; `components/primitives/` now holds the shadcn baseline, but no real screens yet).
 **Fix:** Sequence per ROADMAP.md — channel plugin contract first (engine depends on it), then CRM connector, cadence aggregate, engine. Validate `ChannelPlugin.validate → Decision` against the real Meta 24h-window/HSM behavior early. For UI, build screens shadcn-first per `.agents/rules/react.md` §0.
 
@@ -25,6 +25,11 @@ Evidence-backed warnings, prioritized by risk. Each item cites a file and a fix 
 **Evidence:** Auth is an `httpOnly` cookie with `sameSite: 'lax'` (`auth.controller.ts`); no CSRF token mechanism.
 **Impact:** `lax` blocks cross-site cookies on most cross-origin POSTs, so risk is limited, but state-changing endpoints have no defense-in-depth. Flagged as an open primitive in STATE.
 **Fix:** Decide on CSRF strategy when the auth method is finalized (double-submit token, or rely on `sameSite` + CORS allowlist). Document the decision.
+
+### Channel credentials are stored unencrypted
+**Evidence:** `channel_accounts.credentials` is a plaintext `jsonb` column (`apps/api/src/db/schemas/channel-accounts.ts`); feature `002` validates the shape against the plugin `configSchema` but does not encrypt at rest. For Meta this column will hold a system token (`docs/v0.1-scope.md`).
+**Impact:** A database read (backup, dump, compromised replica) exposes live channel provider tokens. Read endpoints already exclude `credentials`, so the exposure is at-rest only.
+**Fix:** Encrypt `credentials` at rest (app-level envelope encryption with a KMS/managed key, or `pgcrypto`) before the Meta plugin (feature `003`) stores real tokens. Keep decryption inside the persistence boundary so use-cases stay unaware.
 
 ### Migrations run on every API boot
 **Evidence:** `main.ts` `runMigrations()` runs before `bootstrap()` on every start.

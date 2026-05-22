@@ -83,6 +83,10 @@ The web app consumes the package directly (`@kizunu/api-client/identity/use-curr
 **Purpose:** The domain owns enum vocabulary; the infra `pgEnum` must conform. A `type _SchemaMatchesDomain = Assert<Equal<enumValues[number], DomainType>>` breaks the build if they drift (ADR 002 — *Enum-like Types as a Derived `const` Object*; ADR 003 — *Compile-Time Layer-Boundary Guard*).
 **Example:** `db/schemas/verification-tokens.ts` asserts against `VerificationTokenType`.
 
+### Channel plugin port + registry (the pluggable-channel seam)
+
+**Purpose:** Channels are plugins behind a frozen port (decision D2). `ChannelPlugin` (`apps/api/src/modules/channel/core/plugin/`) declares `manifest`, `send`, `parseInbound`, and a synchronous `validate → Decision`; provider specifics (Meta's 24h window, HSM, `waba_id`) live inside a plugin and never leak into the domain. `ChannelPluginRegistry` resolves plugins from the `CHANNEL_PLUGINS` DI multi-provider array and validates `ChannelAccount` credentials against the plugin's `configSchema` (credentials stay opaque `unknown` at the port). The engine and the Meta plugin (feature `003`) depend on this contract alone. `ChannelAccount` is workspace-owned; `ChannelAccess.isPrimary` (one per user per plugin) is the routing seam, queried via `ChannelAccessRepository.findPrimaryAccount`.
+
 ### Global persistence + auth wiring
 
 **Purpose:** `PersistenceModule` (`@Global`) provides a single `DrizzleService` (one `pg.Pool`) from `config.get('database.url')`. `IdentityModule` registers `AuthGuard` as `APP_GUARD`, so routes are protected by default; `@Public()` opts out.

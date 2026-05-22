@@ -27,6 +27,8 @@ Settled before code (from `docs/v0.1-scope.md`; rationale in `docs/adr/`):
 ## Lessons
 
 - Domain owns the enum vocabulary; infra (pgEnum) conforms via a compile-time `Assert<Equal<...>>` guard. See memory `layer-boundary-type-guard` and `docs/adr/003`.
+- Vitest runs integration/e2e specs in a **Node** worker with no `Bun` global, but the Drizzle id default (`defaults()`) calls `Bun.randomUUIDv7()` at insert time. The integration/e2e `setup.ts` files polyfill it with `crypto.randomUUID()` so DB-backed inserts work. Any future DB-backed test relies on this.
+- The `ChannelPlugin` port (D2) is frozen in `apps/api/src/modules/channel/core/plugin/` and proven with a fake plugin; `ChannelAccount.credentials` is opaque `unknown` at the port and validated per-plugin via `configSchema`. The engine's channel-resolution seam is `ChannelAccessRepository.findPrimaryAccount(userId, pluginId)`.
 
 ## Deferred ideas
 
@@ -42,4 +44,4 @@ Settled before code (from `docs/v0.1-scope.md`; rationale in `docs/adr/`):
 
 ## Codebase map
 
-Brownfield mapping done 2026-05-22 → `.specs/codebase/` (STACK, ARCHITECTURE, CONVENTIONS, STRUCTURE, TESTING, INTEGRATIONS, CONCERNS). Top concerns: core v0.1 unbuilt; CORS configured but never `enableCors`d; no IP-level login rate-limit / CSRF; migrations run on every API boot. Note: session expiry/revocation **is** enforced (`SessionRepository.findActiveByTokenHash` checks `revokedAt`/`expiresAt`) — narrows the STATE "remaining auth primitives" todo to rate-limit, CSRF, password-reset flow.
+Brownfield mapping done 2026-05-22 → `.specs/codebase/` (STACK, ARCHITECTURE, CONVENTIONS, STRUCTURE, TESTING, INTEGRATIONS, CONCERNS). Top concerns: most of core v0.1 still unbuilt (channel slice 1 landed in feature `002`); channel credentials stored unencrypted; CORS configured but never `enableCors`d; no IP-level login rate-limit / CSRF; migrations run on every API boot. Note: session expiry/revocation **is** enforced (`SessionRepository.findActiveByTokenHash` checks `revokedAt`/`expiresAt`) — narrows the STATE "remaining auth primitives" todo to rate-limit, CSRF, password-reset flow.

@@ -43,6 +43,7 @@ kizunu/
 **Purpose:** One module per bounded context. **Location:** `apps/api/src/modules/<module>/`.
 - `identity` — auth, sessions, current user; controllers `auth`; use cases register/authenticate/logout/get-me/switch-workspace.
 - `workspace` — memberships and invitations; use cases invite-member/accept-invitation/update-member-status/list-members.
+- `channel` — channel plugin port (`core/plugin/`: frozen `ChannelPlugin` contract + `ChannelPluginRegistry`) and the `ChannelAccount`/`ChannelAccess` domain; use cases create-channel-account/list-workspace-channel-accounts/grant-channel-access/revoke-channel-access/set-primary-channel/list-my-channels/list-available-plugins.
 Each splits into `core/` (use-cases, models, domain, errors, crypto), `http/` (controllers, guards, decorators), `persistence/` (repositories).
 
 ### Shared packages

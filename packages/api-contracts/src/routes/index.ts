@@ -19,4 +19,16 @@ export const Routes = {
     member: (workspaceId: string, membershipId: string) =>
       `/workspaces/${workspaceId}/members/${membershipId}`,
   },
+  channelAccounts: {
+    collection: (workspaceId: string) => `/workspaces/${workspaceId}/channel-accounts`,
+    access: (workspaceId: string, accountId: string) =>
+      `/workspaces/${workspaceId}/channel-accounts/${accountId}/access`,
+    accessMember: (workspaceId: string, accountId: string, userId: string) =>
+      `/workspaces/${workspaceId}/channel-accounts/${accountId}/access/${userId}`,
+  },
+  channels: {
+    mine: '/channel-accounts/mine',
+    primary: (accountId: string) => `/channel-accounts/${accountId}/primary`,
+    plugins: '/channel-plugins',
+  },
 } as const

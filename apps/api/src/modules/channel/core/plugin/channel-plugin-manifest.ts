@@ -1,0 +1,15 @@
+import type { ZodType } from 'zod'
+
+import type { ChannelCapability } from './channel-capability'
+
+/**
+ * Static description of a channel plugin. `configSchema` validates the credentials
+ * stored on a ChannelAccount, so plugin-specific fields (e.g. Meta's waba_id) stay
+ * inside the plugin and never leak into the domain.
+ */
+export interface ChannelPluginManifest {
+  id: string
+  name: string
+  capabilities: ChannelCapability[]
+  configSchema: ZodType
+}

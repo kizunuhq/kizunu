@@ -8,6 +8,13 @@
       "when": 1778643404790,
       "tag": "0000_illegal_mister_fear",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1779439827847,
+      "tag": "0001_cooing_shotgun",
+      "breakpoints": true
     }
   ]
 }
