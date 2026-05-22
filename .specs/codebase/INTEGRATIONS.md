@@ -15,6 +15,11 @@
 **Implementation:** opaque session token (random, stored hashed in `sessions`) issued by `AuthenticateUseCase`; `httpOnly` cookie set by `AuthController.setSessionCookie`; global `AuthGuard` validates per request. Passwords hashed with argon2id via `Bun.password` (`core/crypto/password.helper.ts`).
 **Configuration:** `APP_SESSION_COOKIE_NAME` (`kizunu_session`), `APP_SESSION_TTL_DAYS` (30), `APP_SESSION_COOKIE_SECURE` (false by default — see CONCERNS).
 
+## OpenAPI / API docs
+
+**Purpose:** Machine-readable API description + interactive docs.
+**Implementation:** `@nestjs/swagger` + nestjs-zod `cleanupOpenApiDoc` (feature `011`) build the document from the controllers and zod DTOs (`apps/api/src/shared/http/openapi.ts`); `main.ts` serves it at `/docs` (Swagger UI) and `/docs-json`. Controllers are grouped by `@ApiTags`.
+
 ## Web → API
 
 **Purpose:** The SPA consumes the same REST API.

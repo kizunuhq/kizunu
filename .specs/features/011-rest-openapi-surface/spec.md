@@ -69,9 +69,9 @@ key tagged paths and component schemas.
 
 | Requirement ID | Story | Phase | Status |
 | --- | --- | --- | --- |
-| API-01 | P1: OpenAPI doc + UI | Tasks | Pending |
-| API-02 | P1: controller tags | Tasks | Pending |
-| API-03 | P1: list lead journeys | Tasks | Pending |
+| API-01 | P1: OpenAPI doc + UI | Tasks | Verified |
+| API-02 | P1: controller tags | Tasks | Verified |
+| API-03 | P1: list lead journeys | Tasks | Verified |
 
 **Coverage:** 3 total, mapped to tasks.
 
