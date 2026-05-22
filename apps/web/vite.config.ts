@@ -14,4 +14,10 @@ export default defineConfig({
   server: {
     port: 3000,
   },
+  test: {
+    name: 'web',
+    environment: 'jsdom',
+    include: ['src/**/__test__/**/*.spec.{ts,tsx}'],
+    setupFiles: ['./src/__test__/setup.ts'],
+  },
 })
