@@ -19,8 +19,11 @@ import {
   UnauthorizedException,
 } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
+import { Throttle } from '@nestjs/throttler'
 import type { Request, Response } from 'express'
 import { createZodDto } from 'nestjs-zod'
+
+const AUTH_THROTTLE = { default: { limit: 10, ttl: 60_000 } }
 
 import type { ActiveSession } from '../../core/models/authenticated-user'
 import { AuthenticateUseCase } from '../../core/use-cases/authenticate.use-case'
@@ -61,6 +64,7 @@ export class AuthController {
   }
 
   @Public()
+  @Throttle(AUTH_THROTTLE)
   @Post('register')
   async register(
     @Body() body: RegisterDto,
@@ -79,6 +83,7 @@ export class AuthController {
   }
 
   @Public()
+  @Throttle(AUTH_THROTTLE)
   @Post('login')
   @HttpCode(200)
   async login(
