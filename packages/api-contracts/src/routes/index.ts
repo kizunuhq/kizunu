@@ -44,4 +44,9 @@ export const Routes = {
     item: (workspaceId: string, cadenceId: string) =>
       `/workspaces/${workspaceId}/cadences/${cadenceId}`,
   },
+  entryTriggers: {
+    collection: (workspaceId: string) => `/workspaces/${workspaceId}/entry-triggers`,
+    item: (workspaceId: string, triggerId: string) =>
+      `/workspaces/${workspaceId}/entry-triggers/${triggerId}`,
+  },
 } as const
