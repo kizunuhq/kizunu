@@ -6,4 +6,7 @@
 export const QueryKeys = Object.freeze({
   currentUser: 'currentUser',
   members: 'members',
+  workspaceChannels: 'workspaceChannels',
+  myChannels: 'myChannels',
+  channelPlugins: 'channelPlugins',
 })
