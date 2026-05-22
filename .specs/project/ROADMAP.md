@@ -101,9 +101,12 @@ deal → exhaustion marks the deal lost. Self-hostable via Docker Compose.
 - _Landed (feature `013`): members admin screen (table + status toggle + invite that
   surfaces the token). shadcn `table`/`badge` primitives added._
 - _Landed (feature `014`): journeys list (status-filtered) + my-channels (set primary)
-  views. Remaining: channels + connectors/entry-triggers admin, and cadences/templates
-  CRUD. The **inbox** is not buildable in v0.1 — inbound messages aren't stored (a
-  conversations backend is out of v0.1 core); documented in CONCERNS._
+  views._
+- _Landed (feature `015`): channels admin (add channel account with plugin select +
+  credentials JSON, grant member access, list accounts). shadcn `select`/`textarea`
+  added. Remaining: connectors/entry-triggers admin and cadences/templates CRUD. The
+  **inbox** is not buildable in v0.1 — inbound messages aren't stored (documented in
+  CONCERNS)._
 - Auth (login)
 - Admin: user management, workspace channels (create/configure/grant access/webhook URL), Pipedrive connector mapping
 - BDR: my channels (set primary), cadences & templates CRUD, inbox (filter by instance / my leads), journey list (active/paused/error)
