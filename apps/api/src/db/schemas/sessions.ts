@@ -17,6 +17,7 @@ export const sessions = pgTable(
     }),
     expiresAt: timestamp({ withTimezone: true }).notNull(),
     revokedAt: timestamp({ withTimezone: true }),
+    lastSeenAt: timestamp({ withTimezone: true }),
     userAgent: text(),
     ipAddress: varchar({ length: 45 }),
   },

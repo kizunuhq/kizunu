@@ -106,7 +106,8 @@ the row disappear.
 - WHEN a session is already revoked or expired THEN it SHALL NOT appear in the list.
 - WHEN "log out everywhere" runs with only the current session THEN it SHALL be a
   no-op success (nothing to revoke).
-- WHEN revoking by a malformed (non-uuid) id THEN validation SHALL reject it (422).
+- WHEN revoking a well-formed but unknown/foreign session id THEN the system SHALL
+  respond with the not-found business-rule error (422) and revoke nothing.
 
 ---
 

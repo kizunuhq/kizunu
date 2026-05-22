@@ -11,6 +11,7 @@ const NAV_LINKS = [
   { to: '/workspace/cadences', label: 'Cadences' },
   { to: '/workspace/journeys', label: 'Journeys' },
   { to: '/workspace/my-channels', label: 'My channels' },
+  { to: '/workspace/security', label: 'Security' },
 ] as const
 
 export function AppShell({ userName }: { userName: string }) {
