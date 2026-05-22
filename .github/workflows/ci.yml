@@ -1,39 +1,207 @@
 name: CI
 
+# Single CI orchestrator. Calls the reusables (_quality, _unit, _integration,
+# _e2e) and ends with the `Required (CI)` job — the ONLY status check branch
+# protection needs to pin (it aggregates the rest and posts a sticky PR comment).
+#
+# Trunk-only: push and PRs target `master`. Docs-only diffs skip the code jobs
+# (the `changes` filter) while `Required (CI)` still passes. E2E is skipped on
+# draft PRs and runs once the PR is marked ready for review (or on push).
+
 on:
   push:
     branches: [master]
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
     branches: [master]
   workflow_dispatch:
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+  pull-requests: write
+  actions: read
+
 jobs:
-  check:
-    if: github.repository == 'kizunuhq/kizunu'
-    name: Typecheck and lint
+  changes:
+    name: Detect Changes
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 5
+    outputs:
+      code: ${{ steps.filter.outputs.code }}
     steps:
       - uses: actions/checkout@v6
-      - uses: ./.github/actions/setup
-
-      # Restore tsc incremental build info so unchanged packages are
-      # skipped on typecheck. Keyed per-commit with a rolling fallback so
-      # every run saves a fresh entry and restores the most recent one.
-      - name: Restore typecheck cache
-        uses: actions/cache@v5
+      - uses: dorny/paths-filter@v3
+        id: filter
         with:
-          path: '**/*.tsbuildinfo'
-          key: tsbuildinfo-${{ runner.os }}-${{ github.sha }}
-          restore-keys: |
-            tsbuildinfo-${{ runner.os }}-
+          filters: |
+            code:
+              - 'apps/**'
+              - 'packages/**'
+              - 'scripts/**'
+              - 'bun.lock'
+              - 'package.json'
+              - 'tsconfig*.json'
+              - 'vite.config.ts'
+              - '.github/workflows/ci.yml'
+              - '.github/workflows/_quality.yml'
+              - '.github/workflows/_unit.yml'
+              - '.github/workflows/_db-tests.yml'
+              - '.github/actions/**'
 
-      - name: Typecheck
-        run: bun typecheck
+  quality:
+    name: Quality
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
+    uses: ./.github/workflows/_quality.yml
 
-      - name: Lint
-        run: bun lint
+  unit:
+    name: Unit
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
+    uses: ./.github/workflows/_unit.yml
+
+  integration:
+    name: Integration
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
+    uses: ./.github/workflows/_db-tests.yml
+    with:
+      project: integration
+      timeout-minutes: 20
+
+  e2e:
+    name: E2E
+    needs: changes
+    # Code changed AND (not a PR, or the PR is not a draft).
+    if: |
+      needs.changes.outputs.code == 'true' &&
+      (github.event_name != 'pull_request' || github.event.pull_request.draft == false)
+    uses: ./.github/workflows/_db-tests.yml
+    with:
+      project: e2e
+      timeout-minutes: 25
+
+  required:
+    # The only required status check in branch protection. Aggregates the
+    # reusables and posts the sticky `ci-summary` comment on PRs.
+    name: Required (CI)
+    needs: [changes, quality, unit, integration, e2e]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Download coverage artifacts
+        if: github.event_name == 'pull_request'
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          path: artifacts
+          pattern: '*-coverage'
+
+      - name: Build summary comment
+        if: github.event_name == 'pull_request'
+        shell: bash
+        env:
+          QUALITY_RESULT: ${{ needs.quality.result }}
+          UNIT_RESULT: ${{ needs.unit.result }}
+          INTEGRATION_RESULT: ${{ needs.integration.result }}
+          E2E_RESULT: ${{ needs.e2e.result }}
+          CODE_CHANGED: ${{ needs.changes.outputs.code }}
+          IS_DRAFT: ${{ github.event.pull_request.draft }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          icon() {
+            case "$1" in
+              success) echo "white_check_mark" ;;
+              failure) echo "x" ;;
+              cancelled) echo "no_entry_sign" ;;
+              skipped) echo "fast_forward" ;;
+              *) echo "grey_question" ;;
+            esac
+          }
+
+          label() {
+            local result="$1" job="$2"
+            if [ "$result" = "skipped" ]; then
+              if [ "$CODE_CHANGED" != "true" ]; then
+                echo "skipped (docs-only)"
+              elif [ "$job" = "e2e" ] && [ "$IS_DRAFT" = "true" ]; then
+                echo "skipped (draft PR — mark ready for review)"
+              else
+                echo "skipped"
+              fi
+            else
+              echo "$result"
+            fi
+          }
+
+          duration_for() {
+            jq -r --arg n "$1" '
+              .jobs[] | select(.name == $n)
+              | select(.completed_at != null and .started_at != null)
+              | (((.completed_at | fromdateiso8601) - (.started_at | fromdateiso8601)) | tostring + "s")
+            ' jobs.json 2>/dev/null | head -1
+          }
+
+          gh api "repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs" --paginate > jobs.json 2>/dev/null || echo '{"jobs":[]}' > jobs.json
+
+          overall=":white_check_mark: pass"
+          for r in "$QUALITY_RESULT" "$UNIT_RESULT" "$INTEGRATION_RESULT" "$E2E_RESULT"; do
+            case "$r" in failure|cancelled) overall=":x: fail" ;; esac
+          done
+
+          {
+            echo "### CI · $overall"
+            echo ""
+            echo "| Job | Status | Duration |"
+            echo "|---|---|---|"
+            echo "| Quality | :$(icon "$QUALITY_RESULT"): $(label "$QUALITY_RESULT" quality) | $(duration_for 'Quality / Quality Gate') |"
+            echo "| Unit | :$(icon "$UNIT_RESULT"): $(label "$UNIT_RESULT" unit) | $(duration_for 'Unit / Unit Tests') |"
+            echo "| Integration | :$(icon "$INTEGRATION_RESULT"): $(label "$INTEGRATION_RESULT" integration) | $(duration_for 'Integration / DB Tests') |"
+            echo "| E2E | :$(icon "$E2E_RESULT"): $(label "$E2E_RESULT" e2e) | $(duration_for 'E2E / DB Tests') |"
+            echo ""
+
+            for proj in unit integration e2e; do
+              table="artifacts/${proj}-coverage/coverage-table.txt"
+              if [ -s "$table" ]; then
+                echo "<details><summary>Coverage · ${proj}</summary>"
+                echo ""
+                echo '```'
+                cat "$table"
+                echo '```'
+                echo ""
+                echo "</details>"
+              fi
+            done
+
+            echo ""
+            echo "<sub>Coverage is report-only. · [full run]($RUN_URL)</sub>"
+          } > comment.md
+
+      - name: Sticky PR comment
+        if: github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: ci-summary
+          path: comment.md
+
+      - name: Aggregate result
+        shell: bash
+        env:
+          QUALITY_RESULT: ${{ needs.quality.result }}
+          UNIT_RESULT: ${{ needs.unit.result }}
+          INTEGRATION_RESULT: ${{ needs.integration.result }}
+          E2E_RESULT: ${{ needs.e2e.result }}
+        run: |
+          for r in "$QUALITY_RESULT" "$UNIT_RESULT" "$INTEGRATION_RESULT" "$E2E_RESULT"; do
+            case "$r" in
+              failure|cancelled) echo "A required job failed: $r"; exit 1 ;;
+            esac
+          done
+          echo "All required jobs passed (or were intentionally skipped)."

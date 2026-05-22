@@ -100,3 +100,13 @@ Let `generate-tests` confirm thin/fat for each target before assigning a row abo
 | Quick | after tasks with unit tests only | `bun test:unit` |
 | Full | after tasks touching DB/HTTP (integration/e2e) | `bun test:integration && bun test:e2e` |
 | Build | after phase completion / before PR | `bun check` (`scripts/check.sh`: `bun typecheck` → `vp check` → `vp test` → import-depth + zod-v4 + drizzle-naming + drizzle-checksums) |
+
+## CI enforcement
+
+The same gate runs in GitHub Actions (feature `027`). `ci.yml` is an orchestrator
+calling reusable workflows that decompose `scripts/check.sh`: `_quality` (`vp check` +
+the four `check-*` scripts), `_unit` (`unit` + `web` projects), and `_integration` /
+`_e2e` (a `postgres:16-alpine` service container, `db:migrate`, then the DB-backed
+project). A single `Required (CI)` aggregator is the only branch-protection check;
+docs-only diffs skip the code jobs and e2e is skipped on draft PRs. CI is now at full
+`check.sh` parity — a PR that fails any gated rule cannot merge to `master`.

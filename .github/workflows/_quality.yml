@@ -1,0 +1,28 @@
+name: _quality (reusable)
+
+# Reusable quality gate: format + lint + types via `vp check`, plus the four
+# convention scripts. This is the non-test half of `scripts/check.sh`.
+# `vp check` runs format + lint + type checks (not tests — confirmed via
+# `vp check --help`); tests live in _unit / _integration / _e2e.
+
+on:
+  workflow_call:
+
+jobs:
+  quality:
+    name: Quality Gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ./.github/actions/setup
+
+      - name: Format, lint, and type checks
+        run: bunx vp check
+
+      - name: Convention scripts (imports, zod v4, drizzle naming, migration checksums)
+        run: |
+          bun run check:imports
+          bun run check:zod
+          bun run check:schema
+          bun run check:db

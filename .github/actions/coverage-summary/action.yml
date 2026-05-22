@@ -1,0 +1,23 @@
+name: Coverage summary
+description: Extract the coverage summary from a test run's captured output and upload it as an artifact.
+
+inputs:
+  name:
+    description: Artifact name (e.g. unit-coverage)
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Extract coverage summary
+      shell: bash
+      run: awk '/Coverage summary/{c=1} c' coverage-summary.txt | head -n 8 > coverage-table.txt || true
+
+    - name: Upload coverage artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.name }}
+        path: |
+          coverage-summary.txt
+          coverage-table.txt
+        if-no-files-found: ignore
