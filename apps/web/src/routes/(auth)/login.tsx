@@ -1,14 +1,16 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { useCurrentUser } from '@kizunu/api-client/identity/use-current-user'
+import { LoginForm } from '@kizunu/web/features/identity/components/login-form'
+import { createFileRoute, Navigate } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/(auth)/login')({
   component: LoginPage,
 })
 
 function LoginPage() {
-  return (
-    <div className="space-y-2">
-      <h1 className="text-2xl font-semibold">Sign in</h1>
-      <p className="text-sm text-neutral-500">TODO: login form</p>
-    </div>
-  )
+  const { user, isPending } = useCurrentUser()
+
+  if (isPending) return null
+  if (user) return <Navigate replace to="/workspace" />
+
+  return <LoginForm />
 }
