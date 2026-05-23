@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common'
 
 import { WorkspaceModule } from '../workspace/workspace.module'
 import { CHANNEL_PLUGINS, ChannelPluginRegistry } from './core/plugin/channel-plugin-registry'
+import { OAuthRefreshService } from './core/services/oauth-refresh.service'
 import { CreateChannelAccountUseCase } from './core/use-cases/create-channel-account.use-case'
 import { GrantChannelAccessUseCase } from './core/use-cases/grant-channel-access.use-case'
 import { ListAvailablePluginsUseCase } from './core/use-cases/list-available-plugins.use-case'
@@ -30,6 +31,7 @@ import { MetaWhatsappPlugin } from './plugins/meta-whatsapp/meta-whatsapp.plugin
     SetPrimaryChannelUseCase,
     ListMyChannelsUseCase,
     ListAvailablePluginsUseCase,
+    OAuthRefreshService,
   ],
   exports: [ChannelPluginRegistry, ChannelAccessRepository, ChannelAccountRepository],
 })

@@ -2,6 +2,7 @@ import type { ChannelDecision } from './channel-decision'
 import type { ChannelPluginManifest } from './channel-plugin-manifest'
 import type { InboundMessage } from './inbound-message'
 import type { OnAccountCreatedInput } from './on-account-created-input'
+import type { RefreshCredentialsInput } from './refresh-credentials-input'
 import type { SendPayload } from './send-payload'
 import type { SendResult } from './send-result'
 import type { ValidateInput } from './validate-input'
@@ -19,6 +20,12 @@ import type { ValidateInput } from './validate-input'
  * persistence; the returned credentials replace the input on the row, so the
  * plugin can stamp in server-generated fields (per-channel verify tokens). The
  * hook may throw an `ApplicationException` to fail the create cleanly.
+ *
+ * `refreshCredentials` is an OPTIONAL token-refresh hook (feature 030) called
+ * by `OAuthRefreshService` when the plugin's stored `accessTokenExpiresAt` is
+ * within the refresh window. It returns the refreshed credentials kizunu
+ * should persist. Plugins whose provider uses static API tokens
+ * (Pipedrive, Meta standalone Cloud API system token) leave this absent.
  */
 export interface ChannelPlugin {
   readonly manifest: ChannelPluginManifest
@@ -26,4 +33,5 @@ export interface ChannelPlugin {
   parseInbound(raw: unknown, credentials: unknown): Promise<InboundMessage[]>
   validate(input: ValidateInput): ChannelDecision
   onAccountCreated?(input: OnAccountCreatedInput): Promise<unknown>
+  refreshCredentials?(input: RefreshCredentialsInput): Promise<unknown>
 }
