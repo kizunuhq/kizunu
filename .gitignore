@@ -43,3 +43,4 @@ logs
 
 # local data
 data
+!apps/web/src/features/*/data

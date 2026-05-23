@@ -4,6 +4,9 @@ import { Toaster } from 'sonner'
 
 import '../styles.css'
 import { ThemeProvider } from '../_shell/providers/theme-provider'
+import { TooltipProvider } from '../components/primitives/tooltip'
+
+const TOOLTIP_DELAY_MS = 700
 
 interface RouterContext {
   queryClient: QueryClient
@@ -16,8 +19,10 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 function RootComponent() {
   return (
     <ThemeProvider>
-      <Outlet />
-      <Toaster />
+      <TooltipProvider delay={TOOLTIP_DELAY_MS}>
+        <Outlet />
+        <Toaster />
+      </TooltipProvider>
     </ThemeProvider>
   )
 }

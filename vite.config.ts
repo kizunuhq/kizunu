@@ -58,6 +58,20 @@ export default defineConfig({
         rules: { 'no-unsafe-type-assertion': 'off' },
       },
       {
+        // Shadcn-installed primitives ship with patterns the project lints
+        // stricter than the upstream registry — `open` shadowing inside
+        // controlled open/setOpen pairs, and `style={{...} as React.CSSProperties}`
+        // for CSS custom properties. Forking each primitive on every shadcn
+        // update is worse than scoping these rules off at the install boundary.
+        files: ['apps/web/src/components/primitives/**'],
+        plugins: ['typescript', 'react'],
+        rules: {
+          'react-hooks/rules-of-hooks': 'error',
+          'no-shadow': 'off',
+          'no-unsafe-type-assertion': 'off',
+        },
+      },
+      {
         files: ['**/__test__/**/*.spec.ts'],
         plugins: ['typescript', 'vitest'],
         // Test doubles cast structural fakes to repository class types (whose

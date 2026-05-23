@@ -26,6 +26,7 @@ import { Route as AppWorkspaceConnectorsRouteImport } from './routes/_app/worksp
 import { Route as AppWorkspaceConnectMetaCoexRouteImport } from './routes/_app/workspace/connect-meta-coex'
 import { Route as AppWorkspaceChannelsRouteImport } from './routes/_app/workspace/channels'
 import { Route as AppWorkspaceCadencesRouteImport } from './routes/_app/workspace/cadences'
+import { Route as AppSettingsProfileRouteImport } from './routes/_app/settings/profile'
 
 const NotFoundRoute = NotFoundRouteImport.update({
   id: '/not-found',
@@ -112,6 +113,11 @@ const AppWorkspaceCadencesRoute = AppWorkspaceCadencesRouteImport.update({
   path: '/workspace/cadences',
   getParentRoute: () => AppRouteRoute,
 } as any)
+const AppSettingsProfileRoute = AppSettingsProfileRouteImport.update({
+  id: '/settings/profile',
+  path: '/settings/profile',
+  getParentRoute: () => AppRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -120,6 +126,7 @@ export interface FileRoutesByFullPath {
   '/auth/login': typeof AuthLoginRoute
   '/auth/signup': typeof AuthSignupRoute
   '/auth/verify-email': typeof AuthVerifyEmailRoute
+  '/settings/profile': typeof AppSettingsProfileRoute
   '/workspace/cadences': typeof AppWorkspaceCadencesRoute
   '/workspace/channels': typeof AppWorkspaceChannelsRoute
   '/workspace/connect-meta-coex': typeof AppWorkspaceConnectMetaCoexRoute
@@ -138,6 +145,7 @@ export interface FileRoutesByTo {
   '/auth/login': typeof AuthLoginRoute
   '/auth/signup': typeof AuthSignupRoute
   '/auth/verify-email': typeof AuthVerifyEmailRoute
+  '/settings/profile': typeof AppSettingsProfileRoute
   '/workspace/cadences': typeof AppWorkspaceCadencesRoute
   '/workspace/channels': typeof AppWorkspaceChannelsRoute
   '/workspace/connect-meta-coex': typeof AppWorkspaceConnectMetaCoexRoute
@@ -158,6 +166,7 @@ export interface FileRoutesById {
   '/auth/login': typeof AuthLoginRoute
   '/auth/signup': typeof AuthSignupRoute
   '/auth/verify-email': typeof AuthVerifyEmailRoute
+  '/_app/settings/profile': typeof AppSettingsProfileRoute
   '/_app/workspace/cadences': typeof AppWorkspaceCadencesRoute
   '/_app/workspace/channels': typeof AppWorkspaceChannelsRoute
   '/_app/workspace/connect-meta-coex': typeof AppWorkspaceConnectMetaCoexRoute
@@ -178,6 +187,7 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/signup'
     | '/auth/verify-email'
+    | '/settings/profile'
     | '/workspace/cadences'
     | '/workspace/channels'
     | '/workspace/connect-meta-coex'
@@ -196,6 +206,7 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/signup'
     | '/auth/verify-email'
+    | '/settings/profile'
     | '/workspace/cadences'
     | '/workspace/channels'
     | '/workspace/connect-meta-coex'
@@ -215,6 +226,7 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/signup'
     | '/auth/verify-email'
+    | '/_app/settings/profile'
     | '/_app/workspace/cadences'
     | '/_app/workspace/channels'
     | '/_app/workspace/connect-meta-coex'
@@ -355,10 +367,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppWorkspaceCadencesRouteImport
       parentRoute: typeof AppRouteRoute
     }
+    '/_app/settings/profile': {
+      id: '/_app/settings/profile'
+      path: '/settings/profile'
+      fullPath: '/settings/profile'
+      preLoaderRoute: typeof AppSettingsProfileRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
   }
 }
 
 interface AppRouteRouteChildren {
+  AppSettingsProfileRoute: typeof AppSettingsProfileRoute
   AppWorkspaceCadencesRoute: typeof AppWorkspaceCadencesRoute
   AppWorkspaceChannelsRoute: typeof AppWorkspaceChannelsRoute
   AppWorkspaceConnectMetaCoexRoute: typeof AppWorkspaceConnectMetaCoexRoute
@@ -371,6 +391,7 @@ interface AppRouteRouteChildren {
 }
 
 const AppRouteRouteChildren: AppRouteRouteChildren = {
+  AppSettingsProfileRoute: AppSettingsProfileRoute,
   AppWorkspaceCadencesRoute: AppWorkspaceCadencesRoute,
   AppWorkspaceChannelsRoute: AppWorkspaceChannelsRoute,
   AppWorkspaceConnectMetaCoexRoute: AppWorkspaceConnectMetaCoexRoute,
