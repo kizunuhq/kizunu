@@ -33,6 +33,8 @@ export const Routes = {
       `/workspaces/${workspaceId}/channel-accounts/${accountId}/access`,
     accessMember: (workspaceId: string, accountId: string, userId: string) =>
       `/workspaces/${workspaceId}/channel-accounts/${accountId}/access/${userId}`,
+    connectMetaCoex: (workspaceId: string) =>
+      `/workspaces/${workspaceId}/channel-accounts/meta-whatsapp/connect`,
   },
   channels: {
     mine: '/channel-accounts/mine',
