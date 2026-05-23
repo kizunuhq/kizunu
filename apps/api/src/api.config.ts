@@ -41,6 +41,17 @@ const configSchema = z.object({
     appSecret: z.string().default(''),
     coexConfigId: z.string().default(''),
   }),
+  mail: z.object({
+    // SMTP transport. `host` empty means no provider configured — the module
+    // falls back to ConsoleMailSender so dev still works without Mailpit. When
+    // host is set, the SMTP path takes over.
+    smtpHost: z.string().default(''),
+    smtpPort: z.coerce.number().int().positive().default(1025),
+    smtpUser: z.string().default(''),
+    smtpPassword: z.string().default(''),
+    smtpSecure: z.stringbool().default(false),
+    from: z.string().default('Kizunu <noreply@kizunu.local>'),
+  }),
 })
 
 export type Config = z.infer<typeof configSchema>
@@ -78,6 +89,14 @@ export function load(): Config {
       appId: process.env.META_APP_ID,
       appSecret: process.env.META_APP_SECRET,
       coexConfigId: process.env.META_COEX_CONFIG_ID,
+    },
+    mail: {
+      smtpHost: process.env.APP_SMTP_HOST,
+      smtpPort: process.env.APP_SMTP_PORT,
+      smtpUser: process.env.APP_SMTP_USER,
+      smtpPassword: process.env.APP_SMTP_PASSWORD,
+      smtpSecure: process.env.APP_SMTP_SECURE,
+      from: process.env.APP_MAIL_FROM,
     },
   })
 
