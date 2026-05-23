@@ -1,4 +1,8 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { useCurrentUser } from '@kizunu/api-client/identity/use-current-user'
+import { PageHeader } from '@kizunu/web/components/composed/page-header'
+import { buttonVariants } from '@kizunu/web/components/primitives/button'
+import { AcceptInvitePanel } from '@kizunu/web/features/identity/components/accept-invite-panel'
+import { createFileRoute, Link } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/auth/accept-invite/$token')({
   component: AcceptInvitePage,
@@ -6,12 +10,28 @@ export const Route = createFileRoute('/auth/accept-invite/$token')({
 
 function AcceptInvitePage() {
   const { token } = Route.useParams()
+  const { user, isPending } = useCurrentUser()
+
+  if (isPending) return null
+  if (!user) return <SignedOutPrompt token={token} />
+
+  return <AcceptInvitePanel token={token} hasCurrentUser />
+}
+
+function SignedOutPrompt({ token }: { token: string }) {
   return (
-    <div className="space-y-2">
-      <h1 className="text-2xl font-semibold">Accept invitation</h1>
-      <p className="text-sm text-neutral-500">
-        TODO: accept invitation form — token <code>{token}</code>
-      </p>
+    <div className="flex flex-col gap-6">
+      <PageHeader
+        title="Sign in to accept"
+        description="You'll come back here to accept the invitation after signing in."
+      />
+      <Link
+        to="/auth/login"
+        search={{ next: `/auth/accept-invite/${token}` }}
+        className={buttonVariants()}
+      >
+        Sign in
+      </Link>
     </div>
   )
 }
