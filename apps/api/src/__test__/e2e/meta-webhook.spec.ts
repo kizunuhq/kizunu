@@ -26,6 +26,7 @@ async function seedAccount(verifyToken: string): Promise<{ workspaceId: string; 
       pluginId: META_PLUGIN_ID,
       name: 'WA primary',
       credentials: {
+        channelMode: 'cloud_api',
         appId: 'app-1',
         appSecret: 'app-secret-1',
         wabaId: 'waba-1',

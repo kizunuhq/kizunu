@@ -150,6 +150,7 @@ const channelAccount = first(
       pluginId: CHANNEL_PLUGIN_ID,
       name: 'Acme WhatsApp',
       credentials: {
+        channelMode: 'cloud_api',
         appId: 'dev-app-id',
         appSecret: 'dev-app-secret',
         wabaId: 'dev-waba',

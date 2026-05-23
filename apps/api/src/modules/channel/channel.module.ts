@@ -1,3 +1,5 @@
+import type { Config } from '@kizunu/api/api.config'
+import { ConfigService } from '@kizunu/config-module/config.service'
 import { Module } from '@nestjs/common'
 
 import { WorkspaceModule } from '../workspace/workspace.module'
@@ -20,7 +22,18 @@ import { MetaWhatsappPlugin } from './plugins/meta-whatsapp/meta-whatsapp.plugin
   imports: [WorkspaceModule],
   controllers: [ChannelAccountController, MyChannelController],
   providers: [
-    { provide: CHANNEL_PLUGINS, useValue: [new MetaWhatsappPlugin()] },
+    {
+      provide: CHANNEL_PLUGINS,
+      useFactory: (config: ConfigService<Config>) => [
+        new MetaWhatsappPlugin({
+          config: {
+            appId: config.get('meta.appId') ?? '',
+            appSecret: config.get('meta.appSecret') ?? '',
+          },
+        }),
+      ],
+      inject: [ConfigService],
+    },
     ChannelPluginRegistry,
     ChannelAccountRepository,
     ChannelAccessRepository,

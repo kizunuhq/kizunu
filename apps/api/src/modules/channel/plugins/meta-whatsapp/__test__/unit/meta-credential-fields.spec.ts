@@ -3,14 +3,15 @@ import { MetaWhatsappPlugin } from '@kizunu/api/modules/channel/plugins/meta-wha
 import { describe, expect, it } from 'vite-plus/test'
 
 // Drift guard: the credential descriptor is a hand-authored projection of the
-// configSchema, so a unit test must fail the moment the two diverge. Per
-// feature 029 the descriptor also flags server-generated fields (e.g. the
-// per-channel verifyToken) so the web form does not render an input for them.
+// configSchema's cloud_api branch (the form path), so a unit test must fail the
+// moment the two diverge. The coexistence branch is constructed by the connect
+// endpoint server-side; it has no operator descriptor.
 const { credentialFields } = new MetaWhatsappPlugin().manifest
 const descriptorKeys = credentialFields.map((field) => field.key)
-const schemaKeys = Object.keys(metaCredentialsSchema.shape)
+const [cloudApiBranch] = metaCredentialsSchema.options
+const cloudApiKeys = Object.keys(cloudApiBranch.shape).filter((key) => key !== 'channelMode')
 
-const validCredentials = {
+const validCloudApiCredentials = {
   appId: 'app-1',
   appSecret: 'app-secret-1',
   wabaId: 'waba-1',
@@ -20,17 +21,19 @@ const validCredentials = {
 }
 
 describe('Meta credential descriptor', () => {
-  it('declares exactly the keys its configSchema accepts', () => {
-    expect([...descriptorKeys].sort()).toEqual([...schemaKeys].sort())
+  it('declares exactly the keys the cloud_api branch accepts (less the channelMode discriminator)', () => {
+    expect([...descriptorKeys].sort()).toEqual([...cloudApiKeys].sort())
   })
 
   for (const field of credentialFields.filter((entry) => entry.required)) {
-    it(`rejects credentials missing the required field ${field.key}`, () => {
+    it(`rejects cloud_api credentials missing the required field ${field.key}`, () => {
       const withoutField = Object.fromEntries(
-        Object.entries(validCredentials).filter(([key]) => key !== field.key),
+        Object.entries(validCloudApiCredentials).filter(([key]) => key !== field.key),
       )
 
-      expect(metaCredentialsSchema.safeParse(withoutField).success).toBe(false)
+      expect(
+        metaCredentialsSchema.safeParse({ ...withoutField, channelMode: 'cloud_api' }).success,
+      ).toBe(false)
     })
   }
 })

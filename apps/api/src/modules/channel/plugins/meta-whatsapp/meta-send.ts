@@ -8,6 +8,17 @@ export const META_GRAPH_API_BASE = 'https://graph.facebook.com/v21.0'
 
 export type FetchFn = (input: string | URL | Request, init?: RequestInit) => Promise<Response>
 
+/**
+ * Picks the bearer token to use for outbound + WABA-level Graph API calls.
+ * cloud_api → the operator's System Token; coexistence → the OAuth business
+ * token that `OAuthRefreshService` keeps fresh (features 030 + 031).
+ */
+export function bearerFor(credentials: MetaCredentials): string {
+  return credentials.channelMode === 'coexistence'
+    ? credentials.accessToken
+    : credentials.systemToken
+}
+
 const metaSendResponseSchema = z
   .object({
     messages: z.array(z.object({ id: z.string() })).optional(),
@@ -57,7 +68,7 @@ export async function sendMetaMessage(input: {
   const response = await fetchFn(`${baseUrl}/${credentials.phoneNumberId}/messages`, {
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${credentials.systemToken}`,
+      Authorization: `Bearer ${bearerFor(credentials)}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(buildBody(payload)),
