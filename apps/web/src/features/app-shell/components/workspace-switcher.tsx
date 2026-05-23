@@ -29,7 +29,7 @@ export function WorkspaceSwitcher() {
               </SidebarMenuButton>
             }
           />
-          <WorkspacePopoverContent activeWorkspaceId={activeWorkspaceId} />
+          <WorkspacePopoverContent />
         </Popover>
       </SidebarMenuItem>
     </SidebarMenu>
@@ -59,13 +59,9 @@ function WorkspaceLabel({ name }: { name: string }) {
   )
 }
 
-interface WorkspacePopoverContentProps {
-  activeWorkspaceId: string | null
-}
-
-function WorkspacePopoverContent({ activeWorkspaceId }: WorkspacePopoverContentProps) {
+function WorkspacePopoverContent() {
   const navigate = useNavigate()
-  const { memberships } = useCurrentUser()
+  const { memberships, activeWorkspaceId } = useCurrentUser()
   const switchWorkspace = useSwitchWorkspace({
     onSuccess: () => navigate({ to: '/workspace' }),
     onError: (error) => toast.error(getApiErrorMessage(error)),
