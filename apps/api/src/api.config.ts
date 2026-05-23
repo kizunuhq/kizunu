@@ -27,9 +27,6 @@ const configSchema = z.object({
       clientSecret: z.string().default(''),
     }),
   }),
-  meta: z.object({
-    verifyToken: z.string().default(''),
-  }),
 })
 
 export type Config = z.infer<typeof configSchema>
@@ -59,9 +56,6 @@ export function load(): Config {
         clientId: process.env.OAUTH_GITHUB_CLIENT_ID,
         clientSecret: process.env.OAUTH_GITHUB_CLIENT_SECRET,
       },
-    },
-    meta: {
-      verifyToken: process.env.APP_META_VERIFY_TOKEN,
     },
   })
 
