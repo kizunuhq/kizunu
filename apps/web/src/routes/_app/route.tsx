@@ -12,5 +12,5 @@ function ProtectedLayout() {
   if (isPending) return null
   if (!user) return <Navigate replace to="/auth/login" />
 
-  return <AppShell userName={user.name} />
+  return <AppShell />
 }
