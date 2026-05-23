@@ -1,10 +1,9 @@
-import { randomUUID } from 'node:crypto'
-
 import type { Config } from '@kizunu/api/api.config'
 import { ConfigService } from '@kizunu/config-module/config.service'
 import { Injectable } from '@nestjs/common'
 
 import { ChannelAccountRepository } from '../../persistence/channel-account.repository'
+import type { ChannelPlugin } from '../plugin/channel-plugin'
 import { ChannelPluginRegistry } from '../plugin/channel-plugin-registry'
 
 export interface CreateChannelAccountInput {
@@ -22,12 +21,12 @@ export interface CreateChannelAccountOutput {
 
 /**
  * Create flow: validate the operator-supplied credentials with the plugin's
- * configSchema, then pre-mint the row's UUID so plugins whose providers need
- * out-of-band setup (Meta's two-step webhook subscription, feature 029) can
- * embed it in their callback URLs. The optional `onAccountCreated` hook returns
- * the credentials that actually get persisted — typically the input enriched
- * with server-generated fields (e.g. a per-channel verifyToken). When the hook
- * throws, no row is written.
+ * configSchema, pre-mint the row's UUIDv7 (same generator the Drizzle defaults
+ * use) so plugins whose providers need out-of-band setup — Meta's two-step
+ * webhook subscription, feature 029 — can embed it in their callback URLs, and
+ * run the optional `onAccountCreated` hook. The hook returns the credentials
+ * that get persisted (typically the input enriched with server-generated
+ * fields); when it throws, no row is written.
  */
 @Injectable()
 export class CreateChannelAccountUseCase {
@@ -38,37 +37,30 @@ export class CreateChannelAccountUseCase {
   ) {}
 
   async execute(input: CreateChannelAccountInput): Promise<CreateChannelAccountOutput> {
-    const validatedClientCredentials = this.registry.validateCredentials(
-      input.pluginId,
-      input.credentials,
-    )
-    const channelAccountId = randomUUID()
-    const credentialsToPersist = await this.runAccountCreatedHook({
-      pluginId: input.pluginId,
-      channelAccountId,
-      credentials: validatedClientCredentials,
-    })
-    const { id } = await this.accounts.create({
+    const validated = this.registry.validateCredentials(input.pluginId, input.credentials)
+    const plugin = this.registry.get(input.pluginId)
+    const channelAccountId = Bun.randomUUIDv7()
+    const credentials = await this.enrich(plugin, channelAccountId, validated)
+    await this.accounts.create({
       id: channelAccountId,
       workspaceId: input.workspaceId,
       pluginId: input.pluginId,
       name: input.name,
-      credentials: credentialsToPersist,
+      credentials,
     })
-    return { id, pluginId: input.pluginId, name: input.name }
+    return { id: channelAccountId, pluginId: input.pluginId, name: input.name }
   }
 
-  private async runAccountCreatedHook(args: {
-    pluginId: string
-    channelAccountId: string
-    credentials: unknown
-  }): Promise<unknown> {
-    const plugin = this.registry.get(args.pluginId)
-    if (!plugin.onAccountCreated) return args.credentials
+  private async enrich(
+    plugin: ChannelPlugin,
+    channelAccountId: string,
+    credentials: unknown,
+  ): Promise<unknown> {
+    if (!plugin.onAccountCreated) return credentials
     return await plugin.onAccountCreated({
-      channelAccountId: args.channelAccountId,
+      channelAccountId,
       appUrl: this.config.get('appUrl') ?? '',
-      credentials: args.credentials,
+      credentials,
     })
   }
 }

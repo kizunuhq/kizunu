@@ -58,19 +58,18 @@ interface SubscribeMetaChannelInput {
  * for the canonical request shape.
  */
 export async function subscribeAppToMeta(input: SubscribeAppInput): Promise<void> {
-  const params = new URLSearchParams({
-    object: 'whatsapp_business_account',
-    fields: 'messages',
-    callback_url: input.callbackUrl,
-    verify_token: input.verifyToken,
-    access_token: `${input.appId}|${input.appSecret}`,
+  return await postMetaForm({
+    fetchFn: input.fetchFn,
+    url: `${input.baseUrl}/${input.appId}/subscriptions`,
+    step: 'app-subscription',
+    params: {
+      object: 'whatsapp_business_account',
+      fields: 'messages',
+      callback_url: input.callbackUrl,
+      verify_token: input.verifyToken,
+      access_token: `${input.appId}|${input.appSecret}`,
+    },
   })
-  const response = await input.fetchFn(`${input.baseUrl}/${input.appId}/subscriptions`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: params.toString(),
-  })
-  await raiseOnFailure('app-subscription', response)
 }
 
 /**
@@ -78,21 +77,20 @@ export async function subscribeAppToMeta(input: SubscribeAppInput): Promise<void
  * business/system token. `override_callback_uri` redirects this WABA's webhooks
  * to the per-channel kizunu URL; `verify_token` is the per-channel secret the
  * controller will check on Meta's GET-verify. Graph API can return HTTP 200 with
- * `success: false` on half-failures — we treat that as a failure too.
+ * `success: false` on half-failures — `postMetaForm` treats that as a failure.
  */
 export async function subscribeWabaToMeta(input: SubscribeWabaInput): Promise<void> {
-  const params = new URLSearchParams({
-    override_callback_uri: input.callbackUrl,
-    verify_token: input.verifyToken,
-    subscribed_fields: 'messages',
-    access_token: input.systemToken,
+  return await postMetaForm({
+    fetchFn: input.fetchFn,
+    url: `${input.baseUrl}/${input.wabaId}/subscribed_apps`,
+    step: 'waba-subscription',
+    params: {
+      override_callback_uri: input.callbackUrl,
+      verify_token: input.verifyToken,
+      subscribed_fields: 'messages',
+      access_token: input.systemToken,
+    },
   })
-  const response = await input.fetchFn(`${input.baseUrl}/${input.wabaId}/subscribed_apps`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: params.toString(),
-  })
-  await raiseOnFailure('waba-subscription', response)
 }
 
 /**
@@ -126,10 +124,20 @@ function buildCallbackUrl(appUrl: string, channelAccountId: string): string {
   return `${trimmed}/webhooks/meta/${channelAccountId}`
 }
 
-async function raiseOnFailure(step: MetaSubscriptionStep, response: Response): Promise<void> {
+async function postMetaForm(args: {
+  fetchFn: FetchFn
+  url: string
+  step: MetaSubscriptionStep
+  params: Record<string, string>
+}): Promise<void> {
+  const response = await args.fetchFn(args.url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams(args.params).toString(),
+  })
   const body = await readBody(response)
   if (response.ok && body.success !== false) return
-  throw new MetaSubscriptionFailedException(step, response.status, extractMetaError(body))
+  throw new MetaSubscriptionFailedException(args.step, response.status, extractMetaError(body))
 }
 
 async function readBody(response: Response): Promise<z.infer<typeof metaResponseSchema>> {
