@@ -1,5 +1,6 @@
 import { useLogout } from '@kizunu/api-client/identity/use-logout'
 import {
+  Command,
   CommandDialog,
   CommandEmpty,
   CommandGroup,
@@ -38,31 +39,33 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
 
   return (
     <CommandDialog open={open} onOpenChange={onOpenChange}>
-      <CommandInput placeholder="Search pages, settings, actions…" />
-      <CommandList>
-        <CommandEmpty>No matches.</CommandEmpty>
-        <CommandGroup heading={COMMAND_GROUP.Pages}>
-          {pageCommands.map((command) => (
-            <CommandItem key={command.id} value={command.label} onSelect={() => go(command)}>
-              {command.label}
-            </CommandItem>
-          ))}
-        </CommandGroup>
-        <CommandGroup heading={COMMAND_GROUP.Settings}>
-          {settingsCommands.map((command) => (
-            <CommandItem key={command.id} value={command.label} onSelect={() => go(command)}>
-              {command.label}
-            </CommandItem>
-          ))}
-        </CommandGroup>
-        <CommandGroup heading={COMMAND_GROUP.Account}>
-          {ACCOUNT_COMMANDS.map((command) => (
-            <CommandItem key={command.id} value={command.label} onSelect={signOut}>
-              {command.label}
-            </CommandItem>
-          ))}
-        </CommandGroup>
-      </CommandList>
+      <Command>
+        <CommandInput placeholder="Search pages, settings, actions…" />
+        <CommandList>
+          <CommandEmpty>No matches.</CommandEmpty>
+          <CommandGroup heading={COMMAND_GROUP.Pages}>
+            {pageCommands.map((command) => (
+              <CommandItem key={command.id} value={command.label} onSelect={() => go(command)}>
+                {command.label}
+              </CommandItem>
+            ))}
+          </CommandGroup>
+          <CommandGroup heading={COMMAND_GROUP.Settings}>
+            {settingsCommands.map((command) => (
+              <CommandItem key={command.id} value={command.label} onSelect={() => go(command)}>
+                {command.label}
+              </CommandItem>
+            ))}
+          </CommandGroup>
+          <CommandGroup heading={COMMAND_GROUP.Account}>
+            {ACCOUNT_COMMANDS.map((command) => (
+              <CommandItem key={command.id} value={command.label} onSelect={signOut}>
+                {command.label}
+              </CommandItem>
+            ))}
+          </CommandGroup>
+        </CommandList>
+      </Command>
     </CommandDialog>
   )
 }
