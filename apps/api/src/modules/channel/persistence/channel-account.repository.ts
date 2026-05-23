@@ -1,7 +1,7 @@
 import { channelAccounts } from '@kizunu/api/db/schemas/channel-accounts'
 import { DrizzleService } from '@kizunu/nestjs-shared/modules/persistence/services/drizzle.service'
 import { Injectable } from '@nestjs/common'
-import { and, eq, sql } from 'drizzle-orm'
+import { and, eq } from 'drizzle-orm'
 
 export interface ChannelAccountSummary {
   id: string
@@ -41,26 +41,6 @@ export class ChannelAccountRepository {
       .select({ id: channelAccounts.id })
       .from(channelAccounts)
       .where(and(eq(channelAccounts.id, id), eq(channelAccounts.workspaceId, workspaceId)))
-      .limit(1)
-    return rows[0]
-  }
-
-  /** Inbound seam: route a webhook to its account by a credential field (e.g. Meta's
-   * phoneNumberId). The plugin/credential key keeps provider specifics at the edge. */
-  async findByPluginAndCredential(
-    pluginId: string,
-    key: string,
-    value: string,
-  ): Promise<{ id: string; workspaceId: string } | undefined> {
-    const rows = await this.drizzle.db
-      .select({ id: channelAccounts.id, workspaceId: channelAccounts.workspaceId })
-      .from(channelAccounts)
-      .where(
-        and(
-          eq(channelAccounts.pluginId, pluginId),
-          sql`${channelAccounts.credentials} ->> ${key} = ${value}`,
-        ),
-      )
       .limit(1)
     return rows[0]
   }
