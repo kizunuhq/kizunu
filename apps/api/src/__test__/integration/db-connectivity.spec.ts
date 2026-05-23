@@ -3,8 +3,6 @@ import { afterAll, describe, expect, it } from 'vite-plus/test'
 
 import { closeDb, db, truncateAll } from './db'
 
-// Smoke test for the integration harness: proves we connect to kizunu_test and
-// the helpers work. Replace with repository/use-case tests as the suite grows.
 describe('integration harness (DB)', () => {
   afterAll(async () => {
     await closeDb()

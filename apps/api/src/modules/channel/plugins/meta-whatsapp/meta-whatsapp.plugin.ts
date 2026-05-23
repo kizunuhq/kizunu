@@ -26,8 +26,8 @@ const VERIFY_TOKEN_BYTE_LENGTH = 32
 
 /**
  * App-wide Meta credentials read from `meta.*` config; required only when
- * Coex is used (feature 031). Cloud_api operator-paste path does not need
- * them — the operator's appId/appSecret travel on the row.
+ * Coex is used. The cloud_api operator-paste path does not need them — the
+ * operator's appId/appSecret travel on the row.
  */
 export interface MetaWhatsappPluginConfig {
   appId: string
@@ -38,16 +38,14 @@ export interface MetaWhatsappPluginConfig {
  * Meta Cloud API / WhatsApp channel plugin. Two onboarding modes are supported
  * via the `channelMode` discriminator on the credentials schema:
  *
- * - `cloud_api` (feature 029) — operator pastes WABA + phone + System Token +
- *   App ID/Secret; `onAccountCreated` runs both the app-level and per-WABA
- *   subscription calls.
+ * - `cloud_api` — operator pastes WABA + phone + System Token + App ID/Secret;
+ *   `onAccountCreated` runs both the app-level and per-WABA subscription calls.
  *
- * - `coexistence` (feature 031) — operator finishes Embedded Signup; the
- *   connect endpoint exchanges the OAuth code for a business token; this
- *   plugin's `onAccountCreated` only runs the per-WABA subscription
- *   (Meta handles app-level during signup), with Coex subscribed_fields.
- *   `refreshCredentials` rolls the token via long-lived exchange before
- *   expiry.
+ * - `coexistence` — operator finishes Embedded Signup; the connect endpoint
+ *   exchanges the OAuth code for a business token; this plugin's
+ *   `onAccountCreated` only runs the per-WABA subscription (Meta handles
+ *   app-level during signup), with Coex subscribed_fields.
+ *   `refreshCredentials` rolls the token via long-lived exchange before expiry.
  *
  * `baseUrl`/`fetchFn` are injectable for tests; `config` carries the app-wide
  * Meta credentials needed in Coex paths.

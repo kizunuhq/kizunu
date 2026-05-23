@@ -10,8 +10,9 @@ export interface ActionContext {
 
 /**
  * Runs a cadence's closed-vocabulary exit-hook actions. CRM actions go through the
- * connector; `notify_user` is an internal no-op for v0.1; `webhook_out` is the single
- * escape hatch. Flat guard clauses (not a switch) keep each action's type narrowed.
+ * connector; `notify_user` is currently an internal no-op; `webhook_out` is the
+ * single escape hatch. Flat guard clauses (not a switch) keep each action's type
+ * narrowed.
  */
 @Injectable()
 export class CadenceActionExecutor {

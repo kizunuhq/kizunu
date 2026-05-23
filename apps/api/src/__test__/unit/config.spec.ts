@@ -23,34 +23,27 @@ describe('load (api config)', () => {
   })
 
   it('applies development defaults when the environment is unset', () => {
-    // Arrange
     delete process.env.NODE_ENV
     delete process.env.PORT
     process.env.APP_DATABASE_URL = VALID_DB_URL
 
-    // Act
     const config = load()
 
-    // Assert
     expect(config.env).toBe('development')
     expect(config.port).toBe(3001)
     expect(config.session.ttlDays).toBe(30)
   })
 
   it('coerces PORT from string to number', () => {
-    // Arrange
     process.env.APP_DATABASE_URL = VALID_DB_URL
     process.env.PORT = '4000'
 
-    // Act + Assert
     expect(load().port).toBe(4000)
   })
 
   it('throws when the database url is missing', () => {
-    // Arrange
     delete process.env.APP_DATABASE_URL
 
-    // Act + Assert
     expect(() => load()).toThrow(/Invalid configuration/)
   })
 })

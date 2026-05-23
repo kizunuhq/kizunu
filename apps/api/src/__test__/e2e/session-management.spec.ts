@@ -17,8 +17,6 @@ const credentials = {
   name: 'BDR One',
 }
 
-// Signs in the same user a second time so the account has two live sessions
-// (agent A from register, agent B from login), each with its own cookie jar.
 async function signInSecondDevice(app: INestApplication): Promise<Agent> {
   const agent = request.agent(app.getHttpServer())
   await agent.post('/auth/login').send({ email: credentials.email, password: credentials.password })

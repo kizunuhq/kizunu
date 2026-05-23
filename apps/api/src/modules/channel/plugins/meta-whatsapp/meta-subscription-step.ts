@@ -1,5 +1,5 @@
 /**
- * The two legs of Meta's webhook-subscription onboarding flow (feature 029).
+ * The two legs of Meta's webhook-subscription onboarding flow.
  * `AppSubscription` is `POST /{appId}/subscriptions` with the App Access Token;
  * `WabaSubscription` is `POST /{wabaId}/subscribed_apps` with the customer's
  * business/system token. Surfaced as the `step` field on

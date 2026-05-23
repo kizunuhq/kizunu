@@ -9,8 +9,6 @@ interface KMarkProps {
   label?: string
 }
 
-/* The Kizunu mark. Renders the letter K from the display font directly.
-   Sized by the container via font-size. */
 export function KMark({ variant = 'full', className, style, label }: KMarkProps) {
   return (
     <span

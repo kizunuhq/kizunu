@@ -20,7 +20,7 @@ const META_PLUGIN_ID = 'meta-whatsapp'
 const HUB_SUBSCRIBE_MODE = 'subscribe'
 
 /**
- * Per-channel Meta inbound webhook (feature 029). Every `ChannelAccount` owns
+ * Per-channel Meta inbound webhook. Every `ChannelAccount` owns
  * its callback URL (`/webhooks/meta/:channelAccountId`) and a server-generated
  * `verifyToken` inside `credentials`. `GET` answers Meta's subscribe-verify by
  * echoing `hub.challenge` when the supplied token matches the stored one (403

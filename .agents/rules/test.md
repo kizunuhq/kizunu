@@ -62,21 +62,21 @@ it("loads an existing user", async () => {
 });
 ```
 
-## 3. Use Given/When/Then Or Arrange/Act/Assert
+## 3. Structure Tests With Setup, Action, And Assertion Phases
 
-Structure tests with clear setup, action, and assertion phases. Use either Given/When/Then or Arrange/Act/Assert consistently within the test file.
+Structure tests with clear setup, action, and assertion phases — either
+Arrange/Act/Assert or Given/When/Then — separated by blank lines. Do **not**
+write the phase names as comments; the blank-line rhythm already marks the
+structure (see `comments.md` §4).
 
 Good:
 
 ```ts
 it("marks an invoice as paid", () => {
-  // Arrange
   const invoice = createInvoice({ status: "open" });
 
-  // Act
   invoice.pay();
 
-  // Assert
   expect(invoice.status).toBe("paid");
 });
 ```
@@ -85,13 +85,10 @@ Good:
 
 ```ts
 it("rejects an expired coupon", () => {
-  // Given
   const coupon = createCoupon({ expiresAt: new Date("2026-01-01T00:00:00.000Z") });
 
-  // When
   const result = validateCoupon(coupon, new Date("2026-01-02T00:00:00.000Z"));
 
-  // Then
   expect(result.isValid).toBe(false);
 });
 ```

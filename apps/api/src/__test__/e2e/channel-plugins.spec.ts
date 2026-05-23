@@ -13,8 +13,6 @@ const owner = {
   name: 'Workspace Admin',
 }
 
-// e2e: the web app reads channel-plugins (as the authenticated admin) to render the
-// credential form, so the descriptor must survive the type-safe boundary to the wire.
 describe('Channel plugins (e2e)', () => {
   let app: INestApplication
 

@@ -1,5 +1,5 @@
 /**
- * The two Meta Coex OAuth exchanges that can fail (feature 031).
+ * The two Meta Coex OAuth exchanges that can fail.
  * `CodeExchange` is the initial Embedded Signup `code`-for-token swap;
  * `RefreshExchange` is the long-lived refresh driven by
  * `OAuthRefreshService` (grant_type `fb_exchange_token`). Surfaced as the

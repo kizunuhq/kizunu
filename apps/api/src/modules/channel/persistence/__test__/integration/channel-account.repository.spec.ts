@@ -37,7 +37,7 @@ describe('ChannelAccountRepository (integration)', () => {
     await closeDb()
   })
 
-  it('encrypts credentials on disk and decrypts on findCredentials (feature 030)', async () => {
+  it('encrypts credentials on disk and decrypts on findCredentials', async () => {
     const workspaceId = await seedWorkspace()
 
     const { id } = await repository.create({

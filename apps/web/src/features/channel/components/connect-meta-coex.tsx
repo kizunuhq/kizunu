@@ -50,16 +50,11 @@ declare global {
 }
 
 /**
- * Embedded Signup (feature 031). Loads the FB JS SDK on mount, listens for the
- * Coex completion postMessage from `*.facebook.com`, and posts the auth code
- * to the new connect endpoint. The page reads `appId` + `coexConfigId` via
- * props because no public capability endpoint exists yet — the parent screen
- * supplies them from the operator-facing settings (or from env-injected
- * build-time defaults).
- *
- * UX: a "Connect WhatsApp Business" button kicks off `FB.login`; the inline
- * status area shows progress / errors. On success, the create mutation runs
- * and the parent screen receives `onSuccess`.
+ * Loads the FB JS SDK on mount, listens for the Coex completion postMessage
+ * from `*.facebook.com`, and posts the auth code to the connect endpoint.
+ * Reads `appId` + `coexConfigId` via props because no public capability
+ * endpoint exposes them yet — the parent screen supplies them from
+ * operator-facing settings or build-time env defaults.
  */
 interface ConnectMetaCoexProps {
   workspaceId: string

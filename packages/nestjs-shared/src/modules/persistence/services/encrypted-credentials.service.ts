@@ -17,7 +17,7 @@ const AUTH_TAG_BYTE_LENGTH = 16
  * `encrypt` on every write path and `decrypt` on every read path.
  *
  * `decrypt` is backward-compatible: a value that is not an envelope
- * (`!isEnvelope(value)`) is returned unchanged so pre-030 plaintext rows
+ * (`!isEnvelope(value)`) is returned unchanged so legacy plaintext rows
  * continue to read transparently while new writes encrypt going forward.
  * Tampering (wrong IV, tag, ciphertext, or key) throws
  * {@link CredentialsDecryptionFailedException} — there is no silent garbage.

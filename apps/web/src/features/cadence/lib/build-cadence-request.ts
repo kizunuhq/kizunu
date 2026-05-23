@@ -1,7 +1,6 @@
 import type { CadenceRequest } from '@kizunu/api-contracts/cadence'
 import type { CadenceStepDraft } from '@kizunu/web/features/cadence/components/cadence-step-row'
 
-/** Maps the cadence builder's draft state to the typed create/update request. */
 export function buildCadenceRequest(input: {
   name: string
   steps: CadenceStepDraft[]

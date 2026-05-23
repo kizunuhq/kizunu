@@ -34,8 +34,6 @@ async function registerOwner(
   return { agent, workspaceId: registration.body.workspace.id }
 }
 
-// e2e: a workspace admin manages HSM-reference templates over the authenticated,
-// workspace-scoped REST surface (the v0.1 BDR "templates CRUD" screen).
 describe('Workspace templates (e2e)', () => {
   let app: INestApplication
 

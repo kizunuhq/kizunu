@@ -9,8 +9,6 @@ const connectionString =
 export const pool = new Pool({ connectionString })
 export const db = drizzle(pool, { schema, casing: 'snake_case' })
 
-// Truncates the given tables between tests. An empty list is a no-op.
-// Use in afterEach/beforeAll of integration tests.
 export async function truncateAll(tables: readonly string[]): Promise<void> {
   if (tables.length === 0) {
     return

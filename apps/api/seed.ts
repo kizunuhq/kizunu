@@ -58,8 +58,6 @@ const DATABASE_URL =
 const pool = new Pool({ connectionString: DATABASE_URL })
 const db = drizzle(pool, { casing: 'snake_case' })
 
-// Helpers
-
 function hashPassword(plain: string): Promise<string> {
   return Bun.password.hash(plain)
 }
@@ -79,8 +77,6 @@ function first<T>(rows: T[]): T {
 function daysFromNow(days: number): Date {
   return new Date(Date.now() + days * MINUTES_PER_DAY * 60 * 1000)
 }
-
-// Users (persist across runs; everything else is rebuilt under the workspace)
 
 console.log('\nUsers')
 
@@ -105,8 +101,6 @@ async function upsertUser(email: string, name: string) {
 const owner = await upsertUser('owner@kizunu.dev', 'Olivia Owner')
 const rep = await upsertUser('rep@kizunu.dev', 'Rafael Rep')
 
-// Workspace (drop-and-rebuild by slug cascades to all workspace-scoped rows)
-
 console.log('\nWorkspace')
 
 await db.delete(workspaces).where(eq(workspaces.slug, WORKSPACE_SLUG))
@@ -123,8 +117,6 @@ await db.insert(memberships).values([
 ])
 
 log('memberships', 'owner=admin, rep=member')
-
-// Connector + channel accounts
 
 console.log('\nAccounts')
 
@@ -170,8 +162,6 @@ await db.insert(channelAccesses).values([
 ])
 
 log('channel access', 'owner + rep primary')
-
-// Template + cadence
 
 console.log('\nCadence')
 
@@ -237,8 +227,6 @@ await db.insert(entryTriggers).values({
 })
 
 log('entry trigger', 'Pipedrive stage "qualified" -> WhatsApp Outreach')
-
-// Leads + journeys + touch attempts (one journey per interesting status)
 
 console.log('\nLeads and journeys')
 
@@ -320,8 +308,6 @@ for (const plan of leadPlan) {
 
   log(plan.name, `${plan.status} (${attempts.length} touch${attempts.length === 1 ? '' : 'es'})`)
 }
-
-// Summary
 
 console.log(`
 Seed complete.

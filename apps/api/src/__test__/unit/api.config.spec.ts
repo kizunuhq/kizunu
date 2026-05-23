@@ -1,16 +1,12 @@
 import { load } from '@kizunu/api/api.config'
 import { afterEach, beforeEach, describe, expect, it } from 'vite-plus/test'
 
-// The registration gate is a security toggle, so its env coercion must be exact:
-// z.stringbool() (not z.coerce.boolean(), which maps the string "false" to true).
 describe('config registration gate', () => {
   const original = process.env.DISABLE_USER_REGISTRATION
   const originalDbUrl = process.env.APP_DATABASE_URL
 
   beforeEach(() => {
     delete process.env.DISABLE_USER_REGISTRATION
-    // load() requires a database url with no default; pin one so the parse
-    // succeeds and the test isolates the registration-gate field.
     process.env.APP_DATABASE_URL = 'postgresql://postgres:postgres@localhost:5432/kizunu_test'
   })
 

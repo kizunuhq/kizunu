@@ -4,7 +4,7 @@ import type { MetaSubscriptionStep } from './meta-subscription-step'
 
 /**
  * Raised when Meta's webhook-subscription flow rejects one of the two onboarding
- * calls (feature 029). `step` identifies which leg failed (`app-subscription` for
+ * calls. `step` identifies which leg failed (`app-subscription` for
  * `POST /{appId}/subscriptions`, `waba-subscription` for
  * `POST /{wabaId}/subscribed_apps`), `metaStatus` is the HTTP status Meta
  * returned, and `metaError` is the message Graph API surfaced when present.
