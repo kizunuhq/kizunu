@@ -1,14 +1,5 @@
 import type { NavGroup } from '@kizunu/web/features/app-shell/data/nav-group'
-import {
-  AddressBook,
-  ChartLineUp,
-  Lightning,
-  Plugs,
-  PlugsConnected,
-  ShieldCheck,
-  Stack,
-  UsersThree,
-} from '@phosphor-icons/react'
+import { AddressBook, ChartLineUp, Gear, Lightning, Stack } from '@phosphor-icons/react'
 
 export const NAV_GROUPS: NavGroup[] = [
   {
@@ -21,12 +12,7 @@ export const NAV_GROUPS: NavGroup[] = [
     ],
   },
   {
-    label: 'Workspace',
-    items: [
-      { to: '/workspace/members', label: 'Members', icon: UsersThree },
-      { to: '/workspace/channels', label: 'Channels', icon: Plugs },
-      { to: '/workspace/connectors', label: 'Connectors', icon: PlugsConnected },
-      { to: '/workspace/security', label: 'Security', icon: ShieldCheck },
-    ],
+    label: 'Manage',
+    items: [{ to: '/settings/profile', label: 'Settings', icon: Gear }],
   },
 ]
