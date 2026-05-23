@@ -40,7 +40,7 @@ describe('SmtpMailSender', () => {
     vi.clearAllMocks()
   })
 
-  it('connects anonymously when smtpUser is empty', () => {
+  it('configures the transport without auth when smtpUser is empty', () => {
     const sender = new SmtpMailSender(buildConfig({ smtpUser: '' }))
 
     expect(sender).toBeDefined()

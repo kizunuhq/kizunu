@@ -46,7 +46,7 @@ function buildOAuthProviders(config: ConfigService<Config>): OAuthProvider[] {
   return providers
 }
 
-// SMTP wins when a host is configured; otherwise dev keeps the console stub.
+// Empty host preserves the v0.1 ConsoleMailSender fallback; never throws at boot.
 function buildMailSender(config: ConfigService<Config>): MailSender {
   if (config.get('mail.smtpHost')) {
     return new SmtpMailSender(config)

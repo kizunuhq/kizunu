@@ -42,13 +42,12 @@ const configSchema = z.object({
     coexConfigId: z.string().default(''),
   }),
   mail: z.object({
-    // SMTP transport. `host` empty means no provider configured — the module
-    // falls back to ConsoleMailSender so dev still works without Mailpit. When
-    // host is set, the SMTP path takes over.
     smtpHost: z.string().default(''),
     smtpPort: z.coerce.number().int().positive().default(1025),
     smtpUser: z.string().default(''),
     smtpPassword: z.string().default(''),
+    // stringbool (not coerce.boolean, which maps "false" -> true) so
+    // APP_SMTP_SECURE=false really means plain SMTP.
     smtpSecure: z.stringbool().default(false),
     from: z.string().default('Kizunu <noreply@kizunu.local>'),
   }),
