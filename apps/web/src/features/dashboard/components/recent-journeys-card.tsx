@@ -1,22 +1,12 @@
 import { useLeadJourneys } from '@kizunu/api-client/engine/use-lead-journeys'
 import type { LeadJourneyStatusValue } from '@kizunu/api-contracts/engine'
 import { Skeleton } from '@kizunu/web/components/primitives/skeleton'
-import { cn } from '@kizunu/web/lib/utils'
+import { JourneyStatusDot } from '@kizunu/web/features/engine/components/journey-status-dot'
 import { CaretRight } from '@phosphor-icons/react'
 import { Link } from '@tanstack/react-router'
 
 const SHOW_COUNT = 5
 const PENDING_ROW_COUNT = 3
-
-const STATUS_DOT: Record<LeadJourneyStatusValue, string> = {
-  running: 'bg-foreground/60',
-  paused: 'bg-foreground/40',
-  replied: 'bg-kizunu-green',
-  exhausted: 'bg-kizunu-yellow-600',
-  stopped: 'bg-foreground/40',
-  error_state: 'bg-kizunu-pink',
-  paused_owner_inactive: 'bg-kizunu-yellow-600',
-}
 
 interface RecentJourneysCardProps {
   workspaceId: string | undefined
@@ -32,6 +22,7 @@ export function RecentJourneysCard({ workspaceId }: RecentJourneysCardProps) {
         <h2 className="text-foreground text-base font-medium">Recent journeys</h2>
         <Link
           to="/workspace/journeys"
+          search={{ status: 'all' as const }}
           className="text-muted-foreground hover:text-foreground text-sm underline-offset-2 hover:underline"
         >
           View all
@@ -66,10 +57,11 @@ function RecentJourneyRow({ leadName, status, nextTouchAt }: RecentJourneyRowPro
     <li>
       <Link
         to="/workspace/journeys"
+        search={{ status: 'all' as const }}
         className="hover:bg-accent flex items-center justify-between gap-3 py-2 transition-colors"
       >
         <div className="flex items-center gap-2">
-          <span className={cn('inline-block size-2 rounded-full', STATUS_DOT[status])} />
+          <JourneyStatusDot status={status} />
           <span className="text-foreground text-sm">{leadName}</span>
         </div>
         <div className="flex items-center gap-2">

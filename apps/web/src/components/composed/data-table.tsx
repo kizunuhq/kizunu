@@ -15,7 +15,7 @@ const PENDING_ROW_COUNT = 3
 
 type DataTableAlign = 'left' | 'right'
 
-interface DataTableColumn<Row> {
+export interface DataTableColumn<Row> {
   key: string
   header: string
   cell: (row: Row) => ReactNode
