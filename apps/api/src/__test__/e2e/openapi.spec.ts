@@ -4,7 +4,6 @@ import { afterAll, beforeAll, describe, expect, it } from 'vite-plus/test'
 
 import { createTestApp } from './create-test-app'
 
-// e2e: builds the OpenAPI document from the booted app and asserts it describes the API.
 describe('OpenAPI document (e2e)', () => {
   let app: INestApplication
 

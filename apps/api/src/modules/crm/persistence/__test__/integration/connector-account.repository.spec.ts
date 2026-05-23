@@ -73,7 +73,7 @@ describe('ConnectorAccountRepository (integration)', () => {
     ).toBeUndefined()
   })
 
-  it('writes credentials encrypted on disk and decrypts on read (feature 030)', async () => {
+  it('writes credentials encrypted on disk and decrypts on read', async () => {
     const workspaceId = await seedWorkspace()
     const plaintext = { apiToken: 'live-token', companyDomain: 'acme' }
 

@@ -40,8 +40,8 @@ export class ChannelAccountController {
     })
   }
 
-  /** Embedded Signup endpoint — feature 031. Exchanges the OAuth code and
-   * creates a coexistence ChannelAccount. */
+  /** Embedded Signup endpoint. Exchanges the OAuth code and creates a coexistence
+   * ChannelAccount. */
   @Post(':id/channel-accounts/meta-whatsapp/connect')
   async connectMetaWhatsappCoex(
     @Param('id') workspaceId: string,

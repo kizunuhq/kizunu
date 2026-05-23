@@ -98,6 +98,10 @@ writing code in their area:
   (ADR-002); `PayloadMap + Handler<T>` for discriminated dispatch; bare unions only
   for React component-prop variants and internal narrowings of well-known external
   vocabularies (HTTP verbs etc.).
+- **`comments.md`** — default to no comments; allow only when the _why_ is
+  non-obvious (security, workaround, surprising behavior); JSDoc only for
+  tool-surfaced public API; no section headers, test-phase markers, or task/PR
+  references.
 - **`test.md`** — see Testing below.
 
 ### Style basics (always)

@@ -73,10 +73,9 @@ function toEcho(echo: MetaTextMessage): InboundMessage | undefined {
 const FIELD_HANDLERS: Record<string, (value: MetaChangeValue) => InboundMessage[]> = {
   messages: collectMessages,
   smb_message_echoes: collectEchoes,
-  // smb_app_state_sync, history, and any other Coex field are intentionally
-  // 200-ack-only for v0.1: parsed payload exists but does not become an
-  // InboundMessage. A future slice plumbs them into the (still-deferred) inbox
-  // / contacts store.
+  // Other Coex fields (`smb_app_state_sync`, `history`, …) are intentionally
+  // 200-ack-only: parsed payload exists but does not become an InboundMessage
+  // until the inbox / contacts store lands.
 }
 
 /**
@@ -84,7 +83,7 @@ const FIELD_HANDLERS: Record<string, (value: MetaChangeValue) => InboundMessage[
  * shape defensively and returns `[]` for status-only or malformed bodies — a
  * webhook handler must always be able to acknowledge with 200, so this never throws.
  * Dispatches by `change.field` so Coex's `smb_message_echoes` route to MarkReply
- * the same way regular customer messages do (feature 031).
+ * the same way regular customer messages do.
  */
 export function parseMetaInbound(raw: unknown): InboundMessage[] {
   if (!isObject(raw) || !Array.isArray(raw.entry)) return []

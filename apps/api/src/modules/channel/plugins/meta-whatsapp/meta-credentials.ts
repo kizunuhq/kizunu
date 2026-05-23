@@ -4,15 +4,15 @@ import { z } from 'zod'
 /**
  * Meta credentials are a discriminated union by `channelMode`:
  *
- * - `cloud_api`: the operator-pasted onboarding (feature 029). Carries the
- *   App Access Token components, the per-channel verifyToken, and the
- *   long-lived System Token used for outbound + per-WABA subscription.
+ * - `cloud_api`: operator-pasted onboarding. Carries the App Access Token
+ *   components, the per-channel `verifyToken`, and the long-lived System Token
+ *   used for outbound + per-WABA subscription.
  *
- * - `coexistence`: Embedded Signup (feature 031). The OAuth triplet from
- *   `030`'s shared mixin replaces `appId/appSecret/systemToken`; the
- *   business token expires and rolls via `OAuthRefreshService`. The app-wide
- *   `meta.appId` / `meta.appSecret` config provides the App credentials at
- *   the plugin layer; they never sit on the row.
+ * - `coexistence`: Embedded Signup. The OAuth triplet from the shared mixin
+ *   replaces `appId/appSecret/systemToken`; the business token expires and
+ *   rolls via `OAuthRefreshService`. The app-wide `meta.appId` / `meta.appSecret`
+ *   config provides the App credentials at the plugin layer; they never sit on
+ *   the row.
  *
  * `verifyToken` is server-generated during `onAccountCreated` in both modes.
  *

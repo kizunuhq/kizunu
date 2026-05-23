@@ -16,8 +16,6 @@ const credentials = {
   name: 'BDR One',
 }
 
-// e2e: the full home-grown auth lifecycle over HTTP — register issues a session,
-// `me` reads it back, logout revokes it, and the same credentials log back in.
 describe('Auth lifecycle (e2e)', () => {
   let app: INestApplication
 

@@ -27,9 +27,9 @@ export class ChannelAccountRepository {
   /**
    * `id` is optional so callers that need to know the row's id BEFORE persistence
    * (e.g. the create use-case pre-mints it so plugin `onAccountCreated` can embed
-   * the id in provider callback URLs, feature 029) can pass an explicit one in.
-   * When omitted, Drizzle's `defaults()` generates a UUIDv7. `credentials` is
-   * encrypted at this boundary (feature 030).
+   * the id in provider callback URLs) can pass an explicit one in. When omitted,
+   * Drizzle's `defaults()` generates a UUIDv7. `credentials` is encrypted at this
+   * boundary.
    */
   async create(input: {
     id?: string
@@ -69,10 +69,10 @@ export class ChannelAccountRepository {
   }
 
   /**
-   * Inbound-webhook seam for the per-channel URL (feature 029). The Meta
-   * webhook controller routes by `:channelAccountId` in the path, then loads
-   * the row's workspaceId (for MarkReplyUseCase) and credentials (for the
-   * per-channel `verifyToken` check + plugin parseInbound).
+   * Inbound-webhook seam for the per-channel URL. The Meta webhook controller
+   * routes by `:channelAccountId` in the path, then loads the row's workspaceId
+   * (for MarkReplyUseCase) and credentials (for the per-channel `verifyToken`
+   * check + plugin parseInbound).
    */
   async findWorkspaceAndCredentials(
     id: string,
@@ -104,10 +104,10 @@ export class ChannelAccountRepository {
 
   /**
    * Returns every channel-account row's decrypted credentials so the
-   * `OAuthRefreshService` (feature 030) can filter in JS by
-   * `accessTokenExpiresAt` <= `cutoff`. Encryption hides the expiry timestamp
-   * from the database, so a SQL pre-filter is not possible without
-   * denormalizing the column (deferred until volume warrants it).
+   * `OAuthRefreshService` can filter in JS by `accessTokenExpiresAt <= cutoff`.
+   * Encryption hides the expiry timestamp from the database, so a SQL pre-filter
+   * is not possible without denormalizing the column (deferred until volume
+   * warrants it).
    */
   async findAllWithCredentials(): Promise<NearExpiryChannelAccount[]> {
     const rows = await this.drizzle.db

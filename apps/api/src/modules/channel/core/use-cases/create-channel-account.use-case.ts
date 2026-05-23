@@ -22,8 +22,8 @@ export interface CreateChannelAccountOutput {
 /**
  * Create flow: validate the operator-supplied credentials with the plugin's
  * configSchema, pre-mint the row's UUIDv7 (same generator the Drizzle defaults
- * use) so plugins whose providers need out-of-band setup — Meta's two-step
- * webhook subscription, feature 029 — can embed it in their callback URLs, and
+ * use) so plugins whose providers need out-of-band setup — like Meta's
+ * two-step webhook subscription — can embed it in their callback URLs, and
  * run the optional `onAccountCreated` hook. The hook returns the credentials
  * that get persisted (typically the input enriched with server-generated
  * fields); when it throws, no row is written.

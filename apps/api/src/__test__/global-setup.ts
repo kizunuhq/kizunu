@@ -2,12 +2,6 @@ import { spawnSync } from 'node:child_process'
 
 import { Client } from 'pg'
 
-// Vitest globalSetup for the DB-backed projects (integration, e2e). Runs once,
-// before any test file. Verifies the test database is reachable and, if not,
-// brings it up via `bun db:test:setup` (idempotent: compose up + create +
-// migrate). This makes `vp test` / `bun check` self-sufficient — no manual
-// `db:test:setup` step required.
-
 const CONNECT_TIMEOUT_MS = 2000
 
 const testDbUrl =
@@ -31,7 +25,6 @@ export default async function setup(): Promise<void> {
     return
   }
 
-  // Not reachable — ensure it is up. `db:test:setup` is safe to re-run.
   process.stderr.write('[test] test database unreachable — running `db:test:setup`...\n')
   const result = spawnSync('bun', ['scripts/db.ts', 'test:setup'], { stdio: 'inherit' })
   if (result.status !== 0) {

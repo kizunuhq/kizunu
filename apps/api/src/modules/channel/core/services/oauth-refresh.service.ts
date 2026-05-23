@@ -21,8 +21,8 @@ export interface RefreshSummary {
 }
 
 /**
- * Background scheduler (feature 030) that keeps OAuth-using channel credentials
- * fresh. Each tick:
+ * Background scheduler that keeps OAuth-using channel credentials fresh. Each
+ * tick:
  * 1. Loads every channel-account row's decrypted credentials.
  * 2. Filters to rows whose `accessTokenExpiresAt` lies inside the refresh
  *    buffer window (`now <= accessTokenExpiresAt <= now + buffer`).

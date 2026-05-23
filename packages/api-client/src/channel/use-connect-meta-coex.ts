@@ -5,11 +5,6 @@ import type { ApiError } from '../client/api-error'
 import { QueryKeys } from '../query-keys'
 import { connectMetaCoex } from './channel.api'
 
-/**
- * Mutation hook for the Embedded Signup connect endpoint (feature 031). On
- * success, invalidates the workspace channels query so the new coexistence
- * account shows up in the list.
- */
 export function useConnectMetaCoex(
   workspaceId: string,
   options?: UseMutationOptions<ConnectMetaCoexResponse, ApiError, ConnectMetaCoexRequest>,

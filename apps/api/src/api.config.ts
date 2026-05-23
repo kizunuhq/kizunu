@@ -4,7 +4,6 @@ const configSchema = z.object({
   env: z.enum(['development', 'production', 'test']).default('development'),
   port: z.coerce.number().int().positive().default(3001),
   appUrl: z.string().default('http://localhost:3001'),
-  // Where the browser lands after an OAuth redirect flow (the web app origin).
   webUrl: z.string().default('http://localhost:3000'),
   cors: z.array(z.string()).optional(),
   database: z.object({
@@ -36,7 +35,7 @@ const configSchema = z.object({
   }),
   meta: z.object({
     // Meta App credentials for the deploy. Required only when Coex Embedded
-    // Signup is used (feature 031); the standalone Cloud API path does not
+    // Signup is used; the standalone Cloud API path does not
     // need them. Connect endpoint validates presence at call time.
     appId: z.string().default(''),
     appSecret: z.string().default(''),

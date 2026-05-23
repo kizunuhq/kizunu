@@ -5,8 +5,6 @@ import { afterAll, beforeAll, describe, expect, it } from 'vite-plus/test'
 
 import { ApiModule } from '../../api.module'
 
-// e2e for the API: boots the Nest app in-process and exercises HTTP routes via
-// supertest. Proves the e2e harness works end to end against kizunu_test.
 describe('GET /health (e2e)', () => {
   let app: INestApplication
 

@@ -8,8 +8,6 @@ export const Route = createFileRoute('/_app/workspace/connect-meta-coex')({
 
 function ConnectMetaCoexPage() {
   const { activeWorkspaceId } = useCurrentUser()
-  // Build-time-injected Coex app id + config id; for v0.1 the operator
-  // supplies them via Vite env vars matching the API-side env keys.
   const appId = import.meta.env.VITE_META_APP_ID ?? ''
   const coexConfigId = import.meta.env.VITE_META_COEX_CONFIG_ID ?? ''
 

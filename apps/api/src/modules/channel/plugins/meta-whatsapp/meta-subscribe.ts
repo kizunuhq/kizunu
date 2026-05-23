@@ -37,7 +37,7 @@ interface SubscribeWabaInput {
   callbackUrl: string
   verifyToken: string
   /** Comma-separated fields. Defaults to 'messages' for cloud_api; Coex passes
-   * 'messages,smb_message_echoes,smb_app_state_sync' (feature 031). */
+   * 'messages,smb_message_echoes,smb_app_state_sync'. */
   subscribedFields?: string
 }
 

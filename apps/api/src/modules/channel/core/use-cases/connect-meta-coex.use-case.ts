@@ -30,7 +30,7 @@ export interface ConnectMetaCoexOutput {
 }
 
 /**
- * Embedded Signup server endpoint (feature 031). Exchanges the OAuth code for
+ * Embedded Signup server endpoint. Exchanges the OAuth code for
  * a business token, then runs the same pre-mint + onAccountCreated + persist
  * flow as `CreateChannelAccountUseCase` — only the credentials shape is
  * different (`channelMode: 'coexistence'` with the OAuth triplet). The plugin's

@@ -15,9 +15,6 @@ const credentials = {
   name: 'BDR One',
 }
 
-// e2e: the public capability flag and the register gate over HTTP. The gated app
-// is booted with DISABLE_USER_REGISTRATION set before init, since config loads
-// from the environment at module boot.
 describe('Registration gate (e2e)', () => {
   describe('open registration (default)', () => {
     let app: INestApplication

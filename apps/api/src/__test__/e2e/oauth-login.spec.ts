@@ -20,8 +20,6 @@ let currentProfile: OAuthProfile = {
   name: 'Octo Cat',
 }
 
-// A fake provider keeps the e2e off the network: begin echoes the state into the
-// authorize URL, and the exchange returns whatever the test set as the profile.
 const fakeProvider: OAuthProvider = {
   manifest: { id: 'github', label: 'GitHub' },
   authorizationUrl: ({ state }) => `https://provider.test/authorize?state=${state}`,

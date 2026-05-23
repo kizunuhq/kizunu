@@ -41,9 +41,6 @@ async function seedAccount(verifyToken: string): Promise<{ workspaceId: string; 
   return { workspaceId: workspace.id, id: account.id }
 }
 
-// e2e: Meta posts to a kizunu URL per channel; verifying the per-channel token
-// and routing the POST by the path id is the whole subscription contract from
-// the kizunu side (feature 029).
 describe('Meta inbound webhook (e2e)', () => {
   let app: INestApplication
 

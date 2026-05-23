@@ -11,7 +11,7 @@ export type FetchFn = (input: string | URL | Request, init?: RequestInit) => Pro
 /**
  * Picks the bearer token to use for outbound + WABA-level Graph API calls.
  * cloud_api → the operator's System Token; coexistence → the OAuth business
- * token that `OAuthRefreshService` keeps fresh (features 030 + 031).
+ * token that `OAuthRefreshService` keeps fresh.
  */
 export function bearerFor(credentials: MetaCredentials): string {
   return credentials.channelMode === 'coexistence'

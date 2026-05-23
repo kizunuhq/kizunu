@@ -7,7 +7,6 @@ import { createTestApp } from './create-test-app'
 const TOO_MANY_REQUESTS = 429
 const AUTH_LIMIT = 10
 
-// e2e: the auth endpoints are rate-limited per IP (@nestjs/throttler).
 describe('Auth rate limiting (e2e)', () => {
   let app: INestApplication
 

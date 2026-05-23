@@ -8,7 +8,7 @@ import { StartJourneyUseCase } from '../../core/use-cases/start-journey.use-case
 
 /**
  * Public CRM webhook, one URL per connector account (the unguessable account id is the
- * shared secret for v0.1). Resolves the account, parses the payload via its connector,
+ * shared secret). Resolves the account, parses the payload via its connector,
  * and starts a journey per normalized event. Always acknowledges 200 so the CRM does
  * not retry a delivery we accepted.
  */
