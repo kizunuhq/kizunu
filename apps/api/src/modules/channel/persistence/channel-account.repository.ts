@@ -14,7 +14,14 @@ export interface ChannelAccountSummary {
 export class ChannelAccountRepository {
   constructor(private readonly drizzle: DrizzleService) {}
 
+  /**
+   * `id` is optional so callers that need to know the row's id BEFORE persistence
+   * (e.g. the create use-case pre-mints it so plugin `onAccountCreated` can embed
+   * the id in provider callback URLs, feature 029) can pass an explicit one in.
+   * When omitted, Drizzle's `defaults()` generates a UUIDv7.
+   */
   async create(input: {
+    id?: string
     workspaceId: string
     pluginId: string
     name: string
@@ -62,6 +69,26 @@ export class ChannelAccountRepository {
   async findCredentials(id: string): Promise<{ credentials: unknown } | undefined> {
     const rows = await this.drizzle.db
       .select({ credentials: channelAccounts.credentials })
+      .from(channelAccounts)
+      .where(eq(channelAccounts.id, id))
+      .limit(1)
+    return rows[0]
+  }
+
+  /**
+   * Inbound-webhook seam for the per-channel URL (feature 029). The Meta
+   * webhook controller routes by `:channelAccountId` in the path, then loads
+   * the row's workspaceId (for MarkReplyUseCase) and credentials (for the
+   * per-channel `verifyToken` check + plugin parseInbound).
+   */
+  async findWorkspaceAndCredentials(
+    id: string,
+  ): Promise<{ workspaceId: string; credentials: unknown } | undefined> {
+    const rows = await this.drizzle.db
+      .select({
+        workspaceId: channelAccounts.workspaceId,
+        credentials: channelAccounts.credentials,
+      })
       .from(channelAccounts)
       .where(eq(channelAccounts.id, id))
       .limit(1)
