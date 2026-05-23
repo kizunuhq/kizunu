@@ -23,16 +23,9 @@ export function WorkspaceSwitcher() {
         <Popover>
           <PopoverTrigger
             render={
-              <SidebarMenuButton size="lg" className="data-[state=open]:bg-sidebar-accent">
-                <div className="flex flex-1 flex-col text-left text-sm leading-tight">
-                  <span className="text-muted-foreground font-mono text-[10px] tracking-wide uppercase">
-                    Workspace
-                  </span>
-                  <span className="truncate font-medium">
-                    {activeMembership?.workspaceName ?? 'Select workspace'}
-                  </span>
-                </div>
-                <CaretUpDown className="ml-auto size-4" />
+              <SidebarMenuButton size="lg" className="data-popup-open:bg-sidebar-accent">
+                <WorkspaceLabel name={activeMembership?.workspaceName ?? 'Select workspace'} />
+                <CaretUpDown className="ml-auto size-4 group-data-[collapsible=icon]:hidden" />
               </SidebarMenuButton>
             }
           />
@@ -45,11 +38,23 @@ export function WorkspaceSwitcher() {
 
 function SingleWorkspaceHeader({ label }: { label?: string }) {
   return (
-    <div className="flex flex-col px-2 py-2 text-sm">
+    <SidebarMenu>
+      <SidebarMenuItem>
+        <div className="flex h-12 items-center px-2 group-data-[collapsible=icon]:justify-center">
+          <WorkspaceLabel name={label ?? '—'} />
+        </div>
+      </SidebarMenuItem>
+    </SidebarMenu>
+  )
+}
+
+function WorkspaceLabel({ name }: { name: string }) {
+  return (
+    <div className="flex flex-1 flex-col text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
       <span className="text-muted-foreground font-mono text-[10px] tracking-wide uppercase">
         Workspace
       </span>
-      <span className="truncate font-medium">{label ?? '—'}</span>
+      <span className="truncate font-medium">{name}</span>
     </div>
   )
 }
@@ -66,7 +71,7 @@ function WorkspacePopoverContent({ activeWorkspaceId }: WorkspacePopoverContentP
     onError: (error) => toast.error(getApiErrorMessage(error)),
   })
   return (
-    <PopoverContent className="w-[--radix-popover-trigger-width] p-1" align="start" sideOffset={4}>
+    <PopoverContent className="w-(--anchor-width) min-w-56 p-1" align="start" sideOffset={4}>
       <div className="flex flex-col gap-0.5">
         {memberships.map((membership) => {
           const isActive = membership.workspaceId === activeWorkspaceId

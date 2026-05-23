@@ -31,12 +31,15 @@ export function UserDropdown() {
         <DropdownMenu>
           <DropdownMenuTrigger
             render={
-              <SidebarMenuButton size="lg" className="data-[state=open]:bg-sidebar-accent">
-                <div className="flex flex-1 flex-col text-left text-sm leading-tight">
+              <SidebarMenuButton size="lg" className="data-popup-open:bg-sidebar-accent">
+                <User className="size-4 shrink-0" />
+                <div className="flex flex-1 flex-col text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
                   <span className="truncate font-medium">{user.name}</span>
-                  <span className="text-muted-foreground truncate text-xs">{user.email}</span>
+                  <span className="text-muted-foreground truncate font-mono text-xs">
+                    {user.email}
+                  </span>
                 </div>
-                <CaretUpDown className="ml-auto size-4" />
+                <CaretUpDown className="ml-auto size-4 group-data-[collapsible=icon]:hidden" />
               </SidebarMenuButton>
             }
           />
