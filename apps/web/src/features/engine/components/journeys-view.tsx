@@ -127,5 +127,5 @@ const STATUS_VALUES: ReadonlyArray<LeadJourneyStatusValue> = [
 ]
 
 export function isJourneyStatusValue(value: string): value is LeadJourneyStatusValue {
-  return STATUS_VALUES.includes(value as LeadJourneyStatusValue)
+  return STATUS_VALUES.some((status) => status === value)
 }
