@@ -1,18 +1,12 @@
 import { useConfirmEmailVerification } from '@kizunu/api-client/identity/use-confirm-email-verification'
+import { PageHeader } from '@kizunu/web/components/composed/page-header'
 import { buttonVariants } from '@kizunu/web/components/primitives/button'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@kizunu/web/components/primitives/card'
 import { getApiErrorMessage } from '@kizunu/web/lib/get-api-error-message'
 import { Link } from '@tanstack/react-router'
 import { useEffect } from 'react'
 
 const TITLES = {
-  pending: 'Verifying your email…',
+  pending: 'Verifying your email',
   success: 'Email verified',
   error: 'Verification failed',
 } as const
@@ -36,18 +30,18 @@ export function VerifyEmailPanel({ token }: { token: string }) {
   } as const
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{TITLES[state]}</CardTitle>
-        <CardDescription>{descriptions[state]}</CardDescription>
-      </CardHeader>
-      {state !== 'pending' ? (
-        <CardContent>
-          <Link to="/workspace" className={buttonVariants()}>
-            Continue
-          </Link>
-        </CardContent>
+    <div className="flex flex-col gap-6">
+      <PageHeader title={TITLES[state]} description={descriptions[state]} />
+      {state === 'success' ? (
+        <Link to="/workspace" className={buttonVariants()}>
+          Continue
+        </Link>
       ) : null}
-    </Card>
+      {state === 'error' ? (
+        <Link to="/auth/forgot-password" className={buttonVariants({ variant: 'outline' })}>
+          Request a new link
+        </Link>
+      ) : null}
+    </div>
   )
 }
