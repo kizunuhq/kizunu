@@ -6,6 +6,7 @@ import { APP_GUARD } from '@nestjs/core'
 
 import { ConsoleMailSender } from './core/mail/console-mail-sender'
 import { MailSender } from './core/mail/mail-sender'
+import { SmtpMailSender } from './core/mail/smtp-mail-sender'
 import { GithubOAuthProvider } from './core/oauth/github-oauth-provider'
 import type { OAuthProvider } from './core/oauth/oauth-provider'
 import { OAUTH_PROVIDERS, OAuthProviderRegistry } from './core/oauth/oauth-provider-registry'
@@ -45,6 +46,14 @@ function buildOAuthProviders(config: ConfigService<Config>): OAuthProvider[] {
   return providers
 }
 
+// SMTP wins when a host is configured; otherwise dev keeps the console stub.
+function buildMailSender(config: ConfigService<Config>): MailSender {
+  if (config.get('mail.smtpHost')) {
+    return new SmtpMailSender(config)
+  }
+  return new ConsoleMailSender()
+}
+
 @Module({
   imports: [WorkspaceModule],
   controllers: [
@@ -76,7 +85,7 @@ function buildOAuthProviders(config: ConfigService<Config>): OAuthProvider[] {
     HandleOAuthCallbackUseCase,
     OAuthProviderRegistry,
     { provide: OAUTH_PROVIDERS, inject: [ConfigService], useFactory: buildOAuthProviders },
-    { provide: MailSender, useClass: ConsoleMailSender },
+    { provide: MailSender, inject: [ConfigService], useFactory: buildMailSender },
     {
       provide: APP_GUARD,
       useClass: AuthGuard,
