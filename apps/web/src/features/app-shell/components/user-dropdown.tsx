@@ -3,6 +3,7 @@ import { useLogout } from '@kizunu/api-client/identity/use-logout'
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuRadioGroup,
@@ -55,25 +56,29 @@ function UserDropdownContent() {
   const logout = useLogout()
   return (
     <DropdownMenuContent side="right" align="end" sideOffset={4} className="min-w-56">
-      <DropdownMenuLabel className="text-muted-foreground font-mono text-[10px] tracking-wide uppercase">
-        Account
-      </DropdownMenuLabel>
-      <DropdownMenuItem render={<Link to="/settings/profile" />}>
-        <User />
-        Profile
-      </DropdownMenuItem>
-      <ThemeSubmenu />
+      <DropdownMenuGroup>
+        <DropdownMenuLabel className="text-muted-foreground font-mono text-[10px] tracking-wide uppercase">
+          Account
+        </DropdownMenuLabel>
+        <DropdownMenuItem render={<Link to="/settings/profile" />}>
+          <User />
+          Profile
+        </DropdownMenuItem>
+        <ThemeSubmenu />
+      </DropdownMenuGroup>
       <DropdownMenuSeparator />
-      <DropdownMenuItem
-        variant="destructive"
-        disabled={logout.isPending}
-        onClick={() =>
-          logout.mutate(undefined, { onSuccess: () => navigate({ to: '/auth/login' }) })
-        }
-      >
-        <SignOut />
-        Sign out
-      </DropdownMenuItem>
+      <DropdownMenuGroup>
+        <DropdownMenuItem
+          variant="destructive"
+          disabled={logout.isPending}
+          onClick={() =>
+            logout.mutate(undefined, { onSuccess: () => navigate({ to: '/auth/login' }) })
+          }
+        >
+          <SignOut />
+          Sign out
+        </DropdownMenuItem>
+      </DropdownMenuGroup>
     </DropdownMenuContent>
   )
 }
