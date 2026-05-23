@@ -35,6 +35,25 @@ services:
       timeout: 5s
       retries: 10
 
+  # Dev-only catch-all SMTP inbox. Captures every outbound mail so the auth
+  # flows (verification, password reset, invitations) can be exercised end to
+  # end without a real provider. Web UI on http://localhost:8025.
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: kizunu-mailpit
+    profiles: ['all', 'infra', 'api', 'mail']
+    ports:
+      - '1025:1025'
+      - '8025:8025'
+    environment:
+      MP_SMTP_AUTH_ACCEPT_ANY: '1'
+      MP_SMTP_AUTH_ALLOW_INSECURE: '1'
+    healthcheck:
+      test: ['CMD', 'wget', '-qO-', 'http://localhost:8025/api/v1/info']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
   # ---------------------------------------------------------------------------
   # Applications
   # ---------------------------------------------------------------------------
@@ -68,12 +87,22 @@ services:
       META_APP_ID: ''
       META_APP_SECRET: ''
       META_COEX_CONFIG_ID: ''
+      # SMTP transport. Empty host falls back to ConsoleMailSender; with Mailpit
+      # up the api delivers to the dev inbox at http://localhost:8025.
+      APP_SMTP_HOST: mailpit
+      APP_SMTP_PORT: '1025'
+      APP_SMTP_USER: ''
+      APP_SMTP_PASSWORD: ''
+      APP_SMTP_SECURE: 'false'
+      APP_MAIL_FROM: 'Kizunu <noreply@kizunu.local>'
     volumes:
       - ..:/monorepo
       # Keep the image's linux node_modules; do not let the host's shadow it.
       - /monorepo/node_modules
     depends_on:
       postgres:
+        condition: service_healthy
+      mailpit:
         condition: service_healthy
     ports:
       - '3001:3001'
