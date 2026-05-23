@@ -1,4 +1,5 @@
 import {
+  ConnectMetaCoexRequestSchema,
   CreateChannelAccountRequestSchema,
   GrantChannelAccessRequestSchema,
 } from '@kizunu/api-contracts/channel'
@@ -7,6 +8,7 @@ import { Body, Controller, Delete, Get, HttpCode, Param, Post, UseGuards } from 
 import { ApiTags } from '@nestjs/swagger'
 import { createZodDto } from 'nestjs-zod'
 
+import { ConnectMetaCoexUseCase } from '../../core/use-cases/connect-meta-coex.use-case'
 import { CreateChannelAccountUseCase } from '../../core/use-cases/create-channel-account.use-case'
 import { GrantChannelAccessUseCase } from '../../core/use-cases/grant-channel-access.use-case'
 import { ListWorkspaceChannelAccountsUseCase } from '../../core/use-cases/list-workspace-channel-accounts.use-case'
@@ -14,6 +16,7 @@ import { RevokeChannelAccessUseCase } from '../../core/use-cases/revoke-channel-
 
 class CreateChannelAccountDto extends createZodDto(CreateChannelAccountRequestSchema) {}
 class GrantChannelAccessDto extends createZodDto(GrantChannelAccessRequestSchema) {}
+class ConnectMetaCoexDto extends createZodDto(ConnectMetaCoexRequestSchema) {}
 
 @UseGuards(WorkspaceAdminGuard)
 @ApiTags('channels')
@@ -24,6 +27,7 @@ export class ChannelAccountController {
     private readonly listUseCase: ListWorkspaceChannelAccountsUseCase,
     private readonly grantUseCase: GrantChannelAccessUseCase,
     private readonly revokeUseCase: RevokeChannelAccessUseCase,
+    private readonly connectMetaCoex: ConnectMetaCoexUseCase,
   ) {}
 
   @Post(':id/channel-accounts')
@@ -33,6 +37,23 @@ export class ChannelAccountController {
       pluginId: body.pluginId,
       name: body.name,
       credentials: body.credentials,
+    })
+  }
+
+  /** Embedded Signup endpoint — feature 031. Exchanges the OAuth code and
+   * creates a coexistence ChannelAccount. */
+  @Post(':id/channel-accounts/meta-whatsapp/connect')
+  async connectMetaWhatsappCoex(
+    @Param('id') workspaceId: string,
+    @Body() body: ConnectMetaCoexDto,
+  ) {
+    return await this.connectMetaCoex.execute({
+      workspaceId,
+      code: body.code,
+      businessId: body.businessId,
+      wabaId: body.wabaId,
+      phoneNumberId: body.phoneNumberId,
+      name: body.name,
     })
   }
 

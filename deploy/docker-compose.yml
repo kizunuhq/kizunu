@@ -63,6 +63,11 @@ services:
       # Dev-only key; production must override via secret. Generate with:
       #   openssl rand -base64 32
       APP_CREDENTIALS_ENCRYPTION_KEY: td7dHITMjfudSi5kdNBvAJnAEm5Iaqfi+dMUUss8UJs=
+      # Meta Coex Embedded Signup (feature 031). Empty in dev; only the
+      # connect endpoint validates these at call time.
+      META_APP_ID: ''
+      META_APP_SECRET: ''
+      META_COEX_CONFIG_ID: ''
     volumes:
       - ..:/monorepo
       # Keep the image's linux node_modules; do not let the host's shadow it.

@@ -1,8 +1,11 @@
+import type { Config } from '@kizunu/api/api.config'
+import { ConfigService } from '@kizunu/config-module/config.service'
 import { Module } from '@nestjs/common'
 
 import { WorkspaceModule } from '../workspace/workspace.module'
 import { CHANNEL_PLUGINS, ChannelPluginRegistry } from './core/plugin/channel-plugin-registry'
 import { OAuthRefreshService } from './core/services/oauth-refresh.service'
+import { ConnectMetaCoexUseCase } from './core/use-cases/connect-meta-coex.use-case'
 import { CreateChannelAccountUseCase } from './core/use-cases/create-channel-account.use-case'
 import { GrantChannelAccessUseCase } from './core/use-cases/grant-channel-access.use-case'
 import { ListAvailablePluginsUseCase } from './core/use-cases/list-available-plugins.use-case'
@@ -20,11 +23,23 @@ import { MetaWhatsappPlugin } from './plugins/meta-whatsapp/meta-whatsapp.plugin
   imports: [WorkspaceModule],
   controllers: [ChannelAccountController, MyChannelController],
   providers: [
-    { provide: CHANNEL_PLUGINS, useValue: [new MetaWhatsappPlugin()] },
+    {
+      provide: CHANNEL_PLUGINS,
+      useFactory: (config: ConfigService<Config>) => [
+        new MetaWhatsappPlugin({
+          config: {
+            appId: config.get('meta.appId') ?? '',
+            appSecret: config.get('meta.appSecret') ?? '',
+          },
+        }),
+      ],
+      inject: [ConfigService],
+    },
     ChannelPluginRegistry,
     ChannelAccountRepository,
     ChannelAccessRepository,
     CreateChannelAccountUseCase,
+    ConnectMetaCoexUseCase,
     ListWorkspaceChannelAccountsUseCase,
     GrantChannelAccessUseCase,
     RevokeChannelAccessUseCase,

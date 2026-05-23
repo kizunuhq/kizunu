@@ -38,6 +38,9 @@ interface SubscribeWabaInput {
   systemToken: string
   callbackUrl: string
   verifyToken: string
+  /** Comma-separated fields. Defaults to 'messages' for cloud_api; Coex passes
+   * 'messages,smb_message_echoes,smb_app_state_sync' (feature 031). */
+  subscribedFields?: string
 }
 
 interface SubscribeMetaChannelInput {
@@ -87,7 +90,7 @@ export async function subscribeWabaToMeta(input: SubscribeWabaInput): Promise<vo
     params: {
       override_callback_uri: input.callbackUrl,
       verify_token: input.verifyToken,
-      subscribed_fields: 'messages',
+      subscribed_fields: input.subscribedFields ?? 'messages',
       access_token: input.systemToken,
     },
   })

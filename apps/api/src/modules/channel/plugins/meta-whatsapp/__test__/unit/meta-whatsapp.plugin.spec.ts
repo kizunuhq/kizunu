@@ -2,6 +2,7 @@ import { MetaWhatsappPlugin } from '@kizunu/api/modules/channel/plugins/meta-wha
 import { describe, expect, it, vi } from 'vite-plus/test'
 
 const credentials = {
+  channelMode: 'cloud_api' as const,
   appId: 'app-1',
   appSecret: 'app-secret-1',
   wabaId: 'waba-1',
@@ -262,6 +263,171 @@ describe('MetaWhatsappPlugin', () => {
           credentials: { ...clientCredentials, verifyToken: 'forged' },
         }),
       ).rejects.toBeInstanceOf(Error)
+    })
+  })
+
+  describe('onAccountCreated (coexistence)', () => {
+    const coexInput = {
+      channelMode: 'coexistence' as const,
+      wabaId: 'waba-coex',
+      phoneNumberId: 'phone-coex',
+      accessToken: 'biz-token',
+      accessTokenExpiresAt: '2026-07-22T00:00:00.000Z',
+    }
+
+    it('runs ONLY the per-WABA subscription with Coex subscribed_fields', async () => {
+      const responses = [{ status: 200, body: { success: true } }]
+      const fetchFn = vi.fn(async (_input: string | URL | Request, _init?: RequestInit) => {
+        const next = responses.shift() ?? { status: 200, body: { success: true } }
+        return new Response(JSON.stringify(next.body), { status: next.status })
+      })
+      const plugin = new MetaWhatsappPlugin({
+        baseUrl: 'https://graph.test/v21.0',
+        fetchFn,
+        config: { appId: 'app-x', appSecret: 'secret-x' },
+      })
+
+      const result = (await plugin.onAccountCreated({
+        channelAccountId: 'channel-1',
+        appUrl: 'https://api.example',
+        credentials: coexInput,
+      })) as Record<string, string>
+
+      expect(fetchFn).toHaveBeenCalledTimes(1) // ONLY waba subscription, no app-level call
+      const url = fetchFn.mock.calls[0]![0] as string
+      expect(url).toBe('https://graph.test/v21.0/waba-coex/subscribed_apps')
+      const body = new URLSearchParams(fetchFn.mock.calls[0]![1]!.body as string)
+      expect(body.get('subscribed_fields')).toBe('messages,smb_message_echoes,smb_app_state_sync')
+      expect(body.get('access_token')).toBe('biz-token')
+      expect(result.channelMode).toBe('coexistence')
+      expect(result.accessToken).toBe('biz-token')
+      expect(result.verifyToken).toMatch(/^[0-9a-f]{64}$/)
+    })
+  })
+
+  describe('refreshCredentials', () => {
+    it('passes cloud_api credentials through unchanged (no expiry)', async () => {
+      const fetchFn = vi.fn() as never
+      const plugin = new MetaWhatsappPlugin({ baseUrl: 'https://graph.test/v21.0', fetchFn })
+
+      const result = await plugin.refreshCredentials({
+        channelAccountId: 'channel-1',
+        credentials,
+      })
+
+      expect(result).toEqual(credentials)
+    })
+
+    it('exchanges the current Coex token for a refreshed one', async () => {
+      const fetchFn = vi.fn(async (_input: string | URL | Request) => {
+        return new Response(JSON.stringify({ access_token: 'rolled', expires_in: 60 }), {
+          status: 200,
+        })
+      })
+      const plugin = new MetaWhatsappPlugin({
+        baseUrl: 'https://graph.test/v21.0',
+        fetchFn,
+        config: { appId: 'app-x', appSecret: 'secret-x' },
+      })
+
+      const result = (await plugin.refreshCredentials({
+        channelAccountId: 'channel-1',
+        credentials: {
+          channelMode: 'coexistence',
+          wabaId: 'w',
+          phoneNumberId: 'p',
+          verifyToken: 'v',
+          accessToken: 'old-token',
+        },
+      })) as Record<string, string>
+
+      expect(result.accessToken).toBe('rolled')
+      expect(typeof result.accessTokenExpiresAt).toBe('string')
+    })
+
+    it('throws MetaConnectFailedException with refresh-exchange step when Meta rejects', async () => {
+      const fetchFn = vi.fn(async () => new Response(JSON.stringify({}), { status: 401 }))
+      const plugin = new MetaWhatsappPlugin({
+        baseUrl: 'https://graph.test/v21.0',
+        fetchFn,
+        config: { appId: 'a', appSecret: 's' },
+      })
+
+      await expect(
+        plugin.refreshCredentials({
+          channelAccountId: 'channel-1',
+          credentials: {
+            channelMode: 'coexistence',
+            wabaId: 'w',
+            phoneNumberId: 'p',
+            verifyToken: 'v',
+            accessToken: 'expired',
+          },
+        }),
+      ).rejects.toMatchObject({
+        code: 'channel.meta-connect-failed',
+        context: { step: 'refresh-exchange', metaStatus: 401 },
+      })
+    })
+  })
+
+  describe('parseInbound (Coex echoes)', () => {
+    const plugin = new MetaWhatsappPlugin()
+
+    it('parses smb_message_echoes with customer phone as fromExternalId', async () => {
+      const messages = await plugin.parseInbound({
+        entry: [
+          {
+            changes: [
+              {
+                field: 'smb_message_echoes',
+                value: {
+                  message_echoes: [
+                    {
+                      from: 'business-number',
+                      to: 'customer-phone',
+                      id: 'wamid.echo.1',
+                      timestamp: '1700000000',
+                      text: { body: 'manual reply' },
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        ],
+      })
+
+      expect(messages).toEqual([
+        {
+          externalMessageId: 'wamid.echo.1',
+          fromExternalId: 'customer-phone',
+          toExternalId: 'business-number',
+          body: 'manual reply',
+          ts: new Date(1700000000 * 1000),
+        },
+      ])
+    })
+
+    it('returns [] for smb_app_state_sync and history fields (200-ack only)', async () => {
+      const stateSync = await plugin.parseInbound({
+        entry: [
+          {
+            changes: [
+              {
+                field: 'smb_app_state_sync',
+                value: { state_sync: [{ type: 'contact', action: 'add' }] },
+              },
+            ],
+          },
+        ],
+      })
+      const history = await plugin.parseInbound({
+        entry: [{ changes: [{ field: 'history', value: { messages: [] } }] }],
+      })
+
+      expect(stateSync).toEqual([])
+      expect(history).toEqual([])
     })
   })
 })

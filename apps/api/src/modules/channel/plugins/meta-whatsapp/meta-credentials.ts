@@ -1,19 +1,29 @@
+import { oauthCredentialFields } from '@kizunu/api-contracts/shared'
 import { z } from 'zod'
 
 /**
- * Credentials a Meta/WhatsApp ChannelAccount stores after onboarding. Camel-case
- * keys map to Meta's `waba_id` / `phone_number_id`; the system token
- * authenticates Graph API send calls. `appId` + `appSecret` build the App
- * Access Token (`{appId}|{appSecret}`) used for the app-level webhook
- * subscription (feature 029, research §D.4). `verifyToken` is server-generated
- * during `onAccountCreated` — the operator never supplies it — and is checked
- * against `hub.verify_token` on the per-channel inbound webhook. `.strict()`
- * rejects unknown keys. Plugin `send` / `parseInbound` paths parse against this
- * full schema; the create flow validates input against
- * {@link metaCredentialsClientSchema} below.
+ * Meta credentials are a discriminated union by `channelMode`:
+ *
+ * - `cloud_api`: the operator-pasted onboarding (feature 029). Carries the
+ *   App Access Token components, the per-channel verifyToken, and the
+ *   long-lived System Token used for outbound + per-WABA subscription.
+ *
+ * - `coexistence`: Embedded Signup (feature 031). The OAuth triplet from
+ *   `030`'s shared mixin replaces `appId/appSecret/systemToken`; the
+ *   business token expires and rolls via `OAuthRefreshService`. The app-wide
+ *   `meta.appId` / `meta.appSecret` config provides the App credentials at
+ *   the plugin layer; they never sit on the row.
+ *
+ * `verifyToken` is server-generated during `onAccountCreated` in both modes.
+ *
+ * The cloud_api branch is also the schema operators interact with directly —
+ * `metaCredentialsClientSchema` below omits `verifyToken` because it is
+ * server-generated. Coex credentials are constructed by the connect endpoint;
+ * the operator never types them.
  */
-export const metaCredentialsSchema = z
+const cloudApiCredentialsSchema = z
   .object({
+    channelMode: z.literal('cloud_api'),
     appId: z.string().min(1),
     appSecret: z.string().min(1),
     wabaId: z.string().min(1),
@@ -23,14 +33,35 @@ export const metaCredentialsSchema = z
   })
   .strict()
 
+const coexistenceCredentialsSchema = z
+  .object({
+    channelMode: z.literal('coexistence'),
+    wabaId: z.string().min(1),
+    phoneNumberId: z.string().min(1),
+    verifyToken: z.string().min(1),
+    ...oauthCredentialFields,
+  })
+  .strict()
+
+export const metaCredentialsSchema = z.discriminatedUnion('channelMode', [
+  cloudApiCredentialsSchema,
+  coexistenceCredentialsSchema,
+])
+
 export type MetaCredentials = z.infer<typeof metaCredentialsSchema>
+export type MetaCloudApiCredentials = z.infer<typeof cloudApiCredentialsSchema>
+export type MetaCoexistenceCredentials = z.infer<typeof coexistenceCredentialsSchema>
 
 /**
- * What the operator submits when creating a Meta channel account: every stored
- * field EXCEPT `verifyToken`, which is server-generated in `onAccountCreated`.
- * The plugin manifest's `configSchema` points here so the registry's
- * `validateCredentials` accepts the 5-field create payload.
+ * What the operator submits when creating a cloud_api Meta channel account:
+ * every stored field EXCEPT `verifyToken` (server-generated in
+ * `onAccountCreated`) and `channelMode` (defaulted to `'cloud_api'` by the
+ * plugin's `onAccountCreated`). The plugin manifest's `configSchema` points
+ * here so the registry's `validateCredentials` accepts the form payload.
  */
-export const metaCredentialsClientSchema = metaCredentialsSchema.omit({ verifyToken: true })
+export const metaCredentialsClientSchema = cloudApiCredentialsSchema.omit({
+  verifyToken: true,
+  channelMode: true,
+})
 
 export type MetaCredentialsClientInput = z.infer<typeof metaCredentialsClientSchema>

@@ -23,6 +23,7 @@ import { Route as AppWorkspaceMyChannelsRouteImport } from './routes/_app/worksp
 import { Route as AppWorkspaceMembersRouteImport } from './routes/_app/workspace/members'
 import { Route as AppWorkspaceJourneysRouteImport } from './routes/_app/workspace/journeys'
 import { Route as AppWorkspaceConnectorsRouteImport } from './routes/_app/workspace/connectors'
+import { Route as AppWorkspaceConnectMetaCoexRouteImport } from './routes/_app/workspace/connect-meta-coex'
 import { Route as AppWorkspaceChannelsRouteImport } from './routes/_app/workspace/channels'
 import { Route as AppWorkspaceCadencesRouteImport } from './routes/_app/workspace/cadences'
 
@@ -95,6 +96,12 @@ const AppWorkspaceConnectorsRoute = AppWorkspaceConnectorsRouteImport.update({
   path: '/workspace/connectors',
   getParentRoute: () => AppRouteRoute,
 } as any)
+const AppWorkspaceConnectMetaCoexRoute =
+  AppWorkspaceConnectMetaCoexRouteImport.update({
+    id: '/workspace/connect-meta-coex',
+    path: '/workspace/connect-meta-coex',
+    getParentRoute: () => AppRouteRoute,
+  } as any)
 const AppWorkspaceChannelsRoute = AppWorkspaceChannelsRouteImport.update({
   id: '/workspace/channels',
   path: '/workspace/channels',
@@ -115,6 +122,7 @@ export interface FileRoutesByFullPath {
   '/auth/verify-email': typeof AuthVerifyEmailRoute
   '/workspace/cadences': typeof AppWorkspaceCadencesRoute
   '/workspace/channels': typeof AppWorkspaceChannelsRoute
+  '/workspace/connect-meta-coex': typeof AppWorkspaceConnectMetaCoexRoute
   '/workspace/connectors': typeof AppWorkspaceConnectorsRoute
   '/workspace/journeys': typeof AppWorkspaceJourneysRoute
   '/workspace/members': typeof AppWorkspaceMembersRoute
@@ -132,6 +140,7 @@ export interface FileRoutesByTo {
   '/auth/verify-email': typeof AuthVerifyEmailRoute
   '/workspace/cadences': typeof AppWorkspaceCadencesRoute
   '/workspace/channels': typeof AppWorkspaceChannelsRoute
+  '/workspace/connect-meta-coex': typeof AppWorkspaceConnectMetaCoexRoute
   '/workspace/connectors': typeof AppWorkspaceConnectorsRoute
   '/workspace/journeys': typeof AppWorkspaceJourneysRoute
   '/workspace/members': typeof AppWorkspaceMembersRoute
@@ -151,6 +160,7 @@ export interface FileRoutesById {
   '/auth/verify-email': typeof AuthVerifyEmailRoute
   '/_app/workspace/cadences': typeof AppWorkspaceCadencesRoute
   '/_app/workspace/channels': typeof AppWorkspaceChannelsRoute
+  '/_app/workspace/connect-meta-coex': typeof AppWorkspaceConnectMetaCoexRoute
   '/_app/workspace/connectors': typeof AppWorkspaceConnectorsRoute
   '/_app/workspace/journeys': typeof AppWorkspaceJourneysRoute
   '/_app/workspace/members': typeof AppWorkspaceMembersRoute
@@ -170,6 +180,7 @@ export interface FileRouteTypes {
     | '/auth/verify-email'
     | '/workspace/cadences'
     | '/workspace/channels'
+    | '/workspace/connect-meta-coex'
     | '/workspace/connectors'
     | '/workspace/journeys'
     | '/workspace/members'
@@ -187,6 +198,7 @@ export interface FileRouteTypes {
     | '/auth/verify-email'
     | '/workspace/cadences'
     | '/workspace/channels'
+    | '/workspace/connect-meta-coex'
     | '/workspace/connectors'
     | '/workspace/journeys'
     | '/workspace/members'
@@ -205,6 +217,7 @@ export interface FileRouteTypes {
     | '/auth/verify-email'
     | '/_app/workspace/cadences'
     | '/_app/workspace/channels'
+    | '/_app/workspace/connect-meta-coex'
     | '/_app/workspace/connectors'
     | '/_app/workspace/journeys'
     | '/_app/workspace/members'
@@ -321,6 +334,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppWorkspaceConnectorsRouteImport
       parentRoute: typeof AppRouteRoute
     }
+    '/_app/workspace/connect-meta-coex': {
+      id: '/_app/workspace/connect-meta-coex'
+      path: '/workspace/connect-meta-coex'
+      fullPath: '/workspace/connect-meta-coex'
+      preLoaderRoute: typeof AppWorkspaceConnectMetaCoexRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
     '/_app/workspace/channels': {
       id: '/_app/workspace/channels'
       path: '/workspace/channels'
@@ -341,6 +361,7 @@ declare module '@tanstack/react-router' {
 interface AppRouteRouteChildren {
   AppWorkspaceCadencesRoute: typeof AppWorkspaceCadencesRoute
   AppWorkspaceChannelsRoute: typeof AppWorkspaceChannelsRoute
+  AppWorkspaceConnectMetaCoexRoute: typeof AppWorkspaceConnectMetaCoexRoute
   AppWorkspaceConnectorsRoute: typeof AppWorkspaceConnectorsRoute
   AppWorkspaceJourneysRoute: typeof AppWorkspaceJourneysRoute
   AppWorkspaceMembersRoute: typeof AppWorkspaceMembersRoute
@@ -352,6 +373,7 @@ interface AppRouteRouteChildren {
 const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppWorkspaceCadencesRoute: AppWorkspaceCadencesRoute,
   AppWorkspaceChannelsRoute: AppWorkspaceChannelsRoute,
+  AppWorkspaceConnectMetaCoexRoute: AppWorkspaceConnectMetaCoexRoute,
   AppWorkspaceConnectorsRoute: AppWorkspaceConnectorsRoute,
   AppWorkspaceJourneysRoute: AppWorkspaceJourneysRoute,
   AppWorkspaceMembersRoute: AppWorkspaceMembersRoute,
