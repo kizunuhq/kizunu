@@ -34,6 +34,14 @@ const configSchema = z.object({
     // credentials JSONB columns).
     encryptionKey: z.string().min(44),
   }),
+  meta: z.object({
+    // Meta App credentials for the deploy. Required only when Coex Embedded
+    // Signup is used (feature 031); the standalone Cloud API path does not
+    // need them. Connect endpoint validates presence at call time.
+    appId: z.string().default(''),
+    appSecret: z.string().default(''),
+    coexConfigId: z.string().default(''),
+  }),
 })
 
 export type Config = z.infer<typeof configSchema>
@@ -66,6 +74,11 @@ export function load(): Config {
     },
     credentials: {
       encryptionKey: process.env.APP_CREDENTIALS_ENCRYPTION_KEY,
+    },
+    meta: {
+      appId: process.env.META_APP_ID,
+      appSecret: process.env.META_APP_SECRET,
+      coexConfigId: process.env.META_COEX_CONFIG_ID,
     },
   })
 
