@@ -287,14 +287,20 @@ Refresh that doc before each feature starts.
 **Hard constraint:** Embedded Signup v2 deprecates **2026-10-15**. All three features
 build v4 from the start; no v2 fallback paths.
 
-**Auto webhook subscription + per-account verify token** - PLANNED (feature 029)
-- Adds the two-step Meta subscription flow that the current paste-credentials onboarding
-  skips: app-level `POST /{appId}/subscriptions` (uses an App Access Token `{appId}|{appSecret}`)
-  followed by per-WABA `POST /{wabaId}/subscribed_apps` with `override_callback_uri` +
-  per-channel verify token. Replaces the single env `META_VERIFY_TOKEN` with server-generated
-  per-channel-account tokens. Adds `appSecret` to `metaCredentialsSchema`. Works on the
-  existing standalone Cloud API flow today — Coex is not a prerequisite. Pattern stolen from
-  novu (`subscribeAppToWhatsAppEvents` + `subscribeWabaMessagesField`).
+**Auto webhook subscription + per-account verify token** - COMPLETE
+- _Landed (feature `029`): channel-account create now performs Meta's two-step
+  subscription flow on its own — app-level `POST /{appId}/subscriptions` with an
+  App Access Token (`{appId}|{appSecret}`), then per-WABA
+  `POST /{wabaId}/subscribed_apps` with `override_callback_uri` and a
+  server-generated per-channel verify token, surfaced through an optional
+  `onAccountCreated` hook added to the `ChannelPlugin` port. The Meta inbound
+  webhook moved from a single `/webhooks/meta` (env-wide token, body-routed by
+  `phone_number_id`) to per-channel `/webhooks/meta/:channelAccountId` (token
+  per-row, path-routed). `metaCredentialsSchema` gained `appId`, `appSecret`, and
+  `verifyToken`; the env-wide `APP_META_VERIFY_TOKEN` was removed entirely.
+  Failures surface as `422 channel.meta-subscription-failed` with the failing
+  step + Meta error in the context. The web form hides server-generated fields
+  via a new `serverGenerated` flag on the credential descriptor._
 - Ships independent of Coex: any paste-credentials customer benefits immediately by no longer
   needing to configure the webhook in the Meta dashboard manually.
 
