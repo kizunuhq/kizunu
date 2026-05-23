@@ -24,9 +24,19 @@ export class MetaWhatsappPlugin implements ChannelPlugin {
     capabilities: ['freeform', 'template'],
     configSchema: metaCredentialsSchema,
     credentialFields: [
+      { key: 'appId', label: 'Meta App ID', type: 'text', required: true },
+      { key: 'appSecret', label: 'Meta App Secret', type: 'secret', required: true },
       { key: 'wabaId', label: 'WABA ID', type: 'text', required: true },
       { key: 'phoneNumberId', label: 'Phone number ID', type: 'text', required: true },
       { key: 'systemToken', label: 'System token', type: 'secret', required: true },
+      // Generated server-side during onAccountCreated, never operator-supplied.
+      {
+        key: 'verifyToken',
+        label: 'Verify token',
+        type: 'secret',
+        required: true,
+        serverGenerated: true,
+      },
     ],
   }
 

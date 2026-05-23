@@ -1,7 +1,14 @@
 import { MetaWhatsappPlugin } from '@kizunu/api/modules/channel/plugins/meta-whatsapp/meta-whatsapp.plugin'
 import { describe, expect, it, vi } from 'vite-plus/test'
 
-const credentials = { wabaId: 'waba-1', phoneNumberId: 'phone-1', systemToken: 'token-1' }
+const credentials = {
+  appId: 'app-1',
+  appSecret: 'app-secret-1',
+  wabaId: 'waba-1',
+  phoneNumberId: 'phone-1',
+  systemToken: 'token-1',
+  verifyToken: 'verify-token-1',
+}
 const now = new Date('2026-05-22T12:00:00.000Z')
 const HOUR_MS = 60 * 60 * 1000
 
