@@ -173,4 +173,95 @@ describe('MetaWhatsappPlugin', () => {
       expect(result).toEqual({ externalMessageId: '', status: 'failed', error: 'invalid token' })
     })
   })
+
+  describe('onAccountCreated', () => {
+    const clientCredentials = {
+      appId: 'app-1',
+      appSecret: 'app-secret-1',
+      wabaId: 'waba-1',
+      phoneNumberId: 'phone-1',
+      systemToken: 'token-1',
+    }
+
+    function pluginWithSubscribeResponses(responses: { status: number; body?: unknown }[]) {
+      const queue = [...responses]
+      const fetchFn = vi.fn(async (_input: string | URL | Request, _init?: RequestInit) => {
+        const next = queue.shift() ?? { status: 200, body: { success: true } }
+        return new Response(JSON.stringify(next.body ?? {}), {
+          status: next.status,
+          headers: { 'Content-Type': 'application/json' },
+        })
+      })
+      const plugin = new MetaWhatsappPlugin({ baseUrl: 'https://graph.test/v21.0', fetchFn })
+      return { plugin, fetchFn }
+    }
+
+    it('subscribes both webhook legs and returns credentials enriched with verifyToken', async () => {
+      const { plugin, fetchFn } = pluginWithSubscribeResponses([
+        { status: 200, body: { success: true } },
+        { status: 200, body: { success: true } },
+      ])
+
+      const result = (await plugin.onAccountCreated({
+        channelAccountId: 'channel-1',
+        appUrl: 'https://api.example',
+        credentials: clientCredentials,
+      })) as Record<string, string>
+
+      expect(fetchFn).toHaveBeenCalledTimes(2)
+      expect(result.appId).toBe('app-1')
+      expect(result.wabaId).toBe('waba-1')
+      expect(result.verifyToken).toMatch(/^[0-9a-f]{64}$/)
+    })
+
+    it('surfaces step: app-subscription when the app-level call fails', async () => {
+      const { plugin } = pluginWithSubscribeResponses([
+        { status: 400, body: { error: { message: 'invalid app secret' } } },
+      ])
+
+      await expect(
+        plugin.onAccountCreated({
+          channelAccountId: 'channel-1',
+          appUrl: 'https://api.example',
+          credentials: clientCredentials,
+        }),
+      ).rejects.toMatchObject({
+        code: 'channel.meta-subscription-failed',
+        context: { step: 'app-subscription', metaError: 'invalid app secret' },
+      })
+    })
+
+    it('surfaces step: waba-subscription when the per-WABA call fails', async () => {
+      const { plugin } = pluginWithSubscribeResponses([
+        { status: 200, body: { success: true } },
+        { status: 200, body: { success: false, error: { message: 'waba locked' } } },
+      ])
+
+      await expect(
+        plugin.onAccountCreated({
+          channelAccountId: 'channel-1',
+          appUrl: 'https://api.example',
+          credentials: clientCredentials,
+        }),
+      ).rejects.toMatchObject({
+        code: 'channel.meta-subscription-failed',
+        context: { step: 'waba-subscription', metaError: 'waba locked' },
+      })
+    })
+
+    it('rejects client credentials that include the server-generated verifyToken', async () => {
+      const { plugin } = pluginWithSubscribeResponses([
+        { status: 200, body: { success: true } },
+        { status: 200, body: { success: true } },
+      ])
+
+      await expect(
+        plugin.onAccountCreated({
+          channelAccountId: 'channel-1',
+          appUrl: 'https://api.example',
+          credentials: { ...clientCredentials, verifyToken: 'forged' },
+        }),
+      ).rejects.toBeInstanceOf(Error)
+    })
+  })
 })
