@@ -1,8 +1,8 @@
 import { createCipheriv, createDecipheriv, randomBytes } from 'node:crypto'
 
+import { CredentialsDecryptionFailedException } from '@kizunu/nestjs-shared/lib/exceptions/credentials-decryption-failed.exception'
 import { Injectable } from '@nestjs/common'
 
-import { CredentialsDecryptionFailedException } from '../../../lib/exceptions/credentials-decryption-failed.exception'
 import type { EncryptedCredentialsEnvelope } from './encrypted-credentials-envelope'
 
 const ALG: EncryptedCredentialsEnvelope['alg'] = 'aes-256-gcm'
