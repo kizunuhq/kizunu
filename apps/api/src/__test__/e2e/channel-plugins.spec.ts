@@ -42,9 +42,18 @@ describe('Channel plugins (e2e)', () => {
       (plugin: { id: string }) => plugin.id === 'meta-whatsapp',
     )
     expect(meta.credentialFields).toEqual([
+      { key: 'appId', label: 'Meta App ID', type: 'text', required: true },
+      { key: 'appSecret', label: 'Meta App Secret', type: 'secret', required: true },
       { key: 'wabaId', label: 'WABA ID', type: 'text', required: true },
       { key: 'phoneNumberId', label: 'Phone number ID', type: 'text', required: true },
       { key: 'systemToken', label: 'System token', type: 'secret', required: true },
+      {
+        key: 'verifyToken',
+        label: 'Verify token',
+        type: 'secret',
+        required: true,
+        serverGenerated: true,
+      },
     ])
   })
 })

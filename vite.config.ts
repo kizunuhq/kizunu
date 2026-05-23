@@ -108,6 +108,7 @@ export default defineConfig({
           name: 'unit',
           environment: 'node',
           include: ['**/src/**/__test__/unit/**/*.spec.ts'],
+          setupFiles: ['./apps/api/src/__test__/unit/setup.ts'],
         },
       },
       {

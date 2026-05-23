@@ -3,12 +3,21 @@ import { MetaWhatsappPlugin } from '@kizunu/api/modules/channel/plugins/meta-wha
 import { describe, expect, it } from 'vite-plus/test'
 
 // Drift guard: the credential descriptor is a hand-authored projection of the
-// configSchema, so a unit test must fail the moment the two diverge.
+// configSchema, so a unit test must fail the moment the two diverge. Per
+// feature 029 the descriptor also flags server-generated fields (e.g. the
+// per-channel verifyToken) so the web form does not render an input for them.
 const { credentialFields } = new MetaWhatsappPlugin().manifest
 const descriptorKeys = credentialFields.map((field) => field.key)
 const schemaKeys = Object.keys(metaCredentialsSchema.shape)
 
-const validCredentials = { wabaId: 'waba-1', phoneNumberId: 'phone-1', systemToken: 'token-1' }
+const validCredentials = {
+  appId: 'app-1',
+  appSecret: 'app-secret-1',
+  wabaId: 'waba-1',
+  phoneNumberId: 'phone-1',
+  systemToken: 'token-1',
+  verifyToken: 'verify-token-1',
+}
 
 describe('Meta credential descriptor', () => {
   it('declares exactly the keys its configSchema accepts', () => {

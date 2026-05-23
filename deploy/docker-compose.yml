@@ -60,7 +60,6 @@ services:
       DISABLE_USER_REGISTRATION: 'false'
       OAUTH_GITHUB_CLIENT_ID: ''
       OAUTH_GITHUB_CLIENT_SECRET: ''
-      APP_META_VERIFY_TOKEN: dev-verify-token
     volumes:
       - ..:/monorepo
       # Keep the image's linux node_modules; do not let the host's shadow it.

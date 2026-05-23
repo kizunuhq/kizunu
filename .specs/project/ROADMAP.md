@@ -267,6 +267,79 @@ a separate slice and keeps the auth boundary isolated from the domain.
 
 ---
 
+## Phase 1.8 — WhatsApp Coexistence onboarding
+
+**Goal:** Close the gap between the v0.1 description ("Meta Cloud API via Coexistence",
+line 55) and what actually shipped — the v0.1 Meta plugin is **standalone Cloud API**,
+not Coex. Phase 1.8 lands the real thing: customers keep using the WhatsApp Business
+mobile app while kizunu drives outbound cadences alongside it, onboarded through Meta's
+Embedded Signup flow (no manual webhook configuration in the Meta dashboard).
+
+**Source of truth:** [`.specs/research/whatsapp-coexistence/`](../research/whatsapp-coexistence/)
+captures the Meta documentation, the OSS reference implementations (notably
+[chatwoot/chatwoot](https://github.com/chatwoot/chatwoot/tree/c4a6a19e9be899c96fd2c1cbb3454b56b7ef76fc)
+for the FB.login Coex configuration and `smb_message_echoes` routing, and
+[evolution-foundation/evo-ai-crm-community](https://github.com/evolution-foundation/evo-ai-crm-community/tree/8d7bf198072fded000dd8c49c257097ed00ce554)
+for the `smb_app_state_sync` handler), and the verified webhook payload shapes
+under [`research/whatsapp-coexistence/snippets/`](../research/whatsapp-coexistence/snippets/).
+Refresh that doc before each feature starts.
+
+**Hard constraint:** Embedded Signup v2 deprecates **2026-10-15**. All three features
+build v4 from the start; no v2 fallback paths.
+
+**Auto webhook subscription + per-account verify token** - COMPLETE
+- _Landed (feature `029`): channel-account create now performs Meta's two-step
+  subscription flow on its own — app-level `POST /{appId}/subscriptions` with an
+  App Access Token (`{appId}|{appSecret}`), then per-WABA
+  `POST /{wabaId}/subscribed_apps` with `override_callback_uri` and a
+  server-generated per-channel verify token, surfaced through an optional
+  `onAccountCreated` hook added to the `ChannelPlugin` port. The Meta inbound
+  webhook moved from a single `/webhooks/meta` (env-wide token, body-routed by
+  `phone_number_id`) to per-channel `/webhooks/meta/:channelAccountId` (token
+  per-row, path-routed). `metaCredentialsSchema` gained `appId`, `appSecret`, and
+  `verifyToken`; the env-wide `APP_META_VERIFY_TOKEN` was removed entirely.
+  Failures surface as `422 channel.meta-subscription-failed` with the failing
+  step + Meta error in the context. The web form hides server-generated fields
+  via a new `serverGenerated` flag on the credential descriptor._
+- Ships independent of Coex: any paste-credentials customer benefits immediately by no longer
+  needing to configure the webhook in the Meta dashboard manually.
+
+**OAuth credential lifecycle primitives** - PLANNED (feature 030)
+- Cross-cutting primitives the Coex feature will need and any future OAuth-using plugin (Slack,
+  HubSpot OAuth, Google) can reuse: a tiny `oauthCredentialFields` zod mixin (`accessToken` +
+  `refreshToken?` + `accessTokenExpiresAt?`) that plugins compose into their own schemas;
+  an `EncryptedCredentialsService` invoked at the repo boundaries (closes the
+  credential-encryption risk tracked in [`CONCERNS.md`](../codebase/CONCERNS.md));
+  an `OAuthRefreshService` plus an optional `plugin.refreshCredentials()` hook so the lifecycle
+  is plugin-agnostic. No behavior change for existing plugins (Pipedrive's static API token
+  continues unchanged).
+
+**WhatsApp Coexistence: Embedded Signup + Coex webhooks** - PLANNED (feature 031, depends on 029 + 030)
+- The customer-visible deliverable. Adds the Coex-discriminated channel mode to the Meta
+  plugin and the Embedded Signup flow to `apps/web`:
+  - `apps/web` page that loads the Meta JS SDK and calls `FB.login` with the Coex extras
+    (`featureType: 'whatsapp_business_app_onboarding'` — see
+    [`snippets/fb-login-coex.js`](../research/whatsapp-coexistence/snippets/fb-login-coex.js)).
+  - New contract `POST /workspaces/:id/channel-accounts/meta-whatsapp/connect` that exchanges
+    the OAuth code (`GET /oauth/access_token`) for a business token and creates the
+    `ChannelAccount` with `channelMode: 'coexistence'`.
+  - Webhook handler extensions for the three Coex event fields: `smb_message_echoes`
+    (mirrored messages from the WA Business mobile app — feed into `MarkReplyUseCase` as a
+    conversation signal but NOT as a 24h-service-window opener; see context section E.4),
+    `smb_app_state_sync` (one-way contact sync), `history` (6-month backfill stream, 200-ack
+    in v0.1, defer full import). Verbatim payload shapes pinned under
+    [`snippets/`](../research/whatsapp-coexistence/snippets/).
+  - `channelMode` discriminator on `metaCredentialsSchema` (`'cloud_api'` | `'coexistence'`)
+    drives the inbound parser branch.
+  - Token-refresh schedule using the primitives from feature 030.
+- Kizunu-wide config (not per-channel-account): `appId`, `appSecret`, `coexConfigId`,
+  `defaultCallbackHost` in `apps/api/src/config/`.
+- Onboarding-time checklist for the pilot customer (verified in research/context.md, section E):
+  WA Business app v2.24.17+; minimum 7 days of active app usage; number not already linked to
+  another Cloud API integration; not in Nigeria/South Africa (unsupported region as of March 2026).
+
+---
+
 ## Future Considerations (Phase 2+)
 
 - Native CRM (deals, own pipeline, contacts)

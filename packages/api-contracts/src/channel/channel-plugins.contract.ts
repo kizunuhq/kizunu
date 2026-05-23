@@ -5,6 +5,10 @@ export const ChannelCredentialFieldSchema = z.object({
   label: z.string(),
   type: z.enum(['text', 'secret']),
   required: z.boolean(),
+  // True when the value is filled by the server (e.g. a generated per-channel
+  // verify token) rather than the operator. UI omits these from the input form
+  // and the API rejects client-supplied values for them at the plugin layer.
+  serverGenerated: z.boolean().optional(),
 })
 
 export const ChannelPluginsResponseSchema = z.object({
