@@ -321,26 +321,27 @@ build v4 from the start; no v2 fallback paths.
   API system token continue unchanged. Closes the "Provider credentials are
   stored unencrypted" entry in `CONCERNS.md`._
 
-**WhatsApp Coexistence: Embedded Signup + Coex webhooks** - PLANNED (feature 031, depends on 029 + 030)
-- The customer-visible deliverable. Adds the Coex-discriminated channel mode to the Meta
-  plugin and the Embedded Signup flow to `apps/web`:
-  - `apps/web` page that loads the Meta JS SDK and calls `FB.login` with the Coex extras
-    (`featureType: 'whatsapp_business_app_onboarding'` — see
-    [`snippets/fb-login-coex.js`](../research/whatsapp-coexistence/snippets/fb-login-coex.js)).
-  - New contract `POST /workspaces/:id/channel-accounts/meta-whatsapp/connect` that exchanges
-    the OAuth code (`GET /oauth/access_token`) for a business token and creates the
-    `ChannelAccount` with `channelMode: 'coexistence'`.
-  - Webhook handler extensions for the three Coex event fields: `smb_message_echoes`
-    (mirrored messages from the WA Business mobile app — feed into `MarkReplyUseCase` as a
-    conversation signal but NOT as a 24h-service-window opener; see context section E.4),
-    `smb_app_state_sync` (one-way contact sync), `history` (6-month backfill stream, 200-ack
-    in v0.1, defer full import). Verbatim payload shapes pinned under
-    [`snippets/`](../research/whatsapp-coexistence/snippets/).
-  - `channelMode` discriminator on `metaCredentialsSchema` (`'cloud_api'` | `'coexistence'`)
-    drives the inbound parser branch.
-  - Token-refresh schedule using the primitives from feature 030.
-- Kizunu-wide config (not per-channel-account): `appId`, `appSecret`, `coexConfigId`,
-  `defaultCallbackHost` in `apps/api/src/config/`.
+**WhatsApp Coexistence: Embedded Signup + Coex webhooks** - COMPLETE
+- _Landed (feature `031`): the customer-visible deliverable. `metaCredentialsSchema` is now
+  a `z.discriminatedUnion` on `channelMode` — `cloud_api` (existing operator-paste path) and
+  `coexistence` (the OAuth triplet from 030's `oauthCredentialFields` mixin). App-wide
+  `meta.appId`/`meta.appSecret`/`meta.coexConfigId` config replaces per-row App credentials
+  in the Coex branch (config defaults to `''` and the connect endpoint fails fast with
+  `MetaCoexNotConfiguredException` when missing). New `POST /workspaces/:id/channel-accounts/meta-whatsapp/connect`
+  endpoint runs `exchangeCodeForToken` (GET `/oauth/access_token` — no `redirect_uri`),
+  pre-mints the row UUIDv7, runs the Meta plugin's Coex `onAccountCreated` branch (only the
+  per-WABA `subscribed_apps` call, with `subscribed_fields=messages,smb_message_echoes,smb_app_state_sync`;
+  Meta handles app-level during signup), and persists encrypted credentials. `parseMetaInbound`
+  is now field-dispatched: `messages` keeps the existing path; `smb_message_echoes` parses
+  echoes (swapping from/to so the routing key is the customer phone — feeds `MarkReplyUseCase`
+  and pauses the cadence per E.4 but NOT advancing the freeform 24h window);
+  `smb_app_state_sync` and `history` return `[]` (200-ack only, deferred to a future inbox
+  slice). New `refreshCredentials` hook on the Meta plugin uses the 030 lifecycle — cloud_api
+  passthrough; Coex calls `exchangeForRefreshedToken` (`grant_type=fb_exchange_token`).
+  `apps/web` ships `/_app/workspace/connect-meta-coex` — script-loads the FB JS SDK, calls
+  `FB.login` with the verified Coex `extras` (`featureType: 'whatsapp_business_app_onboarding'`,
+  `sessionInfoVersion: '3'`), origin-validates postMessages from `*.facebook.com`, and posts
+  the payload via the new typed `useConnectMetaCoex` hook._
 - Onboarding-time checklist for the pilot customer (verified in research/context.md, section E):
   WA Business app v2.24.17+; minimum 7 days of active app usage; number not already linked to
   another Cloud API integration; not in Nigeria/South Africa (unsupported region as of March 2026).

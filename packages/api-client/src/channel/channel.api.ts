@@ -1,5 +1,7 @@
 import type {
   ChannelPluginsResponse,
+  ConnectMetaCoexRequest,
+  ConnectMetaCoexResponse,
   CreateChannelAccountRequest,
   CreateChannelAccountResponse,
   GrantChannelAccessRequest,
@@ -39,3 +41,9 @@ export const setPrimaryChannel = (accountId: string): Promise<void> =>
 
 export const listChannelPlugins = (): Promise<ChannelPluginsResponse> =>
   get<ChannelPluginsResponse>(Routes.channels.plugins)
+
+export const connectMetaCoex = (
+  workspaceId: string,
+  body: ConnectMetaCoexRequest,
+): Promise<ConnectMetaCoexResponse> =>
+  post<ConnectMetaCoexResponse>(Routes.channelAccounts.connectMetaCoex(workspaceId), body)
