@@ -18,17 +18,20 @@ import { Route as AuthSignupRouteImport } from './routes/auth/signup'
 import { Route as AuthResetPasswordRouteImport } from './routes/auth/reset-password'
 import { Route as AuthLoginRouteImport } from './routes/auth/login'
 import { Route as AuthForgotPasswordRouteImport } from './routes/auth/forgot-password'
+import { Route as AppSettingsRouteRouteImport } from './routes/_app/settings/route'
 import { Route as AppWorkspaceIndexRouteImport } from './routes/_app/workspace/index'
 import { Route as AuthAcceptInviteTokenRouteImport } from './routes/auth/accept-invite.$token'
-import { Route as AppWorkspaceSecurityRouteImport } from './routes/_app/workspace/security'
 import { Route as AppWorkspaceMyChannelsRouteImport } from './routes/_app/workspace/my-channels'
-import { Route as AppWorkspaceMembersRouteImport } from './routes/_app/workspace/members'
 import { Route as AppWorkspaceJourneysRouteImport } from './routes/_app/workspace/journeys'
-import { Route as AppWorkspaceConnectorsRouteImport } from './routes/_app/workspace/connectors'
 import { Route as AppWorkspaceConnectMetaCoexRouteImport } from './routes/_app/workspace/connect-meta-coex'
-import { Route as AppWorkspaceChannelsRouteImport } from './routes/_app/workspace/channels'
 import { Route as AppWorkspaceCadencesRouteImport } from './routes/_app/workspace/cadences'
+import { Route as AppSettingsWorkspaceRouteImport } from './routes/_app/settings/workspace'
+import { Route as AppSettingsSecurityRouteImport } from './routes/_app/settings/security'
 import { Route as AppSettingsProfileRouteImport } from './routes/_app/settings/profile'
+import { Route as AppSettingsMembersRouteImport } from './routes/_app/settings/members'
+import { Route as AppSettingsConnectorsRouteImport } from './routes/_app/settings/connectors'
+import { Route as AppSettingsChannelsRouteImport } from './routes/_app/settings/channels'
+import { Route as AppSettingsBillingRouteImport } from './routes/_app/settings/billing'
 
 const NotFoundRoute = NotFoundRouteImport.update({
   id: '/not-found',
@@ -74,6 +77,11 @@ const AuthForgotPasswordRoute = AuthForgotPasswordRouteImport.update({
   path: '/forgot-password',
   getParentRoute: () => AuthRouteRoute,
 } as any)
+const AppSettingsRouteRoute = AppSettingsRouteRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AppRouteRoute,
+} as any)
 const AppWorkspaceIndexRoute = AppWorkspaceIndexRouteImport.update({
   id: '/workspace/',
   path: '/workspace/',
@@ -84,29 +92,14 @@ const AuthAcceptInviteTokenRoute = AuthAcceptInviteTokenRouteImport.update({
   path: '/accept-invite/$token',
   getParentRoute: () => AuthRouteRoute,
 } as any)
-const AppWorkspaceSecurityRoute = AppWorkspaceSecurityRouteImport.update({
-  id: '/workspace/security',
-  path: '/workspace/security',
-  getParentRoute: () => AppRouteRoute,
-} as any)
 const AppWorkspaceMyChannelsRoute = AppWorkspaceMyChannelsRouteImport.update({
   id: '/workspace/my-channels',
   path: '/workspace/my-channels',
   getParentRoute: () => AppRouteRoute,
 } as any)
-const AppWorkspaceMembersRoute = AppWorkspaceMembersRouteImport.update({
-  id: '/workspace/members',
-  path: '/workspace/members',
-  getParentRoute: () => AppRouteRoute,
-} as any)
 const AppWorkspaceJourneysRoute = AppWorkspaceJourneysRouteImport.update({
   id: '/workspace/journeys',
   path: '/workspace/journeys',
-  getParentRoute: () => AppRouteRoute,
-} as any)
-const AppWorkspaceConnectorsRoute = AppWorkspaceConnectorsRouteImport.update({
-  id: '/workspace/connectors',
-  path: '/workspace/connectors',
   getParentRoute: () => AppRouteRoute,
 } as any)
 const AppWorkspaceConnectMetaCoexRoute =
@@ -115,40 +108,68 @@ const AppWorkspaceConnectMetaCoexRoute =
     path: '/workspace/connect-meta-coex',
     getParentRoute: () => AppRouteRoute,
   } as any)
-const AppWorkspaceChannelsRoute = AppWorkspaceChannelsRouteImport.update({
-  id: '/workspace/channels',
-  path: '/workspace/channels',
-  getParentRoute: () => AppRouteRoute,
-} as any)
 const AppWorkspaceCadencesRoute = AppWorkspaceCadencesRouteImport.update({
   id: '/workspace/cadences',
   path: '/workspace/cadences',
   getParentRoute: () => AppRouteRoute,
 } as any)
+const AppSettingsWorkspaceRoute = AppSettingsWorkspaceRouteImport.update({
+  id: '/workspace',
+  path: '/workspace',
+  getParentRoute: () => AppSettingsRouteRoute,
+} as any)
+const AppSettingsSecurityRoute = AppSettingsSecurityRouteImport.update({
+  id: '/security',
+  path: '/security',
+  getParentRoute: () => AppSettingsRouteRoute,
+} as any)
 const AppSettingsProfileRoute = AppSettingsProfileRouteImport.update({
-  id: '/settings/profile',
-  path: '/settings/profile',
-  getParentRoute: () => AppRouteRoute,
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AppSettingsRouteRoute,
+} as any)
+const AppSettingsMembersRoute = AppSettingsMembersRouteImport.update({
+  id: '/members',
+  path: '/members',
+  getParentRoute: () => AppSettingsRouteRoute,
+} as any)
+const AppSettingsConnectorsRoute = AppSettingsConnectorsRouteImport.update({
+  id: '/connectors',
+  path: '/connectors',
+  getParentRoute: () => AppSettingsRouteRoute,
+} as any)
+const AppSettingsChannelsRoute = AppSettingsChannelsRouteImport.update({
+  id: '/channels',
+  path: '/channels',
+  getParentRoute: () => AppSettingsRouteRoute,
+} as any)
+const AppSettingsBillingRoute = AppSettingsBillingRouteImport.update({
+  id: '/billing',
+  path: '/billing',
+  getParentRoute: () => AppSettingsRouteRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRouteRouteWithChildren
   '/not-found': typeof NotFoundRoute
+  '/settings': typeof AppSettingsRouteRouteWithChildren
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/auth/signup': typeof AuthSignupRoute
   '/auth/verify-email': typeof AuthVerifyEmailRoute
+  '/settings/billing': typeof AppSettingsBillingRoute
+  '/settings/channels': typeof AppSettingsChannelsRoute
+  '/settings/connectors': typeof AppSettingsConnectorsRoute
+  '/settings/members': typeof AppSettingsMembersRoute
   '/settings/profile': typeof AppSettingsProfileRoute
+  '/settings/security': typeof AppSettingsSecurityRoute
+  '/settings/workspace': typeof AppSettingsWorkspaceRoute
   '/workspace/cadences': typeof AppWorkspaceCadencesRoute
-  '/workspace/channels': typeof AppWorkspaceChannelsRoute
   '/workspace/connect-meta-coex': typeof AppWorkspaceConnectMetaCoexRoute
-  '/workspace/connectors': typeof AppWorkspaceConnectorsRoute
   '/workspace/journeys': typeof AppWorkspaceJourneysRoute
-  '/workspace/members': typeof AppWorkspaceMembersRoute
   '/workspace/my-channels': typeof AppWorkspaceMyChannelsRoute
-  '/workspace/security': typeof AppWorkspaceSecurityRoute
   '/auth/accept-invite/$token': typeof AuthAcceptInviteTokenRoute
   '/workspace/': typeof AppWorkspaceIndexRoute
 }
@@ -156,20 +177,23 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRouteRouteWithChildren
   '/not-found': typeof NotFoundRoute
+  '/settings': typeof AppSettingsRouteRouteWithChildren
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/auth/signup': typeof AuthSignupRoute
   '/auth/verify-email': typeof AuthVerifyEmailRoute
+  '/settings/billing': typeof AppSettingsBillingRoute
+  '/settings/channels': typeof AppSettingsChannelsRoute
+  '/settings/connectors': typeof AppSettingsConnectorsRoute
+  '/settings/members': typeof AppSettingsMembersRoute
   '/settings/profile': typeof AppSettingsProfileRoute
+  '/settings/security': typeof AppSettingsSecurityRoute
+  '/settings/workspace': typeof AppSettingsWorkspaceRoute
   '/workspace/cadences': typeof AppWorkspaceCadencesRoute
-  '/workspace/channels': typeof AppWorkspaceChannelsRoute
   '/workspace/connect-meta-coex': typeof AppWorkspaceConnectMetaCoexRoute
-  '/workspace/connectors': typeof AppWorkspaceConnectorsRoute
   '/workspace/journeys': typeof AppWorkspaceJourneysRoute
-  '/workspace/members': typeof AppWorkspaceMembersRoute
   '/workspace/my-channels': typeof AppWorkspaceMyChannelsRoute
-  '/workspace/security': typeof AppWorkspaceSecurityRoute
   '/auth/accept-invite/$token': typeof AuthAcceptInviteTokenRoute
   '/workspace': typeof AppWorkspaceIndexRoute
 }
@@ -179,20 +203,23 @@ export interface FileRoutesById {
   '/_app': typeof AppRouteRouteWithChildren
   '/auth': typeof AuthRouteRouteWithChildren
   '/not-found': typeof NotFoundRoute
+  '/_app/settings': typeof AppSettingsRouteRouteWithChildren
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/auth/signup': typeof AuthSignupRoute
   '/auth/verify-email': typeof AuthVerifyEmailRoute
+  '/_app/settings/billing': typeof AppSettingsBillingRoute
+  '/_app/settings/channels': typeof AppSettingsChannelsRoute
+  '/_app/settings/connectors': typeof AppSettingsConnectorsRoute
+  '/_app/settings/members': typeof AppSettingsMembersRoute
   '/_app/settings/profile': typeof AppSettingsProfileRoute
+  '/_app/settings/security': typeof AppSettingsSecurityRoute
+  '/_app/settings/workspace': typeof AppSettingsWorkspaceRoute
   '/_app/workspace/cadences': typeof AppWorkspaceCadencesRoute
-  '/_app/workspace/channels': typeof AppWorkspaceChannelsRoute
   '/_app/workspace/connect-meta-coex': typeof AppWorkspaceConnectMetaCoexRoute
-  '/_app/workspace/connectors': typeof AppWorkspaceConnectorsRoute
   '/_app/workspace/journeys': typeof AppWorkspaceJourneysRoute
-  '/_app/workspace/members': typeof AppWorkspaceMembersRoute
   '/_app/workspace/my-channels': typeof AppWorkspaceMyChannelsRoute
-  '/_app/workspace/security': typeof AppWorkspaceSecurityRoute
   '/auth/accept-invite/$token': typeof AuthAcceptInviteTokenRoute
   '/_app/workspace/': typeof AppWorkspaceIndexRoute
 }
@@ -202,20 +229,23 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/not-found'
+    | '/settings'
     | '/auth/forgot-password'
     | '/auth/login'
     | '/auth/reset-password'
     | '/auth/signup'
     | '/auth/verify-email'
+    | '/settings/billing'
+    | '/settings/channels'
+    | '/settings/connectors'
+    | '/settings/members'
     | '/settings/profile'
+    | '/settings/security'
+    | '/settings/workspace'
     | '/workspace/cadences'
-    | '/workspace/channels'
     | '/workspace/connect-meta-coex'
-    | '/workspace/connectors'
     | '/workspace/journeys'
-    | '/workspace/members'
     | '/workspace/my-channels'
-    | '/workspace/security'
     | '/auth/accept-invite/$token'
     | '/workspace/'
   fileRoutesByTo: FileRoutesByTo
@@ -223,20 +253,23 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/not-found'
+    | '/settings'
     | '/auth/forgot-password'
     | '/auth/login'
     | '/auth/reset-password'
     | '/auth/signup'
     | '/auth/verify-email'
+    | '/settings/billing'
+    | '/settings/channels'
+    | '/settings/connectors'
+    | '/settings/members'
     | '/settings/profile'
+    | '/settings/security'
+    | '/settings/workspace'
     | '/workspace/cadences'
-    | '/workspace/channels'
     | '/workspace/connect-meta-coex'
-    | '/workspace/connectors'
     | '/workspace/journeys'
-    | '/workspace/members'
     | '/workspace/my-channels'
-    | '/workspace/security'
     | '/auth/accept-invite/$token'
     | '/workspace'
   id:
@@ -245,20 +278,23 @@ export interface FileRouteTypes {
     | '/_app'
     | '/auth'
     | '/not-found'
+    | '/_app/settings'
     | '/auth/forgot-password'
     | '/auth/login'
     | '/auth/reset-password'
     | '/auth/signup'
     | '/auth/verify-email'
+    | '/_app/settings/billing'
+    | '/_app/settings/channels'
+    | '/_app/settings/connectors'
+    | '/_app/settings/members'
     | '/_app/settings/profile'
+    | '/_app/settings/security'
+    | '/_app/settings/workspace'
     | '/_app/workspace/cadences'
-    | '/_app/workspace/channels'
     | '/_app/workspace/connect-meta-coex'
-    | '/_app/workspace/connectors'
     | '/_app/workspace/journeys'
-    | '/_app/workspace/members'
     | '/_app/workspace/my-channels'
-    | '/_app/workspace/security'
     | '/auth/accept-invite/$token'
     | '/_app/workspace/'
   fileRoutesById: FileRoutesById
@@ -335,6 +371,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthForgotPasswordRouteImport
       parentRoute: typeof AuthRouteRoute
     }
+    '/_app/settings': {
+      id: '/_app/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AppSettingsRouteRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
     '/_app/workspace/': {
       id: '/_app/workspace/'
       path: '/workspace'
@@ -349,25 +392,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthAcceptInviteTokenRouteImport
       parentRoute: typeof AuthRouteRoute
     }
-    '/_app/workspace/security': {
-      id: '/_app/workspace/security'
-      path: '/workspace/security'
-      fullPath: '/workspace/security'
-      preLoaderRoute: typeof AppWorkspaceSecurityRouteImport
-      parentRoute: typeof AppRouteRoute
-    }
     '/_app/workspace/my-channels': {
       id: '/_app/workspace/my-channels'
       path: '/workspace/my-channels'
       fullPath: '/workspace/my-channels'
       preLoaderRoute: typeof AppWorkspaceMyChannelsRouteImport
-      parentRoute: typeof AppRouteRoute
-    }
-    '/_app/workspace/members': {
-      id: '/_app/workspace/members'
-      path: '/workspace/members'
-      fullPath: '/workspace/members'
-      preLoaderRoute: typeof AppWorkspaceMembersRouteImport
       parentRoute: typeof AppRouteRoute
     }
     '/_app/workspace/journeys': {
@@ -377,25 +406,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppWorkspaceJourneysRouteImport
       parentRoute: typeof AppRouteRoute
     }
-    '/_app/workspace/connectors': {
-      id: '/_app/workspace/connectors'
-      path: '/workspace/connectors'
-      fullPath: '/workspace/connectors'
-      preLoaderRoute: typeof AppWorkspaceConnectorsRouteImport
-      parentRoute: typeof AppRouteRoute
-    }
     '/_app/workspace/connect-meta-coex': {
       id: '/_app/workspace/connect-meta-coex'
       path: '/workspace/connect-meta-coex'
       fullPath: '/workspace/connect-meta-coex'
       preLoaderRoute: typeof AppWorkspaceConnectMetaCoexRouteImport
-      parentRoute: typeof AppRouteRoute
-    }
-    '/_app/workspace/channels': {
-      id: '/_app/workspace/channels'
-      path: '/workspace/channels'
-      fullPath: '/workspace/channels'
-      preLoaderRoute: typeof AppWorkspaceChannelsRouteImport
       parentRoute: typeof AppRouteRoute
     }
     '/_app/workspace/cadences': {
@@ -405,39 +420,96 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppWorkspaceCadencesRouteImport
       parentRoute: typeof AppRouteRoute
     }
+    '/_app/settings/workspace': {
+      id: '/_app/settings/workspace'
+      path: '/workspace'
+      fullPath: '/settings/workspace'
+      preLoaderRoute: typeof AppSettingsWorkspaceRouteImport
+      parentRoute: typeof AppSettingsRouteRoute
+    }
+    '/_app/settings/security': {
+      id: '/_app/settings/security'
+      path: '/security'
+      fullPath: '/settings/security'
+      preLoaderRoute: typeof AppSettingsSecurityRouteImport
+      parentRoute: typeof AppSettingsRouteRoute
+    }
     '/_app/settings/profile': {
       id: '/_app/settings/profile'
-      path: '/settings/profile'
+      path: '/profile'
       fullPath: '/settings/profile'
       preLoaderRoute: typeof AppSettingsProfileRouteImport
-      parentRoute: typeof AppRouteRoute
+      parentRoute: typeof AppSettingsRouteRoute
+    }
+    '/_app/settings/members': {
+      id: '/_app/settings/members'
+      path: '/members'
+      fullPath: '/settings/members'
+      preLoaderRoute: typeof AppSettingsMembersRouteImport
+      parentRoute: typeof AppSettingsRouteRoute
+    }
+    '/_app/settings/connectors': {
+      id: '/_app/settings/connectors'
+      path: '/connectors'
+      fullPath: '/settings/connectors'
+      preLoaderRoute: typeof AppSettingsConnectorsRouteImport
+      parentRoute: typeof AppSettingsRouteRoute
+    }
+    '/_app/settings/channels': {
+      id: '/_app/settings/channels'
+      path: '/channels'
+      fullPath: '/settings/channels'
+      preLoaderRoute: typeof AppSettingsChannelsRouteImport
+      parentRoute: typeof AppSettingsRouteRoute
+    }
+    '/_app/settings/billing': {
+      id: '/_app/settings/billing'
+      path: '/billing'
+      fullPath: '/settings/billing'
+      preLoaderRoute: typeof AppSettingsBillingRouteImport
+      parentRoute: typeof AppSettingsRouteRoute
     }
   }
 }
 
-interface AppRouteRouteChildren {
+interface AppSettingsRouteRouteChildren {
+  AppSettingsBillingRoute: typeof AppSettingsBillingRoute
+  AppSettingsChannelsRoute: typeof AppSettingsChannelsRoute
+  AppSettingsConnectorsRoute: typeof AppSettingsConnectorsRoute
+  AppSettingsMembersRoute: typeof AppSettingsMembersRoute
   AppSettingsProfileRoute: typeof AppSettingsProfileRoute
+  AppSettingsSecurityRoute: typeof AppSettingsSecurityRoute
+  AppSettingsWorkspaceRoute: typeof AppSettingsWorkspaceRoute
+}
+
+const AppSettingsRouteRouteChildren: AppSettingsRouteRouteChildren = {
+  AppSettingsBillingRoute: AppSettingsBillingRoute,
+  AppSettingsChannelsRoute: AppSettingsChannelsRoute,
+  AppSettingsConnectorsRoute: AppSettingsConnectorsRoute,
+  AppSettingsMembersRoute: AppSettingsMembersRoute,
+  AppSettingsProfileRoute: AppSettingsProfileRoute,
+  AppSettingsSecurityRoute: AppSettingsSecurityRoute,
+  AppSettingsWorkspaceRoute: AppSettingsWorkspaceRoute,
+}
+
+const AppSettingsRouteRouteWithChildren =
+  AppSettingsRouteRoute._addFileChildren(AppSettingsRouteRouteChildren)
+
+interface AppRouteRouteChildren {
+  AppSettingsRouteRoute: typeof AppSettingsRouteRouteWithChildren
   AppWorkspaceCadencesRoute: typeof AppWorkspaceCadencesRoute
-  AppWorkspaceChannelsRoute: typeof AppWorkspaceChannelsRoute
   AppWorkspaceConnectMetaCoexRoute: typeof AppWorkspaceConnectMetaCoexRoute
-  AppWorkspaceConnectorsRoute: typeof AppWorkspaceConnectorsRoute
   AppWorkspaceJourneysRoute: typeof AppWorkspaceJourneysRoute
-  AppWorkspaceMembersRoute: typeof AppWorkspaceMembersRoute
   AppWorkspaceMyChannelsRoute: typeof AppWorkspaceMyChannelsRoute
-  AppWorkspaceSecurityRoute: typeof AppWorkspaceSecurityRoute
   AppWorkspaceIndexRoute: typeof AppWorkspaceIndexRoute
 }
 
 const AppRouteRouteChildren: AppRouteRouteChildren = {
-  AppSettingsProfileRoute: AppSettingsProfileRoute,
+  AppSettingsRouteRoute: AppSettingsRouteRouteWithChildren,
   AppWorkspaceCadencesRoute: AppWorkspaceCadencesRoute,
-  AppWorkspaceChannelsRoute: AppWorkspaceChannelsRoute,
   AppWorkspaceConnectMetaCoexRoute: AppWorkspaceConnectMetaCoexRoute,
-  AppWorkspaceConnectorsRoute: AppWorkspaceConnectorsRoute,
   AppWorkspaceJourneysRoute: AppWorkspaceJourneysRoute,
-  AppWorkspaceMembersRoute: AppWorkspaceMembersRoute,
   AppWorkspaceMyChannelsRoute: AppWorkspaceMyChannelsRoute,
-  AppWorkspaceSecurityRoute: AppWorkspaceSecurityRoute,
   AppWorkspaceIndexRoute: AppWorkspaceIndexRoute,
 }
 

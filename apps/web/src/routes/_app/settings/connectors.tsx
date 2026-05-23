@@ -1,8 +1,9 @@
 import { useCurrentUser } from '@kizunu/api-client/identity/use-current-user'
+import { PageHeader } from '@kizunu/web/components/composed/page-header'
 import { ConnectorsManager } from '@kizunu/web/features/crm/components/connectors-manager'
 import { createFileRoute } from '@tanstack/react-router'
 
-export const Route = createFileRoute('/_app/workspace/connectors')({
+export const Route = createFileRoute('/_app/settings/connectors')({
   component: ConnectorsPage,
 })
 
@@ -10,8 +11,8 @@ function ConnectorsPage() {
   const { activeWorkspaceId } = useCurrentUser()
 
   return (
-    <div className="flex flex-col gap-4">
-      <h1 className="text-2xl font-semibold">CRM connectors</h1>
+    <div className="flex flex-col gap-6">
+      <PageHeader title="CRM connectors" description="Map CRM stages to outbound cadences." />
       {activeWorkspaceId ? (
         <ConnectorsManager workspaceId={activeWorkspaceId} />
       ) : (
