@@ -2,143 +2,356 @@
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
 
+@import '@fontsource-variable/geist';
+@import '@fontsource-variable/geist-mono';
+@import '@fontsource-variable/unbounded';
+
 @custom-variant dark (&:is(.dark *));
 
-html {
-  scroll-behavior: smooth;
-}
-
-body {
-  min-height: 100dvh;
-  font-family: 'Schibsted Grotesk', 'Segoe UI', sans-serif;
-  text-rendering: optimizeLegibility;
-}
-
-::selection {
-  background: oklch(72% 0.21 300 / 0.72);
-  color: oklch(18% 0.02 226);
-}
-
-@theme inline {
-  --font-heading: var(--font-sans);
-  --font-sans: 'Schibsted Grotesk', 'Segoe UI', sans-serif;
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
-  --color-card: var(--card);
-  --color-foreground: var(--foreground);
-  --color-background: var(--background);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
-}
+/* =============================================================
+ * kizunu design tokens
+ * See DESIGN.md for the rules. The short version:
+ *  - OKLCH neutral spine, 9 steps (background + background-50..700)
+ *  - 7 named accents on top of the spine; --kizunu-green is primary
+ *  - --radius: 2px everywhere; no rounded-2xl, no rounded-full on rectangles
+ *  - mono carries metadata; sans is for prose; display is marketing only
+ *  - accent appears in three places only: kicker, status dot, ASCII aurora
+ * ============================================================= */
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
+  /* --- named accents -----------------------------------------
+   * Green leads (sales engagement, pipeline that converts).
+   * Yellow / pink / yellow-600 carry warning + failure states.
+   * Blue is metadata. Orange is a deferred warmth mixer
+   * (used only by the ASCII aurora; not surfaced as a UI hit). */
+  --kizunu-green: hsla(156, 86%, 40%, 1); /* PRIMARY */
+  --kizunu-pink: hsla(314, 100%, 80%, 1);
+  --kizunu-yellow: hsla(58, 93%, 72%, 1);
+  --kizunu-yellow-100: hsla(45, 70%, 88%, 1);
+  --kizunu-yellow-600: hsla(40, 90%, 28%, 1);
+  --kizunu-blue: hsla(218, 92%, 72%, 1);
+  --kizunu-orange: hsla(19, 99%, 44%, 1);
+
+  /* --- background elevation spine — Light --------------------
+   *
+   * 9-step OKLCH neutral ramp. Monotonic: higher number = louder
+   * surface. Tinted toward warm grey at near-zero chroma so the
+   * page never looks sterile.
+   *
+   *   --background          99%   ← page shell
+   *     --background-50     98.5%
+   *     --background-100    98%   ← faintest fill
+   *     --background-200    97%   ← table row, popover body
+   *     --background-300    96%   ← secondary button (default)
+   *     --background-400    94%   ← secondary button hover
+   *     --background-500    92%
+   *     --background-600    91%
+   *     --background-700    86%   ← loudest neutral; reach no further
+   *   --foreground          14.5% ← ink                                */
+  --background: oklch(99% 0 0);
+  --background-50: oklch(98.5% 0 0);
+  --background-100: oklch(98% 0 0);
+  --background-200: oklch(97% 0 0);
+  --background-300: oklch(96% 0 0);
+  --background-400: oklch(94% 0 0);
+  --background-500: oklch(92% 0 0);
+  --background-600: oklch(91% 0 0);
+  --background-700: oklch(86% 0 0);
+  --foreground: oklch(14.5% 0 0);
+
+  /* --- layout dimensions ------------------------------------- */
+  --header-height: 80px;
+  --footer-height: 0px;
+
+  /* --- semantic roles (shadcn) -------------------------------
+   * --primary is INK, not the brand color. Brand lives in the
+   * named accents above. Solid CTAs are ink; brand-tinted hits
+   * (kickers, dots, charts) are accents. */
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --popover-foreground: oklch(14.5% 0 0);
+  --card: var(--background);
+  --card-foreground: var(--foreground);
+  --primary: oklch(20.5% 0 0);
+  --primary-foreground: oklch(98.5% 0 0);
+  --secondary: var(--background-300);
+  --secondary-foreground: oklch(20.5% 0 0);
+  --muted: oklch(97% 0 0);
+  --muted-foreground: oklch(55.6% 0 0);
+  --accent: oklch(97% 0 0);
+  --accent-foreground: oklch(20.5% 0 0);
+  --destructive: oklch(80% 0.22 31);
+  --destructive-foreground: oklch(80% 0.22 31);
+  --border: oklch(92.2% 0 0);
+  --input: oklch(92.2% 0 0);
+  --ring: oklch(70.8% 0 0);
+  --radius: 2px;
+
+  /* --- sidebar (still HSL — primitive expects it) ------------ */
+  --sidebar: hsl(0 0% 98%);
+  --sidebar-foreground: hsl(240 5.3% 26.1%);
+  --sidebar-primary: hsl(240 5.9% 10%);
+  --sidebar-primary-foreground: hsl(0 0% 98%);
+  --sidebar-accent: hsl(240 4.8% 95.9%);
+  --sidebar-accent-foreground: hsl(240 5.9% 10%);
+  --sidebar-border: hsl(220 13% 91%);
+  --sidebar-ring: hsl(217.2 91.2% 59.8%);
+
+  /* --- code / selection surfaces ----------------------------- */
+  --surface: var(--background);
+  --surface-foreground: var(--foreground);
+  --code: var(--surface);
+  --code-foreground: var(--surface-foreground);
+  --code-highlight: oklch(0.96 0 0);
+  --code-number: oklch(0.56 0 0);
+  --selection: oklch(0.145 0 0);
+  --selection-foreground: oklch(1 0 0);
+
+  /* --- squircle progressive enhancement ----------------------
+   * Avatars + logo mark take a doubled corner radius on browsers
+   * that implement corner-shape: squircle. Never load-bearing. */
+  --avatar-border-radius-multiplier: 1;
+}
+
+@supports (corner-shape: squircle) {
+  :root {
+    --avatar-border-radius-multiplier: 2;
+  }
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  /* Named accents shift slightly in dark for legibility. */
+  --kizunu-green: hsla(156, 86%, 64%, 1);
+  --kizunu-pink: hsla(314, 100%, 85%, 1);
+  --kizunu-yellow: hsla(58, 92%, 79%, 1);
+  --kizunu-yellow-100: hsla(58, 70%, 20%, 1);
+  --kizunu-yellow-600: hsla(58, 92%, 79%, 1);
+  --kizunu-blue: hsla(218, 91%, 78%, 1);
+  --kizunu-orange: hsla(19, 99%, 50%, 1);
+
+  /* --- background elevation spine — Dark ---------------------
+   * Same 9 rungs; the actual lightness inverts but the semantic
+   * (higher number = louder) is preserved.
+   *
+   *   --background          14.5% ← page shell
+   *     --background-50     15.5%
+   *     --background-100    16.5% ← faintest fill
+   *     --background-200    18.5% ← table row, popover body
+   *     --background-300    20.5% ← secondary button
+   *     --background-400    23.5% ← secondary button hover
+   *     --background-500    27.5%
+   *     --background-600    29.5%
+   *     --background-700    34.5% ← loudest neutral
+   *   --foreground          98.5% ← ink                                */
+  --background: oklch(14.5% 0 0);
+  --background-50: oklch(15.5% 0 0);
+  --background-100: oklch(16.5% 0 0);
+  --background-200: oklch(18.5% 0 0);
+  --background-300: oklch(20.5% 0 0);
+  --background-400: oklch(23.5% 0 0);
+  --background-500: oklch(27.5% 0 0);
+  --background-600: oklch(29.5% 0 0);
+  --background-700: oklch(34.5% 0 0);
+  --foreground: oklch(98.5% 0 0);
+
+  --popover: oklch(14.5% 0 0);
+  --popover-foreground: oklch(98.5% 0 0);
+  --card: var(--background-100);
+  --card-foreground: var(--foreground);
+  --primary: oklch(98.5% 0 0);
+  --primary-foreground: oklch(20.5% 0 0);
+  --secondary: var(--background-300);
+  --secondary-foreground: oklch(98.5% 0 0);
+  --muted: oklch(26.9% 0 0);
+  --muted-foreground: oklch(70.8% 0 0);
+  --accent: oklch(26.9% 0 0);
+  --accent-foreground: oklch(98.5% 0 0);
+  --destructive: oklch(80% 0.22 31);
+  --destructive-foreground: oklch(80% 0.22 31);
+  --border: oklch(26.9% 0 0);
+  --input: oklch(26.9% 0 0);
+
+  --sidebar: hsl(240 5.9% 10%);
+  --sidebar-foreground: hsl(240 4.8% 95.9%);
+  --sidebar-primary: hsl(224.3 76.3% 48%);
+  --sidebar-primary-foreground: hsl(0 0% 100%);
+  --sidebar-accent: hsl(240 3.7% 15.9%);
+  --sidebar-accent-foreground: hsl(240 4.8% 95.9%);
+  --sidebar-border: hsl(240 3.7% 15.9%);
+  --sidebar-ring: hsl(217.2 91.2% 59.8%);
+
+  --surface: oklch(0.2 0 0);
+  --surface-foreground: oklch(0.708 0 0);
+  --code: var(--surface);
+  --code-foreground: var(--surface-foreground);
+  --code-highlight: oklch(0.27 0 0);
+  --code-number: oklch(0.72 0 0);
+  --selection: oklch(0.922 0 0);
+  --selection-foreground: oklch(0.205 0 0);
+}
+
+@theme inline {
+  /* --- fonts -------------------------------------------------
+   * sans:    Geist Variable           — every UI string
+   * mono:    Geist Mono Variable      — every timestamp, key,
+   *                                     channel name, count, kicker
+   * display: Unbounded Variable       — marketing headlines only,
+   *                                     never in the dashboard      */
+  --font-sans: 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'Geist Mono Variable', ui-monospace, 'SFMono-Regular', 'Menlo', monospace;
+  --font-display: 'Unbounded Variable', 'Geist Variable', ui-sans-serif, sans-serif;
+  --font-heading: var(--font-display);
+
+  /* --- elevation spine — Tailwind access ---------------------
+   * Use as bg-background, bg-background-100, ..., bg-background-700 */
+  --color-background: var(--background);
+  --color-background-50: var(--background-50);
+  --color-background-100: var(--background-100);
+  --color-background-200: var(--background-200);
+  --color-background-300: var(--background-300);
+  --color-background-400: var(--background-400);
+  --color-background-500: var(--background-500);
+  --color-background-600: var(--background-600);
+  --color-background-700: var(--background-700);
+  --color-foreground: var(--foreground);
+
+  /* --- semantic roles --------------------------------------- */
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* --- named accents — Tailwind access ----------------------
+   * Use as text-kizunu-green, bg-kizunu-pink, border-kizunu-blue */
+  --color-kizunu-green: var(--kizunu-green);
+  --color-kizunu-pink: var(--kizunu-pink);
+  --color-kizunu-yellow: var(--kizunu-yellow);
+  --color-kizunu-yellow-100: var(--kizunu-yellow-100);
+  --color-kizunu-yellow-600: var(--kizunu-yellow-600);
+  --color-kizunu-blue: var(--kizunu-blue);
+  --color-kizunu-orange: var(--kizunu-orange);
+
+  /* --- sidebar ---------------------------------------------- */
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* --- code surfaces ---------------------------------------- */
+  --color-code: var(--code);
+  --color-code-foreground: var(--code-foreground);
+  --color-code-highlight: var(--code-highlight);
+  --color-code-number: var(--code-number);
+  --color-selection: var(--selection);
+  --color-selection-foreground: var(--selection-foreground);
+
+  /* --- radius -----------------------------------------------
+   * --radius is 2px. The derived steps exist so shadcn primitives
+   * that ask for rounded-sm / rounded-md / rounded-lg do not blow
+   * out the system. Anything not from those primitives uses
+   * rounded-[2px] literally — never rounded-2xl. */
+  --radius-sm: var(--radius);
+  --radius-md: var(--radius);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 2);
+  --radius-2xl: calc(var(--radius) * 4);
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+
+  html {
+    @apply scroll-smooth font-sans antialiased;
+  }
+
   body {
     @apply bg-background text-foreground;
+    font-synthesis-weight: none;
+    text-rendering: optimizeLegibility;
   }
-  html {
-    @apply font-sans;
+
+  ::selection {
+    background: var(--selection);
+    color: var(--selection-foreground);
+  }
+}
+
+@layer utilities {
+  /* --- structural containers --------------------------------
+   * container-wrapper is the OUTER frame for full-bleed marketing
+   * sections: caps width, centers, gives the page its signature
+   * vertical dashed gutters. container is the inner gutter inside
+   * it. Nest as: container-wrapper > container > content.       */
+  .container-wrapper {
+    @apply mx-auto w-full max-w-[1400px] border-x border-dashed min-[1800px]:max-w-screen-2xl;
+  }
+
+  .container {
+    @apply mx-auto max-w-screen-2xl px-4;
+  }
+
+  /* Hide native scrollbars (sidebars, command palette). */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  /* The only sanctioned bouncing motion in the system —
+   * scoped to the chat-style "typing" acknowledgement pattern.
+   * See DESIGN.md §5.                                          */
+  @keyframes bounce-dot {
+    0%,
+    80%,
+    100% {
+      transform: translateY(0);
+    }
+    40% {
+      transform: translateY(-6px);
+    }
+  }
+  .dot-bounce-1 {
+    animation: bounce-dot 1.4s infinite;
+    animation-delay: 0s;
+  }
+  .dot-bounce-2 {
+    animation: bounce-dot 1.4s infinite;
+    animation-delay: 0.16s;
+  }
+  .dot-bounce-3 {
+    animation: bounce-dot 1.4s infinite;
+    animation-delay: 0.32s;
+  }
+}
+
+/* Respect the OS-level motion preference everywhere. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
