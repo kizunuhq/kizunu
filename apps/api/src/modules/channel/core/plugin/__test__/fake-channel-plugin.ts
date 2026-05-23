@@ -1,5 +1,6 @@
 import { z } from 'zod'
 
+import { ChannelCapability } from '../channel-capability'
 import { ChannelCredentialFieldType } from '../channel-credential-field-type'
 import type { ChannelDecision } from '../channel-decision'
 import type { ChannelPlugin } from '../channel-plugin'
@@ -24,7 +25,7 @@ export class FakeChannelPlugin implements ChannelPlugin {
   readonly manifest: ChannelPluginManifest = {
     id: 'fake',
     name: 'Fake Channel',
-    capabilities: ['freeform', 'template'],
+    capabilities: [ChannelCapability.Freeform, ChannelCapability.Template],
     configSchema: fakeConfigSchema,
     credentialFields: [
       {

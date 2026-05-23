@@ -1,3 +1,4 @@
+import { ChannelCapability } from '../../core/plugin/channel-capability'
 import { ChannelCredentialFieldType } from '../../core/plugin/channel-credential-field-type'
 import type { ChannelDecision } from '../../core/plugin/channel-decision'
 import type { ChannelPlugin } from '../../core/plugin/channel-plugin'
@@ -55,7 +56,7 @@ export class MetaWhatsappPlugin implements ChannelPlugin {
   readonly manifest: ChannelPluginManifest = {
     id: 'meta-whatsapp',
     name: 'WhatsApp (Meta Cloud API)',
-    capabilities: ['freeform', 'template'],
+    capabilities: [ChannelCapability.Freeform, ChannelCapability.Template],
     configSchema: metaCredentialsClientSchema,
     credentialFields: [
       { key: 'appId', label: 'Meta App ID', type: ChannelCredentialFieldType.Text, required: true },
