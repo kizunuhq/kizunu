@@ -60,6 +60,9 @@ services:
       DISABLE_USER_REGISTRATION: 'false'
       OAUTH_GITHUB_CLIENT_ID: ''
       OAUTH_GITHUB_CLIENT_SECRET: ''
+      # Dev-only key; production must override via secret. Generate with:
+      #   openssl rand -base64 32
+      APP_CREDENTIALS_ENCRYPTION_KEY: td7dHITMjfudSi5kdNBvAJnAEm5Iaqfi+dMUUss8UJs=
     volumes:
       - ..:/monorepo
       # Keep the image's linux node_modules; do not let the host's shadow it.

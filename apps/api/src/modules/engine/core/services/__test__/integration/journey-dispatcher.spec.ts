@@ -1,3 +1,4 @@
+import { buildCredentialsCipher } from '@kizunu/api/__test__/integration/credentials-cipher'
 import { closeDb, db, truncateAll } from '@kizunu/api/__test__/integration/db'
 import { cadenceSteps } from '@kizunu/api/db/schemas/cadence-steps'
 import { cadences } from '@kizunu/api/db/schemas/cadences'
@@ -34,6 +35,7 @@ const NOW = new Date('2026-05-22T12:00:00.000Z')
 const PAST = new Date('2026-05-22T11:00:00.000Z')
 
 const service = { db } as unknown as DrizzleService
+const cipher = buildCredentialsCipher()
 const markLostCalls: string[] = []
 
 const fakeConnector = {
@@ -56,9 +58,9 @@ function buildDispatcher() {
     new CadenceRepository(service),
     new TemplateRepository(service),
     new ChannelAccessRepository(service),
-    new ChannelAccountRepository(service),
+    new ChannelAccountRepository(service, cipher),
     new ChannelPluginRegistry([new FakeChannelPlugin()]),
-    new ConnectorAccountRepository(service),
+    new ConnectorAccountRepository(service, cipher),
     new CrmConnectorRegistry([fakeConnector]),
     new CadenceActionExecutor(),
     { apply: (delayMinutes: number) => delayMinutes } as Jitter,

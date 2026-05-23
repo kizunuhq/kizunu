@@ -27,6 +27,13 @@ const configSchema = z.object({
       clientSecret: z.string().default(''),
     }),
   }),
+  credentials: z.object({
+    // 32-byte AES-256 key, base64-encoded (44 chars with padding). Required;
+    // generate with `openssl rand -base64 32`. Used by EncryptedCredentialsService
+    // to encrypt provider tokens at rest (channel_accounts / connector_accounts
+    // credentials JSONB columns).
+    encryptionKey: z.string().min(44),
+  }),
 })
 
 export type Config = z.infer<typeof configSchema>
@@ -56,6 +63,9 @@ export function load(): Config {
         clientId: process.env.OAUTH_GITHUB_CLIENT_ID,
         clientSecret: process.env.OAUTH_GITHUB_CLIENT_SECRET,
       },
+    },
+    credentials: {
+      encryptionKey: process.env.APP_CREDENTIALS_ENCRYPTION_KEY,
     },
   })
 
