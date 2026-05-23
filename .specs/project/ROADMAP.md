@@ -304,15 +304,22 @@ build v4 from the start; no v2 fallback paths.
 - Ships independent of Coex: any paste-credentials customer benefits immediately by no longer
   needing to configure the webhook in the Meta dashboard manually.
 
-**OAuth credential lifecycle primitives** - PLANNED (feature 030)
-- Cross-cutting primitives the Coex feature will need and any future OAuth-using plugin (Slack,
-  HubSpot OAuth, Google) can reuse: a tiny `oauthCredentialFields` zod mixin (`accessToken` +
-  `refreshToken?` + `accessTokenExpiresAt?`) that plugins compose into their own schemas;
-  an `EncryptedCredentialsService` invoked at the repo boundaries (closes the
-  credential-encryption risk tracked in [`CONCERNS.md`](../codebase/CONCERNS.md));
-  an `OAuthRefreshService` plus an optional `plugin.refreshCredentials()` hook so the lifecycle
-  is plugin-agnostic. No behavior change for existing plugins (Pipedrive's static API token
-  continues unchanged).
+**OAuth credential lifecycle primitives** - COMPLETE
+- _Landed (feature `030`): three cross-cutting primitives 031 and any future
+  OAuth plugin can compose. `oauthCredentialFields` is a zod `ZodRawShape` mixin
+  in `@kizunu/api-contracts/shared` carrying `accessToken` + `refreshToken?` +
+  `accessTokenExpiresAt?`. `EncryptedCredentialsService`
+  (`@kizunu/nestjs-shared/modules/persistence/services/`, AES-256-GCM,
+  base64 key from `APP_CREDENTIALS_ENCRYPTION_KEY`) wraps every write/read of
+  `channel_accounts.credentials` and `connector_accounts.credentials` at the
+  repo boundary; pre-030 plaintext rows continue to read transparently
+  (envelope `alg` discriminator) so existing deployments upgrade without a data
+  migration. `OAuthRefreshService` polls every channel-account row's decrypted
+  credentials and calls the plugin's optional `refreshCredentials?(input)` hook
+  when `accessTokenExpiresAt` is inside the buffer window; failures log + retry
+  on the next tick. Pipedrive's static API token and Meta's standalone Cloud
+  API system token continue unchanged. Closes the "Provider credentials are
+  stored unencrypted" entry in `CONCERNS.md`._
 
 **WhatsApp Coexistence: Embedded Signup + Coex webhooks** - PLANNED (feature 031, depends on 029 + 030)
 - The customer-visible deliverable. Adds the Coex-discriminated channel mode to the Meta

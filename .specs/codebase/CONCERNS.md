@@ -21,10 +21,15 @@ limit; CSRF is `sameSite: 'lax'` + the CORS allowlist (documented, no token in v
 **Impact:** The reset flow is correct and secure (single-use hashed token, out-of-band, never in a response, revokes all sessions on confirm), but a real user cannot receive the email — an operator must read the server log for the link. Not pilot-deliverable as-is.
 **Fix:** Implement an SMTP/API `MailSender` and bind it behind the existing port (no caller changes). The invitation flow (which still returns its token in the response) should move onto the same boundary at that point.
 
-### Provider credentials are stored unencrypted
-**Evidence:** `channel_accounts.credentials` and `connector_accounts.credentials` are plaintext `jsonb` columns (`apps/api/src/db/schemas/`); features `002`/`004` validate the shape against the plugin/connector `configSchema` but do not encrypt at rest. These hold a Meta system token and a Pipedrive API token respectively (`docs/v0.1-scope.md`).
-**Impact:** A database read (backup, dump, compromised replica) exposes live provider tokens. Read endpoints already exclude `credentials`, so the exposure is at-rest only.
-**Fix:** Encrypt `credentials` at rest (app-level envelope encryption with a KMS/managed key, or `pgcrypto`) before real tokens are used in production. Keep decryption inside the persistence boundary so use-cases stay unaware.
+_(Resolved) Provider credentials are stored unencrypted — addressed in feature
+`030`: `EncryptedCredentialsService` (AES-256-GCM, key from
+`APP_CREDENTIALS_ENCRYPTION_KEY`) wraps every write/read of
+`channel_accounts.credentials` and `connector_accounts.credentials` inside the
+two persistence repos. Pre-030 plaintext rows continue to read transparently
+(decrypt passes non-envelope JSON through unchanged) so existing deployments
+upgrade without a data migration. Tampering throws
+`CredentialsDecryptionFailedException` (500). v0.1 ships a single key; rotation
+/ KMS lands later (envelope reserves `v: 1` for key-version)._
 
 ### CRM webhook authenticates only by an unguessable URL
 **Evidence:** `POST /webhooks/crm/:connectorAccountId` (`crm-webhook.controller.ts`, feature `008`) is `@Public` and trusts the connector-account UUID in the path as the shared secret; there is no signature/HMAC verification of the payload.
