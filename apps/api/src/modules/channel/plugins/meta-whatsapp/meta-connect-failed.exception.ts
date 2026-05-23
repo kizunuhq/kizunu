@@ -1,6 +1,6 @@
 import { ApplicationException } from '@kizunu/nestjs-shared/lib/exceptions/application.exception'
 
-export type MetaConnectStep = 'code-exchange' | 'refresh-exchange'
+import type { MetaConnectStep } from './meta-connect-step'
 
 /**
  * Raised when one of the Meta Coex OAuth exchanges fails: the initial
