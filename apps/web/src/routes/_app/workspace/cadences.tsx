@@ -1,22 +1,36 @@
 import { useCurrentUser } from '@kizunu/api-client/identity/use-current-user'
-import { CadencesManager } from '@kizunu/web/features/cadence/components/cadences-manager'
-import { createFileRoute } from '@tanstack/react-router'
+import { CadenceTemplatesView } from '@kizunu/web/features/cadence/components/cadence-templates-view'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
+
+type CadencesTab = 'cadences' | 'templates'
+
+interface CadencesSearch {
+  tab: CadencesTab
+}
 
 export const Route = createFileRoute('/_app/workspace/cadences')({
+  validateSearch: (search: Record<string, unknown>): CadencesSearch => ({
+    tab: search.tab === 'templates' ? 'templates' : 'cadences',
+  }),
   component: CadencesPage,
 })
 
 function CadencesPage() {
   const { activeWorkspaceId } = useCurrentUser()
+  const { tab } = Route.useSearch()
+  const navigate = useNavigate()
+
+  if (!activeWorkspaceId) {
+    return <p className="text-muted-foreground text-sm">No active workspace selected.</p>
+  }
 
   return (
-    <div className="flex flex-col gap-4">
-      <h1 className="text-2xl font-semibold">Cadences &amp; templates</h1>
-      {activeWorkspaceId ? (
-        <CadencesManager workspaceId={activeWorkspaceId} />
-      ) : (
-        <p className="text-muted-foreground text-sm">No active workspace selected.</p>
-      )}
-    </div>
+    <CadenceTemplatesView
+      workspaceId={activeWorkspaceId}
+      activeTab={tab}
+      onTabChange={(next) =>
+        navigate({ to: '/workspace/cadences', search: { tab: next }, replace: true })
+      }
+    />
   )
 }

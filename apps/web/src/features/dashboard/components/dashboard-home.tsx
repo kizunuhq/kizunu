@@ -25,7 +25,11 @@ export function DashboardHome() {
           title="No journeys running yet"
           description="Create a cadence and connect a CRM to start sending touches."
           action={
-            <Link to="/workspace/cadences" className={buttonVariants()}>
+            <Link
+              to="/workspace/cadences"
+              search={{ tab: 'cadences' }}
+              className={buttonVariants()}
+            >
               Create a cadence
             </Link>
           }
