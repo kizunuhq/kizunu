@@ -1,3 +1,4 @@
+import { buildCredentialsCipher } from '@kizunu/api/__test__/integration/credentials-cipher'
 import { closeDb, db, truncateAll } from '@kizunu/api/__test__/integration/db'
 import { cadences } from '@kizunu/api/db/schemas/cadences'
 import { connectorAccounts } from '@kizunu/api/db/schemas/connector-accounts'
@@ -36,7 +37,7 @@ function buildUseCase() {
     service,
     new LeadJourneyRepository(service),
     new CadenceRepository(service),
-    new ConnectorAccountRepository(service),
+    new ConnectorAccountRepository(service, buildCredentialsCipher()),
     new CrmConnectorRegistry([fakeConnector]),
     new CadenceActionExecutor(),
   )

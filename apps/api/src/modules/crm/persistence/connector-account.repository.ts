@@ -1,5 +1,6 @@
 import { connectorAccounts } from '@kizunu/api/db/schemas/connector-accounts'
 import { DrizzleService } from '@kizunu/nestjs-shared/modules/persistence/services/drizzle.service'
+import { EncryptedCredentialsService } from '@kizunu/nestjs-shared/modules/persistence/services/encrypted-credentials.service'
 import { Injectable } from '@nestjs/common'
 import { and, eq } from 'drizzle-orm'
 
@@ -12,7 +13,10 @@ export interface ConnectorAccountSummary {
 
 @Injectable()
 export class ConnectorAccountRepository {
-  constructor(private readonly drizzle: DrizzleService) {}
+  constructor(
+    private readonly drizzle: DrizzleService,
+    private readonly cipher: EncryptedCredentialsService,
+  ) {}
 
   async create(input: {
     workspaceId: string
@@ -22,7 +26,7 @@ export class ConnectorAccountRepository {
   }): Promise<{ id: string }> {
     const rows = await this.drizzle.db
       .insert(connectorAccounts)
-      .values(input)
+      .values({ ...input, credentials: this.cipher.encrypt(input.credentials) })
       .returning({ id: connectorAccounts.id })
     const created = rows[0]
     if (!created) throw new Error('Failed to create connector account')
@@ -57,7 +61,9 @@ export class ConnectorAccountRepository {
       .from(connectorAccounts)
       .where(eq(connectorAccounts.id, id))
       .limit(1)
-    return rows[0]
+    const row = rows[0]
+    if (!row) return undefined
+    return { ...row, credentials: this.cipher.decrypt(row.credentials) }
   }
 
   async findByIdInWorkspace(id: string, workspaceId: string): Promise<{ id: string } | undefined> {
@@ -83,6 +89,8 @@ export class ConnectorAccountRepository {
         ),
       )
       .limit(1)
-    return rows[0]
+    const row = rows[0]
+    if (!row) return undefined
+    return { id: row.id, credentials: this.cipher.decrypt(row.credentials) }
   }
 }

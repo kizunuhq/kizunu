@@ -1,5 +1,6 @@
 import { channelAccounts } from '@kizunu/api/db/schemas/channel-accounts'
 import { DrizzleService } from '@kizunu/nestjs-shared/modules/persistence/services/drizzle.service'
+import { EncryptedCredentialsService } from '@kizunu/nestjs-shared/modules/persistence/services/encrypted-credentials.service'
 import { Injectable } from '@nestjs/common'
 import { and, eq } from 'drizzle-orm'
 
@@ -10,15 +11,25 @@ export interface ChannelAccountSummary {
   createdAt: Date
 }
 
+export interface NearExpiryChannelAccount {
+  id: string
+  pluginId: string
+  credentials: unknown
+}
+
 @Injectable()
 export class ChannelAccountRepository {
-  constructor(private readonly drizzle: DrizzleService) {}
+  constructor(
+    private readonly drizzle: DrizzleService,
+    private readonly cipher: EncryptedCredentialsService,
+  ) {}
 
   /**
    * `id` is optional so callers that need to know the row's id BEFORE persistence
    * (e.g. the create use-case pre-mints it so plugin `onAccountCreated` can embed
    * the id in provider callback URLs, feature 029) can pass an explicit one in.
-   * When omitted, Drizzle's `defaults()` generates a UUIDv7.
+   * When omitted, Drizzle's `defaults()` generates a UUIDv7. `credentials` is
+   * encrypted at this boundary (feature 030).
    */
   async create(input: {
     id?: string
@@ -29,7 +40,7 @@ export class ChannelAccountRepository {
   }): Promise<{ id: string }> {
     const rows = await this.drizzle.db
       .insert(channelAccounts)
-      .values(input)
+      .values({ ...input, credentials: this.cipher.encrypt(input.credentials) })
       .returning({ id: channelAccounts.id })
     const created = rows[0]
     if (!created) throw new Error('Failed to create channel account')
@@ -52,7 +63,9 @@ export class ChannelAccountRepository {
       .from(channelAccounts)
       .where(eq(channelAccounts.id, id))
       .limit(1)
-    return rows[0]
+    const row = rows[0]
+    if (!row) return undefined
+    return { credentials: this.cipher.decrypt(row.credentials) }
   }
 
   /**
@@ -72,7 +85,9 @@ export class ChannelAccountRepository {
       .from(channelAccounts)
       .where(eq(channelAccounts.id, id))
       .limit(1)
-    return rows[0]
+    const row = rows[0]
+    if (!row) return undefined
+    return { workspaceId: row.workspaceId, credentials: this.cipher.decrypt(row.credentials) }
   }
 
   async listByWorkspace(workspaceId: string): Promise<ChannelAccountSummary[]> {
@@ -85,5 +100,35 @@ export class ChannelAccountRepository {
       })
       .from(channelAccounts)
       .where(eq(channelAccounts.workspaceId, workspaceId))
+  }
+
+  /**
+   * Returns every channel-account row's decrypted credentials so the
+   * `OAuthRefreshService` (feature 030) can filter in JS by
+   * `accessTokenExpiresAt` <= `cutoff`. Encryption hides the expiry timestamp
+   * from the database, so a SQL pre-filter is not possible without
+   * denormalizing the column (deferred until volume warrants it).
+   */
+  async findAllWithCredentials(): Promise<NearExpiryChannelAccount[]> {
+    const rows = await this.drizzle.db
+      .select({
+        id: channelAccounts.id,
+        pluginId: channelAccounts.pluginId,
+        credentials: channelAccounts.credentials,
+      })
+      .from(channelAccounts)
+    return rows.map((row) => ({
+      id: row.id,
+      pluginId: row.pluginId,
+      credentials: this.cipher.decrypt(row.credentials),
+    }))
+  }
+
+  /** Updates the credentials JSONB; used by OAuthRefreshService after a refresh. */
+  async persistCredentials(id: string, credentials: unknown): Promise<void> {
+    await this.drizzle.db
+      .update(channelAccounts)
+      .set({ credentials: this.cipher.encrypt(credentials) })
+      .where(eq(channelAccounts.id, id))
   }
 }
