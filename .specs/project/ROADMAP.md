@@ -231,6 +231,19 @@ a separate slice and keeps the auth boundary isolated from the domain.
   real `/auth/*` prefix (`/auth/login`, `/auth/signup`, `/auth/verify-email`,
   `/auth/accept-invite/$token`); in-app redirects and the OAuth/verification link targets
   updated to match._
+
+**SMTP mail transport (and Mailpit dev inbox)** - COMPLETE
+- _Landed (feature `040`): `SmtpMailSender` wraps `nodemailer` behind the existing
+  `MailSender` port (introduced in `020`); `IdentityModule` selects it via a
+  `buildMailSender(config)` factory when `mail.smtpHost` is set, otherwise keeps
+  `ConsoleMailSender` so dev-without-SMTP is unchanged. `api.config.ts` gains a
+  `mail.*` block (`smtpHost`, `smtpPort`, `smtpUser`, `smtpPassword`, `smtpSecure`,
+  `from`) read from `APP_SMTP_*` / `APP_MAIL_FROM` (with `z.stringbool` for the
+  secure flag, consistent with the registration gate). Dev `docker-compose.yml`
+  brings up a `mailpit` service on profiles `all|infra|api|mail`, exposes SMTP on
+  `:1025` and the inbox UI on `:8025`, and the api `depends_on` it; signup-verify,
+  resend-verify-from-inside, and forgot-password→reset all deliver end-to-end to
+  the local inbox. Closes the CONCERNS §Medium "console mail logger" item._
 - Social login providers (set TBD in Specify; Google / GitHub the likely first) alongside
   email + password. Account linking by verified email; a new identities table; per-provider
   callback routes and client-id/secret/redirect config.
