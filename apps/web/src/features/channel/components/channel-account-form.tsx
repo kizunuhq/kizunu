@@ -6,6 +6,7 @@ import { Input } from '@kizunu/web/components/primitives/input'
 import { CredentialFieldsInput } from '@kizunu/web/features/channel/components/credential-fields-input'
 import { PluginSelect } from '@kizunu/web/features/channel/components/plugin-select'
 import { hasRequiredCredentials } from '@kizunu/web/features/channel/lib/has-required-credentials'
+import { userInputFields } from '@kizunu/web/features/channel/lib/user-input-fields'
 import { useState } from 'react'
 
 export function ChannelAccountForm({ workspaceId }: { workspaceId: string }) {
@@ -20,8 +21,9 @@ export function ChannelAccountForm({ workspaceId }: { workspaceId: string }) {
     },
   })
 
-  const fields =
-    plugins.data?.plugins.find((plugin) => plugin.id === pluginId)?.credentialFields ?? []
+  const fields = userInputFields(
+    plugins.data?.plugins.find((plugin) => plugin.id === pluginId)?.credentialFields ?? [],
+  )
 
   function selectPlugin(next: string) {
     setPluginId(next)
