@@ -99,7 +99,15 @@ export type WebhookHandler<T extends WebhookEvent> = (
 ) => void
 ```
 
-Good — handlers receive a narrowed payload:
+How the three shapes refer to the same vocabulary:
+
+- `WebhookEvent.PaymentSucceeded` is the **value** — the string `'payment.succeeded'` at runtime.
+- `typeof WebhookEvent.PaymentSucceeded` is the **literal type** of that one value — the type `'payment.succeeded'`. Use this to type a handler that only accepts one event.
+- `WebhookEvent` on its own is **both** the const object and the union type
+  `'payment.succeeded' | 'payment.failed' | 'refund.created'`, thanks to
+  declaration merging. Use this when a function accepts any event.
+
+Good — narrow handlers receive a narrowed payload:
 
 ```ts
 const onPaymentSucceeded: WebhookHandler<typeof WebhookEvent.PaymentSucceeded> = (payload) => {
@@ -123,6 +131,23 @@ const onRefundCreated: WebhookHandler<typeof WebhookEvent.RefundCreated> = (payl
   console.log(`Refund ${payload.chargeId}`)
 }
 ```
+
+A router that accepts any event uses the broader form `Handler<WebhookEvent>`.
+The payload then becomes the discriminated union of every shape in the map, and
+the router narrows by checking the event key:
+
+```ts
+function dispatch<T extends WebhookEvent>(event: T, payload: WebhookPayloadMap[T]): void {
+  if (event === WebhookEvent.PaymentSucceeded) {
+    // payload narrows to { chargeId: string; amount: number }
+    return onPaymentSucceeded(payload as WebhookPayloadMap[typeof WebhookEvent.PaymentSucceeded])
+  }
+  // …other branches
+}
+```
+
+The single cast at the router boundary is the price of dispatching dynamically;
+every handler downstream stays cast-free.
 
 When to reach for `PayloadMap`:
 
