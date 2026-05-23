@@ -1,3 +1,5 @@
+import { ChannelCapability } from '../../core/plugin/channel-capability'
+import { ChannelCredentialFieldType } from '../../core/plugin/channel-credential-field-type'
 import type { ChannelDecision } from '../../core/plugin/channel-decision'
 import type { ChannelPlugin } from '../../core/plugin/channel-plugin'
 import type { ChannelPluginManifest } from '../../core/plugin/channel-plugin-manifest'
@@ -54,20 +56,35 @@ export class MetaWhatsappPlugin implements ChannelPlugin {
   readonly manifest: ChannelPluginManifest = {
     id: 'meta-whatsapp',
     name: 'WhatsApp (Meta Cloud API)',
-    capabilities: ['freeform', 'template'],
+    capabilities: [ChannelCapability.Freeform, ChannelCapability.Template],
     configSchema: metaCredentialsClientSchema,
     credentialFields: [
-      { key: 'appId', label: 'Meta App ID', type: 'text', required: true },
-      { key: 'appSecret', label: 'Meta App Secret', type: 'secret', required: true },
-      { key: 'wabaId', label: 'WABA ID', type: 'text', required: true },
-      { key: 'phoneNumberId', label: 'Phone number ID', type: 'text', required: true },
-      { key: 'systemToken', label: 'System token', type: 'secret', required: true },
+      { key: 'appId', label: 'Meta App ID', type: ChannelCredentialFieldType.Text, required: true },
+      {
+        key: 'appSecret',
+        label: 'Meta App Secret',
+        type: ChannelCredentialFieldType.Secret,
+        required: true,
+      },
+      { key: 'wabaId', label: 'WABA ID', type: ChannelCredentialFieldType.Text, required: true },
+      {
+        key: 'phoneNumberId',
+        label: 'Phone number ID',
+        type: ChannelCredentialFieldType.Text,
+        required: true,
+      },
+      {
+        key: 'systemToken',
+        label: 'System token',
+        type: ChannelCredentialFieldType.Secret,
+        required: true,
+      },
       // Generated server-side during onAccountCreated, never operator-supplied.
       // The web form filters serverGenerated entries via userInputFields().
       {
         key: 'verifyToken',
         label: 'Verify token',
-        type: 'secret',
+        type: ChannelCredentialFieldType.Secret,
         required: true,
         serverGenerated: true,
       },

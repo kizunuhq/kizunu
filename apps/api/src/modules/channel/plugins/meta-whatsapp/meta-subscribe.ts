@@ -3,10 +3,8 @@ import { randomBytes } from 'node:crypto'
 import { z } from 'zod'
 
 import { type FetchFn } from './meta-send'
-import {
-  MetaSubscriptionFailedException,
-  type MetaSubscriptionStep,
-} from './meta-subscription-failed.exception'
+import { MetaSubscriptionFailedException } from './meta-subscription-failed.exception'
+import { MetaSubscriptionStep } from './meta-subscription-step'
 
 const VERIFY_TOKEN_BYTE_LENGTH = 32
 
@@ -64,7 +62,7 @@ export async function subscribeAppToMeta(input: SubscribeAppInput): Promise<void
   return await postMetaForm({
     fetchFn: input.fetchFn,
     url: `${input.baseUrl}/${input.appId}/subscriptions`,
-    step: 'app-subscription',
+    step: MetaSubscriptionStep.AppSubscription,
     params: {
       object: 'whatsapp_business_account',
       fields: 'messages',
@@ -86,7 +84,7 @@ export async function subscribeWabaToMeta(input: SubscribeWabaInput): Promise<vo
   return await postMetaForm({
     fetchFn: input.fetchFn,
     url: `${input.baseUrl}/${input.wabaId}/subscribed_apps`,
-    step: 'waba-subscription',
+    step: MetaSubscriptionStep.WabaSubscription,
     params: {
       override_callback_uri: input.callbackUrl,
       verify_token: input.verifyToken,

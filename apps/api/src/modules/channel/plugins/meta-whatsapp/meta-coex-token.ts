@@ -1,6 +1,7 @@
 import { z } from 'zod'
 
-import { MetaConnectFailedException, type MetaConnectStep } from './meta-connect-failed.exception'
+import { MetaConnectFailedException } from './meta-connect-failed.exception'
+import { MetaConnectStep } from './meta-connect-step'
 import { type FetchFn } from './meta-send'
 
 const MS_PER_SECOND = 1000
@@ -53,7 +54,7 @@ export async function exchangeCodeForToken(input: ExchangeCodeInput): Promise<Ex
   const response = await input.fetchFn(`${input.baseUrl}/oauth/access_token?${params.toString()}`, {
     method: 'GET',
   })
-  return await readToken(response, 'code-exchange')
+  return await readToken(response, MetaConnectStep.CodeExchange)
 }
 
 /**
@@ -72,7 +73,7 @@ export async function exchangeForRefreshedToken(
   const response = await input.fetchFn(`${input.baseUrl}/oauth/access_token?${params.toString()}`, {
     method: 'GET',
   })
-  return await readToken(response, 'refresh-exchange')
+  return await readToken(response, MetaConnectStep.RefreshExchange)
 }
 
 async function readToken(response: Response, step: MetaConnectStep): Promise<ExchangedToken> {

@@ -1,6 +1,6 @@
 import { ApplicationException } from '@kizunu/nestjs-shared/lib/exceptions/application.exception'
 
-export type MetaSubscriptionStep = 'app-subscription' | 'waba-subscription'
+import type { MetaSubscriptionStep } from './meta-subscription-step'
 
 /**
  * Raised when Meta's webhook-subscription flow rejects one of the two onboarding

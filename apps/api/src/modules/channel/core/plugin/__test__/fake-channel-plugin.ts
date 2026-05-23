@@ -1,5 +1,7 @@
 import { z } from 'zod'
 
+import { ChannelCapability } from '../channel-capability'
+import { ChannelCredentialFieldType } from '../channel-credential-field-type'
 import type { ChannelDecision } from '../channel-decision'
 import type { ChannelPlugin } from '../channel-plugin'
 import type { ChannelPluginManifest } from '../channel-plugin-manifest'
@@ -23,11 +25,21 @@ export class FakeChannelPlugin implements ChannelPlugin {
   readonly manifest: ChannelPluginManifest = {
     id: 'fake',
     name: 'Fake Channel',
-    capabilities: ['freeform', 'template'],
+    capabilities: [ChannelCapability.Freeform, ChannelCapability.Template],
     configSchema: fakeConfigSchema,
     credentialFields: [
-      { key: 'apiKey', label: 'API key', type: 'secret', required: true },
-      { key: 'sender', label: 'Sender', type: 'text', required: true },
+      {
+        key: 'apiKey',
+        label: 'API key',
+        type: ChannelCredentialFieldType.Secret,
+        required: true,
+      },
+      {
+        key: 'sender',
+        label: 'Sender',
+        type: ChannelCredentialFieldType.Text,
+        required: true,
+      },
     ],
   }
 
