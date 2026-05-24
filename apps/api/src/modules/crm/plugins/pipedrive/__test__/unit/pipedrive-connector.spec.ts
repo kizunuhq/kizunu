@@ -61,3 +61,45 @@ describe('PipedriveConnector outbound actions', () => {
     )
   })
 })
+
+describe('PipedriveConnector.fetchOwner', () => {
+  it('returns the normalized owner shape when Pipedrive resolves the user', async () => {
+    const { connector, fetchFn } = connectorWithFetch(
+      new Response(
+        JSON.stringify({ data: { id: 42, name: 'Ada Lovelace', email: 'ada@acme.com' } }),
+        { status: 200 },
+      ),
+    )
+
+    const owner = await connector.fetchOwner('42', credentials)
+
+    expect(owner).toEqual({ externalId: '42', name: 'Ada Lovelace', email: 'ada@acme.com' })
+    expect(fetchFn.mock.calls[0]![0]).toBe('https://api.test/v1/users/42?api_token=token-1')
+  })
+
+  it('returns null email when Pipedrive omits the email field on the user', async () => {
+    const { connector } = connectorWithFetch(
+      new Response(JSON.stringify({ data: { id: 42, name: 'No Email' } }), { status: 200 }),
+    )
+
+    const owner = await connector.fetchOwner('42', credentials)
+
+    expect(owner).toEqual({ externalId: '42', name: 'No Email', email: null })
+  })
+
+  it('returns null when the user does not exist (Pipedrive 404)', async () => {
+    const { connector } = connectorWithFetch(new Response('not found', { status: 404 }))
+
+    const owner = await connector.fetchOwner('42', credentials)
+
+    expect(owner).toBeNull()
+  })
+
+  it('throws CrmRequestFailedException on Pipedrive 5xx', async () => {
+    const { connector } = connectorWithFetch(new Response('server down', { status: 500 }))
+
+    await expect(connector.fetchOwner('42', credentials)).rejects.toBeInstanceOf(
+      CrmRequestFailedException,
+    )
+  })
+})

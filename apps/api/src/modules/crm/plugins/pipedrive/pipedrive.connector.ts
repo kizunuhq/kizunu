@@ -3,6 +3,7 @@ import type { CRMConnector } from '../../core/connector/crm-connector'
 import type { CrmConnectorManifest } from '../../core/connector/crm-connector-manifest'
 import type { NormalizedEvent } from '../../core/connector/normalized-event'
 import type { NormalizedLead } from '../../core/connector/normalized-lead'
+import type { NormalizedOwner } from '../../core/connector/normalized-owner'
 import type { StageRef } from '../../core/connector/stage-ref'
 import { type FetchFn, PipedriveApi } from './pipedrive-api'
 import { pipedriveCredentialsSchema } from './pipedrive-credentials'
@@ -34,6 +35,10 @@ export class PipedriveConnector implements CRMConnector {
 
   async fetchLead(externalId: string, credentials: unknown): Promise<NormalizedLead> {
     return await this.api.fetchLead(externalId, pipedriveCredentialsSchema.parse(credentials))
+  }
+
+  async fetchOwner(externalId: string, credentials: unknown): Promise<NormalizedOwner | null> {
+    return await this.api.fetchOwner(externalId, pipedriveCredentialsSchema.parse(credentials))
   }
 
   async logActivity(
