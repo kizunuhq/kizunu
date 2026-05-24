@@ -74,8 +74,20 @@ mapping. New `lead_journeys.errorReason` column (free `varchar(80)`) +
 follow-up (api-client hooks shipped; auto-match covers the 2-BDR pilot
 without admin clicks)._
 
-The `sendingWindow` and `template variables` sub-bullets remain open
-(features `049` and `048`, both PLANNED on the ROADMAP).
+The `sendingWindow` sub-bullet remains open (feature `049`, PLANNED on
+the ROADMAP).
+
+_(Resolved — template variables) Feature `048` (Phase 2.0): new
+`TemplateVariableResolver` (closed vocabulary: `leadFirstName`,
+`leadName`, `leadPhone`, `ownerExternalId`); the dispatcher's
+`dispatchStep` resolves declared variables from the Lead context before
+calling `plugin.send`. Missing values throw
+`TemplateVariableUnresolvedException` → journey parks with
+`errorReason='template_variable_missing'`; unknown names throw
+`TemplateVariableUnknownException` → reason
+`template_variable_unknown`. The Meta plugin's existing path mapped the
+named Record to positional HSM `components.parameters` via
+`Object.values()` — locked behind two new unit tests. No schema change._
 
 ### Migrations run on every API boot
 **Evidence:** `main.ts` `runMigrations()` runs before `bootstrap()` on every start.

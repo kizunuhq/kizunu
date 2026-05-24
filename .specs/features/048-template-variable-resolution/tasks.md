@@ -2,7 +2,7 @@
 
 **Spec:** `.specs/features/048-template-variable-resolution/spec.md`
 **Design:** `.specs/features/048-template-variable-resolution/design.md`
-**Status:** Approved
+**Status:** Done
 
 ---
 

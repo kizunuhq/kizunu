@@ -504,13 +504,20 @@ matches the v0.1 reference use case point-for-point.
   the only deferred bit (auto-match by verified email covers the 2-BDR
   pilot without admin clicks)._
 
-**Template-variable resolution** - PLANNED (feature `048`)
-- The dispatcher sends templates without filling `{{n}}` parameters. Meta
-  rejects the send if the approved template declares variables. Required
-  only if any of the pilot's 5 HSM templates carry variables (decided
-  after Meta approval round).
-- Resolves variables from `Lead` fields (`name`, `phone`, future custom
-  fields) and the `LeadJourney` (current step ordinal, cadence name).
+**Template-variable resolution** - COMPLETE (feature `048`)
+- _Landed (feature `048`): closes the template-variables sub-bullet of
+  the Dispatcher gaps HIGH item in CONCERNS. New
+  `TemplateVariableResolver` (closed vocabulary: `leadFirstName`,
+  `leadName`, `leadPhone`, `ownerExternalId`) with two engine-internal
+  exceptions. Dispatcher's `dispatchStep` resolves declared variables
+  before calling `plugin.send`; missing-or-unknown paths transition the
+  journey to `error_state` with new reasons
+  `template_variable_missing` / `template_variable_unknown`. Meta
+  plugin's existing send path already mapped the named Record onto
+  Meta's positional HSM `components.parameters` via `Object.values()` —
+  locked behind two new focused unit tests. `LockedJourney` projection
+  widens by one column (`leads.name`) so the resolver runs with no
+  extra round-trip. No schema change._
 
 **Cadence sending window** - PLANNED (feature `049`)
 - Engine respects `cadence.sendingWindow` (timezone + days + hours);
