@@ -50,6 +50,15 @@ upgrade without a data migration. Tampering throws
 **Impact:** Anyone who learns a connector-account id could post forged stage-entered events and start journeys. Pilot risk is low (id is a random UUIDv7, not exposed), but it is not defense-in-depth. Event-key idempotency is also journey-level only (no `processed_events` table), so redeliveries with distinct keys are not deduped.
 **Fix:** Add per-connector webhook secret/HMAC verification when hardening, and a `processed_events` idempotency table keyed by `NormalizedEvent.idempotencyKey`.
 
+_(Resolved — webhook secret) Feature `053`: connector-account create now
+mints a server-generated `webhookToken` (32-byte hex,
+`crypto.randomBytes(32).toString('hex')`) stored inside the encrypted
+credentials JSONB. `POST /webhooks/crm/:id?token=<value>` verifies the
+query param against the stored token and returns `403` on mismatch.
+Pre-053 rows without a stored `webhookToken` skip verification
+(backward-compatible). The matching `processed_events` idempotency
+table sub-bullet remains open as Phase 2.1+ pilot-hardening._
+
 ### Inbox has no backend (inbound messages are not stored)
 **Evidence:** `MarkReplyUseCase` (feature `010`) transitions the journey to `replied` and runs `onReply`, but the inbound message body/sender is never persisted; there is no conversations/messages table or API.
 **Impact:** The roadmap's BDR "inbox (filter by instance / my leads)" UI cannot be built — there is no data source. Only the reply *signal* is consumed, not the content.

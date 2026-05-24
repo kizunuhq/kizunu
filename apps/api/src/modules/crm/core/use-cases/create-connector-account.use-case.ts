@@ -1,7 +1,11 @@
+import { randomBytes } from 'node:crypto'
+
 import { Injectable } from '@nestjs/common'
 
 import { ConnectorAccountRepository } from '../../persistence/connector-account.repository'
 import { CrmConnectorRegistry } from '../connector/crm-connector-registry'
+
+const WEBHOOK_TOKEN_BYTES = 32
 
 export interface CreateConnectorAccountInput {
   workspaceId: string
@@ -24,13 +28,34 @@ export class CreateConnectorAccountUseCase {
   ) {}
 
   async execute(input: CreateConnectorAccountInput): Promise<CreateConnectorAccountOutput> {
-    const credentials = this.registry.validateCredentials(input.connectorId, input.credentials)
+    const sanitized = stripClientWebhookToken(input.credentials)
+    const validated = this.registry.validateCredentials(input.connectorId, sanitized)
+    const enriched = withServerWebhookToken(validated)
     const { id } = await this.accounts.create({
       workspaceId: input.workspaceId,
       connectorId: input.connectorId,
       name: input.name,
-      credentials,
+      credentials: enriched,
     })
     return { id, connectorId: input.connectorId, name: input.name }
   }
+}
+
+function isCredentialsObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null
+}
+
+function stripClientWebhookToken(credentials: unknown): unknown {
+  if (!isCredentialsObject(credentials)) return credentials
+  const { webhookToken: _stripped, ...rest } = credentials
+  return rest
+}
+
+function withServerWebhookToken(credentials: unknown): unknown {
+  if (!isCredentialsObject(credentials)) return credentials
+  return { ...credentials, webhookToken: randomWebhookToken() }
+}
+
+function randomWebhookToken(): string {
+  return randomBytes(WEBHOOK_TOKEN_BYTES).toString('hex')
 }
