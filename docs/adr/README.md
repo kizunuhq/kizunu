@@ -11,3 +11,4 @@ Decisions are immutable historical records. Never edit a decision after the fact
 | [005](005-db-poller-scheduler.md) | In-Process DB Poller as the Scheduler, Not BullMQ/Redis | Accepted |
 | [006](006-auth-posture.md) | v0.1 Auth Posture — Email/Password, sameSite + CORS for CSRF, IP Rate-Limit | Accepted |
 | [007](007-web-frontend-layering.md) | Web Frontend Layering and Patterns | Accepted |
+| [008](008-forms-react-hook-form-zod.md) | Forms use react-hook-form + zodResolver bound to contract schemas | Accepted |

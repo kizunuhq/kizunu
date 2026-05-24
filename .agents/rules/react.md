@@ -102,6 +102,10 @@ export function StatusBadge({ status }: StatusBadgeProps) {
 
 Declare state in the smallest component that needs to read or update it. Lift state only when multiple components need to share it.
 
+**Exception**: form field state lives in `react-hook-form` per
+`web-patterns.md` §3 (forbidden as per-field `useState`). The "close to use"
+rule applies to non-form ephemeral state (open/closed flags, hover, etc.).
+
 Bad:
 
 ```tsx
