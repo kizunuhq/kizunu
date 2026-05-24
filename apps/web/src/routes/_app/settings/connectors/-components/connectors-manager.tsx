@@ -7,6 +7,7 @@ import {
   CardTitle,
 } from '@kizunu/web/components/primitives/card'
 import { EntryTriggersTable } from '@kizunu/web/routes/_app/settings/connectors/-components/entry-triggers-table'
+import { MemberIdentitiesCard } from '@kizunu/web/routes/_app/settings/connectors/-components/member-identities-card'
 import { CreateEntryTriggerDialog } from '@kizunu/web/routes/_app/settings/connectors/-dialogs/create-entry-trigger-dialog'
 import { Plus } from '@phosphor-icons/react'
 import { useState } from 'react'
@@ -19,7 +20,7 @@ export function ConnectorsManager({ workspaceId }: ConnectorsManagerProps) {
   const [addTriggerOpen, setAddTriggerOpen] = useState(false)
 
   return (
-    <>
+    <div className="flex flex-col gap-6">
       <Card>
         <CardHeader>
           <CardTitle>Entry triggers (stage → cadence)</CardTitle>
@@ -39,6 +40,7 @@ export function ConnectorsManager({ workspaceId }: ConnectorsManagerProps) {
         open={addTriggerOpen}
         onOpenChange={setAddTriggerOpen}
       />
-    </>
+      <MemberIdentitiesCard workspaceId={workspaceId} />
+    </div>
   )
 }
