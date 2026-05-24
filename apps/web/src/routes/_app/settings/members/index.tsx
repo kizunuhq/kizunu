@@ -3,14 +3,14 @@ import type { InviteMemberResponse } from '@kizunu/api-contracts/workspace'
 import { PageHeader } from '@kizunu/web/components/composed/page-header'
 import { Button } from '@kizunu/web/components/primitives/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@kizunu/web/components/primitives/card'
-import { MembersTable } from '@kizunu/web/routes/_app/settings/-components/members/members-table'
-import { InvitationTokenDialog } from '@kizunu/web/routes/_app/settings/-dialogs/invitation-token-dialog'
-import { InviteMemberDialog } from '@kizunu/web/routes/_app/settings/-dialogs/invite-member-dialog'
+import { MembersTable } from '@kizunu/web/routes/_app/settings/members/-components/members-table'
+import { InvitationTokenDialog } from '@kizunu/web/routes/_app/settings/members/-dialogs/invitation-token-dialog'
+import { InviteMemberDialog } from '@kizunu/web/routes/_app/settings/members/-dialogs/invite-member-dialog'
 import { Plus } from '@phosphor-icons/react'
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
 
-export const Route = createFileRoute('/_app/settings/members')({
+export const Route = createFileRoute('/_app/settings/members/')({
   component: MembersPage,
 })
 

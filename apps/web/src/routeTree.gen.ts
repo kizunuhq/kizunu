@@ -27,11 +27,11 @@ import { Route as AppWorkspaceMyChannelsRouteImport } from './routes/_app/worksp
 import { Route as AppWorkspaceJourneysRouteImport } from './routes/_app/workspace/journeys'
 import { Route as AppWorkspaceConnectMetaCoexRouteImport } from './routes/_app/workspace/connect-meta-coex'
 import { Route as AppWorkspaceCadencesRouteImport } from './routes/_app/workspace/cadences'
-import { Route as AppSettingsMembersRouteImport } from './routes/_app/settings/members'
 import { Route as AppSettingsChannelsRouteImport } from './routes/_app/settings/channels'
 import { Route as AppSettingsWorkspaceIndexRouteImport } from './routes/_app/settings/workspace/index'
 import { Route as AppSettingsSecurityIndexRouteImport } from './routes/_app/settings/security/index'
 import { Route as AppSettingsProfileIndexRouteImport } from './routes/_app/settings/profile/index'
+import { Route as AppSettingsMembersIndexRouteImport } from './routes/_app/settings/members/index'
 import { Route as AppSettingsConnectorsIndexRouteImport } from './routes/_app/settings/connectors/index'
 import { Route as AppSettingsBillingIndexRouteImport } from './routes/_app/settings/billing/index'
 
@@ -125,11 +125,6 @@ const AppWorkspaceCadencesRoute = AppWorkspaceCadencesRouteImport.update({
   path: '/workspace/cadences',
   getParentRoute: () => AppRouteRoute,
 } as any)
-const AppSettingsMembersRoute = AppSettingsMembersRouteImport.update({
-  id: '/members',
-  path: '/members',
-  getParentRoute: () => AppSettingsRouteRoute,
-} as any)
 const AppSettingsChannelsRoute = AppSettingsChannelsRouteImport.update({
   id: '/channels',
   path: '/channels',
@@ -150,6 +145,11 @@ const AppSettingsSecurityIndexRoute =
 const AppSettingsProfileIndexRoute = AppSettingsProfileIndexRouteImport.update({
   id: '/profile/',
   path: '/profile/',
+  getParentRoute: () => AppSettingsRouteRoute,
+} as any)
+const AppSettingsMembersIndexRoute = AppSettingsMembersIndexRouteImport.update({
+  id: '/members/',
+  path: '/members/',
   getParentRoute: () => AppSettingsRouteRoute,
 } as any)
 const AppSettingsConnectorsIndexRoute =
@@ -176,7 +176,6 @@ export interface FileRoutesByFullPath {
   '/auth/verify-email': typeof AuthVerifyEmailRoute
   '/auth/': typeof AuthIndexRoute
   '/settings/channels': typeof AppSettingsChannelsRoute
-  '/settings/members': typeof AppSettingsMembersRoute
   '/workspace/cadences': typeof AppWorkspaceCadencesRoute
   '/workspace/connect-meta-coex': typeof AppWorkspaceConnectMetaCoexRoute
   '/workspace/journeys': typeof AppWorkspaceJourneysRoute
@@ -186,6 +185,7 @@ export interface FileRoutesByFullPath {
   '/workspace/': typeof AppWorkspaceIndexRoute
   '/settings/billing/': typeof AppSettingsBillingIndexRoute
   '/settings/connectors/': typeof AppSettingsConnectorsIndexRoute
+  '/settings/members/': typeof AppSettingsMembersIndexRoute
   '/settings/profile/': typeof AppSettingsProfileIndexRoute
   '/settings/security/': typeof AppSettingsSecurityIndexRoute
   '/settings/workspace/': typeof AppSettingsWorkspaceIndexRoute
@@ -200,7 +200,6 @@ export interface FileRoutesByTo {
   '/auth/verify-email': typeof AuthVerifyEmailRoute
   '/auth': typeof AuthIndexRoute
   '/settings/channels': typeof AppSettingsChannelsRoute
-  '/settings/members': typeof AppSettingsMembersRoute
   '/workspace/cadences': typeof AppWorkspaceCadencesRoute
   '/workspace/connect-meta-coex': typeof AppWorkspaceConnectMetaCoexRoute
   '/workspace/journeys': typeof AppWorkspaceJourneysRoute
@@ -210,6 +209,7 @@ export interface FileRoutesByTo {
   '/workspace': typeof AppWorkspaceIndexRoute
   '/settings/billing': typeof AppSettingsBillingIndexRoute
   '/settings/connectors': typeof AppSettingsConnectorsIndexRoute
+  '/settings/members': typeof AppSettingsMembersIndexRoute
   '/settings/profile': typeof AppSettingsProfileIndexRoute
   '/settings/security': typeof AppSettingsSecurityIndexRoute
   '/settings/workspace': typeof AppSettingsWorkspaceIndexRoute
@@ -228,7 +228,6 @@ export interface FileRoutesById {
   '/auth/verify-email': typeof AuthVerifyEmailRoute
   '/auth/': typeof AuthIndexRoute
   '/_app/settings/channels': typeof AppSettingsChannelsRoute
-  '/_app/settings/members': typeof AppSettingsMembersRoute
   '/_app/workspace/cadences': typeof AppWorkspaceCadencesRoute
   '/_app/workspace/connect-meta-coex': typeof AppWorkspaceConnectMetaCoexRoute
   '/_app/workspace/journeys': typeof AppWorkspaceJourneysRoute
@@ -238,6 +237,7 @@ export interface FileRoutesById {
   '/_app/workspace/': typeof AppWorkspaceIndexRoute
   '/_app/settings/billing/': typeof AppSettingsBillingIndexRoute
   '/_app/settings/connectors/': typeof AppSettingsConnectorsIndexRoute
+  '/_app/settings/members/': typeof AppSettingsMembersIndexRoute
   '/_app/settings/profile/': typeof AppSettingsProfileIndexRoute
   '/_app/settings/security/': typeof AppSettingsSecurityIndexRoute
   '/_app/settings/workspace/': typeof AppSettingsWorkspaceIndexRoute
@@ -256,7 +256,6 @@ export interface FileRouteTypes {
     | '/auth/verify-email'
     | '/auth/'
     | '/settings/channels'
-    | '/settings/members'
     | '/workspace/cadences'
     | '/workspace/connect-meta-coex'
     | '/workspace/journeys'
@@ -266,6 +265,7 @@ export interface FileRouteTypes {
     | '/workspace/'
     | '/settings/billing/'
     | '/settings/connectors/'
+    | '/settings/members/'
     | '/settings/profile/'
     | '/settings/security/'
     | '/settings/workspace/'
@@ -280,7 +280,6 @@ export interface FileRouteTypes {
     | '/auth/verify-email'
     | '/auth'
     | '/settings/channels'
-    | '/settings/members'
     | '/workspace/cadences'
     | '/workspace/connect-meta-coex'
     | '/workspace/journeys'
@@ -290,6 +289,7 @@ export interface FileRouteTypes {
     | '/workspace'
     | '/settings/billing'
     | '/settings/connectors'
+    | '/settings/members'
     | '/settings/profile'
     | '/settings/security'
     | '/settings/workspace'
@@ -307,7 +307,6 @@ export interface FileRouteTypes {
     | '/auth/verify-email'
     | '/auth/'
     | '/_app/settings/channels'
-    | '/_app/settings/members'
     | '/_app/workspace/cadences'
     | '/_app/workspace/connect-meta-coex'
     | '/_app/workspace/journeys'
@@ -317,6 +316,7 @@ export interface FileRouteTypes {
     | '/_app/workspace/'
     | '/_app/settings/billing/'
     | '/_app/settings/connectors/'
+    | '/_app/settings/members/'
     | '/_app/settings/profile/'
     | '/_app/settings/security/'
     | '/_app/settings/workspace/'
@@ -457,13 +457,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppWorkspaceCadencesRouteImport
       parentRoute: typeof AppRouteRoute
     }
-    '/_app/settings/members': {
-      id: '/_app/settings/members'
-      path: '/members'
-      fullPath: '/settings/members'
-      preLoaderRoute: typeof AppSettingsMembersRouteImport
-      parentRoute: typeof AppSettingsRouteRoute
-    }
     '/_app/settings/channels': {
       id: '/_app/settings/channels'
       path: '/channels'
@@ -492,6 +485,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSettingsProfileIndexRouteImport
       parentRoute: typeof AppSettingsRouteRoute
     }
+    '/_app/settings/members/': {
+      id: '/_app/settings/members/'
+      path: '/members'
+      fullPath: '/settings/members/'
+      preLoaderRoute: typeof AppSettingsMembersIndexRouteImport
+      parentRoute: typeof AppSettingsRouteRoute
+    }
     '/_app/settings/connectors/': {
       id: '/_app/settings/connectors/'
       path: '/connectors'
@@ -511,10 +511,10 @@ declare module '@tanstack/react-router' {
 
 interface AppSettingsRouteRouteChildren {
   AppSettingsChannelsRoute: typeof AppSettingsChannelsRoute
-  AppSettingsMembersRoute: typeof AppSettingsMembersRoute
   AppSettingsIndexRoute: typeof AppSettingsIndexRoute
   AppSettingsBillingIndexRoute: typeof AppSettingsBillingIndexRoute
   AppSettingsConnectorsIndexRoute: typeof AppSettingsConnectorsIndexRoute
+  AppSettingsMembersIndexRoute: typeof AppSettingsMembersIndexRoute
   AppSettingsProfileIndexRoute: typeof AppSettingsProfileIndexRoute
   AppSettingsSecurityIndexRoute: typeof AppSettingsSecurityIndexRoute
   AppSettingsWorkspaceIndexRoute: typeof AppSettingsWorkspaceIndexRoute
@@ -522,10 +522,10 @@ interface AppSettingsRouteRouteChildren {
 
 const AppSettingsRouteRouteChildren: AppSettingsRouteRouteChildren = {
   AppSettingsChannelsRoute: AppSettingsChannelsRoute,
-  AppSettingsMembersRoute: AppSettingsMembersRoute,
   AppSettingsIndexRoute: AppSettingsIndexRoute,
   AppSettingsBillingIndexRoute: AppSettingsBillingIndexRoute,
   AppSettingsConnectorsIndexRoute: AppSettingsConnectorsIndexRoute,
+  AppSettingsMembersIndexRoute: AppSettingsMembersIndexRoute,
   AppSettingsProfileIndexRoute: AppSettingsProfileIndexRoute,
   AppSettingsSecurityIndexRoute: AppSettingsSecurityIndexRoute,
   AppSettingsWorkspaceIndexRoute: AppSettingsWorkspaceIndexRoute,

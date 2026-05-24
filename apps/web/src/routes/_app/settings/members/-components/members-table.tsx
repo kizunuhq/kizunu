@@ -7,9 +7,9 @@ import {
   TableHeader,
   TableRow,
 } from '@kizunu/web/components/primitives/table'
-import { MemberRow } from '@kizunu/web/routes/_app/settings/-components/members/member-row'
-import { DeactivateMemberDialog } from '@kizunu/web/routes/_app/settings/-dialogs/deactivate-member-dialog'
-import { PauseOwnerJourneysDialog } from '@kizunu/web/routes/_app/settings/-dialogs/pause-owner-journeys-dialog'
+import { MemberRow } from '@kizunu/web/routes/_app/settings/members/-components/member-row'
+import { DeactivateMemberDialog } from '@kizunu/web/routes/_app/settings/members/-dialogs/deactivate-member-dialog'
+import { PauseOwnerJourneysDialog } from '@kizunu/web/routes/_app/settings/members/-dialogs/pause-owner-journeys-dialog'
 import { useState } from 'react'
 
 type Member = ListMembersResponse['members'][number]
