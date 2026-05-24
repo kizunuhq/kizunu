@@ -1,7 +1,7 @@
-import { VerifyEmailPanel } from '@kizunu/web/routes/auth/-components/verify-email-panel'
+import { VerifyEmailPanel } from '@kizunu/web/routes/auth/verify-email/-components/verify-email-panel'
 import { createFileRoute } from '@tanstack/react-router'
 
-export const Route = createFileRoute('/auth/verify-email')({
+export const Route = createFileRoute('/auth/verify-email/')({
   validateSearch: (search: Record<string, unknown>) => ({
     token: typeof search.token === 'string' ? search.token : '',
   }),

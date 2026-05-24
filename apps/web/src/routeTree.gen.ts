@@ -14,8 +14,8 @@ import { Route as AuthRouteRouteImport } from './routes/auth/route'
 import { Route as AppRouteRouteImport } from './routes/_app/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthIndexRouteImport } from './routes/auth/index'
-import { Route as AuthVerifyEmailRouteImport } from './routes/auth/verify-email'
 import { Route as AppSettingsRouteRouteImport } from './routes/_app/settings/route'
+import { Route as AuthVerifyEmailIndexRouteImport } from './routes/auth/verify-email/index'
 import { Route as AuthSignupIndexRouteImport } from './routes/auth/signup/index'
 import { Route as AuthResetPasswordIndexRouteImport } from './routes/auth/reset-password/index'
 import { Route as AuthLoginIndexRouteImport } from './routes/auth/login/index'
@@ -59,15 +59,15 @@ const AuthIndexRoute = AuthIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthRouteRoute,
 } as any)
-const AuthVerifyEmailRoute = AuthVerifyEmailRouteImport.update({
-  id: '/verify-email',
-  path: '/verify-email',
-  getParentRoute: () => AuthRouteRoute,
-} as any)
 const AppSettingsRouteRoute = AppSettingsRouteRouteImport.update({
   id: '/settings',
   path: '/settings',
   getParentRoute: () => AppRouteRoute,
+} as any)
+const AuthVerifyEmailIndexRoute = AuthVerifyEmailIndexRouteImport.update({
+  id: '/verify-email/',
+  path: '/verify-email/',
+  getParentRoute: () => AuthRouteRoute,
 } as any)
 const AuthSignupIndexRoute = AuthSignupIndexRouteImport.update({
   id: '/signup/',
@@ -173,7 +173,6 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRouteRouteWithChildren
   '/not-found': typeof NotFoundRoute
   '/settings': typeof AppSettingsRouteRouteWithChildren
-  '/auth/verify-email': typeof AuthVerifyEmailRoute
   '/auth/': typeof AuthIndexRoute
   '/auth/accept-invite/$token': typeof AuthAcceptInviteTokenRoute
   '/settings/': typeof AppSettingsIndexRoute
@@ -182,6 +181,7 @@ export interface FileRoutesByFullPath {
   '/auth/login/': typeof AuthLoginIndexRoute
   '/auth/reset-password/': typeof AuthResetPasswordIndexRoute
   '/auth/signup/': typeof AuthSignupIndexRoute
+  '/auth/verify-email/': typeof AuthVerifyEmailIndexRoute
   '/settings/billing/': typeof AppSettingsBillingIndexRoute
   '/settings/channels/': typeof AppSettingsChannelsIndexRoute
   '/settings/connectors/': typeof AppSettingsConnectorsIndexRoute
@@ -197,7 +197,6 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/not-found': typeof NotFoundRoute
-  '/auth/verify-email': typeof AuthVerifyEmailRoute
   '/auth': typeof AuthIndexRoute
   '/auth/accept-invite/$token': typeof AuthAcceptInviteTokenRoute
   '/settings': typeof AppSettingsIndexRoute
@@ -206,6 +205,7 @@ export interface FileRoutesByTo {
   '/auth/login': typeof AuthLoginIndexRoute
   '/auth/reset-password': typeof AuthResetPasswordIndexRoute
   '/auth/signup': typeof AuthSignupIndexRoute
+  '/auth/verify-email': typeof AuthVerifyEmailIndexRoute
   '/settings/billing': typeof AppSettingsBillingIndexRoute
   '/settings/channels': typeof AppSettingsChannelsIndexRoute
   '/settings/connectors': typeof AppSettingsConnectorsIndexRoute
@@ -225,7 +225,6 @@ export interface FileRoutesById {
   '/auth': typeof AuthRouteRouteWithChildren
   '/not-found': typeof NotFoundRoute
   '/_app/settings': typeof AppSettingsRouteRouteWithChildren
-  '/auth/verify-email': typeof AuthVerifyEmailRoute
   '/auth/': typeof AuthIndexRoute
   '/auth/accept-invite/$token': typeof AuthAcceptInviteTokenRoute
   '/_app/settings/': typeof AppSettingsIndexRoute
@@ -234,6 +233,7 @@ export interface FileRoutesById {
   '/auth/login/': typeof AuthLoginIndexRoute
   '/auth/reset-password/': typeof AuthResetPasswordIndexRoute
   '/auth/signup/': typeof AuthSignupIndexRoute
+  '/auth/verify-email/': typeof AuthVerifyEmailIndexRoute
   '/_app/settings/billing/': typeof AppSettingsBillingIndexRoute
   '/_app/settings/channels/': typeof AppSettingsChannelsIndexRoute
   '/_app/settings/connectors/': typeof AppSettingsConnectorsIndexRoute
@@ -253,7 +253,6 @@ export interface FileRouteTypes {
     | '/auth'
     | '/not-found'
     | '/settings'
-    | '/auth/verify-email'
     | '/auth/'
     | '/auth/accept-invite/$token'
     | '/settings/'
@@ -262,6 +261,7 @@ export interface FileRouteTypes {
     | '/auth/login/'
     | '/auth/reset-password/'
     | '/auth/signup/'
+    | '/auth/verify-email/'
     | '/settings/billing/'
     | '/settings/channels/'
     | '/settings/connectors/'
@@ -277,7 +277,6 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/not-found'
-    | '/auth/verify-email'
     | '/auth'
     | '/auth/accept-invite/$token'
     | '/settings'
@@ -286,6 +285,7 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/reset-password'
     | '/auth/signup'
+    | '/auth/verify-email'
     | '/settings/billing'
     | '/settings/channels'
     | '/settings/connectors'
@@ -304,7 +304,6 @@ export interface FileRouteTypes {
     | '/auth'
     | '/not-found'
     | '/_app/settings'
-    | '/auth/verify-email'
     | '/auth/'
     | '/auth/accept-invite/$token'
     | '/_app/settings/'
@@ -313,6 +312,7 @@ export interface FileRouteTypes {
     | '/auth/login/'
     | '/auth/reset-password/'
     | '/auth/signup/'
+    | '/auth/verify-email/'
     | '/_app/settings/billing/'
     | '/_app/settings/channels/'
     | '/_app/settings/connectors/'
@@ -370,19 +370,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthIndexRouteImport
       parentRoute: typeof AuthRouteRoute
     }
-    '/auth/verify-email': {
-      id: '/auth/verify-email'
-      path: '/verify-email'
-      fullPath: '/auth/verify-email'
-      preLoaderRoute: typeof AuthVerifyEmailRouteImport
-      parentRoute: typeof AuthRouteRoute
-    }
     '/_app/settings': {
       id: '/_app/settings'
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof AppSettingsRouteRouteImport
       parentRoute: typeof AppRouteRoute
+    }
+    '/auth/verify-email/': {
+      id: '/auth/verify-email/'
+      path: '/verify-email'
+      fullPath: '/auth/verify-email/'
+      preLoaderRoute: typeof AuthVerifyEmailIndexRouteImport
+      parentRoute: typeof AuthRouteRoute
     }
     '/auth/signup/': {
       id: '/auth/signup/'
@@ -561,23 +561,23 @@ const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
 )
 
 interface AuthRouteRouteChildren {
-  AuthVerifyEmailRoute: typeof AuthVerifyEmailRoute
   AuthIndexRoute: typeof AuthIndexRoute
   AuthAcceptInviteTokenRoute: typeof AuthAcceptInviteTokenRoute
   AuthForgotPasswordIndexRoute: typeof AuthForgotPasswordIndexRoute
   AuthLoginIndexRoute: typeof AuthLoginIndexRoute
   AuthResetPasswordIndexRoute: typeof AuthResetPasswordIndexRoute
   AuthSignupIndexRoute: typeof AuthSignupIndexRoute
+  AuthVerifyEmailIndexRoute: typeof AuthVerifyEmailIndexRoute
 }
 
 const AuthRouteRouteChildren: AuthRouteRouteChildren = {
-  AuthVerifyEmailRoute: AuthVerifyEmailRoute,
   AuthIndexRoute: AuthIndexRoute,
   AuthAcceptInviteTokenRoute: AuthAcceptInviteTokenRoute,
   AuthForgotPasswordIndexRoute: AuthForgotPasswordIndexRoute,
   AuthLoginIndexRoute: AuthLoginIndexRoute,
   AuthResetPasswordIndexRoute: AuthResetPasswordIndexRoute,
   AuthSignupIndexRoute: AuthSignupIndexRoute,
+  AuthVerifyEmailIndexRoute: AuthVerifyEmailIndexRoute,
 }
 
 const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(
