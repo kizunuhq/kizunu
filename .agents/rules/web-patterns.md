@@ -265,6 +265,13 @@ type FormValues = z.infer<typeof formSchema>
 ```
 
 Variations:
+- **Subset (`.pick`)**: when the form only surfaces a subset of the
+  contract's fields,
+  `const formSchema = ContractSchema.pick({ email: true })` is the right
+  derivation. Also necessary when the contract carries a `z.coerce.*` or
+  `.default(...)` whose input/output types diverge — `useForm<z.infer<T>>`
+  requires the same shape on both sides, and picking only the
+  literal-typed fields the form uses keeps the resolver well-typed.
 - **Path-param lift**: when an API path-param needs to live as a form field
   (e.g. `accountId` for grant-channel-access),
   `baseSchema.extend({ accountId: z.uuid() })`. The smart wrapper
