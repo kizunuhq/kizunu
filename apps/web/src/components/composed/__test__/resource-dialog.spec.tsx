@@ -140,4 +140,45 @@ describe('ResourceDialog', () => {
     const action = screen.getByRole('button', { name: 'Delete' })
     expect(action.className).toContain('destructive')
   })
+
+  it('renders a custom cancel label when cancelLabel is set', () => {
+    render(
+      <ResourceDialog
+        open
+        onOpenChange={() => {}}
+        title="Custom"
+        actionLabel="OK"
+        cancelLabel="Done"
+      >
+        <p>Body</p>
+      </ResourceDialog>,
+    )
+
+    expect(screen.getByRole('button', { name: 'Done' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Cancel' })).toBeNull()
+  })
+
+  it('renders the description when provided and omits it otherwise', () => {
+    const { rerender } = render(
+      <ResourceDialog
+        open
+        onOpenChange={() => {}}
+        title="With description"
+        description="Helpful subtitle"
+        actionLabel="OK"
+      >
+        <p>Body</p>
+      </ResourceDialog>,
+    )
+
+    expect(screen.getByText('Helpful subtitle')).toBeInTheDocument()
+
+    rerender(
+      <ResourceDialog open onOpenChange={() => {}} title="No description" actionLabel="OK">
+        <p>Body</p>
+      </ResourceDialog>,
+    )
+
+    expect(screen.queryByText('Helpful subtitle')).toBeNull()
+  })
 })

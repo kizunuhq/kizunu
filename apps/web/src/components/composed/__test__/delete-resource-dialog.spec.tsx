@@ -169,4 +169,65 @@ describe('DeleteResourceDialog', () => {
     expect(screen.getByPlaceholderText('x')).toBeDisabled()
     expect(screen.getByRole('button', { name: 'Delete thing' })).toBeDisabled()
   })
+
+  it('clears the typed confirmation when the dialog closes and reopens', async () => {
+    const user = userEvent.setup()
+    const { rerender } = render(
+      <DeleteResourceDialog
+        open
+        onOpenChange={() => {}}
+        resourceType="thing"
+        resourceName="reset-me"
+        onDelete={() => {}}
+      />,
+    )
+
+    await user.type(screen.getByPlaceholderText('reset-me'), 'reset-me')
+    expect(screen.getByRole('button', { name: 'Delete thing' })).not.toBeDisabled()
+
+    rerender(
+      <DeleteResourceDialog
+        open={false}
+        onOpenChange={() => {}}
+        resourceType="thing"
+        resourceName="reset-me"
+        onDelete={() => {}}
+      />,
+    )
+    rerender(
+      <DeleteResourceDialog
+        open
+        onOpenChange={() => {}}
+        resourceType="thing"
+        resourceName="reset-me"
+        onDelete={() => {}}
+      />,
+    )
+
+    expect(screen.getByPlaceholderText('reset-me')).toHaveValue('')
+    expect(screen.getByRole('button', { name: 'Delete thing' })).toBeDisabled()
+  })
+
+  it('flips the copy button icon to the check state after copying', async () => {
+    render(
+      <DeleteResourceDialog
+        open
+        onOpenChange={() => {}}
+        resourceType="thing"
+        resourceName="copy-me"
+        onDelete={() => {}}
+      />,
+    )
+
+    const copy = screen.getByRole('button', { name: 'Copy copy-me to clipboard' })
+    const initialSvgPath = copy.querySelector('svg path')?.getAttribute('d') ?? ''
+
+    fireEvent.click(copy)
+
+    await waitFor(() => expect(clipboardWriteText).toHaveBeenCalledWith('copy-me'))
+    await waitFor(() => {
+      const next = copy.querySelector('svg path')?.getAttribute('d') ?? ''
+      expect(next).not.toBe(initialSvgPath)
+    })
+  })
 })
