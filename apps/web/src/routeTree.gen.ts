@@ -23,9 +23,9 @@ import { Route as AppSettingsRouteRouteImport } from './routes/_app/settings/rou
 import { Route as AppWorkspaceIndexRouteImport } from './routes/_app/workspace/index'
 import { Route as AppSettingsIndexRouteImport } from './routes/_app/settings/index'
 import { Route as AuthAcceptInviteTokenRouteImport } from './routes/auth/accept-invite.$token'
-import { Route as AppWorkspaceMyChannelsRouteImport } from './routes/_app/workspace/my-channels'
 import { Route as AppWorkspaceJourneysRouteImport } from './routes/_app/workspace/journeys'
 import { Route as AppWorkspaceCadencesRouteImport } from './routes/_app/workspace/cadences'
+import { Route as AppWorkspaceMyChannelsIndexRouteImport } from './routes/_app/workspace/my-channels/index'
 import { Route as AppWorkspaceConnectMetaCoexIndexRouteImport } from './routes/_app/workspace/connect-meta-coex/index'
 import { Route as AppSettingsWorkspaceIndexRouteImport } from './routes/_app/settings/workspace/index'
 import { Route as AppSettingsSecurityIndexRouteImport } from './routes/_app/settings/security/index'
@@ -104,11 +104,6 @@ const AuthAcceptInviteTokenRoute = AuthAcceptInviteTokenRouteImport.update({
   path: '/accept-invite/$token',
   getParentRoute: () => AuthRouteRoute,
 } as any)
-const AppWorkspaceMyChannelsRoute = AppWorkspaceMyChannelsRouteImport.update({
-  id: '/workspace/my-channels',
-  path: '/workspace/my-channels',
-  getParentRoute: () => AppRouteRoute,
-} as any)
 const AppWorkspaceJourneysRoute = AppWorkspaceJourneysRouteImport.update({
   id: '/workspace/journeys',
   path: '/workspace/journeys',
@@ -119,6 +114,12 @@ const AppWorkspaceCadencesRoute = AppWorkspaceCadencesRouteImport.update({
   path: '/workspace/cadences',
   getParentRoute: () => AppRouteRoute,
 } as any)
+const AppWorkspaceMyChannelsIndexRoute =
+  AppWorkspaceMyChannelsIndexRouteImport.update({
+    id: '/workspace/my-channels/',
+    path: '/workspace/my-channels/',
+    getParentRoute: () => AppRouteRoute,
+  } as any)
 const AppWorkspaceConnectMetaCoexIndexRoute =
   AppWorkspaceConnectMetaCoexIndexRouteImport.update({
     id: '/workspace/connect-meta-coex/',
@@ -178,7 +179,6 @@ export interface FileRoutesByFullPath {
   '/auth/': typeof AuthIndexRoute
   '/workspace/cadences': typeof AppWorkspaceCadencesRoute
   '/workspace/journeys': typeof AppWorkspaceJourneysRoute
-  '/workspace/my-channels': typeof AppWorkspaceMyChannelsRoute
   '/auth/accept-invite/$token': typeof AuthAcceptInviteTokenRoute
   '/settings/': typeof AppSettingsIndexRoute
   '/workspace/': typeof AppWorkspaceIndexRoute
@@ -190,6 +190,7 @@ export interface FileRoutesByFullPath {
   '/settings/security/': typeof AppSettingsSecurityIndexRoute
   '/settings/workspace/': typeof AppSettingsWorkspaceIndexRoute
   '/workspace/connect-meta-coex/': typeof AppWorkspaceConnectMetaCoexIndexRoute
+  '/workspace/my-channels/': typeof AppWorkspaceMyChannelsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -202,7 +203,6 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthIndexRoute
   '/workspace/cadences': typeof AppWorkspaceCadencesRoute
   '/workspace/journeys': typeof AppWorkspaceJourneysRoute
-  '/workspace/my-channels': typeof AppWorkspaceMyChannelsRoute
   '/auth/accept-invite/$token': typeof AuthAcceptInviteTokenRoute
   '/settings': typeof AppSettingsIndexRoute
   '/workspace': typeof AppWorkspaceIndexRoute
@@ -214,6 +214,7 @@ export interface FileRoutesByTo {
   '/settings/security': typeof AppSettingsSecurityIndexRoute
   '/settings/workspace': typeof AppSettingsWorkspaceIndexRoute
   '/workspace/connect-meta-coex': typeof AppWorkspaceConnectMetaCoexIndexRoute
+  '/workspace/my-channels': typeof AppWorkspaceMyChannelsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -230,7 +231,6 @@ export interface FileRoutesById {
   '/auth/': typeof AuthIndexRoute
   '/_app/workspace/cadences': typeof AppWorkspaceCadencesRoute
   '/_app/workspace/journeys': typeof AppWorkspaceJourneysRoute
-  '/_app/workspace/my-channels': typeof AppWorkspaceMyChannelsRoute
   '/auth/accept-invite/$token': typeof AuthAcceptInviteTokenRoute
   '/_app/settings/': typeof AppSettingsIndexRoute
   '/_app/workspace/': typeof AppWorkspaceIndexRoute
@@ -242,6 +242,7 @@ export interface FileRoutesById {
   '/_app/settings/security/': typeof AppSettingsSecurityIndexRoute
   '/_app/settings/workspace/': typeof AppSettingsWorkspaceIndexRoute
   '/_app/workspace/connect-meta-coex/': typeof AppWorkspaceConnectMetaCoexIndexRoute
+  '/_app/workspace/my-channels/': typeof AppWorkspaceMyChannelsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -258,7 +259,6 @@ export interface FileRouteTypes {
     | '/auth/'
     | '/workspace/cadences'
     | '/workspace/journeys'
-    | '/workspace/my-channels'
     | '/auth/accept-invite/$token'
     | '/settings/'
     | '/workspace/'
@@ -270,6 +270,7 @@ export interface FileRouteTypes {
     | '/settings/security/'
     | '/settings/workspace/'
     | '/workspace/connect-meta-coex/'
+    | '/workspace/my-channels/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -282,7 +283,6 @@ export interface FileRouteTypes {
     | '/auth'
     | '/workspace/cadences'
     | '/workspace/journeys'
-    | '/workspace/my-channels'
     | '/auth/accept-invite/$token'
     | '/settings'
     | '/workspace'
@@ -294,6 +294,7 @@ export interface FileRouteTypes {
     | '/settings/security'
     | '/settings/workspace'
     | '/workspace/connect-meta-coex'
+    | '/workspace/my-channels'
   id:
     | '__root__'
     | '/'
@@ -309,7 +310,6 @@ export interface FileRouteTypes {
     | '/auth/'
     | '/_app/workspace/cadences'
     | '/_app/workspace/journeys'
-    | '/_app/workspace/my-channels'
     | '/auth/accept-invite/$token'
     | '/_app/settings/'
     | '/_app/workspace/'
@@ -321,6 +321,7 @@ export interface FileRouteTypes {
     | '/_app/settings/security/'
     | '/_app/settings/workspace/'
     | '/_app/workspace/connect-meta-coex/'
+    | '/_app/workspace/my-channels/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -430,13 +431,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthAcceptInviteTokenRouteImport
       parentRoute: typeof AuthRouteRoute
     }
-    '/_app/workspace/my-channels': {
-      id: '/_app/workspace/my-channels'
-      path: '/workspace/my-channels'
-      fullPath: '/workspace/my-channels'
-      preLoaderRoute: typeof AppWorkspaceMyChannelsRouteImport
-      parentRoute: typeof AppRouteRoute
-    }
     '/_app/workspace/journeys': {
       id: '/_app/workspace/journeys'
       path: '/workspace/journeys'
@@ -449,6 +443,13 @@ declare module '@tanstack/react-router' {
       path: '/workspace/cadences'
       fullPath: '/workspace/cadences'
       preLoaderRoute: typeof AppWorkspaceCadencesRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/_app/workspace/my-channels/': {
+      id: '/_app/workspace/my-channels/'
+      path: '/workspace/my-channels'
+      fullPath: '/workspace/my-channels/'
+      preLoaderRoute: typeof AppWorkspaceMyChannelsIndexRouteImport
       parentRoute: typeof AppRouteRoute
     }
     '/_app/workspace/connect-meta-coex/': {
@@ -539,18 +540,18 @@ interface AppRouteRouteChildren {
   AppSettingsRouteRoute: typeof AppSettingsRouteRouteWithChildren
   AppWorkspaceCadencesRoute: typeof AppWorkspaceCadencesRoute
   AppWorkspaceJourneysRoute: typeof AppWorkspaceJourneysRoute
-  AppWorkspaceMyChannelsRoute: typeof AppWorkspaceMyChannelsRoute
   AppWorkspaceIndexRoute: typeof AppWorkspaceIndexRoute
   AppWorkspaceConnectMetaCoexIndexRoute: typeof AppWorkspaceConnectMetaCoexIndexRoute
+  AppWorkspaceMyChannelsIndexRoute: typeof AppWorkspaceMyChannelsIndexRoute
 }
 
 const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppSettingsRouteRoute: AppSettingsRouteRouteWithChildren,
   AppWorkspaceCadencesRoute: AppWorkspaceCadencesRoute,
   AppWorkspaceJourneysRoute: AppWorkspaceJourneysRoute,
-  AppWorkspaceMyChannelsRoute: AppWorkspaceMyChannelsRoute,
   AppWorkspaceIndexRoute: AppWorkspaceIndexRoute,
   AppWorkspaceConnectMetaCoexIndexRoute: AppWorkspaceConnectMetaCoexIndexRoute,
+  AppWorkspaceMyChannelsIndexRoute: AppWorkspaceMyChannelsIndexRoute,
 }
 
 const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
