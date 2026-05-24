@@ -1,4 +1,4 @@
-import { AuthBrandingPanel } from '@kizunu/web/features/identity/components/auth-branding-panel'
+import { AuthBrandingPanel } from '@kizunu/web/routes/auth/-components/auth-branding-panel'
 import { createFileRoute, Outlet } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/auth')({

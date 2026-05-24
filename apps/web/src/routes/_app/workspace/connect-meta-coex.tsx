@@ -1,5 +1,5 @@
 import { useCurrentUser } from '@kizunu/api-client/identity/use-current-user'
-import { ConnectMetaCoex } from '@kizunu/web/features/channel/components/connect-meta-coex'
+import { ConnectMetaCoex } from '@kizunu/web/routes/_app/workspace/-components/connect-meta-coex'
 import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/_app/workspace/connect-meta-coex')({

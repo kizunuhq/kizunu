@@ -3,7 +3,7 @@ import type { LeadJourneyStatusValue } from '@kizunu/api-contracts/engine'
 import {
   isJourneyStatusValue,
   JourneysView,
-} from '@kizunu/web/features/engine/components/journeys-view'
+} from '@kizunu/web/routes/_app/workspace/-components/journeys-view'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 
 type StatusFilter = LeadJourneyStatusValue | 'all'

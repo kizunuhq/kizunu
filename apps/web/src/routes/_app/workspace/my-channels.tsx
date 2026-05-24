@@ -1,4 +1,4 @@
-import { MyChannelsTable } from '@kizunu/web/features/channel/components/my-channels-table'
+import { MyChannelsTable } from '@kizunu/web/routes/_app/workspace/-components/my-channels-table'
 import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/_app/workspace/my-channels')({

@@ -1,5 +1,5 @@
 import { useCurrentUser } from '@kizunu/api-client/identity/use-current-user'
-import { CadenceTemplatesView } from '@kizunu/web/features/cadence/components/cadence-templates-view'
+import { CadenceTemplatesView } from '@kizunu/web/routes/_app/workspace/-components/cadences/cadence-templates-view'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 
 type CadencesTab = 'cadences' | 'templates'
