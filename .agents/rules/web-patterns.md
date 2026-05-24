@@ -27,6 +27,29 @@ A piece graduates to `apps/web/src/components/composed/` only when **two or
 more** features consume it. Primitives stay in `apps/web/src/components/
 primitives/` (shadcn-installed; see `react.md` §0).
 
+**Flat-file feature-routes.** When a feature is a flat file
+(`<feature>.tsx`) rather than a folder (`<feature>/index.tsx`), the `-`-
+prefixed sibling folders live one level up under the area:
+
+```
+apps/web/src/routes/_app/<area>/
+├── <feature>.tsx           # flat feature-route
+├── -components/<feature>/  # JSX exclusive to this feature
+├── -dialogs/               # dialog wrappers grouped per-area
+│   ├── create-<feature-a>-dialog.tsx
+│   ├── delete-<feature-a>-dialog.tsx
+│   └── ...
+└── -utils/                 # pure helpers grouped per-area
+```
+
+This is the pragmatic placement while feature-routes are flat files (e.g.
+`routes/_app/settings/channels.tsx`). When an area's `-dialogs/` folder
+grows past ~8 files or starts mixing concerns, **promote the feature-route
+to a folder** (`channels/index.tsx`) so its dialogs/components can live in
+the canonical `<feature>/-dialogs/` location. Don't split the difference —
+either every feature in the area has its own folder or they all share the
+area's `-`-folders.
+
 The legacy layout `apps/web/src/features/<feature>/` is **deprecated for new
 work**. Existing folders convert opportunistically — when a feature is next
 worked on for an unrelated reason that already touches its tree, the same PR
@@ -379,6 +402,12 @@ Notes:
   inputs.
 - Prevent close while a mutation is in flight (`isPending` propagates to the
   Cancel button as `disabled`).
+- **Use `useMutationDialog`** from `@kizunu/web/lib/use-mutation-dialog`
+  inside every wrapper. It owns the apiError state, the clear-on-close
+  reset, and the `captureError` → `getApiErrorMessage` mapping so each
+  wrapper stays focused on its hook + form + labels (~25 lines instead of
+  ~50). Every dialog wrapper takes `{ ...resource?, open, onOpenChange }`
+  — never split into `onClose`-only or `resource | null`-only shapes.
 - For non-CRUD features (cadence builder, command palette, wizards) the
   layering and smart/dumb split still apply, but the `DataTable` /
   `ResourceDialog` recipes are optional — this rule is a recipe book, not a

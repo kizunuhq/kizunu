@@ -1,8 +1,10 @@
 import { useCurrentUser } from '@kizunu/api-client/identity/use-current-user'
+import type { InviteMemberResponse } from '@kizunu/api-contracts/workspace'
 import { PageHeader } from '@kizunu/web/components/composed/page-header'
 import { Button } from '@kizunu/web/components/primitives/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@kizunu/web/components/primitives/card'
 import { MembersTable } from '@kizunu/web/routes/_app/settings/-components/members/members-table'
+import { InvitationTokenDialog } from '@kizunu/web/routes/_app/settings/-dialogs/invitation-token-dialog'
 import { InviteMemberDialog } from '@kizunu/web/routes/_app/settings/-dialogs/invite-member-dialog'
 import { Plus } from '@phosphor-icons/react'
 import { createFileRoute } from '@tanstack/react-router'
@@ -15,6 +17,7 @@ export const Route = createFileRoute('/_app/settings/members')({
 function MembersPage() {
   const { activeWorkspaceId } = useCurrentUser()
   const [inviteOpen, setInviteOpen] = useState(false)
+  const [lastInvitation, setLastInvitation] = useState<InviteMemberResponse | null>(null)
 
   if (!activeWorkspaceId) {
     return (
@@ -49,6 +52,12 @@ function MembersPage() {
         workspaceId={activeWorkspaceId}
         open={inviteOpen}
         onOpenChange={setInviteOpen}
+        onInvited={setLastInvitation}
+      />
+      <InvitationTokenDialog
+        token={lastInvitation?.invitationToken ?? null}
+        open={Boolean(lastInvitation)}
+        onOpenChange={(next) => !next && setLastInvitation(null)}
       />
     </div>
   )
