@@ -1,5 +1,5 @@
 import type { ChannelCredentialField } from '@kizunu/api-contracts/channel'
-import { hasRequiredCredentials } from '@kizunu/web/routes/_app/settings/-utils/has-required-credentials'
+import { hasRequiredCredentials } from '@kizunu/web/routes/_app/settings/channels/-utils/has-required-credentials'
 import { describe, expect, it } from 'vite-plus/test'
 
 const required = (key: string): ChannelCredentialField => ({

@@ -4,7 +4,7 @@ import { useMutationDialog } from '@kizunu/web/lib/use-mutation-dialog'
 import {
   GrantChannelAccessForm,
   type GrantChannelAccessFormValues,
-} from '@kizunu/web/routes/_app/settings/-components/channels/grant-channel-access-form'
+} from '@kizunu/web/routes/_app/settings/channels/-components/grant-channel-access-form'
 import { toast } from 'sonner'
 
 interface GrantChannelAccessDialogProps {

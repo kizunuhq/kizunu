@@ -1,5 +1,5 @@
 import type { ChannelCredentialField } from '@kizunu/api-contracts/channel'
-import { CredentialFieldsInput } from '@kizunu/web/routes/_app/settings/-components/channels/credential-fields-input'
+import { CredentialFieldsInput } from '@kizunu/web/routes/_app/settings/channels/-components/credential-fields-input'
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vite-plus/test'
 

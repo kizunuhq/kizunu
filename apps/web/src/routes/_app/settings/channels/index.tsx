@@ -2,14 +2,14 @@ import { useCurrentUser } from '@kizunu/api-client/identity/use-current-user'
 import { PageHeader } from '@kizunu/web/components/composed/page-header'
 import { Button } from '@kizunu/web/components/primitives/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@kizunu/web/components/primitives/card'
-import { ChannelAccountsTable } from '@kizunu/web/routes/_app/settings/-components/channels/channel-accounts-table'
-import { CreateChannelAccountDialog } from '@kizunu/web/routes/_app/settings/-dialogs/create-channel-account-dialog'
-import { GrantChannelAccessDialog } from '@kizunu/web/routes/_app/settings/-dialogs/grant-channel-access-dialog'
+import { ChannelAccountsTable } from '@kizunu/web/routes/_app/settings/channels/-components/channel-accounts-table'
+import { CreateChannelAccountDialog } from '@kizunu/web/routes/_app/settings/channels/-dialogs/create-channel-account-dialog'
+import { GrantChannelAccessDialog } from '@kizunu/web/routes/_app/settings/channels/-dialogs/grant-channel-access-dialog'
 import { Plus } from '@phosphor-icons/react'
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
 
-export const Route = createFileRoute('/_app/settings/channels')({
+export const Route = createFileRoute('/_app/settings/channels/')({
   component: ChannelsPage,
 })
 

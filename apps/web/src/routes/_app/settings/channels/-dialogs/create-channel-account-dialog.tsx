@@ -2,7 +2,7 @@ import { useCreateChannelAccount } from '@kizunu/api-client/channel/use-create-c
 import type { CreateChannelAccountRequest } from '@kizunu/api-contracts/channel'
 import { ResourceDialog } from '@kizunu/web/components/composed/resource-dialog'
 import { useMutationDialog } from '@kizunu/web/lib/use-mutation-dialog'
-import { ChannelAccountForm } from '@kizunu/web/routes/_app/settings/-components/channels/channel-account-form'
+import { ChannelAccountForm } from '@kizunu/web/routes/_app/settings/channels/-components/channel-account-form'
 import { toast } from 'sonner'
 
 interface CreateChannelAccountDialogProps {

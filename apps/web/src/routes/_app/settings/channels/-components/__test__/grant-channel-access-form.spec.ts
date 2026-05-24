@@ -1,4 +1,4 @@
-import { grantChannelAccessFormSchema } from '@kizunu/web/routes/_app/settings/-components/channels/grant-channel-access-form'
+import { grantChannelAccessFormSchema } from '@kizunu/web/routes/_app/settings/channels/-components/grant-channel-access-form'
 import { describe, expect, it } from 'vite-plus/test'
 
 const aUuid = '11111111-1111-4111-8111-111111111111'

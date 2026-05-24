@@ -1,4 +1,4 @@
-import { ChannelAccountForm } from '@kizunu/web/routes/_app/settings/-components/channels/channel-account-form'
+import { ChannelAccountForm } from '@kizunu/web/routes/_app/settings/channels/-components/channel-account-form'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vite-plus/test'
 

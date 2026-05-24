@@ -8,9 +8,9 @@ import { FormError } from '@kizunu/web/components/composed/form-error'
 import { PluginSelect } from '@kizunu/web/components/composed/plugin-select'
 import { RhfField } from '@kizunu/web/components/composed/rhf-field'
 import { Field, FieldError, FieldGroup, FieldLabel } from '@kizunu/web/components/primitives/field'
-import { CredentialFieldsInput } from '@kizunu/web/routes/_app/settings/-components/channels/credential-fields-input'
-import { hasRequiredCredentials } from '@kizunu/web/routes/_app/settings/-utils/has-required-credentials'
-import { userInputFields } from '@kizunu/web/routes/_app/settings/-utils/user-input-fields'
+import { CredentialFieldsInput } from '@kizunu/web/routes/_app/settings/channels/-components/credential-fields-input'
+import { hasRequiredCredentials } from '@kizunu/web/routes/_app/settings/channels/-utils/has-required-credentials'
+import { userInputFields } from '@kizunu/web/routes/_app/settings/channels/-utils/user-input-fields'
 import { Controller, useForm } from 'react-hook-form'
 
 interface ChannelAccountFormProps {
