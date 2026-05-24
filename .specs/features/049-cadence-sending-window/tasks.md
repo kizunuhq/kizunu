@@ -2,7 +2,8 @@
 
 **Spec:** `.specs/features/049-cadence-sending-window/spec.md`
 **Design:** `.specs/features/049-cadence-sending-window/design.md`
-**Status:** Approved
+**Status:** Done (T1–T5 + T6 docs; web preset chooser deferred to a follow-up,
+matching the 047 web-UI deferral)
 
 ---
 
