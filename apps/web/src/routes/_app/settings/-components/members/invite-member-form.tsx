@@ -1,41 +1,44 @@
-import { useInviteMember } from '@kizunu/api-client/workspace/use-invite-member'
-import { Button } from '@kizunu/web/components/primitives/button'
+import { FormError } from '@kizunu/web/components/composed/form-error'
+import { Field, FieldLabel } from '@kizunu/web/components/primitives/field'
 import { Input } from '@kizunu/web/components/primitives/input'
-import { getApiErrorMessage } from '@kizunu/web/lib/get-api-error-message'
 import { useState } from 'react'
 
-export function InviteMemberForm({ workspaceId }: { workspaceId: string }) {
+export interface InviteMemberFormValues {
+  email: string
+}
+
+interface InviteMemberFormProps {
+  formId: string
+  isPending: boolean
+  error?: string | null
+  onSubmit: (values: InviteMemberFormValues) => void
+}
+
+export function InviteMemberForm(props: InviteMemberFormProps) {
+  const { formId, isPending, error, onSubmit } = props
   const [email, setEmail] = useState('')
-  const invite = useInviteMember(workspaceId, { onSuccess: () => setEmail('') })
 
   function submit(event: React.FormEvent) {
     event.preventDefault()
-    invite.inviteMember({ email })
+    if (!email) return
+    onSubmit({ email })
   }
 
   return (
-    <div className="flex flex-col gap-2">
-      <form className="flex items-center gap-2" onSubmit={submit}>
+    <form id={formId} className="flex flex-col gap-3" onSubmit={submit}>
+      {error && <FormError>{error}</FormError>}
+      <Field>
+        <FieldLabel htmlFor="invite-email">Email</FieldLabel>
         <Input
+          id="invite-email"
           type="email"
           value={email}
           placeholder="teammate@company.com"
           required
+          disabled={isPending}
           onChange={(event) => setEmail(event.target.value)}
         />
-        <Button type="submit" disabled={invite.isPending}>
-          Invite
-        </Button>
-      </form>
-      {invite.isError ? (
-        <p className="text-destructive text-sm">{getApiErrorMessage(invite.error)}</p>
-      ) : null}
-      {invite.data ? (
-        <p className="text-muted-foreground text-sm">
-          Invitation token (share it):{' '}
-          <code className="font-mono">{invite.data.invitationToken}</code>
-        </p>
-      ) : null}
-    </div>
+      </Field>
+    </form>
   )
 }

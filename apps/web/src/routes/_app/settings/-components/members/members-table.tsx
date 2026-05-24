@@ -1,5 +1,3 @@
-import { usePauseOwnerJourneys } from '@kizunu/api-client/engine/use-pause-owner-journeys'
-import { useUpdateMemberStatus } from '@kizunu/api-client/workspace/use-update-member-status'
 import type { ListMembersResponse } from '@kizunu/api-contracts/workspace'
 import {
   Table,
@@ -8,9 +6,10 @@ import {
   TableHeader,
   TableRow,
 } from '@kizunu/web/components/primitives/table'
-import { getApiErrorMessage } from '@kizunu/web/lib/get-api-error-message'
 import { MemberRow } from '@kizunu/web/routes/_app/settings/-components/members/member-row'
-import { toast } from 'sonner'
+import { DeactivateMemberDialog } from '@kizunu/web/routes/_app/settings/-dialogs/deactivate-member-dialog'
+import { PauseOwnerJourneysDialog } from '@kizunu/web/routes/_app/settings/-dialogs/pause-owner-journeys-dialog'
+import { useState } from 'react'
 
 type Member = ListMembersResponse['members'][number]
 
@@ -20,46 +19,43 @@ interface MembersTableProps {
 }
 
 export function MembersTable({ workspaceId, members }: MembersTableProps) {
-  const updateStatus = useUpdateMemberStatus(workspaceId)
-  const pauseOwner = usePauseOwnerJourneys(workspaceId, {
-    onSuccess: () => toast.success("Paused this owner's running journeys."),
-    onError: (error) => toast.error(getApiErrorMessage(error)),
-  })
-
-  function toggle(member: Member) {
-    updateStatus.updateMemberStatus({
-      membershipId: member.membershipId,
-      status: member.status === 'active' ? 'inactive' : 'active',
-    })
-  }
-
-  function pause(member: Member) {
-    pauseOwner.pauseOwnerJourneys(member.userId)
-  }
+  const [deactivating, setDeactivating] = useState<Member | null>(null)
+  const [pausing, setPausing] = useState<Member | null>(null)
 
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Name</TableHead>
-          <TableHead>Email</TableHead>
-          <TableHead>Role</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead />
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {members.map((member) => (
-          <MemberRow
-            key={member.membershipId}
-            member={member}
-            togglePending={updateStatus.isPending}
-            pausePending={pauseOwner.isPending}
-            onToggle={toggle}
-            onPause={pause}
-          />
-        ))}
-      </TableBody>
-    </Table>
+    <>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Name</TableHead>
+            <TableHead>Email</TableHead>
+            <TableHead>Role</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead />
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {members.map((member) => (
+            <MemberRow
+              key={member.membershipId}
+              workspaceId={workspaceId}
+              member={member}
+              onRequestDeactivate={setDeactivating}
+              onRequestPause={setPausing}
+            />
+          ))}
+        </TableBody>
+      </Table>
+      <DeactivateMemberDialog
+        workspaceId={workspaceId}
+        member={deactivating}
+        onClose={() => setDeactivating(null)}
+      />
+      <PauseOwnerJourneysDialog
+        workspaceId={workspaceId}
+        member={pausing}
+        onClose={() => setPausing(null)}
+      />
+    </>
   )
 }

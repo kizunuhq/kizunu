@@ -18,6 +18,7 @@ interface ResourceDialogProps {
   formId?: string
   onAction?: () => void
   actionLabel: string
+  cancelLabel?: string
   isPending?: boolean
   isActionEnabled?: boolean
   tone?: 'default' | 'destructive'
@@ -34,6 +35,7 @@ export function ResourceDialog(props: ResourceDialogProps) {
     formId,
     onAction,
     actionLabel,
+    cancelLabel = 'Cancel',
     isPending,
     isActionEnabled = true,
     tone = 'default',
@@ -51,7 +53,7 @@ export function ResourceDialog(props: ResourceDialogProps) {
         <div className="max-h-[60vh] overflow-y-auto py-1">{children}</div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isPending}>
-            Cancel
+            {cancelLabel}
           </Button>
           <Button
             variant={tone === 'destructive' ? 'destructive' : 'default'}
