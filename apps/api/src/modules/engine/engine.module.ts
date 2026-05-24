@@ -55,6 +55,6 @@ import { TouchAttemptRepository } from './persistence/touch-attempt.repository'
     PauseOwnerJourneysUseCase,
     ReassignLeadsUseCase,
   ],
-  exports: [EntryTriggerRepository, LeadRepository, LeadJourneyRepository],
+  exports: [EntryTriggerRepository, LeadRepository, LeadJourneyRepository, Clock],
 })
 export class EngineModule {}

@@ -50,6 +50,15 @@ export class WorkspaceMemberRepository {
     return !!rows[0]
   }
 
+  async belongsToWorkspace(membershipId: string, workspaceId: string): Promise<boolean> {
+    const rows = await this.drizzle.db
+      .select({ id: memberships.id })
+      .from(memberships)
+      .where(and(eq(memberships.id, membershipId), eq(memberships.workspaceId, workspaceId)))
+      .limit(1)
+    return !!rows[0]
+  }
+
   async findById(membershipId: string): Promise<WorkspaceMemberRow | undefined> {
     const rows = await this.drizzle.db
       .select({
