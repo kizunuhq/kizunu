@@ -20,10 +20,10 @@ kizunu/
 │   │   └── drizzle.config.ts
 │   └── web/                      # React 19 SPA (TanStack Router/Query, Vite, Tailwind v4) — full map: docs/web-structure.md
 │       └── src/
-│           ├── routes/           # file-based routes ((auth), _app, index, not-found)
-│           ├── features/         # feature-scoped code (marketing/…)
-│           ├── components/         # shared UI; components/primitives/ = shadcn-installed (ui alias)
-│           ├── hooks/ lib/ _shell/  # api-client, helpers, providers
+│           ├── routes/           # file-based routes + COLOCATED feature code under _app/<feature>/{-components,-hooks,-utils,-dialogs}/ (ADR-007)
+│           ├── components/       # cross-feature shared: composed/ (PageHeader, DataTable, ResourceDialog, ...), primitives/ = shadcn-installed (ui alias)
+│           ├── features/         # LEGACY (pre ADR-007) — deprecated for new work; converts opportunistically; app-shell/ remains
+│           ├── hooks/ lib/ _shell/  # shared UI hooks, helpers, app-wide providers
 │           └── routeTree.gen.ts  # generated (lint/fmt-ignored)
 ├── packages/
 │   ├── api-contracts/            # shared zod request/response schemas + Routes table (identity, workspace)
@@ -63,9 +63,11 @@ Each splits into `core/` (use-cases, models, domain, errors, crypto), `http/` (c
 - Tables: `apps/api/src/db/schemas/*.ts`
 - Config: `apps/api/src/api.config.ts`
 
-**A web feature:**
-- UI/routes: `apps/web/src/routes/**`, `apps/web/src/features/<feature>/`
-- Data access: `apps/web/src/lib/api-client.ts` + hooks (`apps/web/src/hooks/`)
+**A web feature (per ADR-007 + `.agents/rules/web-patterns.md`):**
+- Routes + feature-local UI: `apps/web/src/routes/_app/<feature>/{index,new,$<id>}.tsx` plus `-components/`, `-hooks/`, `-utils/`, `-dialogs/` alongside
+- Cross-feature composites: `apps/web/src/components/composed/` (e.g. `PageHeader`, `DataTable`, `ResourceDialog`)
+- Primitives: `apps/web/src/components/primitives/` (shadcn-installed via the `shadcn` skill)
+- Data access: `@kizunu/api-client/<bc>/use-*.ts` (TanStack Query hooks) + contracts in `@kizunu/api-contracts`
 
 ## Special Directories
 
