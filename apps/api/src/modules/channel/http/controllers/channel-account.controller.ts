@@ -1,15 +1,27 @@
 import {
   ConnectMetaCoexRequestSchema,
   CreateChannelAccountRequestSchema,
+  GetChannelDirectoryRequestSchema,
   GrantChannelAccessRequestSchema,
 } from '@kizunu/api-contracts/channel'
 import { WorkspaceAdminGuard } from '@kizunu/api/modules/workspace/http/guards/workspace-admin.guard'
-import { Body, Controller, Delete, Get, HttpCode, Param, Post, UseGuards } from '@nestjs/common'
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  Param,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { createZodDto } from 'nestjs-zod'
 
 import { ConnectMetaCoexUseCase } from '../../core/use-cases/connect-meta-coex.use-case'
 import { CreateChannelAccountUseCase } from '../../core/use-cases/create-channel-account.use-case'
+import { GetChannelDirectoryUseCase } from '../../core/use-cases/get-channel-directory.use-case'
 import { GrantChannelAccessUseCase } from '../../core/use-cases/grant-channel-access.use-case'
 import { ListWorkspaceChannelAccountsUseCase } from '../../core/use-cases/list-workspace-channel-accounts.use-case'
 import { RevokeChannelAccessUseCase } from '../../core/use-cases/revoke-channel-access.use-case'
@@ -17,6 +29,7 @@ import { RevokeChannelAccessUseCase } from '../../core/use-cases/revoke-channel-
 class CreateChannelAccountDto extends createZodDto(CreateChannelAccountRequestSchema) {}
 class GrantChannelAccessDto extends createZodDto(GrantChannelAccessRequestSchema) {}
 class ConnectMetaCoexDto extends createZodDto(ConnectMetaCoexRequestSchema) {}
+class GetChannelDirectoryQueryDto extends createZodDto(GetChannelDirectoryRequestSchema) {}
 
 @UseGuards(WorkspaceAdminGuard)
 @ApiTags('channels')
@@ -28,6 +41,7 @@ export class ChannelAccountController {
     private readonly grantUseCase: GrantChannelAccessUseCase,
     private readonly revokeUseCase: RevokeChannelAccessUseCase,
     private readonly connectMetaCoex: ConnectMetaCoexUseCase,
+    private readonly directoryUseCase: GetChannelDirectoryUseCase,
   ) {}
 
   @Post(':id/channel-accounts')
@@ -93,4 +107,27 @@ export class ChannelAccountController {
   ): Promise<void> {
     await this.revokeUseCase.execute({ workspaceId, channelAccountId: accountId, userId })
   }
+
+  @Get(':id/channel-accounts/:accountId/directory/:resource')
+  async getDirectory(
+    @Param('id') workspaceId: string,
+    @Param('accountId') accountId: string,
+    @Param('resource') resource: string,
+    @Query() query: GetChannelDirectoryQueryDto,
+  ) {
+    return await this.directoryUseCase.execute({
+      workspaceId,
+      accountId,
+      resource,
+      params: toStringRecord(query),
+    })
+  }
+}
+
+function toStringRecord(query: object): Readonly<Record<string, string>> {
+  const result: Record<string, string> = {}
+  for (const [key, value] of Object.entries(query as Record<string, unknown>)) {
+    if (typeof value === 'string' && value.length > 0) result[key] = value
+  }
+  return result
 }

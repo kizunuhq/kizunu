@@ -8,6 +8,7 @@ import { CHANNEL_PLUGINS, ChannelPluginRegistry } from './core/plugin/channel-pl
 import { OAuthRefreshService } from './core/services/oauth-refresh.service'
 import { ConnectMetaCoexUseCase } from './core/use-cases/connect-meta-coex.use-case'
 import { CreateChannelAccountUseCase } from './core/use-cases/create-channel-account.use-case'
+import { GetChannelDirectoryUseCase } from './core/use-cases/get-channel-directory.use-case'
 import { GrantChannelAccessUseCase } from './core/use-cases/grant-channel-access.use-case'
 import { ListAvailablePluginsUseCase } from './core/use-cases/list-available-plugins.use-case'
 import { ListMyChannelsUseCase } from './core/use-cases/list-my-channels.use-case'
@@ -47,6 +48,7 @@ import { MetaWhatsappPlugin } from './plugins/meta-whatsapp/meta-whatsapp.plugin
     SetPrimaryChannelUseCase,
     ListMyChannelsUseCase,
     ListAvailablePluginsUseCase,
+    GetChannelDirectoryUseCase,
     OAuthRefreshService,
   ],
   exports: [ChannelPluginRegistry, ChannelAccessRepository, ChannelAccountRepository],

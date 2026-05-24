@@ -10,6 +10,7 @@ import { ResolveOwnerService } from './core/services/resolve-owner.service'
 import { CreateConnectorAccountUseCase } from './core/use-cases/create-connector-account.use-case'
 import { CreateMemberConnectorIdentityUseCase } from './core/use-cases/create-member-connector-identity.use-case'
 import { DeleteMemberConnectorIdentityUseCase } from './core/use-cases/delete-member-connector-identity.use-case'
+import { GetConnectorDirectoryUseCase } from './core/use-cases/get-connector-directory.use-case'
 import { ListMemberConnectorIdentitiesUseCase } from './core/use-cases/list-member-connector-identities.use-case'
 import { ListWorkspaceConnectorAccountsUseCase } from './core/use-cases/list-workspace-connector-accounts.use-case'
 import { UpdateMemberConnectorIdentityUseCase } from './core/use-cases/update-member-connector-identity.use-case'
@@ -40,6 +41,7 @@ import { PipedriveConnector } from './plugins/pipedrive/pipedrive.connector'
     UpdateMemberConnectorIdentityUseCase,
     DeleteMemberConnectorIdentityUseCase,
     ListMemberConnectorIdentitiesUseCase,
+    GetConnectorDirectoryUseCase,
   ],
   exports: [
     CrmConnectorRegistry,

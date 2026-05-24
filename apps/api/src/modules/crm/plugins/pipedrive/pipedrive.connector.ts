@@ -1,3 +1,8 @@
+import type { DirectoryResult } from '@kizunu/api-contracts/shared'
+import type { DirectoryInput } from '@kizunu/api/modules/_shared/directory/directory-input'
+import { ConnectorDirectoryUnsupportedException } from '@kizunu/api/modules/_shared/directory/directory.errors'
+import { z } from 'zod'
+
 import type { CrmActivity } from '../../core/connector/crm-activity'
 import type { CRMConnector } from '../../core/connector/crm-connector'
 import type { CrmConnectorManifest } from '../../core/connector/crm-connector-manifest'
@@ -7,7 +12,10 @@ import type { NormalizedOwner } from '../../core/connector/normalized-owner'
 import type { StageRef } from '../../core/connector/stage-ref'
 import { type FetchFn, PipedriveApi } from './pipedrive-api'
 import { pipedriveCredentialsSchema } from './pipedrive-credentials'
+import { PipedriveDirectory } from './pipedrive-directory'
 import { parsePipedriveWebhook } from './pipedrive-webhook'
+
+const STAGE_PARAMS_SCHEMA = z.object({ pipelineId: z.string().min(1) }).strict()
 
 /**
  * Pipedrive CRM connector (decision D3). `parseWebhook` normalizes stage transitions;
@@ -21,12 +29,22 @@ export class PipedriveConnector implements CRMConnector {
     name: 'Pipedrive',
     capabilities: ['activities', 'stages', 'lost', 'fields'],
     configSchema: pipedriveCredentialsSchema,
+    directoryResources: [
+      { name: 'users' },
+      { name: 'pipelines' },
+      { name: 'stages', paramsSchema: STAGE_PARAMS_SCHEMA },
+      { name: 'fields' },
+    ],
   }
 
   private readonly api: PipedriveApi
+  private readonly fetchFn: FetchFn
+  private readonly baseUrlOverride: string | undefined
 
   constructor(options?: { baseUrl?: string; fetchFn?: FetchFn }) {
-    this.api = new PipedriveApi(options?.fetchFn ?? globalThis.fetch, options?.baseUrl)
+    this.fetchFn = options?.fetchFn ?? globalThis.fetch
+    this.baseUrlOverride = options?.baseUrl
+    this.api = new PipedriveApi(this.fetchFn, this.baseUrlOverride)
   }
 
   parseWebhook(raw: unknown): NormalizedEvent[] {
@@ -68,5 +86,25 @@ export class PipedriveConnector implements CRMConnector {
     credentials: unknown,
   ): Promise<void> {
     await this.api.setField(externalId, field, value, pipedriveCredentialsSchema.parse(credentials))
+  }
+
+  async directory(input: DirectoryInput): Promise<DirectoryResult> {
+    const credentials = pipedriveCredentialsSchema.parse(input.credentials)
+    const directory = new PipedriveDirectory({
+      fetchFn: this.fetchFn,
+      baseUrlOverride: this.baseUrlOverride,
+      accountId: input.accountId,
+    })
+    if (input.resource === 'users') return await directory.listUsers(credentials)
+    if (input.resource === 'pipelines') return await directory.listPipelines(credentials)
+    if (input.resource === 'stages') {
+      const params = STAGE_PARAMS_SCHEMA.parse(input.params ?? {})
+      return await directory.listStages(credentials, params.pipelineId)
+    }
+    if (input.resource === 'fields') return await directory.listDealFields(credentials)
+    throw new ConnectorDirectoryUnsupportedException({
+      connectorId: this.manifest.id,
+      resource: input.resource,
+    })
   }
 }
