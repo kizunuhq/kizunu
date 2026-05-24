@@ -469,6 +469,56 @@ CRUD. Each feature below is independent and self-contained.
 
 ---
 
+## Phase 2.0 — Pilot delivery hardening
+
+**Goal:** Close the documented High items in `.specs/codebase/CONCERNS.md`
+("Dispatcher gaps: owner mapping, sendingWindow, template variables") that
+block a real pilot from delivering. Without these, the v0.1 contract works
+in tests but cannot run for a paying customer. Each feature is a discrete
+slice; `047` unblocks the other two (no journey dispatches until owner
+mapping resolves).
+
+The first customer concretely needing this lands the doc
+`~/Downloads/automacao-fup.md` — a 2-BDR Pipedrive→WhatsApp pilot that
+matches the v0.1 reference use case point-for-point.
+
+**CRM owner mapping** - PLANNED (feature `047`)
+- Maps a Pipedrive `deal.user_id` to a Kizunu `User.id` so ingestion can
+  set `lead.ownerUserId` and the dispatcher can resolve the right BDR's
+  primary `ChannelAccess`.
+- Auto-match by verified email + admin override
+  (`.specs/features/047-crm-owner-mapping/context.md` C-01).
+- New aggregate `MemberConnectorIdentity` keyed on
+  `(membershipId, connectorAccountId, externalId)` (workspace-owned, FK
+  cascades on membership delete).
+- New `CRMConnector.fetchOwner(externalId, credentials)` method; Pipedrive
+  implementation hits `GET /v1/users/{id}`.
+- No new `LeadJourneyStatus` enum value — unresolved owners land in
+  `error_state` with `errorReason = 'owner_not_mapped'` (or
+  `owner_lookup_failed` when Pipedrive errors). Admin creating the matching
+  mapping backfills `lead.ownerUserId` and resumes those journeys in one
+  transaction.
+
+**Template-variable resolution** - PLANNED (feature `048`)
+- The dispatcher sends templates without filling `{{n}}` parameters. Meta
+  rejects the send if the approved template declares variables. Required
+  only if any of the pilot's 5 HSM templates carry variables (decided
+  after Meta approval round).
+- Resolves variables from `Lead` fields (`name`, `phone`, future custom
+  fields) and the `LeadJourney` (current step ordinal, cadence name).
+
+**Cadence sending window** - PLANNED (feature `049`)
+- Engine respects `cadence.sendingWindow` (timezone + days + hours);
+  dispatches outside the window slide `nextTouchAt` forward to the next
+  valid slot rather than firing immediately.
+- Pilot UX + WhatsApp rep risk (no 3am template sends).
+
+**Pipedrive webhook HMAC verification** - DEFERRED (CONCERNS Medium)
+- Keep the UUIDv7-as-shared-secret model for the first pilot; add HMAC
+  when onboarding the second customer or when an audit demands it.
+
+---
+
 ## Future Considerations (Phase 2+)
 
 - Native CRM (deals, own pipeline, contacts)
