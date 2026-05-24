@@ -1,10 +1,8 @@
 import { useCreateConnectorAccount } from '@kizunu/api-client/crm/use-create-connector-account'
+import type { CreateConnectorAccountRequest } from '@kizunu/api-contracts/crm'
 import { ResourceDialog } from '@kizunu/web/components/composed/resource-dialog'
 import { useMutationDialog } from '@kizunu/web/lib/use-mutation-dialog'
-import {
-  ConnectorAccountForm,
-  type ConnectorAccountFormValues,
-} from '@kizunu/web/routes/_app/settings/-components/connectors/connector-account-form'
+import { ConnectorAccountForm } from '@kizunu/web/routes/_app/settings/-components/connectors/connector-account-form'
 import { toast } from 'sonner'
 
 interface CreateConnectorAccountDialogProps {
@@ -27,7 +25,7 @@ export function CreateConnectorAccountDialog(props: CreateConnectorAccountDialog
     onError: dialog.captureError,
   })
 
-  function handleSubmit(values: ConnectorAccountFormValues) {
+  function handleSubmit(values: CreateConnectorAccountRequest) {
     dialog.clearError()
     createConnectorAccount(values)
   }
