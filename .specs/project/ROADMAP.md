@@ -398,17 +398,24 @@ CRUD. Each feature below is independent and self-contained.
   `.mutate(` references against api-client mutation results remain. Hook-owned
   invalidation was already correct (pre-audit)._
 
-**Resource dialog migration** - IN PROGRESS
-- _Feature `044` (spec at `.specs/features/044-resource-dialog-migration/`)._
-- Two halves: (1) port hoxus polish into existing `ResourceDialog` /
-  `DeleteResourceDialog` primitives (copy-to-clipboard on resource name, `loading`
-  button spinner, `size="lg"` opt-in, optional `caseSensitive`); (2) migrate every
-  inline create/edit/delete site under `routes/_app/{settings,workspace}/**` to
-  trigger-button → dialog. Destructive deletes get typed-name confirmation;
-  bulk/reversible destructive actions get a tone="destructive" `ResourceDialog`.
-- Out of scope: `CadenceBuilder` (complex in-page builder), the Meta Coex Embedded
-  Signup flow (OAuth/SDK), page-as-display surfaces (profile / workspace settings /
-  billing), and wiring brand-new UIs for unwired mutations.
+**Resource dialog migration** - COMPLETE
+- _Landed (feature `044`): hoxus-port polish on `ResourceDialog` (gains `size?: 'md'|'lg'`
+  + `cancelLabel?: string`; action button switches to the new `Button.loading` spinner
+  instead of swapping the label) and `DeleteResourceDialog` (gains a copy-to-clipboard
+  resource-name button with `Copy ↔ Check` flip + optional `caseSensitive`); `Button`
+  primitive gains a `loading?: boolean` (Phosphor `Spinner` + `animate-spin`, OR-merged
+  with `disabled`). 13 inline CRUD call-sites migrated to trigger-button → dialog:
+  settings/channels (Add channel account, Grant access), settings/connectors (Add CRM
+  connector, Add entry trigger, Remove entry trigger), settings/members (Invite member
+  with token-reveal success step, Deactivate, Pause journeys), settings/security (Revoke
+  session, Revoke other sessions), workspace/cadences (New cadence in size='lg' dialog,
+  New template, Remove cadence, Remove template). Forms are uniformly dumb (`{ formId,
+  isPending, error, onSubmit }`); dialogs own mutation hooks + `getApiErrorMessage` →
+  `<FormError>` + `toast.success`. Per-row destructive triggers use `DropdownMenu` +
+  `DropdownMenuItem variant="destructive"`. Activate stays one-click (reversible).
+  Out of scope (held): page-as-display surfaces (profile / workspace settings /
+  billing), Meta Coex Embedded Signup flow (OAuth/SDK), brand-new UIs for unwired
+  mutations (`useRevokeChannelAccess`, `useUpdateCadence`, `useUpdateTemplate`)._
 
 ---
 

@@ -266,33 +266,33 @@ assert dialog closes / toast appears / new row in the cadences table.
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| RDM-PRIM-01    | P1 Primitives | Design | Pending |
-| RDM-PRIM-02    | P1 Primitives | Design | Pending |
-| RDM-PRIM-03    | P1 Primitives | Design | Pending |
-| RDM-PRIM-04    | P1 Primitives | Design | Pending |
-| RDM-PRIM-05    | P1 Primitives | Design | Pending |
-| RDM-PRIM-06    | P1 Primitives | Design | Pending |
-| RDM-01         | P1 Settings | Design | Pending |
-| RDM-02         | P1 Settings | Design | Pending |
-| RDM-03         | P1 Settings | Design | Pending |
-| RDM-04         | P1 Settings | Design | Pending |
-| RDM-05         | P1 Settings | Design | Pending |
-| RDM-06         | P1 Settings | Design | Pending |
-| RDM-07         | P1 Settings | Design | Pending |
-| RDM-08         | P1 Settings | Design | Pending |
-| RDM-09         | P1 Settings | Design | Pending |
-| RDM-10         | P1 Settings | Design | Pending |
-| RDM-11         | P1 Workspace | Design | Pending |
-| RDM-12         | P1 Workspace | Design | Pending |
-| RDM-13         | P1 Workspace | Design | Pending |
-| RDM-14         | P1 Workspace | Design | Pending |
+| RDM-PRIM-01    | P1 Primitives | Done   | Verified |
+| RDM-PRIM-02    | P1 Primitives | Done   | Verified |
+| RDM-PRIM-03    | P1 Primitives | Done   | Verified |
+| RDM-PRIM-04    | P1 Primitives | Done   | Verified |
+| RDM-PRIM-05    | P1 Primitives | Done   | Verified |
+| RDM-PRIM-06    | P1 Primitives | Done   | Verified |
+| RDM-01         | P1 Settings | Done   | Verified |
+| RDM-02         | P1 Settings | Done   | Verified |
+| RDM-03         | P1 Settings | Done   | Verified |
+| RDM-04         | P1 Settings | Done   | Verified |
+| RDM-05         | P1 Settings | Done   | Verified |
+| RDM-06         | P1 Settings | Done   | Verified |
+| RDM-07         | P1 Settings | Done   | Verified |
+| RDM-08         | P1 Settings | Done   | Verified |
+| RDM-09         | P1 Settings | Done   | Verified |
+| RDM-10         | P1 Settings | Done   | Verified |
+| RDM-11         | P1 Workspace | Done   | Verified |
+| RDM-12         | P1 Workspace | Done   | Verified |
+| RDM-13         | P1 Workspace | Done   | Verified |
+| RDM-14         | P1 Workspace | Done   | Verified |
 
 **ID format:** `RDM-NN` for migrations; `RDM-PRIM-NN` for primitive
 enhancements.
 
 **Status values:** Pending → In Design → In Tasks → Implementing → Verified
 
-**Coverage:** 20 total, 0 mapped to tasks yet, 20 unmapped — moves to Tasks phase.
+**Coverage:** 20 total, 20 verified (every RDM-PRIM-NN covered by web jsdom tests; every RDM-NN covered by the migrated dialog wrapper + Chrome smoke at validation time).
 
 ---
 
