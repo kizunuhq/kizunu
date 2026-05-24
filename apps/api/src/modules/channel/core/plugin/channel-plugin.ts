@@ -1,3 +1,6 @@
+import type { DirectoryResult } from '@kizunu/api-contracts/shared'
+import type { DirectoryInput } from '@kizunu/api/modules/_shared/directory/directory-input'
+
 import type { ChannelDecision } from './channel-decision'
 import type { ChannelPluginManifest } from './channel-plugin-manifest'
 import type { InboundMessage } from './inbound-message'
@@ -34,4 +37,5 @@ export interface ChannelPlugin {
   validate(input: ValidateInput): ChannelDecision
   onAccountCreated?(input: OnAccountCreatedInput): Promise<unknown>
   refreshCredentials?(input: RefreshCredentialsInput): Promise<unknown>
+  directory?(input: DirectoryInput): Promise<DirectoryResult>
 }

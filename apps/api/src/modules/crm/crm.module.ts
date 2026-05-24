@@ -1,5 +1,6 @@
 import { forwardRef, Module } from '@nestjs/common'
 
+import { DirectoryModule } from '../_shared/directory/directory.module'
 import { EngineModule } from '../engine/engine.module'
 import { IdentityModule } from '../identity/identity.module'
 import { WorkspaceModule } from '../workspace/workspace.module'
@@ -9,6 +10,7 @@ import { ResolveOwnerService } from './core/services/resolve-owner.service'
 import { CreateConnectorAccountUseCase } from './core/use-cases/create-connector-account.use-case'
 import { CreateMemberConnectorIdentityUseCase } from './core/use-cases/create-member-connector-identity.use-case'
 import { DeleteMemberConnectorIdentityUseCase } from './core/use-cases/delete-member-connector-identity.use-case'
+import { GetConnectorDirectoryUseCase } from './core/use-cases/get-connector-directory.use-case'
 import { ListMemberConnectorIdentitiesUseCase } from './core/use-cases/list-member-connector-identities.use-case'
 import { ListWorkspaceConnectorAccountsUseCase } from './core/use-cases/list-workspace-connector-accounts.use-case'
 import { UpdateMemberConnectorIdentityUseCase } from './core/use-cases/update-member-connector-identity.use-case'
@@ -19,7 +21,12 @@ import { MemberConnectorIdentityRepository } from './persistence/member-connecto
 import { PipedriveConnector } from './plugins/pipedrive/pipedrive.connector'
 
 @Module({
-  imports: [WorkspaceModule, forwardRef(() => IdentityModule), forwardRef(() => EngineModule)],
+  imports: [
+    DirectoryModule,
+    WorkspaceModule,
+    forwardRef(() => IdentityModule),
+    forwardRef(() => EngineModule),
+  ],
   controllers: [ConnectorAccountController, MemberConnectorIdentityController],
   providers: [
     { provide: CRM_CONNECTORS, useValue: [new PipedriveConnector()] },
@@ -34,6 +41,7 @@ import { PipedriveConnector } from './plugins/pipedrive/pipedrive.connector'
     UpdateMemberConnectorIdentityUseCase,
     DeleteMemberConnectorIdentityUseCase,
     ListMemberConnectorIdentitiesUseCase,
+    GetConnectorDirectoryUseCase,
   ],
   exports: [
     CrmConnectorRegistry,

@@ -90,6 +90,28 @@ export class ChannelAccountRepository {
     return { workspaceId: row.workspaceId, credentials: this.cipher.decrypt(row.credentials) }
   }
 
+  /** Directory seam: pluginId + decrypted credentials in one read, workspace scope enforced at the caller. */
+  async findForDirectory(
+    id: string,
+  ): Promise<{ workspaceId: string; pluginId: string; credentials: unknown } | undefined> {
+    const rows = await this.drizzle.db
+      .select({
+        workspaceId: channelAccounts.workspaceId,
+        pluginId: channelAccounts.pluginId,
+        credentials: channelAccounts.credentials,
+      })
+      .from(channelAccounts)
+      .where(eq(channelAccounts.id, id))
+      .limit(1)
+    const row = rows[0]
+    if (!row) return undefined
+    return {
+      workspaceId: row.workspaceId,
+      pluginId: row.pluginId,
+      credentials: this.cipher.decrypt(row.credentials),
+    }
+  }
+
   async listByWorkspace(workspaceId: string): Promise<ChannelAccountSummary[]> {
     return await this.drizzle.db
       .select({

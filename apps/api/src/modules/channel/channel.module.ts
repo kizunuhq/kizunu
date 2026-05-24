@@ -2,11 +2,13 @@ import type { Config } from '@kizunu/api/api.config'
 import { ConfigService } from '@kizunu/config-module/config.service'
 import { Module } from '@nestjs/common'
 
+import { DirectoryModule } from '../_shared/directory/directory.module'
 import { WorkspaceModule } from '../workspace/workspace.module'
 import { CHANNEL_PLUGINS, ChannelPluginRegistry } from './core/plugin/channel-plugin-registry'
 import { OAuthRefreshService } from './core/services/oauth-refresh.service'
 import { ConnectMetaCoexUseCase } from './core/use-cases/connect-meta-coex.use-case'
 import { CreateChannelAccountUseCase } from './core/use-cases/create-channel-account.use-case'
+import { GetChannelDirectoryUseCase } from './core/use-cases/get-channel-directory.use-case'
 import { GrantChannelAccessUseCase } from './core/use-cases/grant-channel-access.use-case'
 import { ListAvailablePluginsUseCase } from './core/use-cases/list-available-plugins.use-case'
 import { ListMyChannelsUseCase } from './core/use-cases/list-my-channels.use-case'
@@ -20,7 +22,7 @@ import { ChannelAccountRepository } from './persistence/channel-account.reposito
 import { MetaWhatsappPlugin } from './plugins/meta-whatsapp/meta-whatsapp.plugin'
 
 @Module({
-  imports: [WorkspaceModule],
+  imports: [DirectoryModule, WorkspaceModule],
   controllers: [ChannelAccountController, MyChannelController],
   providers: [
     {
@@ -46,6 +48,7 @@ import { MetaWhatsappPlugin } from './plugins/meta-whatsapp/meta-whatsapp.plugin
     SetPrimaryChannelUseCase,
     ListMyChannelsUseCase,
     ListAvailablePluginsUseCase,
+    GetChannelDirectoryUseCase,
     OAuthRefreshService,
   ],
   exports: [ChannelPluginRegistry, ChannelAccessRepository, ChannelAccountRepository],

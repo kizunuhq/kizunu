@@ -131,3 +131,23 @@ named Record to positional HSM `components.parameters` via
 **Evidence:** `api.config.ts` `session.cookieSecure` defaults `false`.
 **Impact:** Correct for local dev; if `APP_SESSION_COOKIE_SECURE` is not set in production the session cookie can travel over plain HTTP.
 **Fix:** Ensure prod env sets it true; consider deriving from `env === 'production'`.
+
+### Directory cache is per-process only
+**Evidence:** Feature `054`'s `DirectoryCacheService` (`apps/api/src/modules/_shared/directory/directory-cache.service.ts`) is an in-memory `Map`. A second API replica will not share entries; cache hit rate falls to ~50% with two pods, ~33% with three.
+**Impact:** Acceptable at the pilot scale (single API replica) but every replica added widens the gap between modal open latency and the provider's rate-limit budget.
+**Fix:** Swap to a shared store (Redis) when a second replica is provisioned; the `DirectoryCacheService` interface (`getOrLoad` / `invalidate(predicate)`) is the natural seam to switch.
+
+### Directory lookups do not paginate or filter server-side
+**Evidence:** `PipedriveDirectory.listUsers` / `listDealFields` use `start=0&limit=500` single-page; `MetaDirectory.listTemplates` follows `paging.next` but caps at 500 rows.
+**Impact:** Workspaces with more than 500 users or 500 templates see truncated lists with no UI control to narrow. The picker becomes unusable above that scale.
+**Fix:** Add server-side search by passing a `search` query param through to the provider when supported (Pipedrive `?term=`, Meta `?name=`). Out of scope for the v0.1 cut.
+
+### Coex Embedded Signup picks the phone number from the postMessage
+**Evidence:** `connect-meta-coex.tsx` accepts `phone_number_id` from the FB SDK postMessage and submits it without confirming against the WABA's roster. LOOKUP-16..18 in `054-connector-lookups/spec.md` are deferred.
+**Impact:** During phone-number migration windows Meta occasionally returns an id that is not yet visible on the WABA's phone roster; the connect endpoint then accepts a phone that can't send.
+**Fix:** Add a pre-row preview endpoint (`POST /channel-accounts/meta-whatsapp/preview-phone-numbers`) that exchanges the code, lists the roster, and short-circuits the connect call; expose the chosen phone as a labeled picker in the Coex screen.
+
+### Template form picks the first Meta channel account when several exist
+**Evidence:** `template-form.tsx` finds the first account with `pluginId === 'meta-whatsapp'` to scope the Meta template directory query (feature `054`).
+**Impact:** Multi-account workspaces (paid + sandbox) only see templates from the first account; an operator authoring against a different account sees an empty list.
+**Fix:** Add an explicit "from account" picker beside the template lookup when more than one Meta account exists.

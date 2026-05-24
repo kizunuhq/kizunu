@@ -1,3 +1,7 @@
+import type { DirectoryResult } from '@kizunu/api-contracts/shared'
+import type { DirectoryInput } from '@kizunu/api/modules/_shared/directory/directory-input'
+import { ConnectorDirectoryUnsupportedException } from '@kizunu/api/modules/_shared/directory/directory.errors'
+
 import { ChannelCapability } from '../../core/plugin/channel-capability'
 import { ChannelCredentialFieldType } from '../../core/plugin/channel-credential-field-type'
 import type { ChannelDecision } from '../../core/plugin/channel-decision'
@@ -17,9 +21,12 @@ import {
   type MetaCoexistenceCredentials,
   type MetaCredentials,
 } from './meta-credentials'
+import { listMetaPhoneNumbers, listMetaTemplates } from './meta-directory'
 import { parseMetaInbound } from './meta-inbound'
 import { type FetchFn, META_GRAPH_API_BASE, sendMetaMessage } from './meta-send'
 import { subscribeMetaChannel, subscribeWabaToMeta } from './meta-subscribe'
+
+const TEMPLATES_TTL_MS = 30_000
 
 const COEX_SUBSCRIBED_FIELDS = 'messages,smb_message_echoes,smb_app_state_sync'
 const VERIFY_TOKEN_BYTE_LENGTH = 32
@@ -87,6 +94,7 @@ export class MetaWhatsappPlugin implements ChannelPlugin {
         serverGenerated: true,
       },
     ],
+    directoryResources: [{ name: 'templates', ttlMs: TEMPLATES_TTL_MS }, { name: 'phoneNumbers' }],
   }
 
   private readonly baseUrl: string
@@ -143,6 +151,21 @@ export class MetaWhatsappPlugin implements ChannelPlugin {
       input.channelAccountId,
       input.credentials,
     )
+  }
+
+  async directory(input: DirectoryInput): Promise<DirectoryResult> {
+    const ctx = {
+      fetchFn: this.fetchFn,
+      baseUrl: this.baseUrl,
+      accountId: input.accountId,
+      credentials: metaCredentialsSchema.parse(input.credentials),
+    }
+    if (input.resource === 'templates') return await listMetaTemplates(ctx)
+    if (input.resource === 'phoneNumbers') return await listMetaPhoneNumbers(ctx)
+    throw new ConnectorDirectoryUnsupportedException({
+      connectorId: this.manifest.id,
+      resource: input.resource,
+    })
   }
 
   async refreshCredentials(input: RefreshCredentialsInput): Promise<unknown> {

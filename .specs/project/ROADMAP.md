@@ -537,6 +537,30 @@ matches the v0.1 reference use case point-for-point.
 - Keep the UUIDv7-as-shared-secret model for the first pilot; add HMAC
   when onboarding the second customer or when an audit demands it.
 
+**Connector lookups** - COMPLETE (feature `054`)
+- _Landed (feature `054`): replaces raw external-ID inputs with labeled
+  provider-backed pickers across the connector + cadence surfaces.
+  Generalized optional `directory(input)` capability + `manifest.directoryResources`
+  on both `CRMConnector` and `ChannelPlugin` so future providers
+  (HubSpot, Telegram) slot in without touching the controller. New
+  `_shared/directory/` module: `DirectoryCacheService` (in-process,
+  60s default ttl, workspace-scoped cache key, lazy eviction) + five
+  typed exceptions (`connector.directory-unsupported`, `token-expired`,
+  `rate-limited`, `directory-failed`, `directory-params-invalid`).
+  Pipedrive ships `users`/`pipelines`/`stages`/`fields` resources; Meta
+  ships `templates` (server-side `status=APPROVED`, 30s ttl) /
+  `phoneNumbers`. New endpoints
+  `GET /workspaces/:id/connector-accounts/:aid/directory/:resource` and
+  `GET /workspaces/:id/channel-accounts/:aid/directory/:resource`
+  behind `WorkspaceAdminGuard`. Typed `useDirectory*` hook family with
+  the shared `useDirectory` helper mapping `code: 'connector.token-expired'`
+  into a `needsReconnect` flag. New composed primitive
+  `ReconnectConnectorEmptyState`. Web surfaces swapped: member-identity
+  user picker, entry-trigger cascading pipeline+stage pickers, cadence
+  template-form Meta template picker (auto-fills language).
+  Coex phone-number picker + custom-field UI swap deferred — tracked in
+  STATE.md and CONCERNS.md._
+
 ---
 
 ## Future Considerations (Phase 2+)

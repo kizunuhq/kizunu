@@ -48,6 +48,7 @@ export function CreateMemberIdentityDialog(props: CreateMemberIdentityDialogProp
       <MemberIdentityForm
         formId={FORM_ID}
         workspaceId={workspaceId}
+        connectorAccountId={connectorAccountId}
         isPending={isPending}
         error={dialog.error}
         onSubmit={handleSubmit}
