@@ -3,7 +3,7 @@ import { SettingsRow } from '@kizunu/web/components/composed/settings-row'
 import { Card } from '@kizunu/web/components/primitives/card'
 import { createFileRoute } from '@tanstack/react-router'
 
-export const Route = createFileRoute('/_app/settings/billing')({
+export const Route = createFileRoute('/_app/settings/billing/')({
   component: BillingPage,
 })
 

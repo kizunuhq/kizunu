@@ -33,7 +33,7 @@ import { Route as AppSettingsProfileRouteImport } from './routes/_app/settings/p
 import { Route as AppSettingsMembersRouteImport } from './routes/_app/settings/members'
 import { Route as AppSettingsConnectorsRouteImport } from './routes/_app/settings/connectors'
 import { Route as AppSettingsChannelsRouteImport } from './routes/_app/settings/channels'
-import { Route as AppSettingsBillingRouteImport } from './routes/_app/settings/billing'
+import { Route as AppSettingsBillingIndexRouteImport } from './routes/_app/settings/billing/index'
 
 const NotFoundRoute = NotFoundRouteImport.update({
   id: '/not-found',
@@ -155,9 +155,9 @@ const AppSettingsChannelsRoute = AppSettingsChannelsRouteImport.update({
   path: '/channels',
   getParentRoute: () => AppSettingsRouteRoute,
 } as any)
-const AppSettingsBillingRoute = AppSettingsBillingRouteImport.update({
-  id: '/billing',
-  path: '/billing',
+const AppSettingsBillingIndexRoute = AppSettingsBillingIndexRouteImport.update({
+  id: '/billing/',
+  path: '/billing/',
   getParentRoute: () => AppSettingsRouteRoute,
 } as any)
 
@@ -172,7 +172,6 @@ export interface FileRoutesByFullPath {
   '/auth/signup': typeof AuthSignupRoute
   '/auth/verify-email': typeof AuthVerifyEmailRoute
   '/auth/': typeof AuthIndexRoute
-  '/settings/billing': typeof AppSettingsBillingRoute
   '/settings/channels': typeof AppSettingsChannelsRoute
   '/settings/connectors': typeof AppSettingsConnectorsRoute
   '/settings/members': typeof AppSettingsMembersRoute
@@ -186,6 +185,7 @@ export interface FileRoutesByFullPath {
   '/auth/accept-invite/$token': typeof AuthAcceptInviteTokenRoute
   '/settings/': typeof AppSettingsIndexRoute
   '/workspace/': typeof AppWorkspaceIndexRoute
+  '/settings/billing/': typeof AppSettingsBillingIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -196,7 +196,6 @@ export interface FileRoutesByTo {
   '/auth/signup': typeof AuthSignupRoute
   '/auth/verify-email': typeof AuthVerifyEmailRoute
   '/auth': typeof AuthIndexRoute
-  '/settings/billing': typeof AppSettingsBillingRoute
   '/settings/channels': typeof AppSettingsChannelsRoute
   '/settings/connectors': typeof AppSettingsConnectorsRoute
   '/settings/members': typeof AppSettingsMembersRoute
@@ -210,6 +209,7 @@ export interface FileRoutesByTo {
   '/auth/accept-invite/$token': typeof AuthAcceptInviteTokenRoute
   '/settings': typeof AppSettingsIndexRoute
   '/workspace': typeof AppWorkspaceIndexRoute
+  '/settings/billing': typeof AppSettingsBillingIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -224,7 +224,6 @@ export interface FileRoutesById {
   '/auth/signup': typeof AuthSignupRoute
   '/auth/verify-email': typeof AuthVerifyEmailRoute
   '/auth/': typeof AuthIndexRoute
-  '/_app/settings/billing': typeof AppSettingsBillingRoute
   '/_app/settings/channels': typeof AppSettingsChannelsRoute
   '/_app/settings/connectors': typeof AppSettingsConnectorsRoute
   '/_app/settings/members': typeof AppSettingsMembersRoute
@@ -238,6 +237,7 @@ export interface FileRoutesById {
   '/auth/accept-invite/$token': typeof AuthAcceptInviteTokenRoute
   '/_app/settings/': typeof AppSettingsIndexRoute
   '/_app/workspace/': typeof AppWorkspaceIndexRoute
+  '/_app/settings/billing/': typeof AppSettingsBillingIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -252,7 +252,6 @@ export interface FileRouteTypes {
     | '/auth/signup'
     | '/auth/verify-email'
     | '/auth/'
-    | '/settings/billing'
     | '/settings/channels'
     | '/settings/connectors'
     | '/settings/members'
@@ -266,6 +265,7 @@ export interface FileRouteTypes {
     | '/auth/accept-invite/$token'
     | '/settings/'
     | '/workspace/'
+    | '/settings/billing/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -276,7 +276,6 @@ export interface FileRouteTypes {
     | '/auth/signup'
     | '/auth/verify-email'
     | '/auth'
-    | '/settings/billing'
     | '/settings/channels'
     | '/settings/connectors'
     | '/settings/members'
@@ -290,6 +289,7 @@ export interface FileRouteTypes {
     | '/auth/accept-invite/$token'
     | '/settings'
     | '/workspace'
+    | '/settings/billing'
   id:
     | '__root__'
     | '/'
@@ -303,7 +303,6 @@ export interface FileRouteTypes {
     | '/auth/signup'
     | '/auth/verify-email'
     | '/auth/'
-    | '/_app/settings/billing'
     | '/_app/settings/channels'
     | '/_app/settings/connectors'
     | '/_app/settings/members'
@@ -317,6 +316,7 @@ export interface FileRouteTypes {
     | '/auth/accept-invite/$token'
     | '/_app/settings/'
     | '/_app/workspace/'
+    | '/_app/settings/billing/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -496,18 +496,17 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSettingsChannelsRouteImport
       parentRoute: typeof AppSettingsRouteRoute
     }
-    '/_app/settings/billing': {
-      id: '/_app/settings/billing'
+    '/_app/settings/billing/': {
+      id: '/_app/settings/billing/'
       path: '/billing'
-      fullPath: '/settings/billing'
-      preLoaderRoute: typeof AppSettingsBillingRouteImport
+      fullPath: '/settings/billing/'
+      preLoaderRoute: typeof AppSettingsBillingIndexRouteImport
       parentRoute: typeof AppSettingsRouteRoute
     }
   }
 }
 
 interface AppSettingsRouteRouteChildren {
-  AppSettingsBillingRoute: typeof AppSettingsBillingRoute
   AppSettingsChannelsRoute: typeof AppSettingsChannelsRoute
   AppSettingsConnectorsRoute: typeof AppSettingsConnectorsRoute
   AppSettingsMembersRoute: typeof AppSettingsMembersRoute
@@ -515,10 +514,10 @@ interface AppSettingsRouteRouteChildren {
   AppSettingsSecurityRoute: typeof AppSettingsSecurityRoute
   AppSettingsWorkspaceRoute: typeof AppSettingsWorkspaceRoute
   AppSettingsIndexRoute: typeof AppSettingsIndexRoute
+  AppSettingsBillingIndexRoute: typeof AppSettingsBillingIndexRoute
 }
 
 const AppSettingsRouteRouteChildren: AppSettingsRouteRouteChildren = {
-  AppSettingsBillingRoute: AppSettingsBillingRoute,
   AppSettingsChannelsRoute: AppSettingsChannelsRoute,
   AppSettingsConnectorsRoute: AppSettingsConnectorsRoute,
   AppSettingsMembersRoute: AppSettingsMembersRoute,
@@ -526,6 +525,7 @@ const AppSettingsRouteRouteChildren: AppSettingsRouteRouteChildren = {
   AppSettingsSecurityRoute: AppSettingsSecurityRoute,
   AppSettingsWorkspaceRoute: AppSettingsWorkspaceRoute,
   AppSettingsIndexRoute: AppSettingsIndexRoute,
+  AppSettingsBillingIndexRoute: AppSettingsBillingIndexRoute,
 }
 
 const AppSettingsRouteRouteWithChildren =
