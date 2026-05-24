@@ -15,7 +15,7 @@ import {
   TableHeader,
   TableRow,
 } from '@kizunu/web/components/primitives/table'
-import { DeleteCadenceDialog } from '@kizunu/web/routes/_app/workspace/-dialogs/delete-cadence-dialog'
+import { DeleteCadenceDialog } from '@kizunu/web/routes/_app/workspace/cadences/-dialogs/delete-cadence-dialog'
 import { DotsThree } from '@phosphor-icons/react'
 import { useState } from 'react'
 

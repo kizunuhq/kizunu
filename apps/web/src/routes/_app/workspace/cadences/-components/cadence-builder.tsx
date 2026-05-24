@@ -5,9 +5,9 @@ import { Input } from '@kizunu/web/components/primitives/input'
 import {
   type CadenceStepDraft,
   newStepDraft,
-} from '@kizunu/web/routes/_app/workspace/-components/cadences/cadence-step-row'
-import { CadenceStepsEditor } from '@kizunu/web/routes/_app/workspace/-components/cadences/cadence-steps-editor'
-import { buildCadenceRequest } from '@kizunu/web/routes/_app/workspace/-utils/build-cadence-request'
+} from '@kizunu/web/routes/_app/workspace/cadences/-components/cadence-step-row'
+import { CadenceStepsEditor } from '@kizunu/web/routes/_app/workspace/cadences/-components/cadence-steps-editor'
+import { buildCadenceRequest } from '@kizunu/web/routes/_app/workspace/cadences/-utils/build-cadence-request'
 import { useState } from 'react'
 
 export type CadenceBuilderValues = ReturnType<typeof buildCadenceRequest>

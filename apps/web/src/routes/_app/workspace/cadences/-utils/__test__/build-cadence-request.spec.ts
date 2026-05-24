@@ -1,5 +1,5 @@
-import type { CadenceStepDraft } from '@kizunu/web/routes/_app/workspace/-components/cadences/cadence-step-row'
-import { buildCadenceRequest } from '@kizunu/web/routes/_app/workspace/-utils/build-cadence-request'
+import type { CadenceStepDraft } from '@kizunu/web/routes/_app/workspace/cadences/-components/cadence-step-row'
+import { buildCadenceRequest } from '@kizunu/web/routes/_app/workspace/cadences/-utils/build-cadence-request'
 import { describe, expect, it } from 'vite-plus/test'
 
 function buildStep(overrides: Partial<CadenceStepDraft> = {}): CadenceStepDraft {

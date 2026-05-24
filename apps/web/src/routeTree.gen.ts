@@ -23,10 +23,10 @@ import { Route as AppSettingsRouteRouteImport } from './routes/_app/settings/rou
 import { Route as AppWorkspaceIndexRouteImport } from './routes/_app/workspace/index'
 import { Route as AppSettingsIndexRouteImport } from './routes/_app/settings/index'
 import { Route as AuthAcceptInviteTokenRouteImport } from './routes/auth/accept-invite.$token'
-import { Route as AppWorkspaceCadencesRouteImport } from './routes/_app/workspace/cadences'
 import { Route as AppWorkspaceMyChannelsIndexRouteImport } from './routes/_app/workspace/my-channels/index'
 import { Route as AppWorkspaceJourneysIndexRouteImport } from './routes/_app/workspace/journeys/index'
 import { Route as AppWorkspaceConnectMetaCoexIndexRouteImport } from './routes/_app/workspace/connect-meta-coex/index'
+import { Route as AppWorkspaceCadencesIndexRouteImport } from './routes/_app/workspace/cadences/index'
 import { Route as AppSettingsWorkspaceIndexRouteImport } from './routes/_app/settings/workspace/index'
 import { Route as AppSettingsSecurityIndexRouteImport } from './routes/_app/settings/security/index'
 import { Route as AppSettingsProfileIndexRouteImport } from './routes/_app/settings/profile/index'
@@ -104,11 +104,6 @@ const AuthAcceptInviteTokenRoute = AuthAcceptInviteTokenRouteImport.update({
   path: '/accept-invite/$token',
   getParentRoute: () => AuthRouteRoute,
 } as any)
-const AppWorkspaceCadencesRoute = AppWorkspaceCadencesRouteImport.update({
-  id: '/workspace/cadences',
-  path: '/workspace/cadences',
-  getParentRoute: () => AppRouteRoute,
-} as any)
 const AppWorkspaceMyChannelsIndexRoute =
   AppWorkspaceMyChannelsIndexRouteImport.update({
     id: '/workspace/my-channels/',
@@ -125,6 +120,12 @@ const AppWorkspaceConnectMetaCoexIndexRoute =
   AppWorkspaceConnectMetaCoexIndexRouteImport.update({
     id: '/workspace/connect-meta-coex/',
     path: '/workspace/connect-meta-coex/',
+    getParentRoute: () => AppRouteRoute,
+  } as any)
+const AppWorkspaceCadencesIndexRoute =
+  AppWorkspaceCadencesIndexRouteImport.update({
+    id: '/workspace/cadences/',
+    path: '/workspace/cadences/',
     getParentRoute: () => AppRouteRoute,
   } as any)
 const AppSettingsWorkspaceIndexRoute =
@@ -178,7 +179,6 @@ export interface FileRoutesByFullPath {
   '/auth/signup': typeof AuthSignupRoute
   '/auth/verify-email': typeof AuthVerifyEmailRoute
   '/auth/': typeof AuthIndexRoute
-  '/workspace/cadences': typeof AppWorkspaceCadencesRoute
   '/auth/accept-invite/$token': typeof AuthAcceptInviteTokenRoute
   '/settings/': typeof AppSettingsIndexRoute
   '/workspace/': typeof AppWorkspaceIndexRoute
@@ -189,6 +189,7 @@ export interface FileRoutesByFullPath {
   '/settings/profile/': typeof AppSettingsProfileIndexRoute
   '/settings/security/': typeof AppSettingsSecurityIndexRoute
   '/settings/workspace/': typeof AppSettingsWorkspaceIndexRoute
+  '/workspace/cadences/': typeof AppWorkspaceCadencesIndexRoute
   '/workspace/connect-meta-coex/': typeof AppWorkspaceConnectMetaCoexIndexRoute
   '/workspace/journeys/': typeof AppWorkspaceJourneysIndexRoute
   '/workspace/my-channels/': typeof AppWorkspaceMyChannelsIndexRoute
@@ -202,7 +203,6 @@ export interface FileRoutesByTo {
   '/auth/signup': typeof AuthSignupRoute
   '/auth/verify-email': typeof AuthVerifyEmailRoute
   '/auth': typeof AuthIndexRoute
-  '/workspace/cadences': typeof AppWorkspaceCadencesRoute
   '/auth/accept-invite/$token': typeof AuthAcceptInviteTokenRoute
   '/settings': typeof AppSettingsIndexRoute
   '/workspace': typeof AppWorkspaceIndexRoute
@@ -213,6 +213,7 @@ export interface FileRoutesByTo {
   '/settings/profile': typeof AppSettingsProfileIndexRoute
   '/settings/security': typeof AppSettingsSecurityIndexRoute
   '/settings/workspace': typeof AppSettingsWorkspaceIndexRoute
+  '/workspace/cadences': typeof AppWorkspaceCadencesIndexRoute
   '/workspace/connect-meta-coex': typeof AppWorkspaceConnectMetaCoexIndexRoute
   '/workspace/journeys': typeof AppWorkspaceJourneysIndexRoute
   '/workspace/my-channels': typeof AppWorkspaceMyChannelsIndexRoute
@@ -230,7 +231,6 @@ export interface FileRoutesById {
   '/auth/signup': typeof AuthSignupRoute
   '/auth/verify-email': typeof AuthVerifyEmailRoute
   '/auth/': typeof AuthIndexRoute
-  '/_app/workspace/cadences': typeof AppWorkspaceCadencesRoute
   '/auth/accept-invite/$token': typeof AuthAcceptInviteTokenRoute
   '/_app/settings/': typeof AppSettingsIndexRoute
   '/_app/workspace/': typeof AppWorkspaceIndexRoute
@@ -241,6 +241,7 @@ export interface FileRoutesById {
   '/_app/settings/profile/': typeof AppSettingsProfileIndexRoute
   '/_app/settings/security/': typeof AppSettingsSecurityIndexRoute
   '/_app/settings/workspace/': typeof AppSettingsWorkspaceIndexRoute
+  '/_app/workspace/cadences/': typeof AppWorkspaceCadencesIndexRoute
   '/_app/workspace/connect-meta-coex/': typeof AppWorkspaceConnectMetaCoexIndexRoute
   '/_app/workspace/journeys/': typeof AppWorkspaceJourneysIndexRoute
   '/_app/workspace/my-channels/': typeof AppWorkspaceMyChannelsIndexRoute
@@ -258,7 +259,6 @@ export interface FileRouteTypes {
     | '/auth/signup'
     | '/auth/verify-email'
     | '/auth/'
-    | '/workspace/cadences'
     | '/auth/accept-invite/$token'
     | '/settings/'
     | '/workspace/'
@@ -269,6 +269,7 @@ export interface FileRouteTypes {
     | '/settings/profile/'
     | '/settings/security/'
     | '/settings/workspace/'
+    | '/workspace/cadences/'
     | '/workspace/connect-meta-coex/'
     | '/workspace/journeys/'
     | '/workspace/my-channels/'
@@ -282,7 +283,6 @@ export interface FileRouteTypes {
     | '/auth/signup'
     | '/auth/verify-email'
     | '/auth'
-    | '/workspace/cadences'
     | '/auth/accept-invite/$token'
     | '/settings'
     | '/workspace'
@@ -293,6 +293,7 @@ export interface FileRouteTypes {
     | '/settings/profile'
     | '/settings/security'
     | '/settings/workspace'
+    | '/workspace/cadences'
     | '/workspace/connect-meta-coex'
     | '/workspace/journeys'
     | '/workspace/my-channels'
@@ -309,7 +310,6 @@ export interface FileRouteTypes {
     | '/auth/signup'
     | '/auth/verify-email'
     | '/auth/'
-    | '/_app/workspace/cadences'
     | '/auth/accept-invite/$token'
     | '/_app/settings/'
     | '/_app/workspace/'
@@ -320,6 +320,7 @@ export interface FileRouteTypes {
     | '/_app/settings/profile/'
     | '/_app/settings/security/'
     | '/_app/settings/workspace/'
+    | '/_app/workspace/cadences/'
     | '/_app/workspace/connect-meta-coex/'
     | '/_app/workspace/journeys/'
     | '/_app/workspace/my-channels/'
@@ -432,13 +433,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthAcceptInviteTokenRouteImport
       parentRoute: typeof AuthRouteRoute
     }
-    '/_app/workspace/cadences': {
-      id: '/_app/workspace/cadences'
-      path: '/workspace/cadences'
-      fullPath: '/workspace/cadences'
-      preLoaderRoute: typeof AppWorkspaceCadencesRouteImport
-      parentRoute: typeof AppRouteRoute
-    }
     '/_app/workspace/my-channels/': {
       id: '/_app/workspace/my-channels/'
       path: '/workspace/my-channels'
@@ -458,6 +452,13 @@ declare module '@tanstack/react-router' {
       path: '/workspace/connect-meta-coex'
       fullPath: '/workspace/connect-meta-coex/'
       preLoaderRoute: typeof AppWorkspaceConnectMetaCoexIndexRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/_app/workspace/cadences/': {
+      id: '/_app/workspace/cadences/'
+      path: '/workspace/cadences'
+      fullPath: '/workspace/cadences/'
+      preLoaderRoute: typeof AppWorkspaceCadencesIndexRouteImport
       parentRoute: typeof AppRouteRoute
     }
     '/_app/settings/workspace/': {
@@ -539,8 +540,8 @@ const AppSettingsRouteRouteWithChildren =
 
 interface AppRouteRouteChildren {
   AppSettingsRouteRoute: typeof AppSettingsRouteRouteWithChildren
-  AppWorkspaceCadencesRoute: typeof AppWorkspaceCadencesRoute
   AppWorkspaceIndexRoute: typeof AppWorkspaceIndexRoute
+  AppWorkspaceCadencesIndexRoute: typeof AppWorkspaceCadencesIndexRoute
   AppWorkspaceConnectMetaCoexIndexRoute: typeof AppWorkspaceConnectMetaCoexIndexRoute
   AppWorkspaceJourneysIndexRoute: typeof AppWorkspaceJourneysIndexRoute
   AppWorkspaceMyChannelsIndexRoute: typeof AppWorkspaceMyChannelsIndexRoute
@@ -548,8 +549,8 @@ interface AppRouteRouteChildren {
 
 const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppSettingsRouteRoute: AppSettingsRouteRouteWithChildren,
-  AppWorkspaceCadencesRoute: AppWorkspaceCadencesRoute,
   AppWorkspaceIndexRoute: AppWorkspaceIndexRoute,
+  AppWorkspaceCadencesIndexRoute: AppWorkspaceCadencesIndexRoute,
   AppWorkspaceConnectMetaCoexIndexRoute: AppWorkspaceConnectMetaCoexIndexRoute,
   AppWorkspaceJourneysIndexRoute: AppWorkspaceJourneysIndexRoute,
   AppWorkspaceMyChannelsIndexRoute: AppWorkspaceMyChannelsIndexRoute,

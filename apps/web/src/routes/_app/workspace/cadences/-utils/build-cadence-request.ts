@@ -1,5 +1,5 @@
 import type { CadenceRequest } from '@kizunu/api-contracts/cadence'
-import type { CadenceStepDraft } from '@kizunu/web/routes/_app/workspace/-components/cadences/cadence-step-row'
+import type { CadenceStepDraft } from '@kizunu/web/routes/_app/workspace/cadences/-components/cadence-step-row'
 
 export function buildCadenceRequest(input: {
   name: string

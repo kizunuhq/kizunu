@@ -3,7 +3,7 @@ import {
   type CadenceStepDraft,
   CadenceStepRow,
   newStepDraft,
-} from '@kizunu/web/routes/_app/workspace/-components/cadences/cadence-step-row'
+} from '@kizunu/web/routes/_app/workspace/cadences/-components/cadence-step-row'
 
 export function CadenceStepsEditor({
   steps,

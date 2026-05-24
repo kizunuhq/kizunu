@@ -14,7 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from '@kizunu/web/components/primitives/table'
-import { DeleteTemplateDialog } from '@kizunu/web/routes/_app/workspace/-dialogs/delete-template-dialog'
+import { DeleteTemplateDialog } from '@kizunu/web/routes/_app/workspace/cadences/-dialogs/delete-template-dialog'
 import { DotsThree } from '@phosphor-icons/react'
 import { useState } from 'react'
 

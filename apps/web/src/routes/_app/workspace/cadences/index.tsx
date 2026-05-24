@@ -1,5 +1,5 @@
 import { useCurrentUser } from '@kizunu/api-client/identity/use-current-user'
-import { CadenceTemplatesView } from '@kizunu/web/routes/_app/workspace/-components/cadences/cadence-templates-view'
+import { CadenceTemplatesView } from '@kizunu/web/routes/_app/workspace/cadences/-components/cadence-templates-view'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 
 type CadencesTab = 'cadences' | 'templates'
@@ -8,7 +8,7 @@ interface CadencesSearch {
   tab: CadencesTab
 }
 
-export const Route = createFileRoute('/_app/workspace/cadences')({
+export const Route = createFileRoute('/_app/workspace/cadences/')({
   validateSearch: (search: Record<string, unknown>): CadencesSearch => ({
     tab: search.tab === 'templates' ? 'templates' : 'cadences',
   }),
