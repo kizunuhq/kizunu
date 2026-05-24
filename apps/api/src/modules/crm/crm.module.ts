@@ -13,13 +13,14 @@ import { ListMemberConnectorIdentitiesUseCase } from './core/use-cases/list-memb
 import { ListWorkspaceConnectorAccountsUseCase } from './core/use-cases/list-workspace-connector-accounts.use-case'
 import { UpdateMemberConnectorIdentityUseCase } from './core/use-cases/update-member-connector-identity.use-case'
 import { ConnectorAccountController } from './http/controllers/connector-account.controller'
+import { MemberConnectorIdentityController } from './http/controllers/member-connector-identity.controller'
 import { ConnectorAccountRepository } from './persistence/connector-account.repository'
 import { MemberConnectorIdentityRepository } from './persistence/member-connector-identity.repository'
 import { PipedriveConnector } from './plugins/pipedrive/pipedrive.connector'
 
 @Module({
   imports: [WorkspaceModule, IdentityModule, forwardRef(() => EngineModule)],
-  controllers: [ConnectorAccountController],
+  controllers: [ConnectorAccountController, MemberConnectorIdentityController],
   providers: [
     { provide: CRM_CONNECTORS, useValue: [new PipedriveConnector()] },
     CrmConnectorRegistry,
