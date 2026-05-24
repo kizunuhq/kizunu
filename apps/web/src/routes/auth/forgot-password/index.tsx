@@ -2,12 +2,12 @@ import { useCurrentUser } from '@kizunu/api-client/identity/use-current-user'
 import { useRequestPasswordReset } from '@kizunu/api-client/identity/use-request-password-reset'
 import { PageHeader } from '@kizunu/web/components/composed/page-header'
 import { Button, buttonVariants } from '@kizunu/web/components/primitives/button'
-import { ForgotPasswordForm } from '@kizunu/web/routes/auth/-components/forgot-password-form'
+import { ForgotPasswordForm } from '@kizunu/web/routes/auth/forgot-password/-components/forgot-password-form'
 import { createFileRoute, Link, Navigate } from '@tanstack/react-router'
 
 const FORM_ID = 'forgot-password-form'
 
-export const Route = createFileRoute('/auth/forgot-password')({
+export const Route = createFileRoute('/auth/forgot-password/')({
   component: ForgotPasswordPage,
 })
 
