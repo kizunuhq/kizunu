@@ -29,6 +29,7 @@ export interface LockedJourney {
   status: LeadJourneyStatusType
   currentStepOrder: number
   nextTouchAt: Date | null
+  errorReason: string | null
   cadenceId: string
   workspaceId: string
   connectorAccountId: string
@@ -92,6 +93,7 @@ export class LeadJourneyRepository {
         status: leadJourneys.status,
         currentStepOrder: leadJourneys.currentStepOrder,
         nextTouchAt: leadJourneys.nextTouchAt,
+        errorReason: leadJourneys.errorReason,
         cadenceId: leadJourneys.cadenceId,
         workspaceId: leads.workspaceId,
         connectorAccountId: leads.connectorAccountId,
@@ -120,8 +122,16 @@ export class LeadJourneyRepository {
       .where(eq(leadJourneys.id, id))
   }
 
-  async setStatus(tx: DbTransaction, id: string, status: LeadJourneyStatusType): Promise<void> {
-    await tx.update(leadJourneys).set({ status, nextTouchAt: null }).where(eq(leadJourneys.id, id))
+  async setStatus(
+    tx: DbTransaction,
+    id: string,
+    status: LeadJourneyStatusType,
+    errorReason: string | null = null,
+  ): Promise<void> {
+    await tx
+      .update(leadJourneys)
+      .set({ status, nextTouchAt: null, errorReason })
+      .where(eq(leadJourneys.id, id))
   }
 
   async listByWorkspace(
