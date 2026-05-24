@@ -2,10 +2,7 @@ import { useInviteMember } from '@kizunu/api-client/workspace/use-invite-member'
 import type { InviteMemberResponse } from '@kizunu/api-contracts/workspace'
 import { ResourceDialog } from '@kizunu/web/components/composed/resource-dialog'
 import { useMutationDialog } from '@kizunu/web/lib/use-mutation-dialog'
-import {
-  InviteMemberForm,
-  type InviteMemberFormValues,
-} from '@kizunu/web/routes/_app/settings/-components/members/invite-member-form'
+import { InviteMemberForm } from '@kizunu/web/routes/_app/settings/-components/members/invite-member-form'
 import { toast } from 'sonner'
 
 interface InviteMemberDialogProps {
@@ -30,7 +27,7 @@ export function InviteMemberDialog(props: InviteMemberDialogProps) {
     onError: dialog.captureError,
   })
 
-  function handleSubmit(values: InviteMemberFormValues) {
+  function handleSubmit(values: { email: string }) {
     dialog.clearError()
     inviteMember(values)
   }

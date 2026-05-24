@@ -1,6 +1,6 @@
 import type { ApiError } from '@kizunu/api-client/client/api-error'
 
-interface LoginErrorCopy {
+export interface LoginErrorCopy {
   message: string
   actionHref?: string
   actionLabel?: string

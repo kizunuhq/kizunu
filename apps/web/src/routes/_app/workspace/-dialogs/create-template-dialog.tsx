@@ -1,10 +1,8 @@
 import { useCreateTemplate } from '@kizunu/api-client/cadence/use-create-template'
+import type { CreateTemplateRequest } from '@kizunu/api-contracts/cadence'
 import { ResourceDialog } from '@kizunu/web/components/composed/resource-dialog'
 import { useMutationDialog } from '@kizunu/web/lib/use-mutation-dialog'
-import {
-  TemplateForm,
-  type TemplateFormValues,
-} from '@kizunu/web/routes/_app/workspace/-components/cadences/template-form'
+import { TemplateForm } from '@kizunu/web/routes/_app/workspace/-components/cadences/template-form'
 import { toast } from 'sonner'
 
 interface CreateTemplateDialogProps {
@@ -27,7 +25,7 @@ export function CreateTemplateDialog(props: CreateTemplateDialogProps) {
     onError: dialog.captureError,
   })
 
-  function handleSubmit(values: TemplateFormValues) {
+  function handleSubmit(values: CreateTemplateRequest) {
     dialog.clearError()
     createTemplate(values)
   }

@@ -1,10 +1,8 @@
 import { useCreateEntryTrigger } from '@kizunu/api-client/engine/use-create-entry-trigger'
+import type { CreateEntryTriggerRequest } from '@kizunu/api-contracts/engine'
 import { ResourceDialog } from '@kizunu/web/components/composed/resource-dialog'
 import { useMutationDialog } from '@kizunu/web/lib/use-mutation-dialog'
-import {
-  EntryTriggerForm,
-  type EntryTriggerFormValues,
-} from '@kizunu/web/routes/_app/settings/-components/connectors/entry-trigger-form'
+import { EntryTriggerForm } from '@kizunu/web/routes/_app/settings/-components/connectors/entry-trigger-form'
 import { toast } from 'sonner'
 
 interface CreateEntryTriggerDialogProps {
@@ -27,7 +25,7 @@ export function CreateEntryTriggerDialog(props: CreateEntryTriggerDialogProps) {
     onError: dialog.captureError,
   })
 
-  function handleSubmit(values: EntryTriggerFormValues) {
+  function handleSubmit(values: CreateEntryTriggerRequest) {
     dialog.clearError()
     createEntryTrigger(values)
   }

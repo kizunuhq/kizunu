@@ -417,6 +417,34 @@ CRUD. Each feature below is independent and self-contained.
   billing), Meta Coex Embedded Signup flow (OAuth/SDK), brand-new UIs for unwired
   mutations (`useRevokeChannelAccess`, `useUpdateCadence`, `useUpdateTemplate`)._
 
+**Forms RHF + zod doctrine + sweep** - COMPLETE
+- _Landed (feature `045`): ADR-008 codifies the four load-bearing calls — RHF owns
+  field state, the contract `*RequestSchema` is the validation source via
+  `zodResolver`, the error surface splits field-level (`<FieldError id>` +
+  `aria-invalid` / `aria-describedby`) from server-level (top `<FormError>` banner),
+  and forms stay dumb (`{ formId, defaultValues?, isPending, onSubmit, error? }`).
+  `.agents/rules/web-patterns.md` §3 fully rewritten with §3.a native-input recipe,
+  §3.b `<Controller>` recipe for controlled components (LookupSelect/PluginSelect/
+  CredentialFieldsInput), and §3.c derived-`formSchema` recipe (`.pick` for
+  subsetting around `z.coerce`/`.default` input-vs-output divergence, `.extend` for
+  path-param lift, `.superRefine`/`.transform` for UI-only rules). `react.md` §3
+  gains a one-sentence carve-out pointing at web-patterns §3. All 10 forms migrated
+  in this branch (no transition clause): invite-member (canonical example),
+  login/signup/forgot-password/reset-password (auth split into smart-page +
+  dumb-form, route file now owns useLogin/useRegister/etc. + PageHeader +
+  navigation + the submit button via `<Button form={formId}>`), channel-account
+  (Controller for PluginSelect + Controller for credentials map + setError for
+  plugin-required), grant-channel-access (derived schema extends with `accountId`
+  to lift the API path-param), connector-account (derived schema parses JSON
+  credentials via .superRefine), entry-trigger + template (drop local
+  `*FormValues` interfaces; consume the existing
+  `CreateEntryTriggerRequestSchema`/`CreateTemplateRequestSchema`). `LabeledInput`
+  deleted. Four new web unit specs cover the derived schemas: reset-password
+  match rule, grant-channel-access path-lift, connector-account JSON parse,
+  channel-account spec updated to await RHF's async resolver and assert
+  field-level errors. `bun check` green (387 tests; every check-\* script passes;
+  CI=1 lint 0w/0e)._
+
 ---
 
 ## Future Considerations (Phase 2+)

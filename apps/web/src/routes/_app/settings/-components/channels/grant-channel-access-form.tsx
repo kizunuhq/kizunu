@@ -1,14 +1,18 @@
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useWorkspaceChannels } from '@kizunu/api-client/channel/use-workspace-channels'
 import { useMembers } from '@kizunu/api-client/workspace/use-members'
+import { GrantChannelAccessRequestSchema } from '@kizunu/api-contracts/channel'
 import { FormError } from '@kizunu/web/components/composed/form-error'
 import { LookupSelect } from '@kizunu/web/components/composed/lookup-select'
-import { Field, FieldLabel } from '@kizunu/web/components/primitives/field'
-import { useState } from 'react'
+import { Field, FieldError, FieldGroup, FieldLabel } from '@kizunu/web/components/primitives/field'
+import { Controller, useForm } from 'react-hook-form'
+import { z } from 'zod'
 
-export interface GrantChannelAccessFormValues {
-  accountId: string
-  userId: string
-}
+export const grantChannelAccessFormSchema = GrantChannelAccessRequestSchema.extend({
+  accountId: z.uuid(),
+})
+
+export type GrantChannelAccessFormValues = z.infer<typeof grantChannelAccessFormSchema>
 
 interface GrantChannelAccessFormProps {
   formId: string
@@ -22,23 +26,10 @@ export function GrantChannelAccessForm(props: GrantChannelAccessFormProps) {
   const { formId, workspaceId, isPending, error, onSubmit } = props
   const channels = useWorkspaceChannels(workspaceId)
   const members = useMembers(workspaceId)
-  const [accountId, setAccountId] = useState('')
-  const [userId, setUserId] = useState('')
-  const [validationError, setValidationError] = useState<string | null>(null)
-
-  function submit(event: React.FormEvent) {
-    event.preventDefault()
-    if (!accountId) {
-      setValidationError('Pick a channel account.')
-      return
-    }
-    if (!userId) {
-      setValidationError('Pick a member to grant access to.')
-      return
-    }
-    setValidationError(null)
-    onSubmit({ accountId, userId })
-  }
+  const { control, handleSubmit } = useForm<GrantChannelAccessFormValues>({
+    resolver: zodResolver(grantChannelAccessFormSchema),
+    defaultValues: { accountId: '', userId: '' },
+  })
 
   const accountOptions = (channels.data?.accounts ?? []).map((a) => ({
     value: a.id,
@@ -49,37 +40,49 @@ export function GrantChannelAccessForm(props: GrantChannelAccessFormProps) {
     label: m.userName,
   }))
 
-  const displayError = validationError ?? error
-
   return (
-    <form id={formId} className="flex flex-col gap-3" onSubmit={submit}>
-      {displayError && <FormError>{displayError}</FormError>}
-      <Field>
-        <FieldLabel>Channel account</FieldLabel>
-        <LookupSelect
-          value={accountId}
-          placeholder="Select account"
-          options={accountOptions}
-          onChange={(next) => {
-            setAccountId(next)
-            setValidationError(null)
-          }}
-          disabled={isPending}
+    <form id={formId} className="flex flex-col gap-3" onSubmit={handleSubmit(onSubmit)}>
+      <FieldGroup>
+        {error && <FormError>{error}</FormError>}
+        <Controller
+          control={control}
+          name="accountId"
+          render={({ field, fieldState }) => (
+            <Field>
+              <FieldLabel>Channel account</FieldLabel>
+              <LookupSelect
+                value={field.value ?? ''}
+                placeholder="Select account"
+                options={accountOptions}
+                onChange={field.onChange}
+                disabled={isPending}
+              />
+              {fieldState.error && (
+                <FieldError id="accountId-error">{fieldState.error.message}</FieldError>
+              )}
+            </Field>
+          )}
         />
-      </Field>
-      <Field>
-        <FieldLabel>Member</FieldLabel>
-        <LookupSelect
-          value={userId}
-          placeholder="Select member"
-          options={memberOptions}
-          onChange={(next) => {
-            setUserId(next)
-            setValidationError(null)
-          }}
-          disabled={isPending}
+        <Controller
+          control={control}
+          name="userId"
+          render={({ field, fieldState }) => (
+            <Field>
+              <FieldLabel>Member</FieldLabel>
+              <LookupSelect
+                value={field.value ?? ''}
+                placeholder="Select member"
+                options={memberOptions}
+                onChange={field.onChange}
+                disabled={isPending}
+              />
+              {fieldState.error && (
+                <FieldError id="userId-error">{fieldState.error.message}</FieldError>
+              )}
+            </Field>
+          )}
         />
-      </Field>
+      </FieldGroup>
     </form>
   )
 }

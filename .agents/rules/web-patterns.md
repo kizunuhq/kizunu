@@ -123,55 +123,80 @@ Notes:
 
 ## 3. Form recipe — smart page + dumb form
 
-The form is a dumb component that knows nothing about navigation, toasts, or
-API state. It receives `{ formId, defaultValues, isPending, onSubmit, error }`
-and renders fields. The page is the smart layer: it owns the mutation hook
-and declares side-effects.
+The form is a dumb component that knows nothing about navigation, toasts,
+or mutation state. It receives `{ formId, defaultValues?, isPending, onSubmit,
+error? }` and renders fields. The page is the smart layer: it owns the
+mutation hook and declares side-effects.
 
-Forms use plain `useState` + a `submit` handler that calls
-`event.preventDefault()` and invokes the mutation. This matches every
-existing form in `apps/web` (`login-form.tsx`, `invite-member-form.tsx`,
-`connector-account-form.tsx`, ...). When a future feature has a form complex
-enough to warrant `react-hook-form` (it is already a dependency), introduce
-it locally for that form — do not retrofit the whole codebase.
+**Forms own `useForm` bound to a contract schema. Per-field `useState` is
+forbidden in form components.** Field state, dirty tracking, double-submit
+guard, and `defaultValues` for edit mode all come from `react-hook-form`.
+Validation comes from the `*RequestSchema` in `@kizunu/api-contracts` plugged
+into `zodResolver` — no native `required`, no hand-rolled validation
+helpers. The decision is recorded in
+[ADR-008](../../docs/adr/008-forms-react-hook-form-zod.md).
+
+Two error surfaces, deliberately separate:
+
+| Surface | Source | Component |
+| --- | --- | --- |
+| Field-level | RHF `errors.<field>.message` (zodResolver) | `<FieldError id="<field>-error">` inside the `<Field>`, with `aria-invalid` + `aria-describedby` on the input |
+| Top-of-form | server error string from the parent (`useMutationDialog` for dialogs, smart-page local state for auth) | `<FormError>{error}</FormError>` at the top of `<FieldGroup>` |
+
+### 3.a Native input recipe
 
 ```tsx
 // routes/_app/instruments/-components/instrument-form.tsx
+import { zodResolver } from '@hookform/resolvers/zod'
+import {
+  type CreateInstrumentRequest,
+  CreateInstrumentRequestSchema,
+} from '@kizunu/api-contracts/instrument'
 import { FormError } from '@kizunu/web/components/composed/form-error'
-import { Field, FieldGroup, FieldLabel } from '@kizunu/web/components/primitives/field'
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from '@kizunu/web/components/primitives/field'
 import { Input } from '@kizunu/web/components/primitives/input'
-import { useState } from 'react'
+import { useForm } from 'react-hook-form'
 
 interface InstrumentFormProps {
   formId: string
-  defaultValues?: { name?: string }
+  defaultValues?: Partial<CreateInstrumentRequest>
   isPending: boolean
-  onSubmit: (data: { name: string }) => void
   error?: string | null
+  onSubmit: (data: CreateInstrumentRequest) => void
 }
 
 export function InstrumentForm(props: InstrumentFormProps) {
-  const { formId, defaultValues, isPending, onSubmit, error } = props
-  const [name, setName] = useState(defaultValues?.name ?? '')
-
-  function submit(event: React.FormEvent) {
-    event.preventDefault()
-    onSubmit({ name })
-  }
+  const { formId, defaultValues, isPending, error, onSubmit } = props
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<CreateInstrumentRequest>({
+    resolver: zodResolver(CreateInstrumentRequestSchema),
+    defaultValues,
+  })
 
   return (
-    <form id={formId} onSubmit={submit} className="space-y-4">
-      {error && <FormError>{error}</FormError>}
+    <form id={formId} onSubmit={handleSubmit(onSubmit)}>
       <FieldGroup>
+        {error && <FormError>{error}</FormError>}
         <Field>
           <FieldLabel htmlFor="name">Name</FieldLabel>
           <Input
             id="name"
-            value={name}
-            onChange={(event) => setName(event.target.value)}
+            aria-invalid={!!errors.name}
+            aria-describedby={errors.name ? 'name-error' : undefined}
             disabled={isPending}
-            required
+            {...register('name')}
           />
+          {errors.name && (
+            <FieldError id="name-error">{errors.name.message}</FieldError>
+          )}
         </Field>
       </FieldGroup>
     </form>
@@ -179,9 +204,112 @@ export function InstrumentForm(props: InstrumentFormProps) {
 }
 ```
 
-The submit button lives **outside** the form via `form={formId}`. The page
-declares side-effects on the hook (`onSuccess`, `onError`) — no `try/catch`
-in the submit handler.
+**Shortcut: `<RhfField>`.** The native-input block above is repetitive
+(`Field` + `FieldLabel` + `Input` + the a11y triad + `FieldError`). The
+composed `<RhfField>` primitive
+(`apps/web/src/components/composed/rhf-field.tsx`) bundles all of it:
+
+```tsx
+<RhfField
+  name="name"
+  label="Name"
+  register={register}
+  error={errors.name}
+  disabled={isPending}
+/>
+```
+
+Use `<RhfField>` as the default for native inputs; the explicit block
+above is what it expands to — reach for it when you need an attribute
+the wrapper doesn't expose (custom `className`, `inputMode`, etc.).
+
+### 3.b Controlled-component recipe — `<Controller>`
+
+`register()` cannot reach into a controlled component (`LookupSelect`,
+`PluginSelect`, a `Combobox`, the dynamic credential inputs) — there's no
+native form value to subscribe to. Wrap each one in `<Controller>` and read
+the per-field error from `fieldState`.
+
+```tsx
+import { Controller } from 'react-hook-form'
+
+<Controller
+  name="cadenceId"
+  control={control}
+  render={({ field, fieldState }) => (
+    <Field>
+      <FieldLabel>Cadence</FieldLabel>
+      <LookupSelect
+        value={field.value ?? ''}
+        onChange={field.onChange}
+        placeholder="Select cadence"
+        options={cadenceOptions}
+        disabled={isPending}
+      />
+      {fieldState.error && (
+        <FieldError id="cadenceId-error">{fieldState.error.message}</FieldError>
+      )}
+    </Field>
+  )}
+/>
+```
+
+For dynamic nested fields (e.g. `credentials.<key>` on the channel-account
+form), RHF supports dotted paths: `<Controller name={`credentials.${key}`} ...>`.
+
+### 3.c Derived `formSchema` recipe — UI-only rules
+
+When the form needs a rule the contract does not carry — confirm-password
+match, JSON-body parse, plugin-specific required credentials — declare a
+derived schema **in the form file**, on top of the contract. The contract
+package stays a pure mirror of the API DTO; UI concerns live next to the
+form.
+
+```tsx
+const MIN_PASSWORD_LENGTH = 8
+
+const formSchema = ConfirmPasswordResetSchema.extend({
+  confirmPassword: z.string().min(MIN_PASSWORD_LENGTH),
+}).superRefine(({ password, confirmPassword }, ctx) => {
+  if (password !== confirmPassword) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['confirmPassword'],
+      message: "Passwords don't match.",
+    })
+  }
+})
+
+type FormValues = z.infer<typeof formSchema>
+```
+
+Variations:
+- **Subset (`.pick`)**: when the form only surfaces a subset of the
+  contract's fields,
+  `const formSchema = ContractSchema.pick({ email: true })` is the right
+  derivation. Also necessary when the contract carries a `z.coerce.*` or
+  `.default(...)` whose input/output types diverge — `useForm<z.infer<T>>`
+  requires the same shape on both sides, and picking only the
+  literal-typed fields the form uses keeps the resolver well-typed.
+- **Path-param lift**: when an API path-param needs to live as a form field
+  (e.g. `accountId` for grant-channel-access),
+  `baseSchema.extend({ accountId: z.uuid() })`. The smart wrapper
+  destructures `{ accountId, ...payload }` before calling the
+  path-bound mutation.
+- **Transform**: `.transform(({ rawJson, ...rest }) => ({ ...rest, parsed:
+  parseJsonObject(rawJson)! }))` after `.superRefine` for inputs the user
+  enters in one shape but the API expects in another.
+
+Derived schemas carrying rules (`.superRefine`, `.transform`) are **fat
+logic** per `TESTING.md`'s coverage matrix — author a focused web unit
+spec on the schema (one rule per test) via the `generate-tests` skill.
+
+### Smart-page wiring (parent owns side-effects)
+
+The submit button lives **outside** the form via `form={id}`. The parent
+declares side-effects on the mutation hook (`onSuccess`, `onError`) — no
+`try/catch` in the form's submit handler. RHF's `handleSubmit` blocks the
+callback when validation fails and prevents double-submit by default.
 
 ```tsx
 // routes/_app/instruments/new.tsx
@@ -211,8 +339,8 @@ function NewInstrumentPage() {
         }}
       />
       <div className="flex gap-2">
-        <Button form={formId} type="submit" disabled={isPending}>
-          {isPending ? 'Saving…' : 'Save'}
+        <Button form={formId} type="submit" loading={isPending}>
+          Save
         </Button>
         <Button variant="outline" onClick={() => navigate({ to: '..' })}>
           Cancel
@@ -223,14 +351,21 @@ function NewInstrumentPage() {
 }
 ```
 
+Dialog wrappers use `useMutationDialog` for the server-error string (see
+§6); the wiring is otherwise identical.
+
+Auth routes (`routes/auth/{login,signup,forgot-password,reset-password}.tsx`)
+are the same shape — the route file is the smart page, the
+`-components/<auth>-form.tsx` is the dumb form. No "auth is the exception"
+clause.
+
 Notes:
 
 - Form-component file ≤50 lines (`react.md` §9). Past that, split into
   smaller field groupings under `-components/`.
-- Validation happens at the contract: the API rejects bad input and the
-  mutation's `onError` surfaces the message via `FormError`. Native HTML
-  validation (`required`, `type="email"`, `pattern`) handles obvious
-  client-side guards.
+- Validation comes from the contract via `zodResolver`. Native HTML
+  validation (`required`, `type="email"`, `pattern`) is no longer used —
+  the schema carries all the rules.
 - `FormError` (not `toast.error`) is used inside a form-bearing surface so
   the error stays in context. Toasts are for mutations outside a form
   surface — see §7.
@@ -502,6 +637,8 @@ When starting a new CRUD-ish web feature:
    feature has a filterable/paginated list.
 7. Create `-utils/columns.tsx` for the `DataTable` column definitions.
 8. Create `-components/<feature>-form.tsx` and any dumb child components.
+   The form `useForm`s bound to the contract `*RequestSchema` via
+   `zodResolver` (§3.a / §3.b / §3.c). Per-field `useState` is forbidden.
 9. Add navigation entry under `apps/web/src/features/app-shell/data/` (the
    one remaining legitimate `features/` reference — the app shell's nav
    data lives there until its own future migration).

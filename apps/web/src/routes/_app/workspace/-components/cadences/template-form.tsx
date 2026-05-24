@@ -1,87 +1,84 @@
+import { zodResolver } from '@hookform/resolvers/zod'
+import {
+  type CreateTemplateRequest,
+  CreateTemplateRequestSchema,
+} from '@kizunu/api-contracts/cadence'
 import { FormError } from '@kizunu/web/components/composed/form-error'
 import { PluginSelect } from '@kizunu/web/components/composed/plugin-select'
-import { Field, FieldLabel } from '@kizunu/web/components/primitives/field'
-import { Input } from '@kizunu/web/components/primitives/input'
-import { useState } from 'react'
+import { RhfField } from '@kizunu/web/components/composed/rhf-field'
+import { Field, FieldError, FieldGroup, FieldLabel } from '@kizunu/web/components/primitives/field'
+import { Controller, useForm } from 'react-hook-form'
+import { z } from 'zod'
 
-export interface TemplateFormValues {
-  name: string
-  channelPluginId: string
-  providerTemplateName: string
-  language: string
-  variables: never[]
-}
+const templateFormSchema = CreateTemplateRequestSchema.omit({ variables: true })
+
+type TemplateFormValues = z.infer<typeof templateFormSchema>
 
 interface TemplateFormProps {
   formId: string
   isPending: boolean
   error?: string | null
-  onSubmit: (values: TemplateFormValues) => void
+  onSubmit: (values: CreateTemplateRequest) => void
 }
 
 export function TemplateForm(props: TemplateFormProps) {
   const { formId, isPending, error, onSubmit } = props
-  const [name, setName] = useState('')
-  const [channelPluginId, setChannelPluginId] = useState('')
-  const [providerTemplateName, setProviderTemplateName] = useState('')
-  const [language, setLanguage] = useState('en_US')
-  const [validationError, setValidationError] = useState<string | null>(null)
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useForm<TemplateFormValues>({
+    resolver: zodResolver(templateFormSchema),
+    defaultValues: { name: '', channelPluginId: '', providerTemplateName: '', language: 'en_US' },
+  })
 
-  function submit(event: React.FormEvent) {
-    event.preventDefault()
-    if (!channelPluginId) {
-      setValidationError('Pick a channel plugin.')
-      return
-    }
-    setValidationError(null)
-    onSubmit({ name, channelPluginId, providerTemplateName, language, variables: [] })
+  function submit(values: TemplateFormValues) {
+    onSubmit({ ...values, variables: [] })
   }
 
-  const displayError = validationError ?? error
-
   return (
-    <form id={formId} className="flex flex-col gap-3" onSubmit={submit}>
-      {displayError && <FormError>{displayError}</FormError>}
-      <Field>
-        <FieldLabel htmlFor="template-name">Name</FieldLabel>
-        <Input
+    <form id={formId} className="flex flex-col gap-3" onSubmit={handleSubmit(submit)}>
+      <FieldGroup>
+        {error && <FormError>{error}</FormError>}
+        <RhfField
+          name="name"
+          label="Name"
           id="template-name"
-          value={name}
-          required
+          register={register}
+          error={errors.name}
           disabled={isPending}
-          onChange={(e) => setName(e.target.value)}
         />
-      </Field>
-      <Field>
-        <FieldLabel>Channel plugin</FieldLabel>
-        <PluginSelect
-          value={channelPluginId}
-          onChange={(next) => {
-            setChannelPluginId(next)
-            setValidationError(null)
-          }}
+        <Controller
+          control={control}
+          name="channelPluginId"
+          render={({ field, fieldState }) => (
+            <Field>
+              <FieldLabel>Channel plugin</FieldLabel>
+              <PluginSelect value={field.value ?? ''} onChange={field.onChange} />
+              {fieldState.error && (
+                <FieldError id="channelPluginId-error">{fieldState.error.message}</FieldError>
+              )}
+            </Field>
+          )}
         />
-      </Field>
-      <Field>
-        <FieldLabel htmlFor="provider-template">Provider template name (HSM)</FieldLabel>
-        <Input
+        <RhfField
+          name="providerTemplateName"
+          label="Provider template name (HSM)"
           id="provider-template"
-          value={providerTemplateName}
-          required
+          register={register}
+          error={errors.providerTemplateName}
           disabled={isPending}
-          onChange={(e) => setProviderTemplateName(e.target.value)}
         />
-      </Field>
-      <Field>
-        <FieldLabel htmlFor="template-language">Language</FieldLabel>
-        <Input
+        <RhfField
+          name="language"
+          label="Language"
           id="template-language"
-          value={language}
-          required
+          register={register}
+          error={errors.language}
           disabled={isPending}
-          onChange={(e) => setLanguage(e.target.value)}
         />
-      </Field>
+      </FieldGroup>
     </form>
   )
 }
