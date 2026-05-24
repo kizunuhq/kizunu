@@ -1,5 +1,6 @@
 import { Button as ButtonPrimitive } from '@base-ui/react/button'
 import { cn } from '@kizunu/web/lib/utils'
+import { Spinner } from '@phosphor-icons/react'
 import { cva, type VariantProps } from 'class-variance-authority'
 
 const buttonVariants = cva(
@@ -39,18 +40,30 @@ const buttonVariants = cva(
   },
 )
 
+type ButtonProps = ButtonPrimitive.Props &
+  VariantProps<typeof buttonVariants> & {
+    loading?: boolean
+  }
+
 function Button({
   className,
   variant = 'default',
   size = 'default',
+  loading = false,
+  disabled,
+  children,
   ...props
-}: ButtonPrimitive.Props & VariantProps<typeof buttonVariants>) {
+}: ButtonProps) {
   return (
     <ButtonPrimitive
       data-slot="button"
       className={cn(buttonVariants({ variant, size, className }))}
+      disabled={disabled || loading}
       {...props}
-    />
+    >
+      {loading ? <Spinner data-slot="button-spinner" className="animate-spin" /> : null}
+      {children}
+    </ButtonPrimitive>
   )
 }
 
