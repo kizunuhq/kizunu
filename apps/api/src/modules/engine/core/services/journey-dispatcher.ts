@@ -23,6 +23,7 @@ import type { DbTransaction } from '../../persistence/transaction'
 import { Clock } from '../clock'
 import { Jitter } from '../domain/jitter'
 import { JourneyEvent } from '../domain/journey-event'
+import { LeadJourneyErrorReason } from '../domain/lead-journey-error-reason'
 import { LeadJourneyStatus } from '../domain/lead-journey-status'
 import { transition } from '../domain/lead-journey-transition'
 import { resolveNextStep } from '../domain/next-step'
@@ -111,7 +112,8 @@ export class JourneyDispatcher {
       journey.leadOwnerUserId,
       step.channelPluginId,
     )
-    if (!channelAccountId) return await this.errorOut(tx, journey.id)
+    if (!channelAccountId)
+      return await this.errorOut(tx, journey.id, LeadJourneyErrorReason.NoChannel)
 
     const attempt = await this.touchAttempts.tryInsert(tx, journey.id, stepOrder)
     if (!attempt) return
@@ -128,7 +130,7 @@ export class JourneyDispatcher {
         status: 'failed',
         error: decision.reason ?? 'template_required',
       })
-      return await this.errorOut(tx, journey.id)
+      return await this.errorOut(tx, journey.id, LeadJourneyErrorReason.TemplateRequired)
     }
 
     if (decision.action === 'skip') {
@@ -219,7 +221,7 @@ export class JourneyDispatcher {
     await this.journeys.advance(tx, journeyId, stepOrder, nextTouchAt)
   }
 
-  private async errorOut(tx: DbTransaction, id: string): Promise<void> {
-    await this.journeys.setStatus(tx, id, LeadJourneyStatus.ErrorState)
+  private async errorOut(tx: DbTransaction, id: string, reason: string): Promise<void> {
+    await this.journeys.setStatus(tx, id, LeadJourneyStatus.ErrorState, reason)
   }
 }
