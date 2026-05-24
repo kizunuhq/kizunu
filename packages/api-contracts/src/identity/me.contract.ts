@@ -16,6 +16,13 @@ export const MeResponseSchema = z.object({
       status: z.enum(['active', 'inactive']),
     }),
   ),
+  connectorIdentities: z.array(
+    z.object({
+      connectorAccountId: z.uuid(),
+      connectorId: z.string().min(1),
+      externalId: z.string().min(1),
+    }),
+  ),
   activeWorkspaceId: z.uuid().nullable(),
 })
 

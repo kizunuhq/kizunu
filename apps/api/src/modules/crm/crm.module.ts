@@ -19,7 +19,7 @@ import { MemberConnectorIdentityRepository } from './persistence/member-connecto
 import { PipedriveConnector } from './plugins/pipedrive/pipedrive.connector'
 
 @Module({
-  imports: [WorkspaceModule, IdentityModule, forwardRef(() => EngineModule)],
+  imports: [WorkspaceModule, forwardRef(() => IdentityModule), forwardRef(() => EngineModule)],
   controllers: [ConnectorAccountController, MemberConnectorIdentityController],
   providers: [
     { provide: CRM_CONNECTORS, useValue: [new PipedriveConnector()] },

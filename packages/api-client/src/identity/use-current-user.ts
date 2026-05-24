@@ -29,6 +29,7 @@ export function useCurrentUser() {
   return {
     user: query.data?.user ?? null,
     memberships: query.data?.memberships ?? [],
+    connectorIdentities: query.data?.connectorIdentities ?? [],
     activeWorkspaceId: query.data?.activeWorkspaceId ?? null,
     isPending: query.isPending,
     refetch: query.refetch,

@@ -1,4 +1,5 @@
 import type { User } from '@kizunu/api/db/schemas/users'
+import type { MemberConnectorIdentityRepository } from '@kizunu/api/modules/crm/persistence/member-connector-identity.repository'
 import { SessionExpiredException } from '@kizunu/api/modules/identity/core/errors/identity.errors'
 import { GetMeUseCase } from '@kizunu/api/modules/identity/core/use-cases/get-me.use-case'
 import type {
@@ -34,12 +35,19 @@ const MEMBERSHIP: MembershipWithWorkspace = {
   status: 'active',
 }
 
-function buildUseCase(user: User | undefined, memberships: MembershipWithWorkspace[]) {
+function buildUseCase(
+  user: User | undefined,
+  memberships: MembershipWithWorkspace[],
+  identities: Array<{ connectorAccountId: string; connectorId: string; externalId: string }> = [],
+) {
   const users = { findById: async () => user } as unknown as UserRepository
   const membershipRepo = {
     listForUser: async () => memberships,
   } as unknown as MembershipRepository
-  return new GetMeUseCase(users, membershipRepo)
+  const identityRepo = {
+    listForUser: async () => identities,
+  } as unknown as MemberConnectorIdentityRepository
+  return new GetMeUseCase(users, membershipRepo, identityRepo)
 }
 
 describe('GetMeUseCase', () => {
@@ -64,8 +72,23 @@ describe('GetMeUseCase', () => {
         emailVerifiedAt: VERIFIED_AT,
       },
       memberships: [MEMBERSHIP],
+      connectorIdentities: [],
       activeWorkspaceId: 'ws-1',
     })
+  })
+
+  it('includes the user connector identities in the response', async () => {
+    const useCase = buildUseCase(
+      createUser(),
+      [MEMBERSHIP],
+      [{ connectorAccountId: 'acc-1', connectorId: 'pipedrive', externalId: '42' }],
+    )
+
+    const result = await useCase.execute('user-1', 'ws-1')
+
+    expect(result.connectorIdentities).toEqual([
+      { connectorAccountId: 'acc-1', connectorId: 'pipedrive', externalId: '42' },
+    ])
   })
 
   it('passes through a null active workspace', async () => {
