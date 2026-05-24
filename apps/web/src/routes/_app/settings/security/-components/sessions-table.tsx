@@ -6,7 +6,7 @@ import {
   TableHeader,
   TableRow,
 } from '@kizunu/web/components/primitives/table'
-import { SessionRow } from '@kizunu/web/routes/_app/settings/-components/security/session-row'
+import { SessionRow } from '@kizunu/web/routes/_app/settings/security/-components/session-row'
 
 interface SessionsTableProps {
   sessions: SessionView[]

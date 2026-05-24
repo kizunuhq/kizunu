@@ -8,9 +8,9 @@ import {
   CardHeader,
   CardTitle,
 } from '@kizunu/web/components/primitives/card'
-import { SessionsTable } from '@kizunu/web/routes/_app/settings/-components/security/sessions-table'
-import { RevokeOtherSessionsDialog } from '@kizunu/web/routes/_app/settings/-dialogs/revoke-other-sessions-dialog'
-import { RevokeSessionDialog } from '@kizunu/web/routes/_app/settings/-dialogs/revoke-session-dialog'
+import { SessionsTable } from '@kizunu/web/routes/_app/settings/security/-components/sessions-table'
+import { RevokeOtherSessionsDialog } from '@kizunu/web/routes/_app/settings/security/-dialogs/revoke-other-sessions-dialog'
+import { RevokeSessionDialog } from '@kizunu/web/routes/_app/settings/security/-dialogs/revoke-session-dialog'
 import { useState } from 'react'
 
 export function SessionsManager() {
