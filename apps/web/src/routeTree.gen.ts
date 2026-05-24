@@ -21,6 +21,7 @@ import { Route as AuthLoginRouteImport } from './routes/auth/login'
 import { Route as AuthForgotPasswordRouteImport } from './routes/auth/forgot-password'
 import { Route as AppSettingsRouteRouteImport } from './routes/_app/settings/route'
 import { Route as AppWorkspaceIndexRouteImport } from './routes/_app/workspace/index'
+import { Route as AppSettingsIndexRouteImport } from './routes/_app/settings/index'
 import { Route as AuthAcceptInviteTokenRouteImport } from './routes/auth/accept-invite.$token'
 import { Route as AppWorkspaceMyChannelsRouteImport } from './routes/_app/workspace/my-channels'
 import { Route as AppWorkspaceJourneysRouteImport } from './routes/_app/workspace/journeys'
@@ -92,6 +93,11 @@ const AppWorkspaceIndexRoute = AppWorkspaceIndexRouteImport.update({
   id: '/workspace/',
   path: '/workspace/',
   getParentRoute: () => AppRouteRoute,
+} as any)
+const AppSettingsIndexRoute = AppSettingsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppSettingsRouteRoute,
 } as any)
 const AuthAcceptInviteTokenRoute = AuthAcceptInviteTokenRouteImport.update({
   id: '/accept-invite/$token',
@@ -178,12 +184,12 @@ export interface FileRoutesByFullPath {
   '/workspace/journeys': typeof AppWorkspaceJourneysRoute
   '/workspace/my-channels': typeof AppWorkspaceMyChannelsRoute
   '/auth/accept-invite/$token': typeof AuthAcceptInviteTokenRoute
+  '/settings/': typeof AppSettingsIndexRoute
   '/workspace/': typeof AppWorkspaceIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/not-found': typeof NotFoundRoute
-  '/settings': typeof AppSettingsRouteRouteWithChildren
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
@@ -202,6 +208,7 @@ export interface FileRoutesByTo {
   '/workspace/journeys': typeof AppWorkspaceJourneysRoute
   '/workspace/my-channels': typeof AppWorkspaceMyChannelsRoute
   '/auth/accept-invite/$token': typeof AuthAcceptInviteTokenRoute
+  '/settings': typeof AppSettingsIndexRoute
   '/workspace': typeof AppWorkspaceIndexRoute
 }
 export interface FileRoutesById {
@@ -229,6 +236,7 @@ export interface FileRoutesById {
   '/_app/workspace/journeys': typeof AppWorkspaceJourneysRoute
   '/_app/workspace/my-channels': typeof AppWorkspaceMyChannelsRoute
   '/auth/accept-invite/$token': typeof AuthAcceptInviteTokenRoute
+  '/_app/settings/': typeof AppSettingsIndexRoute
   '/_app/workspace/': typeof AppWorkspaceIndexRoute
 }
 export interface FileRouteTypes {
@@ -256,12 +264,12 @@ export interface FileRouteTypes {
     | '/workspace/journeys'
     | '/workspace/my-channels'
     | '/auth/accept-invite/$token'
+    | '/settings/'
     | '/workspace/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/not-found'
-    | '/settings'
     | '/auth/forgot-password'
     | '/auth/login'
     | '/auth/reset-password'
@@ -280,6 +288,7 @@ export interface FileRouteTypes {
     | '/workspace/journeys'
     | '/workspace/my-channels'
     | '/auth/accept-invite/$token'
+    | '/settings'
     | '/workspace'
   id:
     | '__root__'
@@ -306,6 +315,7 @@ export interface FileRouteTypes {
     | '/_app/workspace/journeys'
     | '/_app/workspace/my-channels'
     | '/auth/accept-invite/$token'
+    | '/_app/settings/'
     | '/_app/workspace/'
   fileRoutesById: FileRoutesById
 }
@@ -402,6 +412,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppWorkspaceIndexRouteImport
       parentRoute: typeof AppRouteRoute
     }
+    '/_app/settings/': {
+      id: '/_app/settings/'
+      path: '/'
+      fullPath: '/settings/'
+      preLoaderRoute: typeof AppSettingsIndexRouteImport
+      parentRoute: typeof AppSettingsRouteRoute
+    }
     '/auth/accept-invite/$token': {
       id: '/auth/accept-invite/$token'
       path: '/accept-invite/$token'
@@ -497,6 +514,7 @@ interface AppSettingsRouteRouteChildren {
   AppSettingsProfileRoute: typeof AppSettingsProfileRoute
   AppSettingsSecurityRoute: typeof AppSettingsSecurityRoute
   AppSettingsWorkspaceRoute: typeof AppSettingsWorkspaceRoute
+  AppSettingsIndexRoute: typeof AppSettingsIndexRoute
 }
 
 const AppSettingsRouteRouteChildren: AppSettingsRouteRouteChildren = {
@@ -507,6 +525,7 @@ const AppSettingsRouteRouteChildren: AppSettingsRouteRouteChildren = {
   AppSettingsProfileRoute: AppSettingsProfileRoute,
   AppSettingsSecurityRoute: AppSettingsSecurityRoute,
   AppSettingsWorkspaceRoute: AppSettingsWorkspaceRoute,
+  AppSettingsIndexRoute: AppSettingsIndexRoute,
 }
 
 const AppSettingsRouteRouteWithChildren =
