@@ -19,6 +19,7 @@ describe('buildCadenceRequest', () => {
         name: 'Follow-up L1',
         steps: [buildStep()],
         onReplyStageId: '',
+        sendingWindowPreset: 'always_on',
       })
 
       expect(request.steps).toEqual([
@@ -37,6 +38,7 @@ describe('buildCadenceRequest', () => {
         name: 'Follow-up',
         steps: [buildStep({ templateId: '' })],
         onReplyStageId: '',
+        sendingWindowPreset: 'always_on',
       })
 
       expect(request.steps[0]?.templateId).toBeNull()
@@ -47,6 +49,7 @@ describe('buildCadenceRequest', () => {
         name: 'Follow-up',
         steps: [buildStep({ id: 'a', delayMinutes: 10 }), buildStep({ id: 'b', delayMinutes: 20 })],
         onReplyStageId: '',
+        sendingWindowPreset: 'always_on',
       })
 
       expect(request.steps.map((step) => step.delayMinutes)).toEqual([10, 20])
@@ -59,6 +62,7 @@ describe('buildCadenceRequest', () => {
         name: 'Follow-up',
         steps: [buildStep()],
         onReplyStageId: 'replied-stage',
+        sendingWindowPreset: 'always_on',
       })
 
       expect(request.onReply).toEqual([{ type: 'move_stage', stageId: 'replied-stage' }])
@@ -69,6 +73,7 @@ describe('buildCadenceRequest', () => {
         name: 'Follow-up',
         steps: [buildStep()],
         onReplyStageId: '',
+        sendingWindowPreset: 'always_on',
       })
 
       expect(request.onReply).toEqual([])
@@ -80,6 +85,7 @@ describe('buildCadenceRequest', () => {
       name: 'Follow-up L1',
       steps: [buildStep()],
       onReplyStageId: '',
+      sendingWindowPreset: 'always_on',
     })
 
     expect(request.name).toBe('Follow-up L1')

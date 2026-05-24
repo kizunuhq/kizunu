@@ -3,11 +3,23 @@ import { FormError } from '@kizunu/web/components/composed/form-error'
 import { Field, FieldLabel } from '@kizunu/web/components/primitives/field'
 import { Input } from '@kizunu/web/components/primitives/input'
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@kizunu/web/components/primitives/select'
+import {
   type CadenceStepDraft,
   newStepDraft,
 } from '@kizunu/web/routes/_app/workspace/cadences/-components/cadence-step-row'
 import { CadenceStepsEditor } from '@kizunu/web/routes/_app/workspace/cadences/-components/cadence-steps-editor'
 import { buildCadenceRequest } from '@kizunu/web/routes/_app/workspace/cadences/-utils/build-cadence-request'
+import {
+  parseSendingWindowPresetKey,
+  SENDING_WINDOW_PRESETS,
+  type SendingWindowPresetKey,
+} from '@kizunu/web/routes/_app/workspace/cadences/-utils/sending-window-presets'
 import { useState } from 'react'
 
 export type CadenceBuilderValues = ReturnType<typeof buildCadenceRequest>
@@ -26,10 +38,12 @@ export function CadenceBuilder(props: CadenceBuilderProps) {
   const [name, setName] = useState('')
   const [steps, setSteps] = useState<CadenceStepDraft[]>([newStepDraft()])
   const [onReplyStageId, setOnReplyStageId] = useState('')
+  const [sendingWindowPreset, setSendingWindowPreset] =
+    useState<SendingWindowPresetKey>('always_on')
 
   function submit(event: React.FormEvent) {
     event.preventDefault()
-    onSubmit(buildCadenceRequest({ name, steps, onReplyStageId }))
+    onSubmit(buildCadenceRequest({ name, steps, onReplyStageId, sendingWindowPreset }))
   }
 
   const templateOptions = (templates.data?.templates ?? []).map((t) => ({
@@ -59,6 +73,25 @@ export function CadenceBuilder(props: CadenceBuilderProps) {
           disabled={isPending}
           onChange={(e) => setOnReplyStageId(e.target.value)}
         />
+      </Field>
+      <Field>
+        <FieldLabel htmlFor="sending-window-preset">Sending window</FieldLabel>
+        <Select
+          value={sendingWindowPreset}
+          onValueChange={(value) => setSendingWindowPreset(parseSendingWindowPresetKey(value))}
+          disabled={isPending}
+        >
+          <SelectTrigger id="sending-window-preset">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {SENDING_WINDOW_PRESETS.map((preset) => (
+              <SelectItem key={preset.key} value={preset.key}>
+                {preset.label} — {preset.description}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </Field>
     </form>
   )
