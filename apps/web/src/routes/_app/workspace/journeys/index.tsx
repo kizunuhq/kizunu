@@ -3,7 +3,7 @@ import type { LeadJourneyStatusValue } from '@kizunu/api-contracts/engine'
 import {
   isJourneyStatusValue,
   JourneysView,
-} from '@kizunu/web/routes/_app/workspace/-components/journeys-view'
+} from '@kizunu/web/routes/_app/workspace/journeys/-components/journeys-view'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 
 type StatusFilter = LeadJourneyStatusValue | 'all'
@@ -12,7 +12,7 @@ interface JourneysSearch {
   status: StatusFilter
 }
 
-export const Route = createFileRoute('/_app/workspace/journeys')({
+export const Route = createFileRoute('/_app/workspace/journeys/')({
   validateSearch: (search: Record<string, unknown>): JourneysSearch => ({
     status:
       typeof search.status === 'string' && isJourneyStatusValue(search.status)
