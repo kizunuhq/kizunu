@@ -6,8 +6,8 @@ import {
 } from '@kizunu/api-contracts/channel'
 import { FormError } from '@kizunu/web/components/composed/form-error'
 import { PluginSelect } from '@kizunu/web/components/composed/plugin-select'
+import { RhfField } from '@kizunu/web/components/composed/rhf-field'
 import { Field, FieldError, FieldGroup, FieldLabel } from '@kizunu/web/components/primitives/field'
-import { Input } from '@kizunu/web/components/primitives/input'
 import { CredentialFieldsInput } from '@kizunu/web/routes/_app/settings/-components/channels/credential-fields-input'
 import { hasRequiredCredentials } from '@kizunu/web/routes/_app/settings/-utils/has-required-credentials'
 import { userInputFields } from '@kizunu/web/routes/_app/settings/-utils/user-input-fields'
@@ -42,6 +42,9 @@ export function ChannelAccountForm(props: ChannelAccountFormProps) {
     plugins.data?.plugins.find((plugin) => plugin.id === pluginId)?.credentialFields ?? [],
   )
 
+  // Why: the required-credential list depends on the picked plugin, which loads
+  // async. RHF's useForm captures the resolver at mount, so a useMemo'd schema
+  // wouldn't re-resolve on plugin change. Runs after zod succeeds.
   function submit(values: CreateChannelAccountRequest) {
     if (!hasRequiredCredentials(fields, values.credentials ?? {})) {
       setError('credentials', {
@@ -78,17 +81,14 @@ export function ChannelAccountForm(props: ChannelAccountFormProps) {
             </Field>
           )}
         />
-        <Field>
-          <FieldLabel htmlFor="channel-name">Name</FieldLabel>
-          <Input
-            id="channel-name"
-            aria-invalid={!!errors.name}
-            aria-describedby={errors.name ? 'channel-name-error' : undefined}
-            disabled={isPending}
-            {...register('name')}
-          />
-          {errors.name && <FieldError id="channel-name-error">{errors.name.message}</FieldError>}
-        </Field>
+        <RhfField
+          name="name"
+          label="Name"
+          id="channel-name"
+          register={register}
+          error={errors.name}
+          disabled={isPending}
+        />
         <Controller
           control={control}
           name="credentials"

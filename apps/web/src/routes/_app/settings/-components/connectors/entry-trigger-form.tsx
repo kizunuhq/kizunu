@@ -7,8 +7,8 @@ import {
 } from '@kizunu/api-contracts/engine'
 import { FormError } from '@kizunu/web/components/composed/form-error'
 import { LookupSelect } from '@kizunu/web/components/composed/lookup-select'
+import { RhfField } from '@kizunu/web/components/composed/rhf-field'
 import { Field, FieldError, FieldGroup, FieldLabel } from '@kizunu/web/components/primitives/field'
-import { Input } from '@kizunu/web/components/primitives/input'
 import { Controller, useForm } from 'react-hook-form'
 import { z } from 'zod'
 
@@ -74,17 +74,14 @@ export function EntryTriggerForm(props: EntryTriggerFormProps) {
             </Field>
           )}
         />
-        <Field>
-          <FieldLabel htmlFor="stage-id">CRM stage id</FieldLabel>
-          <Input
-            id="stage-id"
-            aria-invalid={!!errors.stageId}
-            aria-describedby={errors.stageId ? 'stage-id-error' : undefined}
-            disabled={isPending}
-            {...register('stageId')}
-          />
-          {errors.stageId && <FieldError id="stage-id-error">{errors.stageId.message}</FieldError>}
-        </Field>
+        <RhfField
+          name="stageId"
+          label="CRM stage id"
+          id="stage-id"
+          register={register}
+          error={errors.stageId}
+          disabled={isPending}
+        />
         <Controller
           control={control}
           name="cadenceId"

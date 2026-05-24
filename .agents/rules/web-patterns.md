@@ -204,6 +204,25 @@ export function InstrumentForm(props: InstrumentFormProps) {
 }
 ```
 
+**Shortcut: `<RhfField>`.** The native-input block above is repetitive
+(`Field` + `FieldLabel` + `Input` + the a11y triad + `FieldError`). The
+composed `<RhfField>` primitive
+(`apps/web/src/components/composed/rhf-field.tsx`) bundles all of it:
+
+```tsx
+<RhfField
+  name="name"
+  label="Name"
+  register={register}
+  error={errors.name}
+  disabled={isPending}
+/>
+```
+
+Use `<RhfField>` as the default for native inputs; the explicit block
+above is what it expands to — reach for it when you need an attribute
+the wrapper doesn't expose (custom `className`, `inputMode`, etc.).
+
 ### 3.b Controlled-component recipe — `<Controller>`
 
 `register()` cannot reach into a controlled component (`LookupSelect`,

@@ -5,8 +5,8 @@ import {
 } from '@kizunu/api-contracts/crm'
 import { FormError } from '@kizunu/web/components/composed/form-error'
 import { LookupSelect } from '@kizunu/web/components/composed/lookup-select'
+import { RhfField } from '@kizunu/web/components/composed/rhf-field'
 import { Field, FieldError, FieldGroup, FieldLabel } from '@kizunu/web/components/primitives/field'
-import { Input } from '@kizunu/web/components/primitives/input'
 import { Textarea } from '@kizunu/web/components/primitives/textarea'
 import { parseJsonObject } from '@kizunu/web/lib/parse-json-object'
 import { Controller, useForm } from 'react-hook-form'
@@ -52,11 +52,7 @@ export function ConnectorAccountForm(props: ConnectorAccountFormProps) {
   function submit(values: ConnectorAccountFormValues) {
     const credentials = parseJsonObject(values.credentialsRaw)
     if (credentials === null) return
-    onSubmit({
-      connectorId: values.connectorId,
-      name: values.name,
-      credentials,
-    })
+    onSubmit({ connectorId: values.connectorId, name: values.name, credentials })
   }
 
   return (
@@ -82,17 +78,14 @@ export function ConnectorAccountForm(props: ConnectorAccountFormProps) {
             </Field>
           )}
         />
-        <Field>
-          <FieldLabel htmlFor="connector-name">Name</FieldLabel>
-          <Input
-            id="connector-name"
-            aria-invalid={!!errors.name}
-            aria-describedby={errors.name ? 'connector-name-error' : undefined}
-            disabled={isPending}
-            {...register('name')}
-          />
-          {errors.name && <FieldError id="connector-name-error">{errors.name.message}</FieldError>}
-        </Field>
+        <RhfField
+          name="name"
+          label="Name"
+          id="connector-name"
+          register={register}
+          error={errors.name}
+          disabled={isPending}
+        />
         <Field>
           <FieldLabel htmlFor="connector-credentials">Credentials (JSON)</FieldLabel>
           <Textarea

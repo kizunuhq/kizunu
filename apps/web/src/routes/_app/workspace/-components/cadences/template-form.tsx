@@ -5,8 +5,8 @@ import {
 } from '@kizunu/api-contracts/cadence'
 import { FormError } from '@kizunu/web/components/composed/form-error'
 import { PluginSelect } from '@kizunu/web/components/composed/plugin-select'
+import { RhfField } from '@kizunu/web/components/composed/rhf-field'
 import { Field, FieldError, FieldGroup, FieldLabel } from '@kizunu/web/components/primitives/field'
-import { Input } from '@kizunu/web/components/primitives/input'
 import { Controller, useForm } from 'react-hook-form'
 import { z } from 'zod'
 
@@ -41,17 +41,14 @@ export function TemplateForm(props: TemplateFormProps) {
     <form id={formId} className="flex flex-col gap-3" onSubmit={handleSubmit(submit)}>
       <FieldGroup>
         {error && <FormError>{error}</FormError>}
-        <Field>
-          <FieldLabel htmlFor="template-name">Name</FieldLabel>
-          <Input
-            id="template-name"
-            aria-invalid={!!errors.name}
-            aria-describedby={errors.name ? 'template-name-error' : undefined}
-            disabled={isPending}
-            {...register('name')}
-          />
-          {errors.name && <FieldError id="template-name-error">{errors.name.message}</FieldError>}
-        </Field>
+        <RhfField
+          name="name"
+          label="Name"
+          id="template-name"
+          register={register}
+          error={errors.name}
+          disabled={isPending}
+        />
         <Controller
           control={control}
           name="channelPluginId"
@@ -65,34 +62,22 @@ export function TemplateForm(props: TemplateFormProps) {
             </Field>
           )}
         />
-        <Field>
-          <FieldLabel htmlFor="provider-template">Provider template name (HSM)</FieldLabel>
-          <Input
-            id="provider-template"
-            aria-invalid={!!errors.providerTemplateName}
-            aria-describedby={errors.providerTemplateName ? 'provider-template-error' : undefined}
-            disabled={isPending}
-            {...register('providerTemplateName')}
-          />
-          {errors.providerTemplateName && (
-            <FieldError id="provider-template-error">
-              {errors.providerTemplateName.message}
-            </FieldError>
-          )}
-        </Field>
-        <Field>
-          <FieldLabel htmlFor="template-language">Language</FieldLabel>
-          <Input
-            id="template-language"
-            aria-invalid={!!errors.language}
-            aria-describedby={errors.language ? 'template-language-error' : undefined}
-            disabled={isPending}
-            {...register('language')}
-          />
-          {errors.language && (
-            <FieldError id="template-language-error">{errors.language.message}</FieldError>
-          )}
-        </Field>
+        <RhfField
+          name="providerTemplateName"
+          label="Provider template name (HSM)"
+          id="provider-template"
+          register={register}
+          error={errors.providerTemplateName}
+          disabled={isPending}
+        />
+        <RhfField
+          name="language"
+          label="Language"
+          id="template-language"
+          register={register}
+          error={errors.language}
+          disabled={isPending}
+        />
       </FieldGroup>
     </form>
   )

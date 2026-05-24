@@ -4,8 +4,8 @@ import {
   RequestPasswordResetSchema,
 } from '@kizunu/api-contracts/identity'
 import { FormError } from '@kizunu/web/components/composed/form-error'
-import { Field, FieldError, FieldGroup, FieldLabel } from '@kizunu/web/components/primitives/field'
-import { Input } from '@kizunu/web/components/primitives/input'
+import { RhfField } from '@kizunu/web/components/composed/rhf-field'
+import { FieldGroup } from '@kizunu/web/components/primitives/field'
 import { useForm } from 'react-hook-form'
 
 interface ForgotPasswordFormProps {
@@ -27,19 +27,16 @@ export function ForgotPasswordForm(props: ForgotPasswordFormProps) {
     <form id={formId} className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>
       <FieldGroup>
         {error && <FormError>{error}</FormError>}
-        <Field>
-          <FieldLabel htmlFor="forgot-email">Email</FieldLabel>
-          <Input
-            id="forgot-email"
-            type="email"
-            autoComplete="email"
-            aria-invalid={!!errors.email}
-            aria-describedby={errors.email ? 'forgot-email-error' : undefined}
-            disabled={isPending}
-            {...register('email')}
-          />
-          {errors.email && <FieldError id="forgot-email-error">{errors.email.message}</FieldError>}
-        </Field>
+        <RhfField
+          name="email"
+          label="Email"
+          id="forgot-email"
+          type="email"
+          autoComplete="email"
+          register={register}
+          error={errors.email}
+          disabled={isPending}
+        />
       </FieldGroup>
     </form>
   )
