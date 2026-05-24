@@ -361,6 +361,57 @@ build v4 from the start; no v2 fallback paths.
 
 ---
 
+## Phase 1.9 — Web frontend polish & doctrine
+
+**Goal:** Take the v0.1 web app — which shipped as a Minimum UI — and rework it to
+match a deliberate, documented frontend doctrine (ADR-007 + `.agents/rules/web-patterns.md`):
+route-colocation under `routes/_app/<feature>/{-components,-hooks,-utils,-dialogs}/`,
+smart-page/dumb-form split, domain-named mutation hooks, and resource-dialog-first
+CRUD. Each feature below is independent and self-contained.
+
+**Web frontend remake** - COMPLETE
+- _Landed (features `033`–`039`): the seven-part remake — sidebar shell + shared chrome
+  (`033`), auth surface (`034`), dashboard + empty states (`035`), settings hub
+  (`036`), cadence + template editor (`037`), journeys + engagement polish (`038`),
+  and the power-user polish + command palette (`039`). PR #66 fixed a cmdk
+  `Command`-root regression that only surfaced under Chrome validation._
+
+**Web frontend layering doctrine (ADR-007)** - COMPLETE
+- _Landed (feature `041`, PR #69): codified the doctrine — ADR-007 plus
+  `.agents/rules/web-patterns.md` defining route-colocation (`routes/_app/<feature>/`),
+  smart-page / dumb-form split, URL state via Zod schemas + `use-<feature>-search` hooks,
+  `DataTable` + `TablePagination` composition, `ResourceDialog` / `DeleteResourceDialog`
+  for modals, and the error-handling table. Introduced `ResourceDialog`,
+  `DeleteResourceDialog`, and `FormError` primitives (built but not yet adopted by
+  features — that's `044`)._
+
+**Web feature folder colocation** - COMPLETE
+- _Landed (feature `042`, PR #70): migrated every `apps/web/src/features/<feature>/`
+  tree into route-colocated `routes/_app/<feature>/{-components,-hooks,-utils,-dialogs}/`
+  per ADR-007. The `features/` folder is gone; the legacy app-shell entry moved to
+  `routes/_app/_shell/{app-shell,command}/` and the marketing tree to `routes/-marketing/`._
+
+**API-client mutation hook reshape** - COMPLETE
+- _Landed (feature `043`, PR #71): every `packages/api-client/src/**/use-*.ts`
+  mutation hook now returns `{ <domainName>: mutate, ...rest }` per ADR-007 §8.
+  All 29 call sites in `apps/web` updated to `<domainName>(input)` syntax. Zero
+  `.mutate(` references against api-client mutation results remain. Hook-owned
+  invalidation was already correct (pre-audit)._
+
+**Resource dialog migration** - IN PROGRESS
+- _Feature `044` (spec at `.specs/features/044-resource-dialog-migration/`)._
+- Two halves: (1) port hoxus polish into existing `ResourceDialog` /
+  `DeleteResourceDialog` primitives (copy-to-clipboard on resource name, `loading`
+  button spinner, `size="lg"` opt-in, optional `caseSensitive`); (2) migrate every
+  inline create/edit/delete site under `routes/_app/{settings,workspace}/**` to
+  trigger-button → dialog. Destructive deletes get typed-name confirmation;
+  bulk/reversible destructive actions get a tone="destructive" `ResourceDialog`.
+- Out of scope: `CadenceBuilder` (complex in-page builder), the Meta Coex Embedded
+  Signup flow (OAuth/SDK), page-as-display surfaces (profile / workspace settings /
+  billing), and wiring brand-new UIs for unwired mutations.
+
+---
+
 ## Future Considerations (Phase 2+)
 
 - Native CRM (deals, own pipeline, contacts)
