@@ -1,7 +1,7 @@
 import { useCurrentUser } from '@kizunu/api-client/identity/use-current-user'
 import { PageHeader } from '@kizunu/web/components/composed/page-header'
 import { buttonVariants } from '@kizunu/web/components/primitives/button'
-import { AcceptInvitePanel } from '@kizunu/web/routes/auth/-components/accept-invite-panel'
+import { AcceptInvitePanel } from '@kizunu/web/routes/auth/accept-invite/-components/accept-invite-panel'
 import { createFileRoute, Link } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/auth/accept-invite/$token')({
