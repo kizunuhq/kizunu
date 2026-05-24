@@ -1,6 +1,10 @@
-# Dev-only stack. Envs are set inline here on purpose — in development there is
-# no .env to manage. Each service opts into profiles; `all` brings up
-# everything:
+# Dev-only stack. Envs are set inline here by default; a few opt-in secrets
+# (Meta Coex app credentials) are forwarded from the operator's shell or a
+# `deploy/.env` file via `${VAR:-}` interpolation — see `deploy/.env.example`
+# for the names. Changing those requires restarting the affected service —
+# Vite inlines `import.meta.env.VITE_*` at dev-server startup, so the web
+# container needs a fresh boot to pick them up. Each service opts into
+# profiles; `all` brings up everything:
 #
 #   docker compose -f deploy/docker-compose.yml --profile all up      # full stack
 #   docker compose -f deploy/docker-compose.yml --profile api up      # api (+ postgres)
@@ -82,11 +86,13 @@ services:
       # Dev-only key; production must override via secret. Generate with:
       #   openssl rand -base64 32
       APP_CREDENTIALS_ENCRYPTION_KEY: td7dHITMjfudSi5kdNBvAJnAEm5Iaqfi+dMUUss8UJs=
-      # Meta Coex Embedded Signup (feature 031). Empty in dev; only the
-      # connect endpoint validates these at call time.
-      META_APP_ID: ''
-      META_APP_SECRET: ''
-      META_COEX_CONFIG_ID: ''
+      # Meta Coex Embedded Signup (feature 031). Forwarded from the operator's
+      # shell or `deploy/.env`; empty in vanilla dev. The connect endpoint
+      # validates these at call time, so the rest of the stack runs fine
+      # without them set.
+      META_APP_ID: ${META_APP_ID:-}
+      META_APP_SECRET: ${META_APP_SECRET:-}
+      META_COEX_CONFIG_ID: ${META_COEX_CONFIG_ID:-}
       # SMTP transport. Empty host falls back to ConsoleMailSender; with Mailpit
       # up the api delivers to the dev inbox at http://localhost:8025.
       APP_SMTP_HOST: mailpit
@@ -117,6 +123,11 @@ services:
     restart: 'no'
     environment:
       VITE_API_URL: http://localhost:3001
+      # Meta Coex Embedded Signup — client-safe values only (the app secret
+      # stays on the api). Sourced from the same operator env as the api so a
+      # single `META_APP_ID`/`META_COEX_CONFIG_ID` covers both services.
+      VITE_META_APP_ID: ${META_APP_ID:-}
+      VITE_META_COEX_CONFIG_ID: ${META_COEX_CONFIG_ID:-}
     volumes:
       - ..:/monorepo
       # Preserve the builder's linux node_modules (rollup/tailwind native
