@@ -37,6 +37,7 @@ export class UpdateCadenceUseCase {
         onReply: input.onReply,
         onExhausted: input.onExhausted,
         onComplete: input.onComplete,
+        sendingWindow: input.sendingWindow,
       },
       input.steps,
     )

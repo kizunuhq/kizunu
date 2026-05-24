@@ -78,6 +78,7 @@ export class CadenceController {
       onReply: body.onReply,
       onExhausted: body.onExhausted,
       onComplete: body.onComplete,
+      sendingWindow: body.sendingWindow,
     }
   }
 }

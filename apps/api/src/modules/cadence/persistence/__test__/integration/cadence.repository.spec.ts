@@ -37,6 +37,7 @@ function fields(workspaceId: string): CadenceFields {
     onReply: [{ type: 'mark_lost', reason: 'No reply' }],
     onExhausted: [],
     onComplete: [],
+    sendingWindow: null,
   }
 }
 
@@ -91,6 +92,7 @@ describe('CadenceRepository (integration)', () => {
         onReply: [],
         onExhausted: [],
         onComplete: [],
+        sendingWindow: null,
       },
       [step('meta-whatsapp')],
     )

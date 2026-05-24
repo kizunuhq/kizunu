@@ -2,6 +2,7 @@ import type { CadenceAction } from '@kizunu/api-contracts/cadence'
 import { defaults } from '@kizunu/nestjs-shared/modules/persistence/schemas/defaults'
 import { boolean, jsonb, pgEnum, pgTable, uuid, varchar } from 'drizzle-orm/pg-core'
 
+import type { SendingWindow } from '../../modules/cadence/core/domain/sending-window'
 import { workspaces } from './workspaces'
 
 export const cadenceStatusEnum = pgEnum('cadence_status', ['active', 'inactive'])
@@ -22,6 +23,7 @@ export const cadences = pgTable('cadences', {
   onReply: jsonb().$type<CadenceAction[]>().notNull().default([]),
   onExhausted: jsonb().$type<CadenceAction[]>().notNull().default([]),
   onComplete: jsonb().$type<CadenceAction[]>().notNull().default([]),
+  sendingWindow: jsonb().$type<SendingWindow>(),
 })
 
 export type Cadence = typeof cadences.$inferSelect

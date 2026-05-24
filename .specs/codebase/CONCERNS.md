@@ -74,8 +74,20 @@ mapping. New `lead_journeys.errorReason` column (free `varchar(80)`) +
 follow-up (api-client hooks shipped; auto-match covers the 2-BDR pilot
 without admin clicks)._
 
-The `sendingWindow` sub-bullet remains open (feature `049`, PLANNED on
-the ROADMAP).
+_(Resolved — sendingWindow) Feature `049` (Phase 2.0): cadences gain a
+nullable `sendingWindow` jsonb field (timezone + days + minute-of-day
+bounds). `JourneyDispatcher.dispatchOne` slides `nextTouchAt` forward
+via pure `slideToWindow(window, now)` (native `Intl.DateTimeFormat`,
+no date-fns dep, correct across DST transitions) when `now` falls
+outside the window; the journey stays `running` so the poller re-picks
+it at the new slot. `SendingWindowSchema` rejects invalid IANA TZ
+names, cross-midnight windows, empty day arrays, and reversed minute
+bounds at the contract layer (`422 cadence.invalid-sending-window`).
+Migration `0011`. Web preset chooser deferred to a follow-up._
+
+With this, the **Dispatcher gaps** HIGH item is fully resolved (owner
+mapping in feature `047`, template variables in feature `048`,
+sendingWindow in feature `049`).
 
 _(Resolved — template variables) Feature `048` (Phase 2.0): new
 `TemplateVariableResolver` (closed vocabulary: `leadFirstName`,

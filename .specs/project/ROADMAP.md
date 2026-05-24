@@ -519,11 +519,19 @@ matches the v0.1 reference use case point-for-point.
   widens by one column (`leads.name`) so the resolver runs with no
   extra round-trip. No schema change._
 
-**Cadence sending window** - PLANNED (feature `049`)
-- Engine respects `cadence.sendingWindow` (timezone + days + hours);
-  dispatches outside the window slide `nextTouchAt` forward to the next
-  valid slot rather than firing immediately.
-- Pilot UX + WhatsApp rep risk (no 3am template sends).
+**Cadence sending window** - COMPLETE (feature `049`)
+- _Landed (feature `049`): closes the sendingWindow sub-bullet of the
+  Dispatcher gaps HIGH item — and thus completes the full HIGH item
+  alongside features `047` + `048`. New `SendingWindow` domain
+  (timezone + days + minute-of-day bounds) + pure `slideToWindow` /
+  `isWithinWindow` helpers using native `Intl.DateTimeFormat`. Migration
+  `0011` adds a nullable `cadences.sending_window` jsonb column;
+  existing cadences keep always-on behavior. Dispatcher slides
+  `nextTouchAt` forward when `now` falls outside the window without a
+  state-machine event (journey stays `running`). 422
+  `cadence.invalid-sending-window` rejects bad shapes (invalid IANA TZ,
+  cross-midnight, empty days, reversed minutes). Web preset chooser
+  deferred to a follow-up; the API accepts the field today._
 
 **Pipedrive webhook HMAC verification** - DEFERRED (CONCERNS Medium)
 - Keep the UUIDv7-as-shared-secret model for the first pilot; add HMAC

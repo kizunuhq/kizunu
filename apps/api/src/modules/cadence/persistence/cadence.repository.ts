@@ -5,6 +5,8 @@ import { DrizzleService } from '@kizunu/nestjs-shared/modules/persistence/servic
 import { Injectable } from '@nestjs/common'
 import { and, eq, sql } from 'drizzle-orm'
 
+import type { SendingWindow } from '../core/domain/sending-window'
+
 export interface CadenceFields {
   workspaceId: string
   name: string
@@ -13,6 +15,7 @@ export interface CadenceFields {
   onReply: CadenceAction[]
   onExhausted: CadenceAction[]
   onComplete: CadenceAction[]
+  sendingWindow: SendingWindow | null
 }
 
 export interface CadenceStepRow {
@@ -102,6 +105,7 @@ export class CadenceRepository {
         onReply: cadences.onReply,
         onExhausted: cadences.onExhausted,
         onComplete: cadences.onComplete,
+        sendingWindow: cadences.sendingWindow,
       })
       .from(cadences)
       .where(and(eq(cadences.id, id), eq(cadences.workspaceId, workspaceId)))

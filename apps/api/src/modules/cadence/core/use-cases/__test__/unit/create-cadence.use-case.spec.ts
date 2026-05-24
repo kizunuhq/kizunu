@@ -23,6 +23,7 @@ const input: CadenceInput = {
   onReply: [],
   onExhausted: [],
   onComplete: [],
+  sendingWindow: null,
 }
 
 function buildUseCase(hasPlugin: boolean) {
