@@ -24,6 +24,7 @@ import type { Clock } from '@kizunu/api/modules/engine/core/clock'
 import type { Jitter } from '@kizunu/api/modules/engine/core/domain/jitter'
 import { CadenceActionExecutor } from '@kizunu/api/modules/engine/core/services/cadence-action-executor'
 import { JourneyDispatcher } from '@kizunu/api/modules/engine/core/services/journey-dispatcher'
+import { TemplateVariableResolver } from '@kizunu/api/modules/engine/core/services/template-variable-resolver'
 import { LeadJourneyRepository } from '@kizunu/api/modules/engine/persistence/lead-journey.repository'
 import { TouchAttemptRepository } from '@kizunu/api/modules/engine/persistence/touch-attempt.repository'
 import type { DrizzleService } from '@kizunu/nestjs-shared/modules/persistence/services/drizzle.service'
@@ -63,6 +64,7 @@ function buildDispatcher() {
     new ConnectorAccountRepository(service, cipher),
     new CrmConnectorRegistry([fakeConnector]),
     new CadenceActionExecutor(),
+    new TemplateVariableResolver(),
     { apply: (delayMinutes: number) => delayMinutes } as Jitter,
     { now: () => NOW } as Clock,
   )

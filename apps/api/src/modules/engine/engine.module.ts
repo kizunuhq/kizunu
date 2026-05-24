@@ -9,6 +9,7 @@ import { Jitter } from './core/domain/jitter'
 import { JourneyPoller } from './core/poller/journey-poller'
 import { CadenceActionExecutor } from './core/services/cadence-action-executor'
 import { JourneyDispatcher } from './core/services/journey-dispatcher'
+import { TemplateVariableResolver } from './core/services/template-variable-resolver'
 import { CreateEntryTriggerUseCase } from './core/use-cases/create-entry-trigger.use-case'
 import { DeleteEntryTriggerUseCase } from './core/use-cases/delete-entry-trigger.use-case'
 import { ListEntryTriggersUseCase } from './core/use-cases/list-entry-triggers.use-case'
@@ -44,6 +45,7 @@ import { TouchAttemptRepository } from './persistence/touch-attempt.repository'
     LeadJourneyRepository,
     TouchAttemptRepository,
     CadenceActionExecutor,
+    TemplateVariableResolver,
     JourneyDispatcher,
     JourneyPoller,
     CreateEntryTriggerUseCase,
