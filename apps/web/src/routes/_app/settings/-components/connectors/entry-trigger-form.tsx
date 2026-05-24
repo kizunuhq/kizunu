@@ -1,25 +1,38 @@
 import { useCadences } from '@kizunu/api-client/cadence/use-cadences'
 import { useWorkspaceConnectors } from '@kizunu/api-client/crm/use-workspace-connectors'
-import { useCreateEntryTrigger } from '@kizunu/api-client/engine/use-create-entry-trigger'
+import { FormError } from '@kizunu/web/components/composed/form-error'
 import { LookupSelect } from '@kizunu/web/components/composed/lookup-select'
-import { Button } from '@kizunu/web/components/primitives/button'
 import { Field, FieldLabel } from '@kizunu/web/components/primitives/field'
 import { Input } from '@kizunu/web/components/primitives/input'
 import { useState } from 'react'
 
-export function EntryTriggerForm({ workspaceId }: { workspaceId: string }) {
+export interface EntryTriggerFormValues {
+  connectorAccountId: string
+  cadenceId: string
+  stageId: string
+  pipelineId: string | null
+}
+
+interface EntryTriggerFormProps {
+  formId: string
+  workspaceId: string
+  isPending: boolean
+  error?: string | null
+  onSubmit: (values: EntryTriggerFormValues) => void
+}
+
+export function EntryTriggerForm(props: EntryTriggerFormProps) {
+  const { formId, workspaceId, isPending, error, onSubmit } = props
   const connectors = useWorkspaceConnectors(workspaceId)
   const cadences = useCadences(workspaceId)
   const [connectorAccountId, setConnectorAccountId] = useState('')
   const [cadenceId, setCadenceId] = useState('')
   const [stageId, setStageId] = useState('')
-  const create = useCreateEntryTrigger(workspaceId, { onSuccess: () => setStageId('') })
 
   function submit(event: React.FormEvent) {
     event.preventDefault()
-    if (connectorAccountId && cadenceId && stageId) {
-      create.createEntryTrigger({ connectorAccountId, cadenceId, stageId, pipelineId: null })
-    }
+    if (!connectorAccountId || !cadenceId || !stageId) return
+    onSubmit({ connectorAccountId, cadenceId, stageId, pipelineId: null })
   }
 
   const connectorOptions = (connectors.data?.accounts ?? []).map((a) => ({
@@ -32,7 +45,8 @@ export function EntryTriggerForm({ workspaceId }: { workspaceId: string }) {
   }))
 
   return (
-    <form className="flex flex-col gap-3" onSubmit={submit}>
+    <form id={formId} className="flex flex-col gap-3" onSubmit={submit}>
+      {error && <FormError>{error}</FormError>}
       <Field>
         <FieldLabel>Connector account</FieldLabel>
         <LookupSelect
@@ -40,6 +54,7 @@ export function EntryTriggerForm({ workspaceId }: { workspaceId: string }) {
           placeholder="Select connector"
           options={connectorOptions}
           onChange={setConnectorAccountId}
+          disabled={isPending}
         />
       </Field>
       <Field>
@@ -48,6 +63,7 @@ export function EntryTriggerForm({ workspaceId }: { workspaceId: string }) {
           id="stage-id"
           value={stageId}
           required
+          disabled={isPending}
           onChange={(e) => setStageId(e.target.value)}
         />
       </Field>
@@ -58,11 +74,9 @@ export function EntryTriggerForm({ workspaceId }: { workspaceId: string }) {
           placeholder="Select cadence"
           options={cadenceOptions}
           onChange={setCadenceId}
+          disabled={isPending}
         />
       </Field>
-      <Button type="submit" disabled={create.isPending || !connectorAccountId || !cadenceId}>
-        Add trigger
-      </Button>
     </form>
   )
 }
