@@ -41,7 +41,13 @@ describe('Lead ingestion repositories (integration)', () => {
 
   it('upserts a lead idempotently by connector account and external id', async () => {
     const { workspaceId, connectorAccountId } = await seed()
-    const base = { workspaceId, connectorAccountId, externalId: 'deal-99', ownerExternalId: 'u-1' }
+    const base = {
+      workspaceId,
+      connectorAccountId,
+      externalId: 'deal-99',
+      ownerExternalId: 'u-1',
+      ownerUserId: null,
+    }
 
     const first = await leadRepository.upsert({ ...base, name: 'Acme', phone: '111' })
     const second = await leadRepository.upsert({ ...base, name: 'Acme Renamed', phone: '222' })
@@ -61,6 +67,7 @@ describe('Lead ingestion repositories (integration)', () => {
       connectorAccountId,
       externalId: 'deal-99',
       ownerExternalId: null,
+      ownerUserId: null,
       name: 'Acme',
       phone: null,
     })
