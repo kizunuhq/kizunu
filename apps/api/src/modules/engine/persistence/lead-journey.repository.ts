@@ -188,6 +188,31 @@ export class LeadJourneyRepository {
       )
   }
 
+  /**
+   * Resumes journeys parked in `error_state` for a specific reason against a set of leads.
+   * Used by the owner-mapping backfill — when admin creates a mapping, leads matching the
+   * external owner have their ownerUserId set and any journey that landed in
+   * `error_state` reason `owner_not_mapped` flips back to `running` immediately.
+   */
+  async resumeErrorStateByLeadsAndReason(
+    tx: DbTransaction,
+    input: { leadIds: readonly string[]; reason: string; nextTouchAt: Date },
+  ): Promise<{ updated: number }> {
+    if (input.leadIds.length === 0) return { updated: 0 }
+    const rows = await tx
+      .update(leadJourneys)
+      .set({ status: LeadJourneyStatus.Running, errorReason: null, nextTouchAt: input.nextTouchAt })
+      .where(
+        and(
+          inArray(leadJourneys.leadId, [...input.leadIds]),
+          eq(leadJourneys.status, LeadJourneyStatus.ErrorState),
+          eq(leadJourneys.errorReason, input.reason),
+        ),
+      )
+      .returning({ id: leadJourneys.id })
+    return { updated: rows.length }
+  }
+
   /** Inbound seam: a running journey for the lead reachable at this phone in a workspace. */
   async findRunningByLeadPhone(
     workspaceId: string,

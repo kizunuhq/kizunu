@@ -1,7 +1,9 @@
 import { leads } from '@kizunu/api/db/schemas/leads'
 import { DrizzleService } from '@kizunu/nestjs-shared/modules/persistence/services/drizzle.service'
 import { Injectable } from '@nestjs/common'
-import { and, eq } from 'drizzle-orm'
+import { and, eq, isNull } from 'drizzle-orm'
+
+import type { DbTransaction } from './transaction'
 
 @Injectable()
 export class LeadRepository {
@@ -35,5 +37,29 @@ export class LeadRepository {
     const lead = rows[0]
     if (!lead) throw new Error('Failed to upsert lead')
     return lead
+  }
+
+  /**
+   * Sets `ownerUserId` on every lead matching `(connectorAccountId, ownerExternalId)`
+   * whose owner is still null — used when a new member-connector identity mapping is
+   * created and we need to retroactively claim the leads sitting in error_state. Returns
+   * the affected lead ids so the caller can resume parked journeys for the same set.
+   */
+  async backfillOwnerUserId(
+    tx: DbTransaction,
+    input: { connectorAccountId: string; ownerExternalId: string; ownerUserId: string },
+  ): Promise<{ leadIds: string[] }> {
+    const rows = await tx
+      .update(leads)
+      .set({ ownerUserId: input.ownerUserId })
+      .where(
+        and(
+          eq(leads.connectorAccountId, input.connectorAccountId),
+          eq(leads.ownerExternalId, input.ownerExternalId),
+          isNull(leads.ownerUserId),
+        ),
+      )
+      .returning({ id: leads.id })
+    return { leadIds: rows.map((r) => r.id) }
   }
 }
