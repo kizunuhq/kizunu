@@ -25,16 +25,23 @@ export function TemplateForm(props: TemplateFormProps) {
   const [channelPluginId, setChannelPluginId] = useState('')
   const [providerTemplateName, setProviderTemplateName] = useState('')
   const [language, setLanguage] = useState('en_US')
+  const [validationError, setValidationError] = useState<string | null>(null)
 
   function submit(event: React.FormEvent) {
     event.preventDefault()
-    if (!channelPluginId) return
+    if (!channelPluginId) {
+      setValidationError('Pick a channel plugin.')
+      return
+    }
+    setValidationError(null)
     onSubmit({ name, channelPluginId, providerTemplateName, language, variables: [] })
   }
 
+  const displayError = validationError ?? error
+
   return (
     <form id={formId} className="flex flex-col gap-3" onSubmit={submit}>
-      {error && <FormError>{error}</FormError>}
+      {displayError && <FormError>{displayError}</FormError>}
       <Field>
         <FieldLabel htmlFor="template-name">Name</FieldLabel>
         <Input
@@ -47,7 +54,13 @@ export function TemplateForm(props: TemplateFormProps) {
       </Field>
       <Field>
         <FieldLabel>Channel plugin</FieldLabel>
-        <PluginSelect value={channelPluginId} onChange={setChannelPluginId} />
+        <PluginSelect
+          value={channelPluginId}
+          onChange={(next) => {
+            setChannelPluginId(next)
+            setValidationError(null)
+          }}
+        />
       </Field>
       <Field>
         <FieldLabel htmlFor="provider-template">Provider template name (HSM)</FieldLabel>

@@ -1,8 +1,7 @@
 import { useRevokeOtherSessions } from '@kizunu/api-client/identity/use-revoke-other-sessions'
 import { FormError } from '@kizunu/web/components/composed/form-error'
 import { ResourceDialog } from '@kizunu/web/components/composed/resource-dialog'
-import { getApiErrorMessage } from '@kizunu/web/lib/get-api-error-message'
-import { useState } from 'react'
+import { useMutationDialog } from '@kizunu/web/lib/use-mutation-dialog'
 import { toast } from 'sonner'
 
 interface RevokeOtherSessionsDialogProps {
@@ -12,36 +11,33 @@ interface RevokeOtherSessionsDialogProps {
 
 export function RevokeOtherSessionsDialog(props: RevokeOtherSessionsDialogProps) {
   const { open, onOpenChange } = props
-  const [error, setError] = useState<string | null>(null)
+  const dialog = useMutationDialog({ open, onOpenChange })
 
   const { revokeOtherSessions, isPending } = useRevokeOtherSessions({
     onSuccess: () => {
       toast.success('Other sessions revoked')
-      onOpenChange(false)
+      dialog.close()
     },
-    onError: (err) => setError(getApiErrorMessage(err)),
+    onError: dialog.captureError,
   })
 
-  function handleOpenChange(next: boolean) {
-    if (!next) setError(null)
-    onOpenChange(next)
+  function handleAction() {
+    dialog.clearError()
+    revokeOtherSessions()
   }
 
   return (
     <ResourceDialog
       open={open}
-      onOpenChange={handleOpenChange}
+      onOpenChange={dialog.handleOpenChange}
       title="Log out other sessions"
       actionLabel="Log out other sessions"
       tone="destructive"
       isPending={isPending}
-      onAction={() => {
-        setError(null)
-        revokeOtherSessions()
-      }}
+      onAction={handleAction}
     >
       <div className="space-y-3">
-        {error && <FormError>{error}</FormError>}
+        {dialog.error && <FormError>{dialog.error}</FormError>}
         <p className="text-sm">
           Every session except this one will be revoked. You'll stay signed in here.
         </p>

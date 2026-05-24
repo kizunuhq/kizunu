@@ -26,6 +26,7 @@ export function ChannelAccountForm(props: ChannelAccountFormProps) {
   const [pluginId, setPluginId] = useState('')
   const [name, setName] = useState('')
   const [credentials, setCredentials] = useState<Record<string, string>>({})
+  const [validationError, setValidationError] = useState<string | null>(null)
   const plugins = useChannelPlugins()
 
   const fields = userInputFields(
@@ -35,17 +36,28 @@ export function ChannelAccountForm(props: ChannelAccountFormProps) {
   function selectPlugin(next: string) {
     setPluginId(next)
     setCredentials({})
+    setValidationError(null)
   }
 
   function submit(event: React.FormEvent) {
     event.preventDefault()
-    if (!pluginId || !hasRequiredCredentials(fields, credentials)) return
+    if (!pluginId) {
+      setValidationError('Choose a plugin to continue.')
+      return
+    }
+    if (!hasRequiredCredentials(fields, credentials)) {
+      setValidationError('Fill every required credential field.')
+      return
+    }
+    setValidationError(null)
     onSubmit({ pluginId, name, credentials })
   }
 
+  const displayError = validationError ?? error
+
   return (
     <form id={formId} className="flex flex-col gap-3" onSubmit={submit}>
-      {error && <FormError>{error}</FormError>}
+      {displayError && <FormError>{displayError}</FormError>}
       <Field>
         <FieldLabel>Plugin</FieldLabel>
         <PluginSelect value={pluginId} onChange={selectPlugin} />

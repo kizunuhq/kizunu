@@ -1,7 +1,8 @@
 import { useCurrentUser } from '@kizunu/api-client/identity/use-current-user'
 import { PageHeader } from '@kizunu/web/components/composed/page-header'
 import { Button } from '@kizunu/web/components/primitives/button'
-import { ChannelsManager } from '@kizunu/web/routes/_app/settings/-components/channels/channels-manager'
+import { Card, CardContent, CardHeader, CardTitle } from '@kizunu/web/components/primitives/card'
+import { ChannelAccountsTable } from '@kizunu/web/routes/_app/settings/-components/channels/channel-accounts-table'
 import { CreateChannelAccountDialog } from '@kizunu/web/routes/_app/settings/-dialogs/create-channel-account-dialog'
 import { GrantChannelAccessDialog } from '@kizunu/web/routes/_app/settings/-dialogs/grant-channel-access-dialog'
 import { Plus } from '@phosphor-icons/react'
@@ -43,7 +44,14 @@ function ChannelsPage() {
           </>
         }
       />
-      <ChannelsManager workspaceId={activeWorkspaceId} />
+      <Card>
+        <CardHeader>
+          <CardTitle>Channel accounts</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ChannelAccountsTable workspaceId={activeWorkspaceId} />
+        </CardContent>
+      </Card>
       <CreateChannelAccountDialog
         workspaceId={activeWorkspaceId}
         open={createOpen}

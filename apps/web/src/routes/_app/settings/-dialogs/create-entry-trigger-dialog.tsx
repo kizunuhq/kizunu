@@ -1,11 +1,10 @@
 import { useCreateEntryTrigger } from '@kizunu/api-client/engine/use-create-entry-trigger'
 import { ResourceDialog } from '@kizunu/web/components/composed/resource-dialog'
-import { getApiErrorMessage } from '@kizunu/web/lib/get-api-error-message'
+import { useMutationDialog } from '@kizunu/web/lib/use-mutation-dialog'
 import {
   EntryTriggerForm,
   type EntryTriggerFormValues,
 } from '@kizunu/web/routes/_app/settings/-components/connectors/entry-trigger-form'
-import { useState } from 'react'
 import { toast } from 'sonner'
 
 interface CreateEntryTriggerDialogProps {
@@ -18,30 +17,25 @@ const FORM_ID = 'create-entry-trigger-form'
 
 export function CreateEntryTriggerDialog(props: CreateEntryTriggerDialogProps) {
   const { workspaceId, open, onOpenChange } = props
-  const [error, setError] = useState<string | null>(null)
+  const dialog = useMutationDialog({ open, onOpenChange })
 
   const { createEntryTrigger, isPending } = useCreateEntryTrigger(workspaceId, {
     onSuccess: () => {
       toast.success('Entry trigger added')
-      onOpenChange(false)
+      dialog.close()
     },
-    onError: (err) => setError(getApiErrorMessage(err)),
+    onError: dialog.captureError,
   })
 
-  function handleOpenChange(next: boolean) {
-    if (!next) setError(null)
-    onOpenChange(next)
-  }
-
   function handleSubmit(values: EntryTriggerFormValues) {
-    setError(null)
+    dialog.clearError()
     createEntryTrigger(values)
   }
 
   return (
     <ResourceDialog
       open={open}
-      onOpenChange={handleOpenChange}
+      onOpenChange={dialog.handleOpenChange}
       title="Add entry trigger"
       description="Map a CRM stage to a cadence — leads landing in the stage enter the cadence."
       actionLabel="Add trigger"
@@ -52,7 +46,7 @@ export function CreateEntryTriggerDialog(props: CreateEntryTriggerDialogProps) {
         formId={FORM_ID}
         workspaceId={workspaceId}
         isPending={isPending}
-        error={error}
+        error={dialog.error}
         onSubmit={handleSubmit}
       />
     </ResourceDialog>

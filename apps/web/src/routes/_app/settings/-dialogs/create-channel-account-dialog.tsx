@@ -1,11 +1,10 @@
 import { useCreateChannelAccount } from '@kizunu/api-client/channel/use-create-channel-account'
 import { ResourceDialog } from '@kizunu/web/components/composed/resource-dialog'
-import { getApiErrorMessage } from '@kizunu/web/lib/get-api-error-message'
+import { useMutationDialog } from '@kizunu/web/lib/use-mutation-dialog'
 import {
   ChannelAccountForm,
   type ChannelAccountFormValues,
 } from '@kizunu/web/routes/_app/settings/-components/channels/channel-account-form'
-import { useState } from 'react'
 import { toast } from 'sonner'
 
 interface CreateChannelAccountDialogProps {
@@ -18,30 +17,25 @@ const FORM_ID = 'create-channel-account-form'
 
 export function CreateChannelAccountDialog(props: CreateChannelAccountDialogProps) {
   const { workspaceId, open, onOpenChange } = props
-  const [error, setError] = useState<string | null>(null)
+  const dialog = useMutationDialog({ open, onOpenChange })
 
   const { createChannelAccount, isPending } = useCreateChannelAccount(workspaceId, {
     onSuccess: () => {
       toast.success('Channel account added')
-      onOpenChange(false)
+      dialog.close()
     },
-    onError: (err) => setError(getApiErrorMessage(err)),
+    onError: dialog.captureError,
   })
 
-  function handleOpenChange(next: boolean) {
-    if (!next) setError(null)
-    onOpenChange(next)
-  }
-
   function handleSubmit(values: ChannelAccountFormValues) {
-    setError(null)
+    dialog.clearError()
     createChannelAccount(values)
   }
 
   return (
     <ResourceDialog
       open={open}
-      onOpenChange={handleOpenChange}
+      onOpenChange={dialog.handleOpenChange}
       title="Add channel account"
       description="Connect an outbound channel provider for this workspace."
       actionLabel="Add channel account"
@@ -52,7 +46,7 @@ export function CreateChannelAccountDialog(props: CreateChannelAccountDialogProp
       <ChannelAccountForm
         formId={FORM_ID}
         isPending={isPending}
-        error={error}
+        error={dialog.error}
         onSubmit={handleSubmit}
       />
     </ResourceDialog>

@@ -26,24 +26,38 @@ export function ConnectorAccountForm(props: ConnectorAccountFormProps) {
   const [connectorId, setConnectorId] = useState('')
   const [name, setName] = useState('')
   const [credentials, setCredentials] = useState('{}')
+  const [validationError, setValidationError] = useState<string | null>(null)
   const parsed = parseJsonObject(credentials)
 
   function submit(event: React.FormEvent) {
     event.preventDefault()
-    if (!connectorId || !parsed) return
+    if (!connectorId) {
+      setValidationError('Pick a connector.')
+      return
+    }
+    if (!parsed) {
+      setValidationError('Credentials must be a valid JSON object.')
+      return
+    }
+    setValidationError(null)
     onSubmit({ connectorId, name, credentials: parsed })
   }
 
+  const displayError = validationError ?? error
+
   return (
     <form id={formId} className="flex flex-col gap-3" onSubmit={submit}>
-      {error && <FormError>{error}</FormError>}
+      {displayError && <FormError>{displayError}</FormError>}
       <Field>
         <FieldLabel>Connector</FieldLabel>
         <LookupSelect
           value={connectorId}
           placeholder="Choose a CRM connector"
           options={CONNECTOR_OPTIONS}
-          onChange={setConnectorId}
+          onChange={(next) => {
+            setConnectorId(next)
+            setValidationError(null)
+          }}
           disabled={isPending}
         />
       </Field>

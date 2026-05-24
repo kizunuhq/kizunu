@@ -1,48 +1,42 @@
 import { useRevokeSession } from '@kizunu/api-client/identity/use-revoke-session'
 import type { SessionView } from '@kizunu/api-contracts/identity'
 import { DeleteResourceDialog } from '@kizunu/web/components/composed/delete-resource-dialog'
-import { getApiErrorMessage } from '@kizunu/web/lib/get-api-error-message'
-import { useState } from 'react'
+import { useMutationDialog } from '@kizunu/web/lib/use-mutation-dialog'
 import { toast } from 'sonner'
 
 interface RevokeSessionDialogProps {
   session: SessionView | null
-  onClose: () => void
+  open: boolean
+  onOpenChange: (open: boolean) => void
 }
 
-export function RevokeSessionDialog({ session, onClose }: RevokeSessionDialogProps) {
-  const [error, setError] = useState<string | null>(null)
+export function RevokeSessionDialog(props: RevokeSessionDialogProps) {
+  const { session, open, onOpenChange } = props
+  const dialog = useMutationDialog({ open, onOpenChange })
 
   const { revokeSession, isPending } = useRevokeSession({
     onSuccess: () => {
       toast.success('Session revoked')
-      onClose()
+      dialog.close()
     },
-    onError: (err) => setError(getApiErrorMessage(err)),
+    onError: dialog.captureError,
   })
-
-  function handleOpenChange(next: boolean) {
-    if (!next) {
-      setError(null)
-      onClose()
-    }
-  }
 
   function handleDelete() {
     if (!session) return
-    setError(null)
+    dialog.clearError()
     revokeSession(session.id)
   }
 
   return (
     <DeleteResourceDialog
-      open={Boolean(session)}
-      onOpenChange={handleOpenChange}
+      open={open}
+      onOpenChange={dialog.handleOpenChange}
       resourceType="session"
       resourceName={session?.userAgent ?? 'Unknown device'}
       onDelete={handleDelete}
       isDeleting={isPending}
-      errorMessage={error}
+      errorMessage={dialog.error}
     />
   )
 }

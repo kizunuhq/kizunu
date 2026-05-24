@@ -56,7 +56,8 @@ export function CadencesTable({ workspaceId }: { workspaceId: string }) {
       <DeleteCadenceDialog
         workspaceId={workspaceId}
         cadence={deleting}
-        onClose={() => setDeleting(null)}
+        open={Boolean(deleting)}
+        onOpenChange={(next) => !next && setDeleting(null)}
       />
     </>
   )

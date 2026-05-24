@@ -43,6 +43,8 @@ export function MemberRow(props: MemberRowProps) {
 
 function MemberRowActions(props: MemberRowProps) {
   const { workspaceId, member, onRequestDeactivate, onRequestPause } = props
+  // Activate is one-click — reversing a deactivation is low-risk; the dialog
+  // ceremony reserved for destructive actions would slow legitimate admin work.
   const { updateMemberStatus, isPending: activating } = useUpdateMemberStatus(workspaceId, {
     onSuccess: () => toast.success('Member activated'),
     onError: (err) => toast.error(getApiErrorMessage(err)),

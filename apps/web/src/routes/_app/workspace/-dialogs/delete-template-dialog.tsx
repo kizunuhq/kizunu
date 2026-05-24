@@ -1,49 +1,42 @@
 import { useDeleteTemplate } from '@kizunu/api-client/cadence/use-delete-template'
 import { DeleteResourceDialog } from '@kizunu/web/components/composed/delete-resource-dialog'
-import { getApiErrorMessage } from '@kizunu/web/lib/get-api-error-message'
-import { useState } from 'react'
+import { useMutationDialog } from '@kizunu/web/lib/use-mutation-dialog'
 import { toast } from 'sonner'
 
 interface DeleteTemplateDialogProps {
   workspaceId: string
   template: { id: string; name: string } | null
-  onClose: () => void
+  open: boolean
+  onOpenChange: (open: boolean) => void
 }
 
 export function DeleteTemplateDialog(props: DeleteTemplateDialogProps) {
-  const { workspaceId, template, onClose } = props
-  const [error, setError] = useState<string | null>(null)
+  const { workspaceId, template, open, onOpenChange } = props
+  const dialog = useMutationDialog({ open, onOpenChange })
 
   const { deleteTemplate, isPending } = useDeleteTemplate(workspaceId, {
     onSuccess: () => {
       toast.success('Template removed')
-      onClose()
+      dialog.close()
     },
-    onError: (err) => setError(getApiErrorMessage(err)),
+    onError: dialog.captureError,
   })
-
-  function handleOpenChange(next: boolean) {
-    if (!next) {
-      setError(null)
-      onClose()
-    }
-  }
 
   function handleDelete() {
     if (!template) return
-    setError(null)
+    dialog.clearError()
     deleteTemplate(template.id)
   }
 
   return (
     <DeleteResourceDialog
-      open={Boolean(template)}
-      onOpenChange={handleOpenChange}
+      open={open}
+      onOpenChange={dialog.handleOpenChange}
       resourceType="template"
       resourceName={template?.name ?? ''}
       onDelete={handleDelete}
       isDeleting={isPending}
-      errorMessage={error}
+      errorMessage={dialog.error}
     />
   )
 }

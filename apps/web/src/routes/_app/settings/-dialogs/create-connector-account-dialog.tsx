@@ -1,11 +1,10 @@
 import { useCreateConnectorAccount } from '@kizunu/api-client/crm/use-create-connector-account'
 import { ResourceDialog } from '@kizunu/web/components/composed/resource-dialog'
-import { getApiErrorMessage } from '@kizunu/web/lib/get-api-error-message'
+import { useMutationDialog } from '@kizunu/web/lib/use-mutation-dialog'
 import {
   ConnectorAccountForm,
   type ConnectorAccountFormValues,
 } from '@kizunu/web/routes/_app/settings/-components/connectors/connector-account-form'
-import { useState } from 'react'
 import { toast } from 'sonner'
 
 interface CreateConnectorAccountDialogProps {
@@ -18,30 +17,25 @@ const FORM_ID = 'create-connector-account-form'
 
 export function CreateConnectorAccountDialog(props: CreateConnectorAccountDialogProps) {
   const { workspaceId, open, onOpenChange } = props
-  const [error, setError] = useState<string | null>(null)
+  const dialog = useMutationDialog({ open, onOpenChange })
 
   const { createConnectorAccount, isPending } = useCreateConnectorAccount(workspaceId, {
     onSuccess: () => {
       toast.success('CRM connector added')
-      onOpenChange(false)
+      dialog.close()
     },
-    onError: (err) => setError(getApiErrorMessage(err)),
+    onError: dialog.captureError,
   })
 
-  function handleOpenChange(next: boolean) {
-    if (!next) setError(null)
-    onOpenChange(next)
-  }
-
   function handleSubmit(values: ConnectorAccountFormValues) {
-    setError(null)
+    dialog.clearError()
     createConnectorAccount(values)
   }
 
   return (
     <ResourceDialog
       open={open}
-      onOpenChange={handleOpenChange}
+      onOpenChange={dialog.handleOpenChange}
       title="Add CRM connector"
       description="Connect a CRM so its stage transitions can trigger cadences."
       actionLabel="Add connector"
@@ -52,7 +46,7 @@ export function CreateConnectorAccountDialog(props: CreateConnectorAccountDialog
       <ConnectorAccountForm
         formId={FORM_ID}
         isPending={isPending}
-        error={error}
+        error={dialog.error}
         onSubmit={handleSubmit}
       />
     </ResourceDialog>

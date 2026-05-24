@@ -55,7 +55,8 @@ export function TemplatesTable({ workspaceId }: { workspaceId: string }) {
       <DeleteTemplateDialog
         workspaceId={workspaceId}
         template={deleting}
-        onClose={() => setDeleting(null)}
+        open={Boolean(deleting)}
+        onOpenChange={(next) => !next && setDeleting(null)}
       />
     </>
   )

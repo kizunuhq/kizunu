@@ -28,10 +28,23 @@ export function EntryTriggerForm(props: EntryTriggerFormProps) {
   const [connectorAccountId, setConnectorAccountId] = useState('')
   const [cadenceId, setCadenceId] = useState('')
   const [stageId, setStageId] = useState('')
+  const [validationError, setValidationError] = useState<string | null>(null)
 
   function submit(event: React.FormEvent) {
     event.preventDefault()
-    if (!connectorAccountId || !cadenceId || !stageId) return
+    if (!connectorAccountId) {
+      setValidationError('Pick a connector account.')
+      return
+    }
+    if (!stageId) {
+      setValidationError('Enter a CRM stage id.')
+      return
+    }
+    if (!cadenceId) {
+      setValidationError('Pick a cadence to trigger.')
+      return
+    }
+    setValidationError(null)
     onSubmit({ connectorAccountId, cadenceId, stageId, pipelineId: null })
   }
 
@@ -44,16 +57,21 @@ export function EntryTriggerForm(props: EntryTriggerFormProps) {
     label: c.name,
   }))
 
+  const displayError = validationError ?? error
+
   return (
     <form id={formId} className="flex flex-col gap-3" onSubmit={submit}>
-      {error && <FormError>{error}</FormError>}
+      {displayError && <FormError>{displayError}</FormError>}
       <Field>
         <FieldLabel>Connector account</FieldLabel>
         <LookupSelect
           value={connectorAccountId}
           placeholder="Select connector"
           options={connectorOptions}
-          onChange={setConnectorAccountId}
+          onChange={(next) => {
+            setConnectorAccountId(next)
+            setValidationError(null)
+          }}
           disabled={isPending}
         />
       </Field>
@@ -64,7 +82,10 @@ export function EntryTriggerForm(props: EntryTriggerFormProps) {
           value={stageId}
           required
           disabled={isPending}
-          onChange={(e) => setStageId(e.target.value)}
+          onChange={(e) => {
+            setStageId(e.target.value)
+            setValidationError(null)
+          }}
         />
       </Field>
       <Field>
@@ -73,7 +94,10 @@ export function EntryTriggerForm(props: EntryTriggerFormProps) {
           value={cadenceId}
           placeholder="Select cadence"
           options={cadenceOptions}
-          onChange={setCadenceId}
+          onChange={(next) => {
+            setCadenceId(next)
+            setValidationError(null)
+          }}
           disabled={isPending}
         />
       </Field>

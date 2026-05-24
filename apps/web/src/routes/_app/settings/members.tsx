@@ -1,7 +1,8 @@
 import { useCurrentUser } from '@kizunu/api-client/identity/use-current-user'
 import { PageHeader } from '@kizunu/web/components/composed/page-header'
 import { Button } from '@kizunu/web/components/primitives/button'
-import { MembersManager } from '@kizunu/web/routes/_app/settings/-components/members/members-manager'
+import { Card, CardContent, CardHeader, CardTitle } from '@kizunu/web/components/primitives/card'
+import { MembersTable } from '@kizunu/web/routes/_app/settings/-components/members/members-table'
 import { InviteMemberDialog } from '@kizunu/web/routes/_app/settings/-dialogs/invite-member-dialog'
 import { Plus } from '@phosphor-icons/react'
 import { createFileRoute } from '@tanstack/react-router'
@@ -36,7 +37,14 @@ function MembersPage() {
           </Button>
         }
       />
-      <MembersManager workspaceId={activeWorkspaceId} />
+      <Card>
+        <CardHeader>
+          <CardTitle>Members</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <MembersTable workspaceId={activeWorkspaceId} />
+        </CardContent>
+      </Card>
       <InviteMemberDialog
         workspaceId={activeWorkspaceId}
         open={inviteOpen}

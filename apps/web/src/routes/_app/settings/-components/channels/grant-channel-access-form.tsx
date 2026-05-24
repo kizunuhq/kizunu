@@ -24,10 +24,19 @@ export function GrantChannelAccessForm(props: GrantChannelAccessFormProps) {
   const members = useMembers(workspaceId)
   const [accountId, setAccountId] = useState('')
   const [userId, setUserId] = useState('')
+  const [validationError, setValidationError] = useState<string | null>(null)
 
   function submit(event: React.FormEvent) {
     event.preventDefault()
-    if (!accountId || !userId) return
+    if (!accountId) {
+      setValidationError('Pick a channel account.')
+      return
+    }
+    if (!userId) {
+      setValidationError('Pick a member to grant access to.')
+      return
+    }
+    setValidationError(null)
     onSubmit({ accountId, userId })
   }
 
@@ -40,16 +49,21 @@ export function GrantChannelAccessForm(props: GrantChannelAccessFormProps) {
     label: m.userName,
   }))
 
+  const displayError = validationError ?? error
+
   return (
     <form id={formId} className="flex flex-col gap-3" onSubmit={submit}>
-      {error && <FormError>{error}</FormError>}
+      {displayError && <FormError>{displayError}</FormError>}
       <Field>
         <FieldLabel>Channel account</FieldLabel>
         <LookupSelect
           value={accountId}
           placeholder="Select account"
           options={accountOptions}
-          onChange={setAccountId}
+          onChange={(next) => {
+            setAccountId(next)
+            setValidationError(null)
+          }}
           disabled={isPending}
         />
       </Field>
@@ -59,7 +73,10 @@ export function GrantChannelAccessForm(props: GrantChannelAccessFormProps) {
           value={userId}
           placeholder="Select member"
           options={memberOptions}
-          onChange={setUserId}
+          onChange={(next) => {
+            setUserId(next)
+            setValidationError(null)
+          }}
           disabled={isPending}
         />
       </Field>

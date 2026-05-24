@@ -1,45 +1,38 @@
 import { useUpdateMemberStatus } from '@kizunu/api-client/workspace/use-update-member-status'
 import { FormError } from '@kizunu/web/components/composed/form-error'
 import { ResourceDialog } from '@kizunu/web/components/composed/resource-dialog'
-import { getApiErrorMessage } from '@kizunu/web/lib/get-api-error-message'
-import { useState } from 'react'
+import { useMutationDialog } from '@kizunu/web/lib/use-mutation-dialog'
 import { toast } from 'sonner'
 
 interface DeactivateMemberDialogProps {
   workspaceId: string
   member: { membershipId: string; userName: string } | null
-  onClose: () => void
+  open: boolean
+  onOpenChange: (open: boolean) => void
 }
 
 export function DeactivateMemberDialog(props: DeactivateMemberDialogProps) {
-  const { workspaceId, member, onClose } = props
-  const [error, setError] = useState<string | null>(null)
+  const { workspaceId, member, open, onOpenChange } = props
+  const dialog = useMutationDialog({ open, onOpenChange })
 
   const { updateMemberStatus, isPending } = useUpdateMemberStatus(workspaceId, {
     onSuccess: () => {
       toast.success('Member deactivated')
-      onClose()
+      dialog.close()
     },
-    onError: (err) => setError(getApiErrorMessage(err)),
+    onError: dialog.captureError,
   })
-
-  function handleOpenChange(next: boolean) {
-    if (!next) {
-      setError(null)
-      onClose()
-    }
-  }
 
   function handleAction() {
     if (!member) return
-    setError(null)
+    dialog.clearError()
     updateMemberStatus({ membershipId: member.membershipId, status: 'inactive' })
   }
 
   return (
     <ResourceDialog
-      open={Boolean(member)}
-      onOpenChange={handleOpenChange}
+      open={open}
+      onOpenChange={dialog.handleOpenChange}
       title={member ? `Deactivate ${member.userName}` : 'Deactivate member'}
       actionLabel="Deactivate"
       tone="destructive"
@@ -47,7 +40,7 @@ export function DeactivateMemberDialog(props: DeactivateMemberDialogProps) {
       onAction={handleAction}
     >
       <div className="space-y-3">
-        {error && <FormError>{error}</FormError>}
+        {dialog.error && <FormError>{dialog.error}</FormError>}
         <p className="text-sm">
           {member?.userName ?? 'This member'} will no longer be able to sign in. You can activate
           them again at any time.

@@ -1,49 +1,42 @@
 import { useDeleteEntryTrigger } from '@kizunu/api-client/engine/use-delete-entry-trigger'
 import { DeleteResourceDialog } from '@kizunu/web/components/composed/delete-resource-dialog'
-import { getApiErrorMessage } from '@kizunu/web/lib/get-api-error-message'
-import { useState } from 'react'
+import { useMutationDialog } from '@kizunu/web/lib/use-mutation-dialog'
 import { toast } from 'sonner'
 
 interface DeleteEntryTriggerDialogProps {
   workspaceId: string
-  trigger: { id: string; stageId: string } | null
-  onClose: () => void
+  trigger: { id: string; label: string } | null
+  open: boolean
+  onOpenChange: (open: boolean) => void
 }
 
 export function DeleteEntryTriggerDialog(props: DeleteEntryTriggerDialogProps) {
-  const { workspaceId, trigger, onClose } = props
-  const [error, setError] = useState<string | null>(null)
+  const { workspaceId, trigger, open, onOpenChange } = props
+  const dialog = useMutationDialog({ open, onOpenChange })
 
   const { deleteEntryTrigger, isPending } = useDeleteEntryTrigger(workspaceId, {
     onSuccess: () => {
       toast.success('Entry trigger removed')
-      onClose()
+      dialog.close()
     },
-    onError: (err) => setError(getApiErrorMessage(err)),
+    onError: dialog.captureError,
   })
-
-  function handleOpenChange(next: boolean) {
-    if (!next) {
-      setError(null)
-      onClose()
-    }
-  }
 
   function handleDelete() {
     if (!trigger) return
-    setError(null)
+    dialog.clearError()
     deleteEntryTrigger(trigger.id)
   }
 
   return (
     <DeleteResourceDialog
-      open={Boolean(trigger)}
-      onOpenChange={handleOpenChange}
+      open={open}
+      onOpenChange={dialog.handleOpenChange}
       resourceType="entry trigger"
-      resourceName={trigger ? `stage ${trigger.stageId}` : ''}
+      resourceName={trigger?.label ?? ''}
       onDelete={handleDelete}
       isDeleting={isPending}
-      errorMessage={error}
+      errorMessage={dialog.error}
     />
   )
 }

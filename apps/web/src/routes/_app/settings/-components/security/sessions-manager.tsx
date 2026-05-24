@@ -44,7 +44,11 @@ export function SessionsManager() {
           )}
         </CardContent>
       </Card>
-      <RevokeSessionDialog session={revoking} onClose={() => setRevoking(null)} />
+      <RevokeSessionDialog
+        session={revoking}
+        open={Boolean(revoking)}
+        onOpenChange={(next) => !next && setRevoking(null)}
+      />
       <RevokeOtherSessionsDialog open={confirmRevokeAll} onOpenChange={setConfirmRevokeAll} />
     </>
   )

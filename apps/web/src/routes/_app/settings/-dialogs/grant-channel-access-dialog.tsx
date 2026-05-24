@@ -1,11 +1,10 @@
 import { useGrantChannelAccess } from '@kizunu/api-client/channel/use-grant-channel-access'
 import { ResourceDialog } from '@kizunu/web/components/composed/resource-dialog'
-import { getApiErrorMessage } from '@kizunu/web/lib/get-api-error-message'
+import { useMutationDialog } from '@kizunu/web/lib/use-mutation-dialog'
 import {
   GrantChannelAccessForm,
   type GrantChannelAccessFormValues,
 } from '@kizunu/web/routes/_app/settings/-components/channels/grant-channel-access-form'
-import { useState } from 'react'
 import { toast } from 'sonner'
 
 interface GrantChannelAccessDialogProps {
@@ -18,30 +17,25 @@ const FORM_ID = 'grant-channel-access-form'
 
 export function GrantChannelAccessDialog(props: GrantChannelAccessDialogProps) {
   const { workspaceId, open, onOpenChange } = props
-  const [error, setError] = useState<string | null>(null)
+  const dialog = useMutationDialog({ open, onOpenChange })
 
   const { grantChannelAccess, isPending } = useGrantChannelAccess(workspaceId, {
     onSuccess: () => {
       toast.success('Access granted')
-      onOpenChange(false)
+      dialog.close()
     },
-    onError: (err) => setError(getApiErrorMessage(err)),
+    onError: dialog.captureError,
   })
 
-  function handleOpenChange(next: boolean) {
-    if (!next) setError(null)
-    onOpenChange(next)
-  }
-
   function handleSubmit(values: GrantChannelAccessFormValues) {
-    setError(null)
+    dialog.clearError()
     grantChannelAccess(values)
   }
 
   return (
     <ResourceDialog
       open={open}
-      onOpenChange={handleOpenChange}
+      onOpenChange={dialog.handleOpenChange}
       title="Grant channel access"
       description="Let a workspace member send through a channel account."
       actionLabel="Grant access"
@@ -52,7 +46,7 @@ export function GrantChannelAccessDialog(props: GrantChannelAccessDialogProps) {
         formId={FORM_ID}
         workspaceId={workspaceId}
         isPending={isPending}
-        error={error}
+        error={dialog.error}
         onSubmit={handleSubmit}
       />
     </ResourceDialog>

@@ -1,48 +1,42 @@
 import { useDeleteCadence } from '@kizunu/api-client/cadence/use-delete-cadence'
 import { DeleteResourceDialog } from '@kizunu/web/components/composed/delete-resource-dialog'
-import { getApiErrorMessage } from '@kizunu/web/lib/get-api-error-message'
-import { useState } from 'react'
+import { useMutationDialog } from '@kizunu/web/lib/use-mutation-dialog'
 import { toast } from 'sonner'
 
 interface DeleteCadenceDialogProps {
   workspaceId: string
   cadence: { id: string; name: string } | null
-  onClose: () => void
+  open: boolean
+  onOpenChange: (open: boolean) => void
 }
 
-export function DeleteCadenceDialog({ workspaceId, cadence, onClose }: DeleteCadenceDialogProps) {
-  const [error, setError] = useState<string | null>(null)
+export function DeleteCadenceDialog(props: DeleteCadenceDialogProps) {
+  const { workspaceId, cadence, open, onOpenChange } = props
+  const dialog = useMutationDialog({ open, onOpenChange })
 
   const { deleteCadence, isPending } = useDeleteCadence(workspaceId, {
     onSuccess: () => {
       toast.success('Cadence removed')
-      onClose()
+      dialog.close()
     },
-    onError: (err) => setError(getApiErrorMessage(err)),
+    onError: dialog.captureError,
   })
-
-  function handleOpenChange(next: boolean) {
-    if (!next) {
-      setError(null)
-      onClose()
-    }
-  }
 
   function handleDelete() {
     if (!cadence) return
-    setError(null)
+    dialog.clearError()
     deleteCadence(cadence.id)
   }
 
   return (
     <DeleteResourceDialog
-      open={Boolean(cadence)}
-      onOpenChange={handleOpenChange}
+      open={open}
+      onOpenChange={dialog.handleOpenChange}
       resourceType="cadence"
       resourceName={cadence?.name ?? ''}
       onDelete={handleDelete}
       isDeleting={isPending}
-      errorMessage={error}
+      errorMessage={dialog.error}
     />
   )
 }

@@ -1,11 +1,10 @@
 import { useCreateCadence } from '@kizunu/api-client/cadence/use-create-cadence'
 import { ResourceDialog } from '@kizunu/web/components/composed/resource-dialog'
-import { getApiErrorMessage } from '@kizunu/web/lib/get-api-error-message'
+import { useMutationDialog } from '@kizunu/web/lib/use-mutation-dialog'
 import {
   CadenceBuilder,
   type CadenceBuilderValues,
 } from '@kizunu/web/routes/_app/workspace/-components/cadences/cadence-builder'
-import { useState } from 'react'
 import { toast } from 'sonner'
 
 interface CreateCadenceDialogProps {
@@ -18,30 +17,25 @@ const FORM_ID = 'create-cadence-form'
 
 export function CreateCadenceDialog(props: CreateCadenceDialogProps) {
   const { workspaceId, open, onOpenChange } = props
-  const [error, setError] = useState<string | null>(null)
+  const dialog = useMutationDialog({ open, onOpenChange })
 
   const { createCadence, isPending } = useCreateCadence(workspaceId, {
     onSuccess: () => {
       toast.success('Cadence created')
-      onOpenChange(false)
+      dialog.close()
     },
-    onError: (err) => setError(getApiErrorMessage(err)),
+    onError: dialog.captureError,
   })
 
-  function handleOpenChange(next: boolean) {
-    if (!next) setError(null)
-    onOpenChange(next)
-  }
-
   function handleSubmit(values: CadenceBuilderValues) {
-    setError(null)
+    dialog.clearError()
     createCadence(values)
   }
 
   return (
     <ResourceDialog
       open={open}
-      onOpenChange={handleOpenChange}
+      onOpenChange={dialog.handleOpenChange}
       title="New cadence"
       description="Order steps, pick templates, set onReply actions."
       actionLabel="Create cadence"
@@ -53,7 +47,7 @@ export function CreateCadenceDialog(props: CreateCadenceDialogProps) {
         formId={FORM_ID}
         workspaceId={workspaceId}
         isPending={isPending}
-        error={error}
+        error={dialog.error}
         onSubmit={handleSubmit}
       />
     </ResourceDialog>

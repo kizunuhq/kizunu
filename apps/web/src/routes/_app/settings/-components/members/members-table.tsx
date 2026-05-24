@@ -1,3 +1,4 @@
+import { useMembers } from '@kizunu/api-client/workspace/use-members'
 import type { ListMembersResponse } from '@kizunu/api-contracts/workspace'
 import {
   Table,
@@ -13,14 +14,12 @@ import { useState } from 'react'
 
 type Member = ListMembersResponse['members'][number]
 
-interface MembersTableProps {
-  workspaceId: string
-  members: Member[]
-}
-
-export function MembersTable({ workspaceId, members }: MembersTableProps) {
+export function MembersTable({ workspaceId }: { workspaceId: string }) {
+  const { data, isPending } = useMembers(workspaceId)
   const [deactivating, setDeactivating] = useState<Member | null>(null)
   const [pausing, setPausing] = useState<Member | null>(null)
+
+  if (isPending) return <p className="text-muted-foreground text-sm">Loading…</p>
 
   return (
     <>
@@ -35,7 +34,7 @@ export function MembersTable({ workspaceId, members }: MembersTableProps) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {members.map((member) => (
+          {(data?.members ?? []).map((member) => (
             <MemberRow
               key={member.membershipId}
               workspaceId={workspaceId}
@@ -49,12 +48,14 @@ export function MembersTable({ workspaceId, members }: MembersTableProps) {
       <DeactivateMemberDialog
         workspaceId={workspaceId}
         member={deactivating}
-        onClose={() => setDeactivating(null)}
+        open={Boolean(deactivating)}
+        onOpenChange={(next) => !next && setDeactivating(null)}
       />
       <PauseOwnerJourneysDialog
         workspaceId={workspaceId}
         member={pausing}
-        onClose={() => setPausing(null)}
+        open={Boolean(pausing)}
+        onOpenChange={(next) => !next && setPausing(null)}
       />
     </>
   )
