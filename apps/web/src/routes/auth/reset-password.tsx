@@ -1,7 +1,7 @@
 import { useCurrentUser } from '@kizunu/api-client/identity/use-current-user'
 import { PageHeader } from '@kizunu/web/components/composed/page-header'
 import { buttonVariants } from '@kizunu/web/components/primitives/button'
-import { ResetPasswordForm } from '@kizunu/web/features/identity/components/reset-password-form'
+import { ResetPasswordForm } from '@kizunu/web/routes/auth/-components/reset-password-form'
 import { createFileRoute, Link, Navigate } from '@tanstack/react-router'
 
 const MAX_TOKEN_LENGTH = 512

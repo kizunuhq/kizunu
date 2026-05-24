@@ -1,4 +1,4 @@
-import { DashboardHome } from '@kizunu/web/features/dashboard/components/dashboard-home'
+import { DashboardHome } from '@kizunu/web/routes/_app/workspace/-components/dashboard/dashboard-home'
 import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/_app/workspace/')({

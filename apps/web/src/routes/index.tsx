@@ -1,6 +1,5 @@
+import { KizunuLandingPage } from '@kizunu/web/routes/-marketing/kizunu-landing-page'
 import { createFileRoute } from '@tanstack/react-router'
-
-import { KizunuLandingPage } from '../features/marketing/components/kizunu-landing-page'
 
 export const Route = createFileRoute('/')({
   component: LandingPageRoute,

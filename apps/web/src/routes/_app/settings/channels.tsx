@@ -1,6 +1,6 @@
 import { useCurrentUser } from '@kizunu/api-client/identity/use-current-user'
 import { PageHeader } from '@kizunu/web/components/composed/page-header'
-import { ChannelsManager } from '@kizunu/web/features/channel/components/channels-manager'
+import { ChannelsManager } from '@kizunu/web/routes/_app/settings/-components/channels/channels-manager'
 import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/_app/settings/channels')({

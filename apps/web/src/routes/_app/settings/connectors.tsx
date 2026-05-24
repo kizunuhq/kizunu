@@ -1,6 +1,6 @@
 import { useCurrentUser } from '@kizunu/api-client/identity/use-current-user'
 import { PageHeader } from '@kizunu/web/components/composed/page-header'
-import { ConnectorsManager } from '@kizunu/web/features/crm/components/connectors-manager'
+import { ConnectorsManager } from '@kizunu/web/routes/_app/settings/-components/connectors/connectors-manager'
 import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/_app/settings/connectors')({

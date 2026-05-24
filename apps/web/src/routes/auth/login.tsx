@@ -1,9 +1,9 @@
 import { useAuthCapabilities } from '@kizunu/api-client/identity/use-auth-capabilities'
 import { useCurrentUser } from '@kizunu/api-client/identity/use-current-user'
-import { LoginForm } from '@kizunu/web/features/identity/components/login-form'
-import { OAuthButtons } from '@kizunu/web/features/identity/components/oauth-buttons'
-import { OAuthErrorAlert } from '@kizunu/web/features/identity/components/oauth-error-alert'
-import { OAuthSeparator } from '@kizunu/web/features/identity/components/oauth-separator'
+import { LoginForm } from '@kizunu/web/routes/auth/-components/login-form'
+import { OAuthButtons } from '@kizunu/web/routes/auth/-components/oauth-buttons'
+import { OAuthErrorAlert } from '@kizunu/web/routes/auth/-components/oauth-error-alert'
+import { OAuthSeparator } from '@kizunu/web/routes/auth/-components/oauth-separator'
 import { createFileRoute, Navigate, useNavigate } from '@tanstack/react-router'
 
 interface LoginSearch {

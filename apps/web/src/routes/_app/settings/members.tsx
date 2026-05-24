@@ -1,6 +1,6 @@
 import { useCurrentUser } from '@kizunu/api-client/identity/use-current-user'
 import { PageHeader } from '@kizunu/web/components/composed/page-header'
-import { MembersManager } from '@kizunu/web/features/workspace/components/members-manager'
+import { MembersManager } from '@kizunu/web/routes/_app/settings/-components/members/members-manager'
 import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/_app/settings/members')({
