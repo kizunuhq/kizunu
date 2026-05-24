@@ -49,27 +49,26 @@ export class DirectoryQueryService {
     const params = parseParams(descriptor.paramsSchema, input.resource, input.params)
     const ttlMs = descriptor.ttlMs ?? DEFAULT_TTL_MS
     const directoryFn = input.plugin.directory.bind(input.plugin)
-    return await this.cache.getOrLoad(
-      {
-        workspaceId: input.workspaceId,
-        accountId: input.accountId,
-        resource: input.resource,
-        params,
-      },
-      async () => {
-        try {
-          return await directoryFn({
+    try {
+      return await this.cache.getOrLoad(
+        {
+          workspaceId: input.workspaceId,
+          accountId: input.accountId,
+          resource: input.resource,
+          params,
+        },
+        () =>
+          directoryFn({
             accountId: input.accountId,
             resource: input.resource,
             credentials: input.credentials,
             params,
-          })
-        } catch (error) {
-          rethrowProviderError(error, input.accountId, input.resource)
-        }
-      },
-      ttlMs,
-    )
+          }),
+        ttlMs,
+      )
+    } catch (error) {
+      throw mapProviderError(error, input.accountId, input.resource)
+    }
   }
 }
 
@@ -89,10 +88,14 @@ function parseParams(
       })),
     })
   }
+  // Cast is safe by construction: the schema's output shape is owned by the
+  // plugin manifest, and every supported schema in this codebase produces a
+  // string-only record (see pipedrive.connector STAGE_PARAMS_SCHEMA).
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
   return result.data as Readonly<Record<string, string>>
 }
 
-function rethrowProviderError(error: unknown, accountId: string, resource: string): never {
+function mapProviderError(error: unknown, accountId: string, resource: string): Error {
   if (
     error instanceof ConnectorTokenExpiredException ||
     error instanceof ConnectorRateLimitedException ||
@@ -100,9 +103,9 @@ function rethrowProviderError(error: unknown, accountId: string, resource: strin
     error instanceof ConnectorDirectoryUnsupportedException ||
     error instanceof ConnectorDirectoryParamsInvalidException
   ) {
-    throw error
+    return error
   }
-  throw new ConnectorDirectoryFailedException({
+  return new ConnectorDirectoryFailedException({
     accountId,
     resource,
     detail: error instanceof Error ? error.message : 'unknown provider error',

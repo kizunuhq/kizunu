@@ -115,19 +115,8 @@ export class ChannelAccountController {
     @Param('resource') resource: string,
     @Query() query: GetChannelDirectoryQueryDto,
   ) {
-    return await this.directoryUseCase.execute({
-      workspaceId,
-      accountId,
-      resource,
-      params: toStringRecord(query),
-    })
+    const params: Record<string, string> = {}
+    if (query.language) params.language = query.language
+    return await this.directoryUseCase.execute({ workspaceId, accountId, resource, params })
   }
-}
-
-function toStringRecord(query: object): Readonly<Record<string, string>> {
-  const result: Record<string, string> = {}
-  for (const [key, value] of Object.entries(query as Record<string, unknown>)) {
-    if (typeof value === 'string' && value.length > 0) result[key] = value
-  }
-  return result
 }
