@@ -1,0 +1,1 @@
+ALTER TABLE "cadences" ADD COLUMN "sending_window" jsonb;
