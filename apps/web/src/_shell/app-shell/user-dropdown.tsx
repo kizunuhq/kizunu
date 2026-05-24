@@ -53,7 +53,7 @@ export function UserDropdown() {
 
 function UserDropdownContent() {
   const navigate = useNavigate()
-  const logout = useLogout()
+  const { logout, isPending } = useLogout()
   return (
     <DropdownMenuContent side="right" align="end" sideOffset={4} className="min-w-56">
       <DropdownMenuGroup>
@@ -70,10 +70,8 @@ function UserDropdownContent() {
       <DropdownMenuGroup>
         <DropdownMenuItem
           variant="destructive"
-          disabled={logout.isPending}
-          onClick={() =>
-            logout.mutate(undefined, { onSuccess: () => navigate({ to: '/auth/login' }) })
-          }
+          disabled={isPending}
+          onClick={() => logout(undefined, { onSuccess: () => navigate({ to: '/auth/login' }) })}
         >
           <SignOut />
           Sign out

@@ -4,5 +4,6 @@ import type { ApiError } from '../client/api-error'
 import { resendEmailVerification } from './auth.api'
 
 export function useResendEmailVerification(options?: UseMutationOptions<void, ApiError>) {
-  return useMutation({ mutationFn: resendEmailVerification, ...options })
+  const { mutate, ...rest } = useMutation({ mutationFn: resendEmailVerification, ...options })
+  return { ...rest, resendEmailVerification: mutate }
 }

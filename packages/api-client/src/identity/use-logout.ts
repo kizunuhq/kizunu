@@ -7,10 +7,11 @@ import { logout } from './auth.api'
 export function useLogout() {
   const queryClient = useQueryClient()
 
-  return useMutation<void, ApiError>({
+  const { mutate, ...rest } = useMutation<void, ApiError>({
     mutationFn: logout,
     onSuccess: () => {
       queryClient.setQueryData([QueryKeys.currentUser], null)
     },
   })
+  return { ...rest, logout: mutate }
 }

@@ -25,7 +25,7 @@ export function SessionsManager() {
             variant="outline"
             size="sm"
             disabled={!hasOthers || revokeOthers.isPending}
-            onClick={() => revokeOthers.mutate()}
+            onClick={() => revokeOthers.revokeOtherSessions()}
           >
             Log out other sessions
           </Button>

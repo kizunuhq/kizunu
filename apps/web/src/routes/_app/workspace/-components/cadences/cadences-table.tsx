@@ -42,7 +42,7 @@ export function CadencesTable({ workspaceId }: { workspaceId: string }) {
                 variant="outline"
                 size="sm"
                 disabled={remove.isPending}
-                onClick={() => remove.mutate(cadence.id)}
+                onClick={() => remove.deleteCadence(cadence.id)}
               >
                 Remove
               </Button>

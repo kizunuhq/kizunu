@@ -43,7 +43,11 @@ export function AcceptInvitePanel({ token, hasCurrentUser }: AcceptInvitePanelPr
         description="You've been invited to join a workspace on kizunu."
       />
       <div className="flex flex-col gap-2">
-        <Button type="button" disabled={accept.isPending} onClick={() => accept.mutate({ token })}>
+        <Button
+          type="button"
+          disabled={accept.isPending}
+          onClick={() => accept.acceptInvitation({ token })}
+        >
           {accept.isPending ? 'Joining…' : 'Accept invitation'}
         </Button>
         <Button

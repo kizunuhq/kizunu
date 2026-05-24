@@ -8,7 +8,7 @@ import { login } from './auth.api'
 export function useLogin(options?: UseMutationOptions<LoginResponse, ApiError, LoginRequest>) {
   const queryClient = useQueryClient()
 
-  return useMutation({
+  const { mutate, ...rest } = useMutation({
     mutationFn: login,
     ...options,
     onSuccess: async (...args) => {
@@ -16,4 +16,5 @@ export function useLogin(options?: UseMutationOptions<LoginResponse, ApiError, L
       await options?.onSuccess?.(...args)
     },
   })
+  return { ...rest, login: mutate }
 }

@@ -23,7 +23,7 @@ interface CommandPaletteProps {
 
 export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
   const navigate = useNavigate()
-  const logout = useLogout()
+  const { logout } = useLogout()
   const pageCommands = NAVIGATE_COMMANDS.filter((c) => c.group === COMMAND_GROUP.Pages)
   const settingsCommands = NAVIGATE_COMMANDS.filter((c) => c.group === COMMAND_GROUP.Settings)
 
@@ -34,7 +34,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
 
   function signOut() {
     onOpenChange(false)
-    logout.mutate(undefined, { onSuccess: () => navigate({ to: '/auth/login' }) })
+    logout(undefined, { onSuccess: () => navigate({ to: '/auth/login' }) })
   }
 
   return (

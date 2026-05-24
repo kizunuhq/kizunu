@@ -10,7 +10,7 @@ export function useDeleteTemplate(
 ) {
   const queryClient = useQueryClient()
 
-  return useMutation({
+  const { mutate, ...rest } = useMutation({
     mutationFn: (templateId: string) => deleteTemplate(workspaceId, templateId),
     ...options,
     onSuccess: async (...args) => {
@@ -18,4 +18,5 @@ export function useDeleteTemplate(
       await options?.onSuccess?.(...args)
     },
   })
+  return { ...rest, deleteTemplate: mutate }
 }

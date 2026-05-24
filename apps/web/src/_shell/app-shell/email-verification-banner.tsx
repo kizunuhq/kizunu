@@ -38,7 +38,7 @@ export function EmailVerificationBanner() {
         variant="outline"
         size="sm"
         disabled={resend.isPending || resend.isSuccess}
-        onClick={() => resend.mutate()}
+        onClick={() => resend.resendEmailVerification()}
       >
         {resend.isPending ? 'Sending…' : 'Resend email'}
       </Button>

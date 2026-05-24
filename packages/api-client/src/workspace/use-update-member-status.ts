@@ -16,7 +16,7 @@ export function useUpdateMemberStatus(
 ) {
   const queryClient = useQueryClient()
 
-  return useMutation({
+  const { mutate, ...rest } = useMutation({
     mutationFn: ({ membershipId, status }: UpdateMemberStatusInput) =>
       updateMemberStatus(workspaceId, membershipId, { status }),
     ...options,
@@ -25,4 +25,5 @@ export function useUpdateMemberStatus(
       await options?.onSuccess?.(...args)
     },
   })
+  return { ...rest, updateMemberStatus: mutate }
 }

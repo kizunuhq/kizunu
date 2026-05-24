@@ -13,11 +13,11 @@ const TITLES = {
 
 export function VerifyEmailPanel({ token }: { token: string }) {
   const confirm = useConfirmEmailVerification()
-  const { mutate } = confirm
+  const { confirmEmailVerification } = confirm
 
   useEffect(() => {
-    if (token) mutate({ token })
-  }, [token, mutate])
+    if (token) confirmEmailVerification({ token })
+  }, [token, confirmEmailVerification])
 
   const state = !token || confirm.isError ? 'error' : confirm.isSuccess ? 'success' : 'pending'
 

@@ -39,7 +39,7 @@ export function MyChannelsTable() {
                   variant="outline"
                   size="sm"
                   disabled={setPrimary.isPending}
-                  onClick={() => setPrimary.mutate(channel.channelAccountId)}
+                  onClick={() => setPrimary.setPrimaryChannel(channel.channelAccountId)}
                 >
                   Set primary
                 </Button>

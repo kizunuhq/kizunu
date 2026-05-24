@@ -32,7 +32,7 @@ export function ChannelAccountForm({ workspaceId }: { workspaceId: string }) {
 
   function submit(event: React.FormEvent) {
     event.preventDefault()
-    create.mutate({ pluginId, name, credentials })
+    create.createChannelAccount({ pluginId, name, credentials })
   }
 
   const canSubmit = pluginId !== '' && hasRequiredCredentials(fields, credentials)

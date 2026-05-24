@@ -10,7 +10,7 @@ export function usePauseOwnerJourneys(
 ) {
   const queryClient = useQueryClient()
 
-  return useMutation({
+  const { mutate, ...rest } = useMutation({
     mutationFn: (userId: string) => pauseOwnerJourneys(workspaceId, userId),
     ...options,
     onSuccess: async (...args) => {
@@ -20,4 +20,5 @@ export function usePauseOwnerJourneys(
       await options?.onSuccess?.(...args)
     },
   })
+  return { ...rest, pauseOwnerJourneys: mutate }
 }

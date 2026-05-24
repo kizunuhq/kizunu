@@ -15,7 +15,7 @@ export function useGrantChannelAccess(
 ) {
   const queryClient = useQueryClient()
 
-  return useMutation({
+  const { mutate, ...rest } = useMutation({
     mutationFn: ({ accountId, userId }: GrantChannelAccessInput) =>
       grantChannelAccess(workspaceId, accountId, { userId }),
     ...options,
@@ -24,4 +24,5 @@ export function useGrantChannelAccess(
       await options?.onSuccess?.(...args)
     },
   })
+  return { ...rest, grantChannelAccess: mutate }
 }

@@ -29,7 +29,7 @@ export function SessionsTable({ sessions }: { sessions: SessionView[] }) {
             key={session.id}
             session={session}
             pending={revoke.isPending}
-            onRevoke={(sessionId) => revoke.mutate(sessionId)}
+            onRevoke={(sessionId) => revoke.revokeSession(sessionId)}
           />
         ))}
       </TableBody>

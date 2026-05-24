@@ -12,7 +12,7 @@ export function ForgotPasswordForm() {
 
   function submit(event: React.FormEvent) {
     event.preventDefault()
-    request.mutate({ email })
+    request.requestPasswordReset({ email })
   }
 
   if (request.isSuccess) return <ForgotPasswordSuccess />

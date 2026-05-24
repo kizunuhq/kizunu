@@ -2,7 +2,7 @@ import { ChannelAccountForm } from '@kizunu/web/routes/_app/settings/-components
 import { fireEvent, render, screen } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 
-const { mutate } = vi.hoisted(() => ({ mutate: vi.fn() }))
+const { createChannelAccount } = vi.hoisted(() => ({ createChannelAccount: vi.fn() }))
 
 const plugins = [
   {
@@ -28,7 +28,7 @@ vi.mock('@kizunu/api-client/channel/use-channel-plugins', () => ({
 }))
 
 vi.mock('@kizunu/api-client/channel/use-create-channel-account', () => ({
-  useCreateChannelAccount: () => ({ mutate, isPending: false }),
+  useCreateChannelAccount: () => ({ createChannelAccount, isPending: false }),
 }))
 
 vi.mock('@kizunu/web/components/composed/plugin-select', () => ({
@@ -50,7 +50,7 @@ function selectPlugin(id: string) {
 
 describe('ChannelAccountForm', () => {
   beforeEach(() => {
-    mutate.mockClear()
+    createChannelAccount.mockClear()
   })
 
   it('clears entered credentials when the selected plugin changes', () => {
@@ -74,7 +74,7 @@ describe('ChannelAccountForm', () => {
     fireEvent.change(screen.getByLabelText('System token'), { target: { value: 'token-9' } })
     fireEvent.click(screen.getByRole('button', { name: 'Add channel account' }))
 
-    expect(mutate).toHaveBeenCalledWith({
+    expect(createChannelAccount).toHaveBeenCalledWith({
       pluginId: 'meta-whatsapp',
       name: 'Primary WA',
       credentials: { wabaId: 'waba-9', phoneNumberId: 'phone-9', systemToken: 'token-9' },

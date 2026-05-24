@@ -13,7 +13,7 @@ export function useAcceptInvitation(
 ) {
   const queryClient = useQueryClient()
 
-  return useMutation({
+  const { mutate, ...rest } = useMutation({
     mutationFn: acceptInvitation,
     ...options,
     onSuccess: async (...args) => {
@@ -22,4 +22,5 @@ export function useAcceptInvitation(
       await options?.onSuccess?.(...args)
     },
   })
+  return { ...rest, acceptInvitation: mutate }
 }

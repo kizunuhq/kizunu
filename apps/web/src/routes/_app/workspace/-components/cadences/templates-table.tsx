@@ -37,7 +37,7 @@ export function TemplatesTable({ workspaceId }: { workspaceId: string }) {
                 variant="outline"
                 size="sm"
                 disabled={remove.isPending}
-                onClick={() => remove.mutate(template.id)}
+                onClick={() => remove.deleteTemplate(template.id)}
               >
                 Remove
               </Button>

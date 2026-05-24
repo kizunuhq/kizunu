@@ -11,7 +11,7 @@ export function useInviteMember(
 ) {
   const queryClient = useQueryClient()
 
-  return useMutation({
+  const { mutate, ...rest } = useMutation({
     mutationFn: (body: InviteMemberRequest) => inviteMember(workspaceId, body),
     ...options,
     onSuccess: async (...args) => {
@@ -19,4 +19,5 @@ export function useInviteMember(
       await options?.onSuccess?.(...args)
     },
   })
+  return { ...rest, inviteMember: mutate }
 }

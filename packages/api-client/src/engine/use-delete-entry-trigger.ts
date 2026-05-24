@@ -10,7 +10,7 @@ export function useDeleteEntryTrigger(
 ) {
   const queryClient = useQueryClient()
 
-  return useMutation({
+  const { mutate, ...rest } = useMutation({
     mutationFn: (triggerId: string) => deleteEntryTrigger(workspaceId, triggerId),
     ...options,
     onSuccess: async (...args) => {
@@ -20,4 +20,5 @@ export function useDeleteEntryTrigger(
       await options?.onSuccess?.(...args)
     },
   })
+  return { ...rest, deleteEntryTrigger: mutate }
 }

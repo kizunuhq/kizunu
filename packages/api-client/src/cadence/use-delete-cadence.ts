@@ -10,7 +10,7 @@ export function useDeleteCadence(
 ) {
   const queryClient = useQueryClient()
 
-  return useMutation({
+  const { mutate, ...rest } = useMutation({
     mutationFn: (cadenceId: string) => deleteCadence(workspaceId, cadenceId),
     ...options,
     onSuccess: async (...args) => {
@@ -18,4 +18,5 @@ export function useDeleteCadence(
       await options?.onSuccess?.(...args)
     },
   })
+  return { ...rest, deleteCadence: mutate }
 }

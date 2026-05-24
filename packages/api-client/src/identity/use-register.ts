@@ -10,7 +10,7 @@ export function useRegister(
 ) {
   const queryClient = useQueryClient()
 
-  return useMutation({
+  const { mutate, ...rest } = useMutation({
     mutationFn: register,
     ...options,
     onSuccess: async (...args) => {
@@ -18,4 +18,5 @@ export function useRegister(
       await options?.onSuccess?.(...args)
     },
   })
+  return { ...rest, register: mutate }
 }

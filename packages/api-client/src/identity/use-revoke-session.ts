@@ -7,7 +7,7 @@ import { revokeSession } from './sessions.api'
 export function useRevokeSession(options?: UseMutationOptions<void, ApiError, string>) {
   const queryClient = useQueryClient()
 
-  return useMutation({
+  const { mutate, ...rest } = useMutation({
     mutationFn: revokeSession,
     ...options,
     onSuccess: async (...args) => {
@@ -15,4 +15,5 @@ export function useRevokeSession(options?: UseMutationOptions<void, ApiError, st
       await options?.onSuccess?.(...args)
     },
   })
+  return { ...rest, revokeSession: mutate }
 }

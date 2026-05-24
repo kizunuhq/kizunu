@@ -27,14 +27,14 @@ export function MembersTable({ workspaceId, members }: MembersTableProps) {
   })
 
   function toggle(member: Member) {
-    updateStatus.mutate({
+    updateStatus.updateMemberStatus({
       membershipId: member.membershipId,
       status: member.status === 'active' ? 'inactive' : 'active',
     })
   }
 
   function pause(member: Member) {
-    pauseOwner.mutate(member.userId)
+    pauseOwner.pauseOwnerJourneys(member.userId)
   }
 
   return (

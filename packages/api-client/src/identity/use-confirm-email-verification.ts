@@ -10,7 +10,7 @@ export function useConfirmEmailVerification(
 ) {
   const queryClient = useQueryClient()
 
-  return useMutation({
+  const { mutate, ...rest } = useMutation({
     mutationFn: confirmEmailVerification,
     ...options,
     onSuccess: async (...args) => {
@@ -19,4 +19,5 @@ export function useConfirmEmailVerification(
       await options?.onSuccess?.(...args)
     },
   })
+  return { ...rest, confirmEmailVerification: mutate }
 }

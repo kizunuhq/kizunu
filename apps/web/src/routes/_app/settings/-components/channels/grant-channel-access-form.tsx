@@ -15,7 +15,7 @@ export function GrantChannelAccessForm({ workspaceId }: { workspaceId: string })
 
   function submit(event: React.FormEvent) {
     event.preventDefault()
-    if (accountId && userId) grant.mutate({ accountId, userId })
+    if (accountId && userId) grant.grantChannelAccess({ accountId, userId })
   }
 
   const accountOptions = (channels.data?.accounts ?? []).map((a) => ({

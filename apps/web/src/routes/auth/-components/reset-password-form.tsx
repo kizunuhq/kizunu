@@ -22,7 +22,7 @@ export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
   function submit(event: React.FormEvent) {
     event.preventDefault()
     if (inlineError) return
-    reset.mutate({ token, password })
+    reset.resetPassword({ token, password })
   }
 
   if (reset.isSuccess) return <ResetPasswordSuccess />

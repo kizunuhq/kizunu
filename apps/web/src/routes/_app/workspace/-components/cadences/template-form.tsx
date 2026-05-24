@@ -14,7 +14,7 @@ export function TemplateForm({ workspaceId }: { workspaceId: string }) {
 
   function submit(event: React.FormEvent) {
     event.preventDefault()
-    create.mutate({ name, channelPluginId, providerTemplateName, language, variables: [] })
+    create.createTemplate({ name, channelPluginId, providerTemplateName, language, variables: [] })
   }
 
   return (
