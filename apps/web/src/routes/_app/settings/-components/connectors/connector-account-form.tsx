@@ -1,6 +1,5 @@
-import { useCreateConnectorAccount } from '@kizunu/api-client/crm/use-create-connector-account'
+import { FormError } from '@kizunu/web/components/composed/form-error'
 import { LookupSelect } from '@kizunu/web/components/composed/lookup-select'
-import { Button } from '@kizunu/web/components/primitives/button'
 import { Field, FieldError, FieldLabel } from '@kizunu/web/components/primitives/field'
 import { Input } from '@kizunu/web/components/primitives/input'
 import { Textarea } from '@kizunu/web/components/primitives/textarea'
@@ -9,27 +8,57 @@ import { useState } from 'react'
 
 const CONNECTOR_OPTIONS = [{ value: 'pipedrive', label: 'Pipedrive' }]
 
-export function ConnectorAccountForm({ workspaceId }: { workspaceId: string }) {
+export interface ConnectorAccountFormValues {
+  connectorId: string
+  name: string
+  credentials: Record<string, unknown>
+}
+
+interface ConnectorAccountFormProps {
+  formId: string
+  isPending: boolean
+  error?: string | null
+  onSubmit: (values: ConnectorAccountFormValues) => void
+}
+
+export function ConnectorAccountForm(props: ConnectorAccountFormProps) {
+  const { formId, isPending, error, onSubmit } = props
   const [connectorId, setConnectorId] = useState('')
   const [name, setName] = useState('')
   const [credentials, setCredentials] = useState('{}')
-  const create = useCreateConnectorAccount(workspaceId, { onSuccess: () => setName('') })
+  const [validationError, setValidationError] = useState<string | null>(null)
   const parsed = parseJsonObject(credentials)
 
   function submit(event: React.FormEvent) {
     event.preventDefault()
-    if (parsed) create.createConnectorAccount({ connectorId, name, credentials: parsed })
+    if (!connectorId) {
+      setValidationError('Pick a connector.')
+      return
+    }
+    if (!parsed) {
+      setValidationError('Credentials must be a valid JSON object.')
+      return
+    }
+    setValidationError(null)
+    onSubmit({ connectorId, name, credentials: parsed })
   }
 
+  const displayError = validationError ?? error
+
   return (
-    <form className="flex flex-col gap-3" onSubmit={submit}>
+    <form id={formId} className="flex flex-col gap-3" onSubmit={submit}>
+      {displayError && <FormError>{displayError}</FormError>}
       <Field>
         <FieldLabel>Connector</FieldLabel>
         <LookupSelect
           value={connectorId}
           placeholder="Choose a CRM connector"
           options={CONNECTOR_OPTIONS}
-          onChange={setConnectorId}
+          onChange={(next) => {
+            setConnectorId(next)
+            setValidationError(null)
+          }}
+          disabled={isPending}
         />
       </Field>
       <Field>
@@ -38,6 +67,7 @@ export function ConnectorAccountForm({ workspaceId }: { workspaceId: string }) {
           id="connector-name"
           value={name}
           required
+          disabled={isPending}
           onChange={(e) => setName(e.target.value)}
         />
       </Field>
@@ -47,13 +77,11 @@ export function ConnectorAccountForm({ workspaceId }: { workspaceId: string }) {
           id="connector-credentials"
           value={credentials}
           rows={4}
+          disabled={isPending}
           onChange={(e) => setCredentials(e.target.value)}
         />
         {parsed === null ? <FieldError>Invalid JSON.</FieldError> : null}
       </Field>
-      <Button type="submit" disabled={create.isPending || !connectorId}>
-        Add connector
-      </Button>
     </form>
   )
 }

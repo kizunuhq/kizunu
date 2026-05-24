@@ -1,35 +1,44 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@kizunu/web/components/primitives/card'
-import { ConnectorAccountForm } from '@kizunu/web/routes/_app/settings/-components/connectors/connector-account-form'
-import { EntryTriggerForm } from '@kizunu/web/routes/_app/settings/-components/connectors/entry-trigger-form'
+import { Button } from '@kizunu/web/components/primitives/button'
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@kizunu/web/components/primitives/card'
 import { EntryTriggersTable } from '@kizunu/web/routes/_app/settings/-components/connectors/entry-triggers-table'
+import { CreateEntryTriggerDialog } from '@kizunu/web/routes/_app/settings/-dialogs/create-entry-trigger-dialog'
+import { Plus } from '@phosphor-icons/react'
+import { useState } from 'react'
 
-export function ConnectorsManager({ workspaceId }: { workspaceId: string }) {
+interface ConnectorsManagerProps {
+  workspaceId: string
+}
+
+export function ConnectorsManager({ workspaceId }: ConnectorsManagerProps) {
+  const [addTriggerOpen, setAddTriggerOpen] = useState(false)
+
   return (
-    <div className="grid gap-6 lg:grid-cols-2">
+    <>
       <Card>
-        <CardHeader>
-          <CardTitle>Add CRM connector</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ConnectorAccountForm workspaceId={workspaceId} />
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader>
-          <CardTitle>Add entry trigger</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <EntryTriggerForm workspaceId={workspaceId} />
-        </CardContent>
-      </Card>
-      <Card className="lg:col-span-2">
         <CardHeader>
           <CardTitle>Entry triggers (stage → cadence)</CardTitle>
+          <CardAction>
+            <Button size="sm" variant="outline" onClick={() => setAddTriggerOpen(true)}>
+              <Plus weight="bold" />
+              Add entry trigger
+            </Button>
+          </CardAction>
         </CardHeader>
         <CardContent>
           <EntryTriggersTable workspaceId={workspaceId} />
         </CardContent>
       </Card>
-    </div>
+      <CreateEntryTriggerDialog
+        workspaceId={workspaceId}
+        open={addTriggerOpen}
+        onOpenChange={setAddTriggerOpen}
+      />
+    </>
   )
 }

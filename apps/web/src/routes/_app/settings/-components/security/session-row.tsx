@@ -7,15 +7,12 @@ function formatStamp(iso: string | null): string {
   return iso ? new Date(iso).toLocaleString() : '—'
 }
 
-export function SessionRow({
-  session,
-  pending,
-  onRevoke,
-}: {
+interface SessionRowProps {
   session: SessionView
-  pending: boolean
-  onRevoke: (sessionId: string) => void
-}) {
+  onRequestRevoke: (session: SessionView) => void
+}
+
+export function SessionRow({ session, onRequestRevoke }: SessionRowProps) {
   return (
     <TableRow>
       <TableCell className="max-w-xs truncate">{session.userAgent ?? 'Unknown device'}</TableCell>
@@ -26,12 +23,7 @@ export function SessionRow({
         {session.isCurrent ? (
           <Badge>This device</Badge>
         ) : (
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={pending}
-            onClick={() => onRevoke(session.id)}
-          >
+          <Button variant="outline" size="sm" onClick={() => onRequestRevoke(session)}>
             Revoke
           </Button>
         )}

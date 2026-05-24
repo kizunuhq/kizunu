@@ -1,4 +1,3 @@
-import { useRevokeSession } from '@kizunu/api-client/identity/use-revoke-session'
 import type { SessionView } from '@kizunu/api-contracts/identity'
 import {
   Table,
@@ -9,9 +8,12 @@ import {
 } from '@kizunu/web/components/primitives/table'
 import { SessionRow } from '@kizunu/web/routes/_app/settings/-components/security/session-row'
 
-export function SessionsTable({ sessions }: { sessions: SessionView[] }) {
-  const revoke = useRevokeSession()
+interface SessionsTableProps {
+  sessions: SessionView[]
+  onRequestRevoke: (session: SessionView) => void
+}
 
+export function SessionsTable({ sessions, onRequestRevoke }: SessionsTableProps) {
   return (
     <Table>
       <TableHeader>
@@ -25,12 +27,7 @@ export function SessionsTable({ sessions }: { sessions: SessionView[] }) {
       </TableHeader>
       <TableBody>
         {sessions.map((session) => (
-          <SessionRow
-            key={session.id}
-            session={session}
-            pending={revoke.isPending}
-            onRevoke={(sessionId) => revoke.revokeSession(sessionId)}
-          />
+          <SessionRow key={session.id} session={session} onRequestRevoke={onRequestRevoke} />
         ))}
       </TableBody>
     </Table>

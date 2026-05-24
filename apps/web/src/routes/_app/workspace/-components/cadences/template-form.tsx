@@ -1,31 +1,66 @@
-import { useCreateTemplate } from '@kizunu/api-client/cadence/use-create-template'
+import { FormError } from '@kizunu/web/components/composed/form-error'
 import { PluginSelect } from '@kizunu/web/components/composed/plugin-select'
-import { Button } from '@kizunu/web/components/primitives/button'
 import { Field, FieldLabel } from '@kizunu/web/components/primitives/field'
 import { Input } from '@kizunu/web/components/primitives/input'
 import { useState } from 'react'
 
-export function TemplateForm({ workspaceId }: { workspaceId: string }) {
+export interface TemplateFormValues {
+  name: string
+  channelPluginId: string
+  providerTemplateName: string
+  language: string
+  variables: never[]
+}
+
+interface TemplateFormProps {
+  formId: string
+  isPending: boolean
+  error?: string | null
+  onSubmit: (values: TemplateFormValues) => void
+}
+
+export function TemplateForm(props: TemplateFormProps) {
+  const { formId, isPending, error, onSubmit } = props
   const [name, setName] = useState('')
   const [channelPluginId, setChannelPluginId] = useState('')
   const [providerTemplateName, setProviderTemplateName] = useState('')
   const [language, setLanguage] = useState('en_US')
-  const create = useCreateTemplate(workspaceId, { onSuccess: () => setName('') })
+  const [validationError, setValidationError] = useState<string | null>(null)
 
   function submit(event: React.FormEvent) {
     event.preventDefault()
-    create.createTemplate({ name, channelPluginId, providerTemplateName, language, variables: [] })
+    if (!channelPluginId) {
+      setValidationError('Pick a channel plugin.')
+      return
+    }
+    setValidationError(null)
+    onSubmit({ name, channelPluginId, providerTemplateName, language, variables: [] })
   }
 
+  const displayError = validationError ?? error
+
   return (
-    <form className="flex flex-col gap-3" onSubmit={submit}>
+    <form id={formId} className="flex flex-col gap-3" onSubmit={submit}>
+      {displayError && <FormError>{displayError}</FormError>}
       <Field>
         <FieldLabel htmlFor="template-name">Name</FieldLabel>
-        <Input id="template-name" value={name} required onChange={(e) => setName(e.target.value)} />
+        <Input
+          id="template-name"
+          value={name}
+          required
+          disabled={isPending}
+          onChange={(e) => setName(e.target.value)}
+        />
       </Field>
       <Field>
         <FieldLabel>Channel plugin</FieldLabel>
-        <PluginSelect value={channelPluginId} onChange={setChannelPluginId} />
+        <PluginSelect
+          value={channelPluginId}
+          onChange={(next) => {
+            setChannelPluginId(next)
+            setValidationError(null)
+          }}
+        />
       </Field>
       <Field>
         <FieldLabel htmlFor="provider-template">Provider template name (HSM)</FieldLabel>
@@ -33,6 +68,7 @@ export function TemplateForm({ workspaceId }: { workspaceId: string }) {
           id="provider-template"
           value={providerTemplateName}
           required
+          disabled={isPending}
           onChange={(e) => setProviderTemplateName(e.target.value)}
         />
       </Field>
@@ -42,12 +78,10 @@ export function TemplateForm({ workspaceId }: { workspaceId: string }) {
           id="template-language"
           value={language}
           required
+          disabled={isPending}
           onChange={(e) => setLanguage(e.target.value)}
         />
       </Field>
-      <Button type="submit" disabled={create.isPending || !channelPluginId}>
-        Add template
-      </Button>
     </form>
   )
 }
