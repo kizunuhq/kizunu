@@ -10,7 +10,8 @@
   "0007_optimal_betty_ross.sql": "007ede84db32260faa64c2b7470cb9c99b86f0b2bc6ca7eb164bc3b21a827caf",
   "0008_careful_moondragon.sql": "2e2e89eb202ef08992bf0b661f1dde19b4761dba33df24a465f852febf4d819b",
   "0009_sweet_ricochet.sql": "0d94bc13ebf33b884caa6c9da294550eb2201fe7ca21a3397b99827c9a035c23",
-  "meta/_journal.json": "6ba282f27b053505296823ce70f12e894508f17d0ee64b48fadec25bdb8b4cce",
+  "0010_lean_jimmy_woo.sql": "1c40abdda683623e6d7e2c6690c4221c0ea92cd72116fbd43897eedb5492807c",
+  "meta/_journal.json": "c633d94dccade60cbb208a51d84103aeb982ab2296844e75c6109d91b31c0d70",
   "meta/0000_snapshot.json": "a81ba439bfa84371f482b455fc81427ce83d90653ae4fb255c0ee8f6df15625e",
   "meta/0001_snapshot.json": "b69c2989ae84f8be1600cffe26619893780387abe9d05ef730274d2054378e8d",
   "meta/0002_snapshot.json": "0c40fdaf5da5490c0c066aa56cf815e08b6e52a2a11c2e7f9e27f303ecc4f328",
@@ -20,5 +21,6 @@
   "meta/0006_snapshot.json": "b3446425c91c308053f3809599c33f75e14b42f509800163a16b3faa136594a0",
   "meta/0007_snapshot.json": "04419f644d1476995c3e5eec81c51ab9de46e94690f30efd3c52f26f7b5acfc2",
   "meta/0008_snapshot.json": "fe89d99756ca4244a1b0e270b7a710a39568f87f6e49815c1ed8578f4d6f5531",
-  "meta/0009_snapshot.json": "bfcb3871ba6aec85bfac92e71874c810a7826b393752cdbe1f88985a1bd9a509"
+  "meta/0009_snapshot.json": "bfcb3871ba6aec85bfac92e71874c810a7826b393752cdbe1f88985a1bd9a509",
+  "meta/0010_snapshot.json": "b4ab60808e343e64a7243e0fdf3f3cddfdb114082f351b3787f551a219e06c37"
 }

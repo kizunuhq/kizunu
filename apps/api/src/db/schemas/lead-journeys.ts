@@ -1,6 +1,6 @@
 import type { Assert, Equal } from '@kizunu/nestjs-shared/lib/types/type-assert'
 import { defaults } from '@kizunu/nestjs-shared/modules/persistence/schemas/defaults'
-import { index, integer, pgEnum, pgTable, timestamp, uuid } from 'drizzle-orm/pg-core'
+import { index, integer, pgEnum, pgTable, timestamp, uuid, varchar } from 'drizzle-orm/pg-core'
 
 import { LeadJourneyStatus } from '../../modules/engine/core/domain/lead-journey-status'
 import { cadences } from './cadences'
@@ -41,6 +41,7 @@ export const leadJourneys = pgTable(
     status: leadJourneyStatusEnum().notNull().default('running'),
     currentStepOrder: integer().notNull().default(-1),
     nextTouchAt: timestamp({ withTimezone: true }),
+    errorReason: varchar({ length: 80 }),
   },
   (table) => [index('lead_journeys_status_next_touch_idx').on(table.status, table.nextTouchAt)],
 )
