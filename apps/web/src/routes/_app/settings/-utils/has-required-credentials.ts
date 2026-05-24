@@ -6,7 +6,11 @@ import type { ChannelCredentialField } from '@kizunu/api-contracts/channel'
  */
 export function hasRequiredCredentials(
   fields: ChannelCredentialField[],
-  values: Record<string, string>,
+  values: Record<string, unknown>,
 ): boolean {
-  return fields.every((field) => !field.required || (values[field.key] ?? '').trim().length > 0)
+  return fields.every((field) => {
+    if (!field.required) return true
+    const value = values[field.key]
+    return typeof value === 'string' && value.trim().length > 0
+  })
 }

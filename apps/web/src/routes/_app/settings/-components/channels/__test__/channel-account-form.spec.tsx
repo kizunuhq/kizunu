@@ -1,5 +1,5 @@
 import { ChannelAccountForm } from '@kizunu/web/routes/_app/settings/-components/channels/channel-account-form'
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vite-plus/test'
 
 const plugins = [
@@ -51,7 +51,7 @@ function submitForm() {
 }
 
 describe('ChannelAccountForm', () => {
-  it('clears entered credentials when the selected plugin changes', () => {
+  it('clears entered credentials when the selected plugin changes', async () => {
     render(<ChannelAccountForm formId={FORM_ID} isPending={false} onSubmit={() => {}} />)
 
     selectPlugin('meta-whatsapp')
@@ -59,10 +59,12 @@ describe('ChannelAccountForm', () => {
     selectPlugin('other')
     selectPlugin('meta-whatsapp')
 
-    expect(screen.getByLabelText('WABA ID')).toHaveValue('')
+    await waitFor(() => {
+      expect(screen.getByLabelText('WABA ID')).toHaveValue('')
+    })
   })
 
-  it('submits credentials as an object keyed by each field', () => {
+  it('submits credentials as an object keyed by each field', async () => {
     const onSubmit = vi.fn()
     render(<ChannelAccountForm formId={FORM_ID} isPending={false} onSubmit={onSubmit} />)
 
@@ -73,14 +75,16 @@ describe('ChannelAccountForm', () => {
     fireEvent.change(screen.getByLabelText('System token'), { target: { value: 'token-9' } })
     submitForm()
 
-    expect(onSubmit).toHaveBeenCalledWith({
-      pluginId: 'meta-whatsapp',
-      name: 'Primary WA',
-      credentials: { wabaId: 'waba-9', phoneNumberId: 'phone-9', systemToken: 'token-9' },
+    await waitFor(() => {
+      expect(onSubmit).toHaveBeenCalledWith({
+        pluginId: 'meta-whatsapp',
+        name: 'Primary WA',
+        credentials: { wabaId: 'waba-9', phoneNumberId: 'phone-9', systemToken: 'token-9' },
+      })
     })
   })
 
-  it('does not submit when required credentials are missing', () => {
+  it('does not submit when required credentials are missing, surfacing a field-level error', async () => {
     const onSubmit = vi.fn()
     render(<ChannelAccountForm formId={FORM_ID} isPending={false} onSubmit={onSubmit} />)
 
@@ -88,6 +92,9 @@ describe('ChannelAccountForm', () => {
     fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'Primary' } })
     submitForm()
 
+    await waitFor(() => {
+      expect(screen.getByText('Fill every required credential field.')).toBeInTheDocument()
+    })
     expect(onSubmit).not.toHaveBeenCalled()
   })
 
