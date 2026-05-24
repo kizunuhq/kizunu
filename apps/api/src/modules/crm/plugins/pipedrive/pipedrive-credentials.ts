@@ -12,6 +12,7 @@ export const pipedriveCredentialsSchema = z
     companyDomain: z.string().min(1),
     activityType: z.string().min(1).default('task'),
     phoneFieldKey: z.string().min(1).optional(),
+    webhookToken: z.string().min(1).optional(),
   })
   .strict()
 
