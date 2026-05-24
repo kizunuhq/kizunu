@@ -13,25 +13,27 @@ import { Route as NotFoundRouteImport } from './routes/not-found'
 import { Route as AuthRouteRouteImport } from './routes/auth/route'
 import { Route as AppRouteRouteImport } from './routes/_app/route'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AuthVerifyEmailRouteImport } from './routes/auth/verify-email'
-import { Route as AuthSignupRouteImport } from './routes/auth/signup'
-import { Route as AuthResetPasswordRouteImport } from './routes/auth/reset-password'
-import { Route as AuthLoginRouteImport } from './routes/auth/login'
-import { Route as AuthForgotPasswordRouteImport } from './routes/auth/forgot-password'
+import { Route as AuthIndexRouteImport } from './routes/auth/index'
 import { Route as AppSettingsRouteRouteImport } from './routes/_app/settings/route'
+import { Route as AuthVerifyEmailIndexRouteImport } from './routes/auth/verify-email/index'
+import { Route as AuthSignupIndexRouteImport } from './routes/auth/signup/index'
+import { Route as AuthResetPasswordIndexRouteImport } from './routes/auth/reset-password/index'
+import { Route as AuthLoginIndexRouteImport } from './routes/auth/login/index'
+import { Route as AuthForgotPasswordIndexRouteImport } from './routes/auth/forgot-password/index'
 import { Route as AppWorkspaceIndexRouteImport } from './routes/_app/workspace/index'
-import { Route as AuthAcceptInviteTokenRouteImport } from './routes/auth/accept-invite.$token'
-import { Route as AppWorkspaceMyChannelsRouteImport } from './routes/_app/workspace/my-channels'
-import { Route as AppWorkspaceJourneysRouteImport } from './routes/_app/workspace/journeys'
-import { Route as AppWorkspaceConnectMetaCoexRouteImport } from './routes/_app/workspace/connect-meta-coex'
-import { Route as AppWorkspaceCadencesRouteImport } from './routes/_app/workspace/cadences'
-import { Route as AppSettingsWorkspaceRouteImport } from './routes/_app/settings/workspace'
-import { Route as AppSettingsSecurityRouteImport } from './routes/_app/settings/security'
-import { Route as AppSettingsProfileRouteImport } from './routes/_app/settings/profile'
-import { Route as AppSettingsMembersRouteImport } from './routes/_app/settings/members'
-import { Route as AppSettingsConnectorsRouteImport } from './routes/_app/settings/connectors'
-import { Route as AppSettingsChannelsRouteImport } from './routes/_app/settings/channels'
-import { Route as AppSettingsBillingRouteImport } from './routes/_app/settings/billing'
+import { Route as AppSettingsIndexRouteImport } from './routes/_app/settings/index'
+import { Route as AuthAcceptInviteTokenRouteImport } from './routes/auth/accept-invite/$token'
+import { Route as AppWorkspaceMyChannelsIndexRouteImport } from './routes/_app/workspace/my-channels/index'
+import { Route as AppWorkspaceJourneysIndexRouteImport } from './routes/_app/workspace/journeys/index'
+import { Route as AppWorkspaceConnectMetaCoexIndexRouteImport } from './routes/_app/workspace/connect-meta-coex/index'
+import { Route as AppWorkspaceCadencesIndexRouteImport } from './routes/_app/workspace/cadences/index'
+import { Route as AppSettingsWorkspaceIndexRouteImport } from './routes/_app/settings/workspace/index'
+import { Route as AppSettingsSecurityIndexRouteImport } from './routes/_app/settings/security/index'
+import { Route as AppSettingsProfileIndexRouteImport } from './routes/_app/settings/profile/index'
+import { Route as AppSettingsMembersIndexRouteImport } from './routes/_app/settings/members/index'
+import { Route as AppSettingsConnectorsIndexRouteImport } from './routes/_app/settings/connectors/index'
+import { Route as AppSettingsChannelsIndexRouteImport } from './routes/_app/settings/channels/index'
+import { Route as AppSettingsBillingIndexRouteImport } from './routes/_app/settings/billing/index'
 
 const NotFoundRoute = NotFoundRouteImport.update({
   id: '/not-found',
@@ -52,29 +54,9 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthVerifyEmailRoute = AuthVerifyEmailRouteImport.update({
-  id: '/verify-email',
-  path: '/verify-email',
-  getParentRoute: () => AuthRouteRoute,
-} as any)
-const AuthSignupRoute = AuthSignupRouteImport.update({
-  id: '/signup',
-  path: '/signup',
-  getParentRoute: () => AuthRouteRoute,
-} as any)
-const AuthResetPasswordRoute = AuthResetPasswordRouteImport.update({
-  id: '/reset-password',
-  path: '/reset-password',
-  getParentRoute: () => AuthRouteRoute,
-} as any)
-const AuthLoginRoute = AuthLoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => AuthRouteRoute,
-} as any)
-const AuthForgotPasswordRoute = AuthForgotPasswordRouteImport.update({
-  id: '/forgot-password',
-  path: '/forgot-password',
+const AuthIndexRoute = AuthIndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => AuthRouteRoute,
 } as any)
 const AppSettingsRouteRoute = AppSettingsRouteRouteImport.update({
@@ -82,70 +64,107 @@ const AppSettingsRouteRoute = AppSettingsRouteRouteImport.update({
   path: '/settings',
   getParentRoute: () => AppRouteRoute,
 } as any)
+const AuthVerifyEmailIndexRoute = AuthVerifyEmailIndexRouteImport.update({
+  id: '/verify-email/',
+  path: '/verify-email/',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
+const AuthSignupIndexRoute = AuthSignupIndexRouteImport.update({
+  id: '/signup/',
+  path: '/signup/',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
+const AuthResetPasswordIndexRoute = AuthResetPasswordIndexRouteImport.update({
+  id: '/reset-password/',
+  path: '/reset-password/',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
+const AuthLoginIndexRoute = AuthLoginIndexRouteImport.update({
+  id: '/login/',
+  path: '/login/',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
+const AuthForgotPasswordIndexRoute = AuthForgotPasswordIndexRouteImport.update({
+  id: '/forgot-password/',
+  path: '/forgot-password/',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
 const AppWorkspaceIndexRoute = AppWorkspaceIndexRouteImport.update({
   id: '/workspace/',
   path: '/workspace/',
   getParentRoute: () => AppRouteRoute,
+} as any)
+const AppSettingsIndexRoute = AppSettingsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppSettingsRouteRoute,
 } as any)
 const AuthAcceptInviteTokenRoute = AuthAcceptInviteTokenRouteImport.update({
   id: '/accept-invite/$token',
   path: '/accept-invite/$token',
   getParentRoute: () => AuthRouteRoute,
 } as any)
-const AppWorkspaceMyChannelsRoute = AppWorkspaceMyChannelsRouteImport.update({
-  id: '/workspace/my-channels',
-  path: '/workspace/my-channels',
-  getParentRoute: () => AppRouteRoute,
-} as any)
-const AppWorkspaceJourneysRoute = AppWorkspaceJourneysRouteImport.update({
-  id: '/workspace/journeys',
-  path: '/workspace/journeys',
-  getParentRoute: () => AppRouteRoute,
-} as any)
-const AppWorkspaceConnectMetaCoexRoute =
-  AppWorkspaceConnectMetaCoexRouteImport.update({
-    id: '/workspace/connect-meta-coex',
-    path: '/workspace/connect-meta-coex',
+const AppWorkspaceMyChannelsIndexRoute =
+  AppWorkspaceMyChannelsIndexRouteImport.update({
+    id: '/workspace/my-channels/',
+    path: '/workspace/my-channels/',
     getParentRoute: () => AppRouteRoute,
   } as any)
-const AppWorkspaceCadencesRoute = AppWorkspaceCadencesRouteImport.update({
-  id: '/workspace/cadences',
-  path: '/workspace/cadences',
-  getParentRoute: () => AppRouteRoute,
-} as any)
-const AppSettingsWorkspaceRoute = AppSettingsWorkspaceRouteImport.update({
-  id: '/workspace',
-  path: '/workspace',
+const AppWorkspaceJourneysIndexRoute =
+  AppWorkspaceJourneysIndexRouteImport.update({
+    id: '/workspace/journeys/',
+    path: '/workspace/journeys/',
+    getParentRoute: () => AppRouteRoute,
+  } as any)
+const AppWorkspaceConnectMetaCoexIndexRoute =
+  AppWorkspaceConnectMetaCoexIndexRouteImport.update({
+    id: '/workspace/connect-meta-coex/',
+    path: '/workspace/connect-meta-coex/',
+    getParentRoute: () => AppRouteRoute,
+  } as any)
+const AppWorkspaceCadencesIndexRoute =
+  AppWorkspaceCadencesIndexRouteImport.update({
+    id: '/workspace/cadences/',
+    path: '/workspace/cadences/',
+    getParentRoute: () => AppRouteRoute,
+  } as any)
+const AppSettingsWorkspaceIndexRoute =
+  AppSettingsWorkspaceIndexRouteImport.update({
+    id: '/workspace/',
+    path: '/workspace/',
+    getParentRoute: () => AppSettingsRouteRoute,
+  } as any)
+const AppSettingsSecurityIndexRoute =
+  AppSettingsSecurityIndexRouteImport.update({
+    id: '/security/',
+    path: '/security/',
+    getParentRoute: () => AppSettingsRouteRoute,
+  } as any)
+const AppSettingsProfileIndexRoute = AppSettingsProfileIndexRouteImport.update({
+  id: '/profile/',
+  path: '/profile/',
   getParentRoute: () => AppSettingsRouteRoute,
 } as any)
-const AppSettingsSecurityRoute = AppSettingsSecurityRouteImport.update({
-  id: '/security',
-  path: '/security',
+const AppSettingsMembersIndexRoute = AppSettingsMembersIndexRouteImport.update({
+  id: '/members/',
+  path: '/members/',
   getParentRoute: () => AppSettingsRouteRoute,
 } as any)
-const AppSettingsProfileRoute = AppSettingsProfileRouteImport.update({
-  id: '/profile',
-  path: '/profile',
-  getParentRoute: () => AppSettingsRouteRoute,
-} as any)
-const AppSettingsMembersRoute = AppSettingsMembersRouteImport.update({
-  id: '/members',
-  path: '/members',
-  getParentRoute: () => AppSettingsRouteRoute,
-} as any)
-const AppSettingsConnectorsRoute = AppSettingsConnectorsRouteImport.update({
-  id: '/connectors',
-  path: '/connectors',
-  getParentRoute: () => AppSettingsRouteRoute,
-} as any)
-const AppSettingsChannelsRoute = AppSettingsChannelsRouteImport.update({
-  id: '/channels',
-  path: '/channels',
-  getParentRoute: () => AppSettingsRouteRoute,
-} as any)
-const AppSettingsBillingRoute = AppSettingsBillingRouteImport.update({
-  id: '/billing',
-  path: '/billing',
+const AppSettingsConnectorsIndexRoute =
+  AppSettingsConnectorsIndexRouteImport.update({
+    id: '/connectors/',
+    path: '/connectors/',
+    getParentRoute: () => AppSettingsRouteRoute,
+  } as any)
+const AppSettingsChannelsIndexRoute =
+  AppSettingsChannelsIndexRouteImport.update({
+    id: '/channels/',
+    path: '/channels/',
+    getParentRoute: () => AppSettingsRouteRoute,
+  } as any)
+const AppSettingsBillingIndexRoute = AppSettingsBillingIndexRouteImport.update({
+  id: '/billing/',
+  path: '/billing/',
   getParentRoute: () => AppSettingsRouteRoute,
 } as any)
 
@@ -154,48 +173,50 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRouteRouteWithChildren
   '/not-found': typeof NotFoundRoute
   '/settings': typeof AppSettingsRouteRouteWithChildren
-  '/auth/forgot-password': typeof AuthForgotPasswordRoute
-  '/auth/login': typeof AuthLoginRoute
-  '/auth/reset-password': typeof AuthResetPasswordRoute
-  '/auth/signup': typeof AuthSignupRoute
-  '/auth/verify-email': typeof AuthVerifyEmailRoute
-  '/settings/billing': typeof AppSettingsBillingRoute
-  '/settings/channels': typeof AppSettingsChannelsRoute
-  '/settings/connectors': typeof AppSettingsConnectorsRoute
-  '/settings/members': typeof AppSettingsMembersRoute
-  '/settings/profile': typeof AppSettingsProfileRoute
-  '/settings/security': typeof AppSettingsSecurityRoute
-  '/settings/workspace': typeof AppSettingsWorkspaceRoute
-  '/workspace/cadences': typeof AppWorkspaceCadencesRoute
-  '/workspace/connect-meta-coex': typeof AppWorkspaceConnectMetaCoexRoute
-  '/workspace/journeys': typeof AppWorkspaceJourneysRoute
-  '/workspace/my-channels': typeof AppWorkspaceMyChannelsRoute
+  '/auth/': typeof AuthIndexRoute
   '/auth/accept-invite/$token': typeof AuthAcceptInviteTokenRoute
+  '/settings/': typeof AppSettingsIndexRoute
   '/workspace/': typeof AppWorkspaceIndexRoute
+  '/auth/forgot-password/': typeof AuthForgotPasswordIndexRoute
+  '/auth/login/': typeof AuthLoginIndexRoute
+  '/auth/reset-password/': typeof AuthResetPasswordIndexRoute
+  '/auth/signup/': typeof AuthSignupIndexRoute
+  '/auth/verify-email/': typeof AuthVerifyEmailIndexRoute
+  '/settings/billing/': typeof AppSettingsBillingIndexRoute
+  '/settings/channels/': typeof AppSettingsChannelsIndexRoute
+  '/settings/connectors/': typeof AppSettingsConnectorsIndexRoute
+  '/settings/members/': typeof AppSettingsMembersIndexRoute
+  '/settings/profile/': typeof AppSettingsProfileIndexRoute
+  '/settings/security/': typeof AppSettingsSecurityIndexRoute
+  '/settings/workspace/': typeof AppSettingsWorkspaceIndexRoute
+  '/workspace/cadences/': typeof AppWorkspaceCadencesIndexRoute
+  '/workspace/connect-meta-coex/': typeof AppWorkspaceConnectMetaCoexIndexRoute
+  '/workspace/journeys/': typeof AppWorkspaceJourneysIndexRoute
+  '/workspace/my-channels/': typeof AppWorkspaceMyChannelsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/auth': typeof AuthRouteRouteWithChildren
   '/not-found': typeof NotFoundRoute
-  '/settings': typeof AppSettingsRouteRouteWithChildren
-  '/auth/forgot-password': typeof AuthForgotPasswordRoute
-  '/auth/login': typeof AuthLoginRoute
-  '/auth/reset-password': typeof AuthResetPasswordRoute
-  '/auth/signup': typeof AuthSignupRoute
-  '/auth/verify-email': typeof AuthVerifyEmailRoute
-  '/settings/billing': typeof AppSettingsBillingRoute
-  '/settings/channels': typeof AppSettingsChannelsRoute
-  '/settings/connectors': typeof AppSettingsConnectorsRoute
-  '/settings/members': typeof AppSettingsMembersRoute
-  '/settings/profile': typeof AppSettingsProfileRoute
-  '/settings/security': typeof AppSettingsSecurityRoute
-  '/settings/workspace': typeof AppSettingsWorkspaceRoute
-  '/workspace/cadences': typeof AppWorkspaceCadencesRoute
-  '/workspace/connect-meta-coex': typeof AppWorkspaceConnectMetaCoexRoute
-  '/workspace/journeys': typeof AppWorkspaceJourneysRoute
-  '/workspace/my-channels': typeof AppWorkspaceMyChannelsRoute
+  '/auth': typeof AuthIndexRoute
   '/auth/accept-invite/$token': typeof AuthAcceptInviteTokenRoute
+  '/settings': typeof AppSettingsIndexRoute
   '/workspace': typeof AppWorkspaceIndexRoute
+  '/auth/forgot-password': typeof AuthForgotPasswordIndexRoute
+  '/auth/login': typeof AuthLoginIndexRoute
+  '/auth/reset-password': typeof AuthResetPasswordIndexRoute
+  '/auth/signup': typeof AuthSignupIndexRoute
+  '/auth/verify-email': typeof AuthVerifyEmailIndexRoute
+  '/settings/billing': typeof AppSettingsBillingIndexRoute
+  '/settings/channels': typeof AppSettingsChannelsIndexRoute
+  '/settings/connectors': typeof AppSettingsConnectorsIndexRoute
+  '/settings/members': typeof AppSettingsMembersIndexRoute
+  '/settings/profile': typeof AppSettingsProfileIndexRoute
+  '/settings/security': typeof AppSettingsSecurityIndexRoute
+  '/settings/workspace': typeof AppSettingsWorkspaceIndexRoute
+  '/workspace/cadences': typeof AppWorkspaceCadencesIndexRoute
+  '/workspace/connect-meta-coex': typeof AppWorkspaceConnectMetaCoexIndexRoute
+  '/workspace/journeys': typeof AppWorkspaceJourneysIndexRoute
+  '/workspace/my-channels': typeof AppWorkspaceMyChannelsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -204,24 +225,26 @@ export interface FileRoutesById {
   '/auth': typeof AuthRouteRouteWithChildren
   '/not-found': typeof NotFoundRoute
   '/_app/settings': typeof AppSettingsRouteRouteWithChildren
-  '/auth/forgot-password': typeof AuthForgotPasswordRoute
-  '/auth/login': typeof AuthLoginRoute
-  '/auth/reset-password': typeof AuthResetPasswordRoute
-  '/auth/signup': typeof AuthSignupRoute
-  '/auth/verify-email': typeof AuthVerifyEmailRoute
-  '/_app/settings/billing': typeof AppSettingsBillingRoute
-  '/_app/settings/channels': typeof AppSettingsChannelsRoute
-  '/_app/settings/connectors': typeof AppSettingsConnectorsRoute
-  '/_app/settings/members': typeof AppSettingsMembersRoute
-  '/_app/settings/profile': typeof AppSettingsProfileRoute
-  '/_app/settings/security': typeof AppSettingsSecurityRoute
-  '/_app/settings/workspace': typeof AppSettingsWorkspaceRoute
-  '/_app/workspace/cadences': typeof AppWorkspaceCadencesRoute
-  '/_app/workspace/connect-meta-coex': typeof AppWorkspaceConnectMetaCoexRoute
-  '/_app/workspace/journeys': typeof AppWorkspaceJourneysRoute
-  '/_app/workspace/my-channels': typeof AppWorkspaceMyChannelsRoute
+  '/auth/': typeof AuthIndexRoute
   '/auth/accept-invite/$token': typeof AuthAcceptInviteTokenRoute
+  '/_app/settings/': typeof AppSettingsIndexRoute
   '/_app/workspace/': typeof AppWorkspaceIndexRoute
+  '/auth/forgot-password/': typeof AuthForgotPasswordIndexRoute
+  '/auth/login/': typeof AuthLoginIndexRoute
+  '/auth/reset-password/': typeof AuthResetPasswordIndexRoute
+  '/auth/signup/': typeof AuthSignupIndexRoute
+  '/auth/verify-email/': typeof AuthVerifyEmailIndexRoute
+  '/_app/settings/billing/': typeof AppSettingsBillingIndexRoute
+  '/_app/settings/channels/': typeof AppSettingsChannelsIndexRoute
+  '/_app/settings/connectors/': typeof AppSettingsConnectorsIndexRoute
+  '/_app/settings/members/': typeof AppSettingsMembersIndexRoute
+  '/_app/settings/profile/': typeof AppSettingsProfileIndexRoute
+  '/_app/settings/security/': typeof AppSettingsSecurityIndexRoute
+  '/_app/settings/workspace/': typeof AppSettingsWorkspaceIndexRoute
+  '/_app/workspace/cadences/': typeof AppWorkspaceCadencesIndexRoute
+  '/_app/workspace/connect-meta-coex/': typeof AppWorkspaceConnectMetaCoexIndexRoute
+  '/_app/workspace/journeys/': typeof AppWorkspaceJourneysIndexRoute
+  '/_app/workspace/my-channels/': typeof AppWorkspaceMyChannelsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -230,30 +253,34 @@ export interface FileRouteTypes {
     | '/auth'
     | '/not-found'
     | '/settings'
-    | '/auth/forgot-password'
-    | '/auth/login'
-    | '/auth/reset-password'
-    | '/auth/signup'
-    | '/auth/verify-email'
-    | '/settings/billing'
-    | '/settings/channels'
-    | '/settings/connectors'
-    | '/settings/members'
-    | '/settings/profile'
-    | '/settings/security'
-    | '/settings/workspace'
-    | '/workspace/cadences'
-    | '/workspace/connect-meta-coex'
-    | '/workspace/journeys'
-    | '/workspace/my-channels'
+    | '/auth/'
     | '/auth/accept-invite/$token'
+    | '/settings/'
     | '/workspace/'
+    | '/auth/forgot-password/'
+    | '/auth/login/'
+    | '/auth/reset-password/'
+    | '/auth/signup/'
+    | '/auth/verify-email/'
+    | '/settings/billing/'
+    | '/settings/channels/'
+    | '/settings/connectors/'
+    | '/settings/members/'
+    | '/settings/profile/'
+    | '/settings/security/'
+    | '/settings/workspace/'
+    | '/workspace/cadences/'
+    | '/workspace/connect-meta-coex/'
+    | '/workspace/journeys/'
+    | '/workspace/my-channels/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/auth'
     | '/not-found'
+    | '/auth'
+    | '/auth/accept-invite/$token'
     | '/settings'
+    | '/workspace'
     | '/auth/forgot-password'
     | '/auth/login'
     | '/auth/reset-password'
@@ -270,8 +297,6 @@ export interface FileRouteTypes {
     | '/workspace/connect-meta-coex'
     | '/workspace/journeys'
     | '/workspace/my-channels'
-    | '/auth/accept-invite/$token'
-    | '/workspace'
   id:
     | '__root__'
     | '/'
@@ -279,24 +304,26 @@ export interface FileRouteTypes {
     | '/auth'
     | '/not-found'
     | '/_app/settings'
-    | '/auth/forgot-password'
-    | '/auth/login'
-    | '/auth/reset-password'
-    | '/auth/signup'
-    | '/auth/verify-email'
-    | '/_app/settings/billing'
-    | '/_app/settings/channels'
-    | '/_app/settings/connectors'
-    | '/_app/settings/members'
-    | '/_app/settings/profile'
-    | '/_app/settings/security'
-    | '/_app/settings/workspace'
-    | '/_app/workspace/cadences'
-    | '/_app/workspace/connect-meta-coex'
-    | '/_app/workspace/journeys'
-    | '/_app/workspace/my-channels'
+    | '/auth/'
     | '/auth/accept-invite/$token'
+    | '/_app/settings/'
     | '/_app/workspace/'
+    | '/auth/forgot-password/'
+    | '/auth/login/'
+    | '/auth/reset-password/'
+    | '/auth/signup/'
+    | '/auth/verify-email/'
+    | '/_app/settings/billing/'
+    | '/_app/settings/channels/'
+    | '/_app/settings/connectors/'
+    | '/_app/settings/members/'
+    | '/_app/settings/profile/'
+    | '/_app/settings/security/'
+    | '/_app/settings/workspace/'
+    | '/_app/workspace/cadences/'
+    | '/_app/workspace/connect-meta-coex/'
+    | '/_app/workspace/journeys/'
+    | '/_app/workspace/my-channels/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -336,39 +363,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/auth/verify-email': {
-      id: '/auth/verify-email'
-      path: '/verify-email'
-      fullPath: '/auth/verify-email'
-      preLoaderRoute: typeof AuthVerifyEmailRouteImport
-      parentRoute: typeof AuthRouteRoute
-    }
-    '/auth/signup': {
-      id: '/auth/signup'
-      path: '/signup'
-      fullPath: '/auth/signup'
-      preLoaderRoute: typeof AuthSignupRouteImport
-      parentRoute: typeof AuthRouteRoute
-    }
-    '/auth/reset-password': {
-      id: '/auth/reset-password'
-      path: '/reset-password'
-      fullPath: '/auth/reset-password'
-      preLoaderRoute: typeof AuthResetPasswordRouteImport
-      parentRoute: typeof AuthRouteRoute
-    }
-    '/auth/login': {
-      id: '/auth/login'
-      path: '/login'
-      fullPath: '/auth/login'
-      preLoaderRoute: typeof AuthLoginRouteImport
-      parentRoute: typeof AuthRouteRoute
-    }
-    '/auth/forgot-password': {
-      id: '/auth/forgot-password'
-      path: '/forgot-password'
-      fullPath: '/auth/forgot-password'
-      preLoaderRoute: typeof AuthForgotPasswordRouteImport
+    '/auth/': {
+      id: '/auth/'
+      path: '/'
+      fullPath: '/auth/'
+      preLoaderRoute: typeof AuthIndexRouteImport
       parentRoute: typeof AuthRouteRoute
     }
     '/_app/settings': {
@@ -378,12 +377,54 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSettingsRouteRouteImport
       parentRoute: typeof AppRouteRoute
     }
+    '/auth/verify-email/': {
+      id: '/auth/verify-email/'
+      path: '/verify-email'
+      fullPath: '/auth/verify-email/'
+      preLoaderRoute: typeof AuthVerifyEmailIndexRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
+    '/auth/signup/': {
+      id: '/auth/signup/'
+      path: '/signup'
+      fullPath: '/auth/signup/'
+      preLoaderRoute: typeof AuthSignupIndexRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
+    '/auth/reset-password/': {
+      id: '/auth/reset-password/'
+      path: '/reset-password'
+      fullPath: '/auth/reset-password/'
+      preLoaderRoute: typeof AuthResetPasswordIndexRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
+    '/auth/login/': {
+      id: '/auth/login/'
+      path: '/login'
+      fullPath: '/auth/login/'
+      preLoaderRoute: typeof AuthLoginIndexRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
+    '/auth/forgot-password/': {
+      id: '/auth/forgot-password/'
+      path: '/forgot-password'
+      fullPath: '/auth/forgot-password/'
+      preLoaderRoute: typeof AuthForgotPasswordIndexRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
     '/_app/workspace/': {
       id: '/_app/workspace/'
       path: '/workspace'
       fullPath: '/workspace/'
       preLoaderRoute: typeof AppWorkspaceIndexRouteImport
       parentRoute: typeof AppRouteRoute
+    }
+    '/_app/settings/': {
+      id: '/_app/settings/'
+      path: '/'
+      fullPath: '/settings/'
+      preLoaderRoute: typeof AppSettingsIndexRouteImport
+      parentRoute: typeof AppSettingsRouteRoute
     }
     '/auth/accept-invite/$token': {
       id: '/auth/accept-invite/$token'
@@ -392,104 +433,106 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthAcceptInviteTokenRouteImport
       parentRoute: typeof AuthRouteRoute
     }
-    '/_app/workspace/my-channels': {
-      id: '/_app/workspace/my-channels'
+    '/_app/workspace/my-channels/': {
+      id: '/_app/workspace/my-channels/'
       path: '/workspace/my-channels'
-      fullPath: '/workspace/my-channels'
-      preLoaderRoute: typeof AppWorkspaceMyChannelsRouteImport
+      fullPath: '/workspace/my-channels/'
+      preLoaderRoute: typeof AppWorkspaceMyChannelsIndexRouteImport
       parentRoute: typeof AppRouteRoute
     }
-    '/_app/workspace/journeys': {
-      id: '/_app/workspace/journeys'
+    '/_app/workspace/journeys/': {
+      id: '/_app/workspace/journeys/'
       path: '/workspace/journeys'
-      fullPath: '/workspace/journeys'
-      preLoaderRoute: typeof AppWorkspaceJourneysRouteImport
+      fullPath: '/workspace/journeys/'
+      preLoaderRoute: typeof AppWorkspaceJourneysIndexRouteImport
       parentRoute: typeof AppRouteRoute
     }
-    '/_app/workspace/connect-meta-coex': {
-      id: '/_app/workspace/connect-meta-coex'
+    '/_app/workspace/connect-meta-coex/': {
+      id: '/_app/workspace/connect-meta-coex/'
       path: '/workspace/connect-meta-coex'
-      fullPath: '/workspace/connect-meta-coex'
-      preLoaderRoute: typeof AppWorkspaceConnectMetaCoexRouteImport
+      fullPath: '/workspace/connect-meta-coex/'
+      preLoaderRoute: typeof AppWorkspaceConnectMetaCoexIndexRouteImport
       parentRoute: typeof AppRouteRoute
     }
-    '/_app/workspace/cadences': {
-      id: '/_app/workspace/cadences'
+    '/_app/workspace/cadences/': {
+      id: '/_app/workspace/cadences/'
       path: '/workspace/cadences'
-      fullPath: '/workspace/cadences'
-      preLoaderRoute: typeof AppWorkspaceCadencesRouteImport
+      fullPath: '/workspace/cadences/'
+      preLoaderRoute: typeof AppWorkspaceCadencesIndexRouteImport
       parentRoute: typeof AppRouteRoute
     }
-    '/_app/settings/workspace': {
-      id: '/_app/settings/workspace'
+    '/_app/settings/workspace/': {
+      id: '/_app/settings/workspace/'
       path: '/workspace'
-      fullPath: '/settings/workspace'
-      preLoaderRoute: typeof AppSettingsWorkspaceRouteImport
+      fullPath: '/settings/workspace/'
+      preLoaderRoute: typeof AppSettingsWorkspaceIndexRouteImport
       parentRoute: typeof AppSettingsRouteRoute
     }
-    '/_app/settings/security': {
-      id: '/_app/settings/security'
+    '/_app/settings/security/': {
+      id: '/_app/settings/security/'
       path: '/security'
-      fullPath: '/settings/security'
-      preLoaderRoute: typeof AppSettingsSecurityRouteImport
+      fullPath: '/settings/security/'
+      preLoaderRoute: typeof AppSettingsSecurityIndexRouteImport
       parentRoute: typeof AppSettingsRouteRoute
     }
-    '/_app/settings/profile': {
-      id: '/_app/settings/profile'
+    '/_app/settings/profile/': {
+      id: '/_app/settings/profile/'
       path: '/profile'
-      fullPath: '/settings/profile'
-      preLoaderRoute: typeof AppSettingsProfileRouteImport
+      fullPath: '/settings/profile/'
+      preLoaderRoute: typeof AppSettingsProfileIndexRouteImport
       parentRoute: typeof AppSettingsRouteRoute
     }
-    '/_app/settings/members': {
-      id: '/_app/settings/members'
+    '/_app/settings/members/': {
+      id: '/_app/settings/members/'
       path: '/members'
-      fullPath: '/settings/members'
-      preLoaderRoute: typeof AppSettingsMembersRouteImport
+      fullPath: '/settings/members/'
+      preLoaderRoute: typeof AppSettingsMembersIndexRouteImport
       parentRoute: typeof AppSettingsRouteRoute
     }
-    '/_app/settings/connectors': {
-      id: '/_app/settings/connectors'
+    '/_app/settings/connectors/': {
+      id: '/_app/settings/connectors/'
       path: '/connectors'
-      fullPath: '/settings/connectors'
-      preLoaderRoute: typeof AppSettingsConnectorsRouteImport
+      fullPath: '/settings/connectors/'
+      preLoaderRoute: typeof AppSettingsConnectorsIndexRouteImport
       parentRoute: typeof AppSettingsRouteRoute
     }
-    '/_app/settings/channels': {
-      id: '/_app/settings/channels'
+    '/_app/settings/channels/': {
+      id: '/_app/settings/channels/'
       path: '/channels'
-      fullPath: '/settings/channels'
-      preLoaderRoute: typeof AppSettingsChannelsRouteImport
+      fullPath: '/settings/channels/'
+      preLoaderRoute: typeof AppSettingsChannelsIndexRouteImport
       parentRoute: typeof AppSettingsRouteRoute
     }
-    '/_app/settings/billing': {
-      id: '/_app/settings/billing'
+    '/_app/settings/billing/': {
+      id: '/_app/settings/billing/'
       path: '/billing'
-      fullPath: '/settings/billing'
-      preLoaderRoute: typeof AppSettingsBillingRouteImport
+      fullPath: '/settings/billing/'
+      preLoaderRoute: typeof AppSettingsBillingIndexRouteImport
       parentRoute: typeof AppSettingsRouteRoute
     }
   }
 }
 
 interface AppSettingsRouteRouteChildren {
-  AppSettingsBillingRoute: typeof AppSettingsBillingRoute
-  AppSettingsChannelsRoute: typeof AppSettingsChannelsRoute
-  AppSettingsConnectorsRoute: typeof AppSettingsConnectorsRoute
-  AppSettingsMembersRoute: typeof AppSettingsMembersRoute
-  AppSettingsProfileRoute: typeof AppSettingsProfileRoute
-  AppSettingsSecurityRoute: typeof AppSettingsSecurityRoute
-  AppSettingsWorkspaceRoute: typeof AppSettingsWorkspaceRoute
+  AppSettingsIndexRoute: typeof AppSettingsIndexRoute
+  AppSettingsBillingIndexRoute: typeof AppSettingsBillingIndexRoute
+  AppSettingsChannelsIndexRoute: typeof AppSettingsChannelsIndexRoute
+  AppSettingsConnectorsIndexRoute: typeof AppSettingsConnectorsIndexRoute
+  AppSettingsMembersIndexRoute: typeof AppSettingsMembersIndexRoute
+  AppSettingsProfileIndexRoute: typeof AppSettingsProfileIndexRoute
+  AppSettingsSecurityIndexRoute: typeof AppSettingsSecurityIndexRoute
+  AppSettingsWorkspaceIndexRoute: typeof AppSettingsWorkspaceIndexRoute
 }
 
 const AppSettingsRouteRouteChildren: AppSettingsRouteRouteChildren = {
-  AppSettingsBillingRoute: AppSettingsBillingRoute,
-  AppSettingsChannelsRoute: AppSettingsChannelsRoute,
-  AppSettingsConnectorsRoute: AppSettingsConnectorsRoute,
-  AppSettingsMembersRoute: AppSettingsMembersRoute,
-  AppSettingsProfileRoute: AppSettingsProfileRoute,
-  AppSettingsSecurityRoute: AppSettingsSecurityRoute,
-  AppSettingsWorkspaceRoute: AppSettingsWorkspaceRoute,
+  AppSettingsIndexRoute: AppSettingsIndexRoute,
+  AppSettingsBillingIndexRoute: AppSettingsBillingIndexRoute,
+  AppSettingsChannelsIndexRoute: AppSettingsChannelsIndexRoute,
+  AppSettingsConnectorsIndexRoute: AppSettingsConnectorsIndexRoute,
+  AppSettingsMembersIndexRoute: AppSettingsMembersIndexRoute,
+  AppSettingsProfileIndexRoute: AppSettingsProfileIndexRoute,
+  AppSettingsSecurityIndexRoute: AppSettingsSecurityIndexRoute,
+  AppSettingsWorkspaceIndexRoute: AppSettingsWorkspaceIndexRoute,
 }
 
 const AppSettingsRouteRouteWithChildren =
@@ -497,20 +540,20 @@ const AppSettingsRouteRouteWithChildren =
 
 interface AppRouteRouteChildren {
   AppSettingsRouteRoute: typeof AppSettingsRouteRouteWithChildren
-  AppWorkspaceCadencesRoute: typeof AppWorkspaceCadencesRoute
-  AppWorkspaceConnectMetaCoexRoute: typeof AppWorkspaceConnectMetaCoexRoute
-  AppWorkspaceJourneysRoute: typeof AppWorkspaceJourneysRoute
-  AppWorkspaceMyChannelsRoute: typeof AppWorkspaceMyChannelsRoute
   AppWorkspaceIndexRoute: typeof AppWorkspaceIndexRoute
+  AppWorkspaceCadencesIndexRoute: typeof AppWorkspaceCadencesIndexRoute
+  AppWorkspaceConnectMetaCoexIndexRoute: typeof AppWorkspaceConnectMetaCoexIndexRoute
+  AppWorkspaceJourneysIndexRoute: typeof AppWorkspaceJourneysIndexRoute
+  AppWorkspaceMyChannelsIndexRoute: typeof AppWorkspaceMyChannelsIndexRoute
 }
 
 const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppSettingsRouteRoute: AppSettingsRouteRouteWithChildren,
-  AppWorkspaceCadencesRoute: AppWorkspaceCadencesRoute,
-  AppWorkspaceConnectMetaCoexRoute: AppWorkspaceConnectMetaCoexRoute,
-  AppWorkspaceJourneysRoute: AppWorkspaceJourneysRoute,
-  AppWorkspaceMyChannelsRoute: AppWorkspaceMyChannelsRoute,
   AppWorkspaceIndexRoute: AppWorkspaceIndexRoute,
+  AppWorkspaceCadencesIndexRoute: AppWorkspaceCadencesIndexRoute,
+  AppWorkspaceConnectMetaCoexIndexRoute: AppWorkspaceConnectMetaCoexIndexRoute,
+  AppWorkspaceJourneysIndexRoute: AppWorkspaceJourneysIndexRoute,
+  AppWorkspaceMyChannelsIndexRoute: AppWorkspaceMyChannelsIndexRoute,
 }
 
 const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
@@ -518,21 +561,23 @@ const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
 )
 
 interface AuthRouteRouteChildren {
-  AuthForgotPasswordRoute: typeof AuthForgotPasswordRoute
-  AuthLoginRoute: typeof AuthLoginRoute
-  AuthResetPasswordRoute: typeof AuthResetPasswordRoute
-  AuthSignupRoute: typeof AuthSignupRoute
-  AuthVerifyEmailRoute: typeof AuthVerifyEmailRoute
+  AuthIndexRoute: typeof AuthIndexRoute
   AuthAcceptInviteTokenRoute: typeof AuthAcceptInviteTokenRoute
+  AuthForgotPasswordIndexRoute: typeof AuthForgotPasswordIndexRoute
+  AuthLoginIndexRoute: typeof AuthLoginIndexRoute
+  AuthResetPasswordIndexRoute: typeof AuthResetPasswordIndexRoute
+  AuthSignupIndexRoute: typeof AuthSignupIndexRoute
+  AuthVerifyEmailIndexRoute: typeof AuthVerifyEmailIndexRoute
 }
 
 const AuthRouteRouteChildren: AuthRouteRouteChildren = {
-  AuthForgotPasswordRoute: AuthForgotPasswordRoute,
-  AuthLoginRoute: AuthLoginRoute,
-  AuthResetPasswordRoute: AuthResetPasswordRoute,
-  AuthSignupRoute: AuthSignupRoute,
-  AuthVerifyEmailRoute: AuthVerifyEmailRoute,
+  AuthIndexRoute: AuthIndexRoute,
   AuthAcceptInviteTokenRoute: AuthAcceptInviteTokenRoute,
+  AuthForgotPasswordIndexRoute: AuthForgotPasswordIndexRoute,
+  AuthLoginIndexRoute: AuthLoginIndexRoute,
+  AuthResetPasswordIndexRoute: AuthResetPasswordIndexRoute,
+  AuthSignupIndexRoute: AuthSignupIndexRoute,
+  AuthVerifyEmailIndexRoute: AuthVerifyEmailIndexRoute,
 }
 
 const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(

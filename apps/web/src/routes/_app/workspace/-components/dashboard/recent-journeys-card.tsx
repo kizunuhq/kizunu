@@ -1,7 +1,7 @@
 import { useLeadJourneys } from '@kizunu/api-client/engine/use-lead-journeys'
 import type { LeadJourneyStatusValue } from '@kizunu/api-contracts/engine'
+import { JourneyStatusDot } from '@kizunu/web/components/composed/journey-status-dot'
 import { Skeleton } from '@kizunu/web/components/primitives/skeleton'
-import { JourneyStatusDot } from '@kizunu/web/routes/_app/workspace/-components/journey-status-dot'
 import { CaretRight } from '@phosphor-icons/react'
 import { Link } from '@tanstack/react-router'
 

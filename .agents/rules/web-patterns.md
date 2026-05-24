@@ -7,10 +7,13 @@ state is wired, and what shape API hooks expose. They are not script-gated;
 review enforces them. The decisions behind these recipes are recorded in
 [ADR-007](../../docs/adr/007-web-frontend-layering.md).
 
-## 1. Layering — route-colocation
+## 1. Layering — per-feature route-colocation
 
-A web feature lives under its route folder, not in a sibling `features/`
-tree. The TanStack Router `-` prefix marks folders as non-route.
+Every web feature lives in its **own folder** under the route tree, with
+the route file as `index.tsx`. There are no flat-file feature-routes
+sharing area-level `-`-folders — every feature owns its own
+`-components/`, `-hooks/`, `-utils/`, `-dialogs/`. The TanStack Router
+`-` prefix marks folders as non-route.
 
 ```
 apps/web/src/routes/_app/<feature>/
@@ -27,35 +30,62 @@ A piece graduates to `apps/web/src/components/composed/` only when **two or
 more** features consume it. Primitives stay in `apps/web/src/components/
 primitives/` (shadcn-installed; see `react.md` §0).
 
-**Flat-file feature-routes.** When a feature is a flat file
-(`<feature>.tsx`) rather than a folder (`<feature>/index.tsx`), the `-`-
-prefixed sibling folders live one level up under the area:
+**Areas with multiple feature-routes** (e.g. `routes/_app/settings/`,
+`routes/_app/workspace/`, `routes/auth/`) are folders containing one
+per-feature subfolder per route. Area-level `-components/` and `-utils/`
+are reserved for **cross-feature** concerns:
 
+- area-root content consumed by the area's own `route.tsx` (when the
+  area is a layout) or `index.tsx` (when the area itself is a page)
+  (e.g. `auth/-components/auth-branding-panel.tsx` for `auth/route.tsx`'s
+  layout, `workspace/-components/dashboard/*` for `workspace/index.tsx`'s
+  dashboard page);
+- helpers consumed by **two or more** feature-routes inside the area but
+  too area-specific to graduate to `components/composed/` or `lib/`
+  (e.g. `auth/-utils/login-error-copy.ts` consumed by login, signup, and
+  reset-password).
+
+Feature-specific code never lives at the area level. The "split the
+difference" shape — per-feature subfolders next to area-shared flat files
+serving single features — is a review reject.
+
+The legacy layout `apps/web/src/features/<feature>/` is **removed**. If a
+stray reference is ever found, migrate it in the same PR — there is no
+transition clause to lean on.
+
+## 1.5. No naked container routes
+
+**Reject criterion.** A folder containing a `route.tsx` layout but no
+sibling `index.tsx` is the bug shape: the user lands on the layout
+chrome wrapped around an empty `<Outlet />`. Reviews reject it on sight.
+
+Every folder under `routes/` whose **segment appears in the URL** must
+respond meaningfully at the bare URL. Two valid shapes:
+
+1. **Renders a page** — `index.tsx` defines a `component:` that draws the
+   bare URL (e.g. `routes/_app/workspace/index.tsx` is the dashboard).
+2. **Redirects** — `index.tsx` defines `beforeLoad` that throws a
+   `redirect()` to a sensible default child. No `component:` declared;
+   the throw short-circuits before render.
+
+```tsx
+// routes/auth/index.tsx — /auth → /auth/login
+import { createFileRoute, redirect } from '@tanstack/react-router'
+
+export const Route = createFileRoute('/auth/')({
+  beforeLoad: () => {
+    throw redirect({ to: '/auth/login' })
+  },
+})
 ```
-apps/web/src/routes/_app/<area>/
-├── <feature>.tsx           # flat feature-route
-├── -components/<feature>/  # JSX exclusive to this feature
-├── -dialogs/               # dialog wrappers grouped per-area
-│   ├── create-<feature-a>-dialog.tsx
-│   ├── delete-<feature-a>-dialog.tsx
-│   └── ...
-└── -utils/                 # pure helpers grouped per-area
-```
 
-This is the pragmatic placement while feature-routes are flat files (e.g.
-`routes/_app/settings/channels.tsx`). When an area's `-dialogs/` folder
-grows past ~8 files or starts mixing concerns, **promote the feature-route
-to a folder** (`channels/index.tsx`) so its dialogs/components can live in
-the canonical `<feature>/-dialogs/` location. Don't split the difference —
-either every feature in the area has its own folder or they all share the
-area's `-`-folders.
+Two folder shapes are **exempt** because their segment is not in the URL:
 
-The legacy layout `apps/web/src/features/<feature>/` is **deprecated for new
-work**. Existing folders convert opportunistically — when a feature is next
-worked on for an unrelated reason that already touches its tree, the same PR
-moves it into the route-colocated form. Surface-only edits (a copy fix, a
-single className tweak) do not trigger the migration. Mixed layouts during
-the transition are explicitly tolerated.
+- **Route groups** `(area)/` — TanStack's parens-wrapped folders. The
+  segment is dropped from the URL; children become top-level paths. No
+  bare URL exists, so nothing to land on.
+- **Pathless layouts** `_area/` — TanStack's underscore-prefixed folders
+  (e.g. `_app/`). Same reason: the segment never appears in the URL.
 
 ## 2. Page recipe
 
@@ -618,6 +648,11 @@ The patterns above must respect existing rules:
   built on shadcn primitives in `components/primitives/`. (`react.md` §0)
 - **Zod top-level formats** (`z.email()`, not `z.string().email()`).
   Enforced by `scripts/check-zod-v4.ts`. (`conventions.md` §1)
+- **Per-feature folder, no naked container.** Every feature is its own
+  folder under `routes/`; areas don't host feature-specific files in
+  shared `-`-folders. Every URL-bearing folder either renders a page or
+  redirects via `beforeLoad` — never a `route.tsx` with no `index.tsx`.
+  (§1, §1.5)
 
 ## 10. New-feature checklist
 
@@ -632,13 +667,16 @@ When starting a new CRUD-ish web feature:
    follow §8 shape and invalidation.
 4. Add query-key entries to `packages/api-client/src/query-keys.ts`.
 5. Create route folder under `apps/web/src/routes/_app/<feature>/` with
-   `index.tsx` + any of `new.tsx` / `$<entity>Id.tsx`.
+   `index.tsx` + any of `new.tsx` / `$<entity>Id.tsx`. If the feature
+   lives under an area that hosts other features, give it its own folder
+   — never share area-level `-`-folders for feature-specific files
+   (§1).
 6. Create `-hooks/use-<feature>-search.ts` for URL-driven state (§4) if the
    feature has a filterable/paginated list.
 7. Create `-utils/columns.tsx` for the `DataTable` column definitions.
 8. Create `-components/<feature>-form.tsx` and any dumb child components.
    The form `useForm`s bound to the contract `*RequestSchema` via
    `zodResolver` (§3.a / §3.b / §3.c). Per-field `useState` is forbidden.
-9. Add navigation entry under `apps/web/src/features/app-shell/data/` (the
-   one remaining legitimate `features/` reference — the app shell's nav
-   data lives there until its own future migration).
+9. Add navigation entry under
+   `apps/web/src/_shell/app-shell/data/` (the app shell's nav data lives
+   in the shell, not in a `features/` tree).
