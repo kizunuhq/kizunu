@@ -102,6 +102,12 @@ writing code in their area:
   non-obvious (security, workaround, surprising behavior); JSDoc only for
   tool-surfaced public API; no section headers, test-phase markers, or task/PR
   references.
+- **`web-patterns.md`** — `apps/web/` layering and recipes: route-colocation under
+  `routes/_app/<feature>/{-components,-hooks,-utils,-dialogs}/`; smart-page / dumb-form
+  split with `Field*` + `FormError`; URL state via Zod schema + `use-<feature>-search`;
+  `DataTable` + `TablePagination` composition; `ResourceDialog` / `DeleteResourceDialog`
+  for modals; mutation hooks return `{ <domainName>: mutate, ... }` with hook-owned
+  invalidation; error-handling table. Anchored by ADR-007 (`docs/adr/007-web-frontend-layering.md`).
 - **`test.md`** — see Testing below.
 
 ### Style basics (always)
