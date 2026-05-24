@@ -35,6 +35,8 @@ export const Routes = {
       `/workspaces/${workspaceId}/channel-accounts/${accountId}/access/${userId}`,
     connectMetaCoex: (workspaceId: string) =>
       `/workspaces/${workspaceId}/channel-accounts/meta-whatsapp/connect`,
+    directory: (workspaceId: string, accountId: string, resource: string) =>
+      `/workspaces/${workspaceId}/channel-accounts/${accountId}/directory/${resource}`,
   },
   channels: {
     mine: '/channel-accounts/mine',
@@ -47,6 +49,8 @@ export const Routes = {
       `/workspaces/${workspaceId}/connector-accounts/${accountId}/identities`,
     identity: (workspaceId: string, accountId: string, identityId: string) =>
       `/workspaces/${workspaceId}/connector-accounts/${accountId}/identities/${identityId}`,
+    directory: (workspaceId: string, accountId: string, resource: string) =>
+      `/workspaces/${workspaceId}/connector-accounts/${accountId}/directory/${resource}`,
   },
   templates: {
     collection: (workspaceId: string) => `/workspaces/${workspaceId}/templates`,

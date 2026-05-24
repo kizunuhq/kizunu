@@ -1,3 +1,6 @@
+import type { DirectoryResult } from '@kizunu/api-contracts/shared'
+import type { DirectoryInput } from '@kizunu/api/modules/_shared/directory/directory-input'
+
 import type { CrmActivity } from './crm-activity'
 import type { CrmConnectorManifest } from './crm-connector-manifest'
 import type { NormalizedEvent } from './normalized-event'
@@ -31,4 +34,5 @@ export interface CRMConnector {
   moveStage(externalId: string, stage: StageRef, credentials: unknown): Promise<void>
   markLost(externalId: string, reason: string, credentials: unknown): Promise<void>
   setField(externalId: string, field: string, value: unknown, credentials: unknown): Promise<void>
+  directory?(input: DirectoryInput): Promise<DirectoryResult>
 }

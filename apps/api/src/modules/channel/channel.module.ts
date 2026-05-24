@@ -2,6 +2,7 @@ import type { Config } from '@kizunu/api/api.config'
 import { ConfigService } from '@kizunu/config-module/config.service'
 import { Module } from '@nestjs/common'
 
+import { DirectoryModule } from '../_shared/directory/directory.module'
 import { WorkspaceModule } from '../workspace/workspace.module'
 import { CHANNEL_PLUGINS, ChannelPluginRegistry } from './core/plugin/channel-plugin-registry'
 import { OAuthRefreshService } from './core/services/oauth-refresh.service'
@@ -20,7 +21,7 @@ import { ChannelAccountRepository } from './persistence/channel-account.reposito
 import { MetaWhatsappPlugin } from './plugins/meta-whatsapp/meta-whatsapp.plugin'
 
 @Module({
-  imports: [WorkspaceModule],
+  imports: [DirectoryModule, WorkspaceModule],
   controllers: [ChannelAccountController, MyChannelController],
   providers: [
     {

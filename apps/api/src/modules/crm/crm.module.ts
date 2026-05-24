@@ -1,5 +1,6 @@
 import { forwardRef, Module } from '@nestjs/common'
 
+import { DirectoryModule } from '../_shared/directory/directory.module'
 import { EngineModule } from '../engine/engine.module'
 import { IdentityModule } from '../identity/identity.module'
 import { WorkspaceModule } from '../workspace/workspace.module'
@@ -19,7 +20,12 @@ import { MemberConnectorIdentityRepository } from './persistence/member-connecto
 import { PipedriveConnector } from './plugins/pipedrive/pipedrive.connector'
 
 @Module({
-  imports: [WorkspaceModule, forwardRef(() => IdentityModule), forwardRef(() => EngineModule)],
+  imports: [
+    DirectoryModule,
+    WorkspaceModule,
+    forwardRef(() => IdentityModule),
+    forwardRef(() => EngineModule),
+  ],
   controllers: [ConnectorAccountController, MemberConnectorIdentityController],
   providers: [
     { provide: CRM_CONNECTORS, useValue: [new PipedriveConnector()] },
