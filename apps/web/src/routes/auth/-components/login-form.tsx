@@ -1,93 +1,79 @@
-import { useLogin } from '@kizunu/api-client/identity/use-login'
-import { PageHeader } from '@kizunu/web/components/composed/page-header'
-import { Button } from '@kizunu/web/components/primitives/button'
-import { Field, FieldError } from '@kizunu/web/components/primitives/field'
-import { LabeledInput } from '@kizunu/web/routes/auth/-components/labeled-input'
-import { mapLoginError } from '@kizunu/web/routes/auth/-utils/login-error-copy'
-import { Link, useNavigate } from '@tanstack/react-router'
-import { useState } from 'react'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { type LoginRequest, LoginRequestSchema } from '@kizunu/api-contracts/identity'
+import { FormError } from '@kizunu/web/components/composed/form-error'
+import { Field, FieldError, FieldGroup, FieldLabel } from '@kizunu/web/components/primitives/field'
+import { Input } from '@kizunu/web/components/primitives/input'
+import type { LoginErrorCopy } from '@kizunu/web/routes/auth/-utils/login-error-copy'
+import { Link } from '@tanstack/react-router'
+import { useForm } from 'react-hook-form'
 
-export function LoginForm() {
-  const navigate = useNavigate()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const { login, isPending, isError, error } = useLogin({
-    onSuccess: () => navigate({ to: '/workspace' }),
-  })
-  const errorCopy = isError ? mapLoginError(error) : null
+interface LoginFormProps {
+  formId: string
+  isPending: boolean
+  errorCopy?: LoginErrorCopy | null
+  onSubmit: (data: LoginRequest) => void
+}
 
-  function submit(event: React.FormEvent) {
-    event.preventDefault()
-    login({ email, password })
-  }
+export function LoginForm(props: LoginFormProps) {
+  const { formId, isPending, errorCopy, onSubmit } = props
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginRequest>({ resolver: zodResolver(LoginRequestSchema) })
 
   return (
-    <div className="flex flex-col gap-6">
-      <PageHeader title="Sign in to kizunu" description="Use your work email and password." />
-      <form className="flex flex-col gap-4" onSubmit={submit}>
-        <LabeledInput
-          id="email"
-          label="Email"
-          type="email"
-          value={email}
-          autoComplete="email"
-          onChange={setEmail}
-        />
-        <LabeledInput
-          id="password"
-          label="Password"
-          type="password"
-          value={password}
-          autoComplete="current-password"
-          onChange={setPassword}
-        />
-        {errorCopy ? <LoginFieldError copy={errorCopy} /> : null}
-        <Button type="submit" disabled={isPending}>
-          {isPending ? 'Signing in…' : 'Sign in'}
-        </Button>
-      </form>
-      <div className="text-muted-foreground flex flex-col gap-1 text-sm">
-        <Link
-          to="/auth/forgot-password"
-          className="hover:text-foreground underline-offset-2 hover:underline"
-        >
-          Forgot password?
-        </Link>
-        <span>
-          Need an account?{' '}
-          <Link
-            to="/auth/signup"
-            className="hover:text-foreground underline-offset-2 hover:underline"
-          >
-            Sign up
-          </Link>
-        </span>
-      </div>
-    </div>
+    <form id={formId} className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>
+      <FieldGroup>
+        {errorCopy ? <LoginErrorBlock copy={errorCopy} /> : null}
+        <Field>
+          <FieldLabel htmlFor="login-email">Email</FieldLabel>
+          <Input
+            id="login-email"
+            type="email"
+            autoComplete="email"
+            aria-invalid={!!errors.email}
+            aria-describedby={errors.email ? 'login-email-error' : undefined}
+            disabled={isPending}
+            {...register('email')}
+          />
+          {errors.email && <FieldError id="login-email-error">{errors.email.message}</FieldError>}
+        </Field>
+        <Field>
+          <FieldLabel htmlFor="login-password">Password</FieldLabel>
+          <Input
+            id="login-password"
+            type="password"
+            autoComplete="current-password"
+            aria-invalid={!!errors.password}
+            aria-describedby={errors.password ? 'login-password-error' : undefined}
+            disabled={isPending}
+            {...register('password')}
+          />
+          {errors.password && (
+            <FieldError id="login-password-error">{errors.password.message}</FieldError>
+          )}
+        </Field>
+      </FieldGroup>
+    </form>
   )
 }
 
-interface LoginFieldErrorProps {
-  copy: { message: string; actionHref?: string; actionLabel?: string }
-}
-
-function LoginFieldError({ copy }: LoginFieldErrorProps) {
+function LoginErrorBlock({ copy }: { copy: LoginErrorCopy }) {
   return (
-    <Field>
-      <FieldError>
-        {copy.message}
-        {copy.actionHref && copy.actionLabel ? (
-          <>
-            {' '}
-            <Link
-              to={copy.actionHref}
-              className="text-destructive hover:text-destructive underline underline-offset-2"
-            >
-              {copy.actionLabel}
-            </Link>
-          </>
-        ) : null}
-      </FieldError>
-    </Field>
+    <FormError>
+      {copy.message}
+      {copy.actionHref && copy.actionLabel ? (
+        <>
+          {' '}
+          <Link
+            to={copy.actionHref}
+            className="text-destructive hover:text-destructive underline underline-offset-2"
+          >
+            {copy.actionLabel}
+          </Link>
+        </>
+      ) : null}
+    </FormError>
   )
 }

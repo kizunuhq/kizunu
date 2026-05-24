@@ -1,57 +1,48 @@
-import { ResetPasswordForm } from '@kizunu/web/routes/auth/-components/reset-password-form'
-import { fireEvent, render, screen } from '@testing-library/react'
-import { beforeEach, describe, expect, it, vi } from 'vite-plus/test'
+import { resetPasswordFormSchema } from '@kizunu/web/routes/auth/-components/reset-password-form'
+import { describe, expect, it } from 'vite-plus/test'
 
-const { resetPassword } = vi.hoisted(() => ({ resetPassword: vi.fn() }))
-
-vi.mock('@kizunu/api-client/identity/use-reset-password', () => ({
-  useResetPassword: () => ({
-    resetPassword,
-    isPending: false,
-    isSuccess: false,
-    isError: false,
-    error: null,
-  }),
-}))
-
-describe('ResetPasswordForm', () => {
-  beforeEach(() => {
-    resetPassword.mockClear()
-  })
-
-  it('blocks submit and shows a length error when the password is shorter than 8 chars', () => {
-    render(<ResetPasswordForm token="t-1" />)
-
-    fireEvent.change(screen.getByLabelText('New password'), { target: { value: 'short' } })
-    fireEvent.change(screen.getByLabelText('Confirm password'), { target: { value: 'short' } })
-    fireEvent.click(screen.getByRole('button', { name: 'Save new password' }))
-
-    expect(screen.getByText('Password must be at least 8 characters.')).toBeInTheDocument()
-    expect(resetPassword).not.toHaveBeenCalled()
-  })
-
-  it("blocks submit and shows a mismatch error when the passwords don't match", () => {
-    render(<ResetPasswordForm token="t-1" />)
-
-    fireEvent.change(screen.getByLabelText('New password'), { target: { value: 'longenough1' } })
-    fireEvent.change(screen.getByLabelText('Confirm password'), {
-      target: { value: 'different11' },
+describe('resetPasswordFormSchema', () => {
+  it('rejects passwords shorter than 8 characters with a field-level error on password', () => {
+    const result = resetPasswordFormSchema.safeParse({
+      password: 'short',
+      confirmPassword: 'short',
     })
-    fireEvent.click(screen.getByRole('button', { name: 'Save new password' }))
 
-    expect(screen.getByText("Passwords don't match.")).toBeInTheDocument()
-    expect(resetPassword).not.toHaveBeenCalled()
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      const passwordIssue = result.error.issues.find((issue) => issue.path[0] === 'password')
+      expect(passwordIssue).toBeDefined()
+    }
   })
 
-  it('fires the mutation when both fields match and meet the length requirement', () => {
-    render(<ResetPasswordForm token="t-1" />)
-
-    fireEvent.change(screen.getByLabelText('New password'), { target: { value: 'longenough1' } })
-    fireEvent.change(screen.getByLabelText('Confirm password'), {
-      target: { value: 'longenough1' },
+  it('rejects mismatched confirm-password with a field-level error on confirmPassword', () => {
+    const result = resetPasswordFormSchema.safeParse({
+      password: 'longenough1',
+      confirmPassword: 'different11',
     })
-    fireEvent.click(screen.getByRole('button', { name: 'Save new password' }))
 
-    expect(resetPassword).toHaveBeenCalledWith({ token: 't-1', password: 'longenough1' })
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      const confirmIssue = result.error.issues.find((issue) => issue.path[0] === 'confirmPassword')
+      expect(confirmIssue?.message).toBe("Passwords don't match.")
+    }
+  })
+
+  it('accepts matching passwords meeting the length requirement', () => {
+    const result = resetPasswordFormSchema.safeParse({
+      password: 'longenough1',
+      confirmPassword: 'longenough1',
+    })
+
+    expect(result.success).toBe(true)
+  })
+
+  it('does not fire the mismatch rule until the user has typed in confirmPassword', () => {
+    const result = resetPasswordFormSchema.safeParse({
+      password: 'longenough1',
+      confirmPassword: '',
+    })
+
+    expect(result.success).toBe(true)
   })
 })

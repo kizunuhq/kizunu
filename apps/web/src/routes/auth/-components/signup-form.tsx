@@ -1,94 +1,91 @@
-import { useRegister } from '@kizunu/api-client/identity/use-register'
-import { PageHeader } from '@kizunu/web/components/composed/page-header'
-import { Button } from '@kizunu/web/components/primitives/button'
-import { Field, FieldError } from '@kizunu/web/components/primitives/field'
-import { LabeledInput } from '@kizunu/web/routes/auth/-components/labeled-input'
-import { mapLoginError } from '@kizunu/web/routes/auth/-utils/login-error-copy'
-import { Link, useNavigate } from '@tanstack/react-router'
-import { useState } from 'react'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { type RegisterRequest, RegisterRequestSchema } from '@kizunu/api-contracts/identity'
+import { FormError } from '@kizunu/web/components/composed/form-error'
+import { Field, FieldError, FieldGroup, FieldLabel } from '@kizunu/web/components/primitives/field'
+import { Input } from '@kizunu/web/components/primitives/input'
+import type { LoginErrorCopy } from '@kizunu/web/routes/auth/-utils/login-error-copy'
+import { Link } from '@tanstack/react-router'
+import { useForm } from 'react-hook-form'
 
-export function SignupForm() {
-  const navigate = useNavigate()
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const { register, isPending, isError, error } = useRegister({
-    onSuccess: () => navigate({ to: '/workspace' }),
-  })
-  const errorCopy = isError ? mapLoginError(error) : null
+interface SignupFormProps {
+  formId: string
+  isPending: boolean
+  errorCopy?: LoginErrorCopy | null
+  onSubmit: (data: RegisterRequest) => void
+}
 
-  function submit(event: React.FormEvent) {
-    event.preventDefault()
-    register({ name, email, password })
-  }
+export function SignupForm(props: SignupFormProps) {
+  const { formId, isPending, errorCopy, onSubmit } = props
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<RegisterRequest>({ resolver: zodResolver(RegisterRequestSchema) })
 
   return (
-    <div className="flex flex-col gap-6">
-      <PageHeader
-        title="Create your workspace"
-        description="Register the first user for this instance."
-      />
-      <form className="flex flex-col gap-4" onSubmit={submit}>
-        <LabeledInput
-          id="name"
-          label="Name"
-          type="text"
-          value={name}
-          autoComplete="name"
-          onChange={setName}
-        />
-        <LabeledInput
-          id="email"
-          label="Email"
-          type="email"
-          value={email}
-          autoComplete="email"
-          onChange={setEmail}
-        />
-        <LabeledInput
-          id="password"
-          label="Password"
-          type="password"
-          value={password}
-          autoComplete="new-password"
-          onChange={setPassword}
-        />
-        {errorCopy ? <SignupFieldError copy={errorCopy} /> : null}
-        <Button type="submit" disabled={isPending}>
-          {isPending ? 'Creating…' : 'Create workspace'}
-        </Button>
-      </form>
-      <p className="text-muted-foreground text-sm">
-        Already have an account?{' '}
-        <Link to="/auth/login" className="hover:text-foreground underline-offset-2 hover:underline">
-          Sign in
-        </Link>
-      </p>
-    </div>
+    <form id={formId} className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>
+      <FieldGroup>
+        {errorCopy ? <SignupErrorBlock copy={errorCopy} /> : null}
+        <Field>
+          <FieldLabel htmlFor="signup-name">Name</FieldLabel>
+          <Input
+            id="signup-name"
+            autoComplete="name"
+            aria-invalid={!!errors.name}
+            aria-describedby={errors.name ? 'signup-name-error' : undefined}
+            disabled={isPending}
+            {...register('name')}
+          />
+          {errors.name && <FieldError id="signup-name-error">{errors.name.message}</FieldError>}
+        </Field>
+        <Field>
+          <FieldLabel htmlFor="signup-email">Email</FieldLabel>
+          <Input
+            id="signup-email"
+            type="email"
+            autoComplete="email"
+            aria-invalid={!!errors.email}
+            aria-describedby={errors.email ? 'signup-email-error' : undefined}
+            disabled={isPending}
+            {...register('email')}
+          />
+          {errors.email && <FieldError id="signup-email-error">{errors.email.message}</FieldError>}
+        </Field>
+        <Field>
+          <FieldLabel htmlFor="signup-password">Password</FieldLabel>
+          <Input
+            id="signup-password"
+            type="password"
+            autoComplete="new-password"
+            aria-invalid={!!errors.password}
+            aria-describedby={errors.password ? 'signup-password-error' : undefined}
+            disabled={isPending}
+            {...register('password')}
+          />
+          {errors.password && (
+            <FieldError id="signup-password-error">{errors.password.message}</FieldError>
+          )}
+        </Field>
+      </FieldGroup>
+    </form>
   )
 }
 
-interface SignupFieldErrorProps {
-  copy: { message: string; actionHref?: string; actionLabel?: string }
-}
-
-function SignupFieldError({ copy }: SignupFieldErrorProps) {
+function SignupErrorBlock({ copy }: { copy: LoginErrorCopy }) {
   return (
-    <Field>
-      <FieldError>
-        {copy.message}
-        {copy.actionHref && copy.actionLabel ? (
-          <>
-            {' '}
-            <Link
-              to={copy.actionHref}
-              className="text-destructive hover:text-destructive underline underline-offset-2"
-            >
-              {copy.actionLabel}
-            </Link>
-          </>
-        ) : null}
-      </FieldError>
-    </Field>
+    <FormError>
+      {copy.message}
+      {copy.actionHref && copy.actionLabel ? (
+        <>
+          {' '}
+          <Link
+            to={copy.actionHref}
+            className="text-destructive hover:text-destructive underline underline-offset-2"
+          >
+            {copy.actionLabel}
+          </Link>
+        </>
+      ) : null}
+    </FormError>
   )
 }

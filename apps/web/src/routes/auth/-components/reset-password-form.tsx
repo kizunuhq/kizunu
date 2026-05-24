@@ -1,116 +1,78 @@
-import { useResetPassword } from '@kizunu/api-client/identity/use-reset-password'
-import { PageHeader } from '@kizunu/web/components/composed/page-header'
-import { Button, buttonVariants } from '@kizunu/web/components/primitives/button'
-import { Field, FieldError } from '@kizunu/web/components/primitives/field'
-import { LabeledInput } from '@kizunu/web/routes/auth/-components/labeled-input'
-import { mapLoginError } from '@kizunu/web/routes/auth/-utils/login-error-copy'
-import { Link } from '@tanstack/react-router'
-import { useState } from 'react'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { ConfirmPasswordResetSchema } from '@kizunu/api-contracts/identity'
+import { FormError } from '@kizunu/web/components/composed/form-error'
+import { Field, FieldError, FieldGroup, FieldLabel } from '@kizunu/web/components/primitives/field'
+import { Input } from '@kizunu/web/components/primitives/input'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
 
-const MIN_PASSWORD_LENGTH = 8
+export const resetPasswordFormSchema = ConfirmPasswordResetSchema.omit({ token: true })
+  .extend({ confirmPassword: z.string() })
+  .superRefine(({ password, confirmPassword }, ctx) => {
+    if (confirmPassword.length === 0) return
+    if (password !== confirmPassword) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['confirmPassword'],
+        message: "Passwords don't match.",
+      })
+    }
+  })
+
+export type ResetPasswordFormValues = z.infer<typeof resetPasswordFormSchema>
 
 interface ResetPasswordFormProps {
-  token: string
+  formId: string
+  isPending: boolean
+  error?: string | null
+  onSubmit: (data: ResetPasswordFormValues) => void
 }
 
-export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const reset = useResetPassword()
-  const inlineError = pickInlineError(password, confirmPassword, reset.isError, reset.error)
-
-  function submit(event: React.FormEvent) {
-    event.preventDefault()
-    if (inlineError) return
-    reset.resetPassword({ token, password })
-  }
-
-  if (reset.isSuccess) return <ResetPasswordSuccess />
-  if (reset.isError && reset.error.code === 'identity.invalid-reset-token') {
-    return <ResetPasswordInvalidLink />
-  }
+export function ResetPasswordForm(props: ResetPasswordFormProps) {
+  const { formId, isPending, error, onSubmit } = props
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<ResetPasswordFormValues>({ resolver: zodResolver(resetPasswordFormSchema) })
 
   return (
-    <div className="flex flex-col gap-6">
-      <PageHeader
-        title="Set a new password"
-        description="Choose a password at least 8 characters long."
-      />
-      <form className="flex flex-col gap-4" onSubmit={submit}>
-        <LabeledInput
-          id="password"
-          label="New password"
-          type="password"
-          value={password}
-          autoComplete="new-password"
-          onChange={setPassword}
-        />
-        <LabeledInput
-          id="confirm-password"
-          label="Confirm password"
-          type="password"
-          value={confirmPassword}
-          autoComplete="new-password"
-          onChange={setConfirmPassword}
-        />
-        {inlineError ? (
-          <Field>
-            <FieldError>{inlineError}</FieldError>
-          </Field>
-        ) : null}
-        <Button
-          type="submit"
-          disabled={reset.isPending || Boolean(inlineError && password.length > 0)}
-        >
-          {reset.isPending ? 'Saving…' : 'Save new password'}
-        </Button>
-      </form>
-    </div>
-  )
-}
-
-function pickInlineError(
-  password: string,
-  confirmPassword: string,
-  isError: boolean,
-  error: ReturnType<typeof useResetPassword>['error'],
-): string | null {
-  if (password.length > 0 && password.length < MIN_PASSWORD_LENGTH) {
-    return `Password must be at least ${MIN_PASSWORD_LENGTH} characters.`
-  }
-  if (confirmPassword.length > 0 && password !== confirmPassword) {
-    return "Passwords don't match."
-  }
-  if (isError && error && error.code !== 'identity.invalid-reset-token') {
-    return mapLoginError(error)?.message ?? error.message
-  }
-  return null
-}
-
-function ResetPasswordSuccess() {
-  return (
-    <div className="flex flex-col gap-6">
-      <PageHeader
-        title="Password updated"
-        description="Sign in with your new password to continue."
-      />
-      <Link to="/auth/login" className={buttonVariants()}>
-        Sign in
-      </Link>
-    </div>
-  )
-}
-
-function ResetPasswordInvalidLink() {
-  return (
-    <div className="flex flex-col gap-6">
-      <PageHeader
-        title="Reset link expired"
-        description="This reset link is invalid or has expired. Request a new one."
-      />
-      <Link to="/auth/forgot-password" className={buttonVariants()}>
-        Request a new link
-      </Link>
-    </div>
+    <form id={formId} className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>
+      <FieldGroup>
+        {error && <FormError>{error}</FormError>}
+        <Field>
+          <FieldLabel htmlFor="reset-password">New password</FieldLabel>
+          <Input
+            id="reset-password"
+            type="password"
+            autoComplete="new-password"
+            aria-invalid={!!errors.password}
+            aria-describedby={errors.password ? 'reset-password-error' : undefined}
+            disabled={isPending}
+            {...register('password')}
+          />
+          {errors.password && (
+            <FieldError id="reset-password-error">{errors.password.message}</FieldError>
+          )}
+        </Field>
+        <Field>
+          <FieldLabel htmlFor="reset-confirm-password">Confirm password</FieldLabel>
+          <Input
+            id="reset-confirm-password"
+            type="password"
+            autoComplete="new-password"
+            aria-invalid={!!errors.confirmPassword}
+            aria-describedby={errors.confirmPassword ? 'reset-confirm-password-error' : undefined}
+            disabled={isPending}
+            {...register('confirmPassword')}
+          />
+          {errors.confirmPassword && (
+            <FieldError id="reset-confirm-password-error">
+              {errors.confirmPassword.message}
+            </FieldError>
+          )}
+        </Field>
+      </FieldGroup>
+    </form>
   )
 }
