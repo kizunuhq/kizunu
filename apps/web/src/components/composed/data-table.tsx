@@ -30,20 +30,32 @@ interface DataTableProps<Row> {
   emptyDescription?: string
   emptyAction?: ReactNode
   rowKey: (row: Row) => string
+  onRowClick?: (row: Row) => void
+  footer?: ReactNode
 }
 
 export function DataTable<Row>(props: DataTableProps<Row>) {
-  const { columns, rows, isPending, rowKey } = props
+  const { columns, rows, isPending, rowKey, onRowClick, footer } = props
   if (!isPending && rows.length === 0) return <DataTableEmpty {...props} />
   return (
-    <Table>
-      <DataTableHeader columns={columns} />
-      <TableBody>
-        {isPending && rows.length === 0
-          ? buildSkeletonRows(columns)
-          : rows.map((row) => <DataTableRow key={rowKey(row)} columns={columns} row={row} />)}
-      </TableBody>
-    </Table>
+    <div className="space-y-4">
+      <Table>
+        <DataTableHeader columns={columns} />
+        <TableBody>
+          {isPending && rows.length === 0
+            ? buildSkeletonRows(columns)
+            : rows.map((row) => (
+                <DataTableRow
+                  key={rowKey(row)}
+                  columns={columns}
+                  row={row}
+                  onRowClick={onRowClick}
+                />
+              ))}
+        </TableBody>
+      </Table>
+      {footer}
+    </div>
   )
 }
 
@@ -84,11 +96,16 @@ function DataTableHeader<Row>({ columns }: HeaderProps<Row>) {
 interface RowProps<Row> {
   columns: DataTableColumn<Row>[]
   row: Row
+  onRowClick?: (row: Row) => void
 }
 
-function DataTableRow<Row>({ columns, row }: RowProps<Row>) {
+function DataTableRow<Row>({ columns, row, onRowClick }: RowProps<Row>) {
+  const isClickable = Boolean(onRowClick)
   return (
-    <TableRow>
+    <TableRow
+      onClick={onRowClick ? () => onRowClick(row) : undefined}
+      className={cn(isClickable && 'hover:bg-muted/40 cursor-pointer')}
+    >
       {columns.map((column) => (
         <TableCell key={column.key} className={cn(column.align === 'right' && 'text-right')}>
           {column.cell(row)}
