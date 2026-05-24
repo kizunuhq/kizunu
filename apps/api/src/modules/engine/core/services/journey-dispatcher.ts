@@ -1,4 +1,8 @@
 import type { CadenceAction } from '@kizunu/api-contracts/cadence'
+import {
+  isWithinWindow,
+  slideToWindow,
+} from '@kizunu/api/modules/cadence/core/domain/sending-window-slide'
 import type {
   CadenceWithSteps,
   CadenceStepRow,
@@ -87,6 +91,11 @@ export class JourneyDispatcher {
     const next = resolveNextStep(journey.currentStepOrder, cadence.steps.length)
     if (next.kind === 'exhausted') {
       await this.exhaust(tx, journey, cadence.onExhausted)
+      return
+    }
+    if (cadence.sendingWindow && !isWithinWindow(cadence.sendingWindow, now)) {
+      const nextValid = slideToWindow(cadence.sendingWindow, now)
+      await this.journeys.advance(tx, journey.id, journey.currentStepOrder, nextValid)
       return
     }
     await this.dispatchStep(tx, journey, cadence, next.stepOrder, now)
