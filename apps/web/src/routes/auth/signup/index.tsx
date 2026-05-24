@@ -3,14 +3,14 @@ import { useCurrentUser } from '@kizunu/api-client/identity/use-current-user'
 import { useRegister } from '@kizunu/api-client/identity/use-register'
 import { PageHeader } from '@kizunu/web/components/composed/page-header'
 import { Button } from '@kizunu/web/components/primitives/button'
-import { RegistrationDisabledNotice } from '@kizunu/web/routes/auth/-components/registration-disabled-notice'
-import { SignupForm } from '@kizunu/web/routes/auth/-components/signup-form'
 import { mapLoginError } from '@kizunu/web/routes/auth/-utils/login-error-copy'
+import { RegistrationDisabledNotice } from '@kizunu/web/routes/auth/signup/-components/registration-disabled-notice'
+import { SignupForm } from '@kizunu/web/routes/auth/signup/-components/signup-form'
 import { createFileRoute, Link, Navigate, useNavigate } from '@tanstack/react-router'
 
 const FORM_ID = 'signup-form'
 
-export const Route = createFileRoute('/auth/signup')({
+export const Route = createFileRoute('/auth/signup/')({
   component: SignupPage,
 })
 
