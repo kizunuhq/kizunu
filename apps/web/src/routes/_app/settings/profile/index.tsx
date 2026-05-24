@@ -10,7 +10,7 @@ export const Route = createFileRoute('/_app/settings/profile/')({
 })
 
 function ProfilePage() {
-  const { user } = useCurrentUser()
+  const { user, connectorIdentities } = useCurrentUser()
   const isVerified = Boolean(user?.emailVerifiedAt)
 
   return (
@@ -51,6 +51,35 @@ function ProfilePage() {
           }
         />
       </Card>
+      <ConnectorIdentitiesCard identities={connectorIdentities} />
     </div>
+  )
+}
+
+interface ConnectorIdentitiesCardProps {
+  identities: Array<{ connectorAccountId: string; connectorId: string; externalId: string }>
+}
+
+function ConnectorIdentitiesCard({ identities }: ConnectorIdentitiesCardProps) {
+  if (identities.length === 0) {
+    return (
+      <Card>
+        <SettingsRow
+          title="Connector identities"
+          description="No CRM identities mapped yet. Admin maps you when your first deal arrives."
+        />
+      </Card>
+    )
+  }
+  return (
+    <Card>
+      {identities.map((identity) => (
+        <SettingsRow
+          key={identity.connectorAccountId + identity.externalId}
+          title={identity.connectorId}
+          description={`External id: ${identity.externalId}`}
+        />
+      ))}
+    </Card>
   )
 }

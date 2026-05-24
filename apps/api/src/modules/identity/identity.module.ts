@@ -1,7 +1,8 @@
 import type { Config } from '@kizunu/api/api.config'
+import { CrmModule } from '@kizunu/api/modules/crm/crm.module'
 import { WorkspaceModule } from '@kizunu/api/modules/workspace/workspace.module'
 import { ConfigService } from '@kizunu/config-module/config.service'
-import { Module } from '@nestjs/common'
+import { forwardRef, Module } from '@nestjs/common'
 import { APP_GUARD } from '@nestjs/core'
 
 import { ConsoleMailSender } from './core/mail/console-mail-sender'
@@ -55,7 +56,7 @@ function buildMailSender(config: ConfigService<Config>): MailSender {
 }
 
 @Module({
-  imports: [WorkspaceModule],
+  imports: [WorkspaceModule, forwardRef(() => CrmModule)],
   controllers: [
     AuthController,
     PasswordResetController,

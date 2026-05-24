@@ -1,8 +1,15 @@
-import { Injectable } from '@nestjs/common'
+import { MemberConnectorIdentityRepository } from '@kizunu/api/modules/crm/persistence/member-connector-identity.repository'
+import { Inject, Injectable, forwardRef } from '@nestjs/common'
 
 import { MembershipRepository } from '../../persistence/membership.repository'
 import { UserRepository } from '../../persistence/user.repository'
 import { SessionExpiredException } from '../errors/identity.errors'
+
+export interface ConnectorIdentitySummary {
+  connectorAccountId: string
+  connectorId: string
+  externalId: string
+}
 
 export interface GetMeOutput {
   user: {
@@ -18,6 +25,7 @@ export interface GetMeOutput {
     role: 'admin' | 'member'
     status: 'active' | 'inactive'
   }>
+  connectorIdentities: ConnectorIdentitySummary[]
   activeWorkspaceId: string | null
 }
 
@@ -26,6 +34,8 @@ export class GetMeUseCase {
   constructor(
     private readonly users: UserRepository,
     private readonly memberships: MembershipRepository,
+    @Inject(forwardRef(() => MemberConnectorIdentityRepository))
+    private readonly connectorIdentities: MemberConnectorIdentityRepository,
   ) {}
 
   async execute(userId: string, activeWorkspaceId: string | null): Promise<GetMeOutput> {
@@ -33,6 +43,7 @@ export class GetMeUseCase {
     if (!user) throw new SessionExpiredException()
 
     const userMemberships = await this.memberships.listForUser(user.id)
+    const identities = await this.connectorIdentities.listForUser(user.id)
 
     return {
       user: {
@@ -42,6 +53,7 @@ export class GetMeUseCase {
         emailVerifiedAt: user.emailVerifiedAt,
       },
       memberships: userMemberships,
+      connectorIdentities: identities,
       activeWorkspaceId,
     }
   }
