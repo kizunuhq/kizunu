@@ -3,7 +3,8 @@
 **Design**: `.specs/features/047-crm-owner-mapping/design.md`
 **Spec**: `.specs/features/047-crm-owner-mapping/spec.md`
 **Context**: `.specs/features/047-crm-owner-mapping/context.md`
-**Status**: Approved
+**Status**: Done (T1–T16 + api-client portion of T17 + T20; T17 web admin
+UI deferred to follow-up; T18 manual smoke + T19 P2 BDR /auth/me deferred)
 
 ---
 

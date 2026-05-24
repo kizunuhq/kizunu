@@ -482,22 +482,27 @@ The first customer concretely needing this lands the doc
 `~/Downloads/automacao-fup.md` — a 2-BDR Pipedrive→WhatsApp pilot that
 matches the v0.1 reference use case point-for-point.
 
-**CRM owner mapping** - PLANNED (feature `047`)
-- Maps a Pipedrive `deal.user_id` to a Kizunu `User.id` so ingestion can
-  set `lead.ownerUserId` and the dispatcher can resolve the right BDR's
-  primary `ChannelAccess`.
-- Auto-match by verified email + admin override
-  (`.specs/features/047-crm-owner-mapping/context.md` C-01).
-- New aggregate `MemberConnectorIdentity` keyed on
-  `(membershipId, connectorAccountId, externalId)` (workspace-owned, FK
-  cascades on membership delete).
-- New `CRMConnector.fetchOwner(externalId, credentials)` method; Pipedrive
-  implementation hits `GET /v1/users/{id}`.
-- No new `LeadJourneyStatus` enum value — unresolved owners land in
-  `error_state` with `errorReason = 'owner_not_mapped'` (or
-  `owner_lookup_failed` when Pipedrive errors). Admin creating the matching
-  mapping backfills `lead.ownerUserId` and resumes those journeys in one
-  transaction.
+**CRM owner mapping** - COMPLETE (feature `047`)
+- _Landed (feature `047`): closes the owner-mapping sub-bullet of the
+  Dispatcher gaps HIGH item in CONCERNS. New workspace-owned
+  `MemberConnectorIdentity` aggregate keyed
+  `(membershipId, connectorAccountId, externalId)` with two unique
+  indexes (one externalId per account; one externalId per member per
+  account). New optional `CRMConnector.fetchOwner?` method; Pipedrive
+  implements via `GET /v1/users/{id}` with 404→null. `ResolveOwnerService`
+  composes mapping lookup + connector fetchOwner + verified-active email
+  match + auto-create (createdBy `'auto:email'`, `sourceEmail` audited);
+  `LeadOwnerBackfillService` runs lead-update + journey-resume in one
+  transaction when admin creates the mapping. New
+  `LeadJourneyErrorReason` const object + `lead_journeys.errorReason`
+  varchar(80) column (free string so plugins can emit their own reasons;
+  initial values `no_channel`, `template_required`, `owner_not_mapped`,
+  `owner_lookup_failed`). Migration `0010`. Admin REST CRUD at
+  `/workspaces/:id/connector-accounts/:accountId/identities` under
+  `WorkspaceAdminGuard`; e2e covers happy paths + 422
+  `owner.mapping-conflict`. API-client hooks landed; the web admin UI is
+  the only deferred bit (auto-match by verified email covers the 2-BDR
+  pilot without admin clicks)._
 
 **Template-variable resolution** - PLANNED (feature `048`)
 - The dispatcher sends templates without filling `{{n}}` parameters. Meta
