@@ -7,6 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@kizunu/web/components/primitives/dialog'
+import { cn } from '@kizunu/web/lib/utils'
 import type { ReactNode } from 'react'
 
 interface ResourceDialogProps {
@@ -20,6 +21,7 @@ interface ResourceDialogProps {
   isPending?: boolean
   isActionEnabled?: boolean
   tone?: 'default' | 'destructive'
+  size?: 'md' | 'lg'
   children: ReactNode
 }
 
@@ -35,12 +37,13 @@ export function ResourceDialog(props: ResourceDialogProps) {
     isPending,
     isActionEnabled = true,
     tone = 'default',
+    size = 'md',
     children,
   } = props
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className={cn(size === 'lg' ? 'sm:max-w-lg' : 'sm:max-w-md')}>
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           {description && <DialogDescription>{description}</DialogDescription>}
@@ -52,12 +55,13 @@ export function ResourceDialog(props: ResourceDialogProps) {
           </Button>
           <Button
             variant={tone === 'destructive' ? 'destructive' : 'default'}
-            disabled={isPending || !isActionEnabled}
+            disabled={!isActionEnabled}
+            loading={isPending}
             form={formId}
             type={formId ? 'submit' : 'button'}
             onClick={formId ? undefined : onAction}
           >
-            {isPending ? 'Working…' : actionLabel}
+            {actionLabel}
           </Button>
         </DialogFooter>
       </DialogContent>
