@@ -445,6 +445,28 @@ CRUD. Each feature below is independent and self-contained.
   field-level errors. `bun check` green (387 tests; every check-\* script passes;
   CI=1 lint 0w/0e)._
 
+**Route-folder promotion + no-naked-container rule** - COMPLETE
+- _Landed (feature `046`): every flat sub-route under `_app/settings/`,
+  `_app/workspace/`, and `auth/` promoted to its own folder with its own
+  `-components/`, `-dialogs/`, `-utils/` siblings. Two missing index
+  redirects added (`auth/index.tsx` → `/auth/login`,
+  `_app/settings/index.tsx` → `/settings/profile`) so neither `/auth` nor
+  `/settings` lands on an empty layout shell. `journey-status-dot`
+  graduated to `components/composed/` (consumed by both `workspace/journeys`
+  and `workspace/-components/dashboard/`). Area-level `-components/` and
+  `-utils/` retained only for genuinely cross-feature concerns
+  (`auth/-components/auth-branding-panel.tsx` for `route.tsx`,
+  `auth/-components/auth-error-block.tsx` for login + signup,
+  `auth/-utils/login-error-copy.ts` for login + signup + reset-password,
+  `workspace/-components/dashboard/` for `workspace/index.tsx`).
+  `.agents/rules/web-patterns.md` §1 dropped the flat-file feature-routes
+  carve-out and gained §1.5 "No naked container routes" (every URL-bearing
+  folder either renders a page or redirects via `beforeLoad`; route groups
+  `(area)/` and pathless layouts `_area/` are exempt). §9 hard rules and
+  §10 new-feature checklist updated. 24 atomic commits across settings (8),
+  workspace (5), auth (6), and docs (1+1+1). `bun check` green at every
+  commit (383 tests; every check-\* script passes)._
+
 ---
 
 ## Future Considerations (Phase 2+)
