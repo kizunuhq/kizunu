@@ -21,6 +21,20 @@ limit; CSRF is `sameSite: 'lax'` + the CORS allowlist (documented, no token in v
 **Impact:** The reset flow is correct and secure (single-use hashed token, out-of-band, never in a response, revokes all sessions on confirm), but a real user cannot receive the email — an operator must read the server log for the link. Not pilot-deliverable as-is.
 **Fix:** Implement an SMTP/API `MailSender` and bind it behind the existing port (no caller changes). The invitation flow (which still returns its token in the response) should move onto the same boundary at that point.
 
+_(Resolved) Console mail logger — addressed in feature `040`: `SmtpMailSender`
+(`apps/api/src/modules/identity/core/mail/smtp-mail-sender.ts`) wraps `nodemailer`
+behind the existing `MailSender` port; `IdentityModule` selects it via a
+`buildMailSender` factory when `mail.smtpHost` is set, otherwise falls back to
+`ConsoleMailSender` so dev-without-SMTP still works. Config schema gains
+`mail.{smtpHost,smtpPort,smtpUser,smtpPassword,smtpSecure,from}` read from
+`APP_SMTP_*` / `APP_MAIL_FROM` (with `z.stringbool` on the secure flag to avoid
+the `"false" → true` coerce footgun). Dev `docker-compose.yml` ships a
+`mailpit` service on profiles `all|infra|api|mail` (SMTP `:1025`, web
+`:8025`) the api `depends_on` for healthcheck, so signup/verify, resend-verify,
+and forgot-password all deliver to a local inbox without external accounts.
+The invitation-flow migration onto the same port remains open (still
+returns the token in the HTTP response)._
+
 _(Resolved) Provider credentials are stored unencrypted — addressed in feature
 `030`: `EncryptedCredentialsService` (AES-256-GCM, key from
 `APP_CREDENTIALS_ENCRYPTION_KEY`) wraps every write/read of
