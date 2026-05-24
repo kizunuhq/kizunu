@@ -1,9 +1,9 @@
 import { useLeadJourneys } from '@kizunu/api-client/engine/use-lead-journeys'
 import type { LeadJourneyStatusValue } from '@kizunu/api-contracts/engine'
 import { DataTable } from '@kizunu/web/components/composed/data-table'
+import { JourneyStatusDot } from '@kizunu/web/components/composed/journey-status-dot'
 import { PageHeader } from '@kizunu/web/components/composed/page-header'
 import { Button } from '@kizunu/web/components/primitives/button'
-import { JourneyStatusDot } from '@kizunu/web/routes/_app/workspace/-components/journey-status-dot'
 
 type StatusFilter = LeadJourneyStatusValue | 'all'
 
