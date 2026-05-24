@@ -20,5 +20,6 @@ export function buildCadenceRequest(input: {
     onReply: input.onReplyStageId ? [{ type: 'move_stage', stageId: input.onReplyStageId }] : [],
     onExhausted: [],
     onComplete: [],
+    sendingWindow: null,
   }
 }

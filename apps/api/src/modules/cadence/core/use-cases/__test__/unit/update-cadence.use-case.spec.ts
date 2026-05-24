@@ -24,6 +24,7 @@ const input: UpdateCadenceInput = {
   onReply: [],
   onExhausted: [],
   onComplete: [],
+  sendingWindow: null,
 }
 
 function buildUseCase(found: { id: string } | undefined) {

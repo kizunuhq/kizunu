@@ -1,5 +1,38 @@
 import { z } from 'zod'
 
+const MINUTE_OF_DAY_MAX = 1440
+const DAYS_PER_WEEK = 7
+
+function isSupportedTimezone(timezone: string): boolean {
+  try {
+    const formatter = new Intl.DateTimeFormat('en-US', { timeZone: timezone })
+    return formatter.resolvedOptions().timeZone === timezone
+  } catch {
+    return false
+  }
+}
+
+/**
+ * A cadence-level sending window. Cross-midnight windows (endMinute <
+ * startMinute) are rejected at validation; admins split into separate
+ * cadences if needed.
+ */
+export const SendingWindowSchema = z
+  .object({
+    timezone: z.string().min(1).refine(isSupportedTimezone, {
+      message: 'timezone must be a valid IANA timezone (e.g. America/Sao_Paulo)',
+    }),
+    days: z.array(z.number().int().min(0).max(6)).min(1).max(DAYS_PER_WEEK),
+    startMinute: z.number().int().min(0).max(MINUTE_OF_DAY_MAX),
+    endMinute: z.number().int().min(0).max(MINUTE_OF_DAY_MAX),
+  })
+  .refine((window) => window.startMinute < window.endMinute, {
+    message: 'startMinute must be less than endMinute',
+    path: ['startMinute'],
+  })
+
+export type SendingWindowInput = z.infer<typeof SendingWindowSchema>
+
 /** Closed-vocabulary exit-hook actions (no arbitrary code). */
 export const CadenceActionSchema = z.discriminatedUnion('type', [
   z.object({
@@ -43,6 +76,7 @@ export const CadenceRequestSchema = z.object({
   onReply: z.array(CadenceActionSchema).default([]),
   onExhausted: z.array(CadenceActionSchema).default([]),
   onComplete: z.array(CadenceActionSchema).default([]),
+  sendingWindow: SendingWindowSchema.nullable().default(null),
 })
 
 export type CadenceRequest = z.infer<typeof CadenceRequestSchema>
@@ -82,6 +116,7 @@ export const CadenceResponseSchema = z.object({
   onReply: z.array(CadenceActionSchema),
   onExhausted: z.array(CadenceActionSchema),
   onComplete: z.array(CadenceActionSchema),
+  sendingWindow: SendingWindowSchema.nullable(),
 })
 
 export type CadenceResponse = z.infer<typeof CadenceResponseSchema>

@@ -14,6 +14,7 @@ const cadence: CadenceWithSteps = {
   onReply: [],
   onExhausted: [],
   onComplete: [],
+  sendingWindow: null,
   steps: [],
 }
 

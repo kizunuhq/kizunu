@@ -5,6 +5,7 @@ import { Injectable } from '@nestjs/common'
 import { CadenceRepository } from '../../persistence/cadence.repository'
 import { TemplateRepository } from '../../persistence/template.repository'
 import { validateCadenceSteps } from '../domain/cadence-validator'
+import type { SendingWindow } from '../domain/sending-window'
 
 export interface CadenceInput {
   workspaceId: string
@@ -15,6 +16,7 @@ export interface CadenceInput {
   onReply: CadenceAction[]
   onExhausted: CadenceAction[]
   onComplete: CadenceAction[]
+  sendingWindow: SendingWindow | null
 }
 
 @Injectable()
@@ -40,6 +42,7 @@ export class CreateCadenceUseCase {
         onReply: input.onReply,
         onExhausted: input.onExhausted,
         onComplete: input.onComplete,
+        sendingWindow: input.sendingWindow,
       },
       input.steps,
     )
