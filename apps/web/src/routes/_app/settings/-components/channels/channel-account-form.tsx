@@ -1,7 +1,6 @@
 import { useChannelPlugins } from '@kizunu/api-client/channel/use-channel-plugins'
-import { useCreateChannelAccount } from '@kizunu/api-client/channel/use-create-channel-account'
+import { FormError } from '@kizunu/web/components/composed/form-error'
 import { PluginSelect } from '@kizunu/web/components/composed/plugin-select'
-import { Button } from '@kizunu/web/components/primitives/button'
 import { Field, FieldLabel } from '@kizunu/web/components/primitives/field'
 import { Input } from '@kizunu/web/components/primitives/input'
 import { CredentialFieldsInput } from '@kizunu/web/routes/_app/settings/-components/channels/credential-fields-input'
@@ -9,17 +8,25 @@ import { hasRequiredCredentials } from '@kizunu/web/routes/_app/settings/-utils/
 import { userInputFields } from '@kizunu/web/routes/_app/settings/-utils/user-input-fields'
 import { useState } from 'react'
 
-export function ChannelAccountForm({ workspaceId }: { workspaceId: string }) {
+export interface ChannelAccountFormValues {
+  pluginId: string
+  name: string
+  credentials: Record<string, string>
+}
+
+interface ChannelAccountFormProps {
+  formId: string
+  isPending: boolean
+  error?: string | null
+  onSubmit: (values: ChannelAccountFormValues) => void
+}
+
+export function ChannelAccountForm(props: ChannelAccountFormProps) {
+  const { formId, isPending, error, onSubmit } = props
   const [pluginId, setPluginId] = useState('')
   const [name, setName] = useState('')
   const [credentials, setCredentials] = useState<Record<string, string>>({})
   const plugins = useChannelPlugins()
-  const create = useCreateChannelAccount(workspaceId, {
-    onSuccess: () => {
-      setName('')
-      setCredentials({})
-    },
-  })
 
   const fields = userInputFields(
     plugins.data?.plugins.find((plugin) => plugin.id === pluginId)?.credentialFields ?? [],
@@ -32,25 +39,28 @@ export function ChannelAccountForm({ workspaceId }: { workspaceId: string }) {
 
   function submit(event: React.FormEvent) {
     event.preventDefault()
-    create.createChannelAccount({ pluginId, name, credentials })
+    if (!pluginId || !hasRequiredCredentials(fields, credentials)) return
+    onSubmit({ pluginId, name, credentials })
   }
 
-  const canSubmit = pluginId !== '' && hasRequiredCredentials(fields, credentials)
-
   return (
-    <form className="flex flex-col gap-3" onSubmit={submit}>
+    <form id={formId} className="flex flex-col gap-3" onSubmit={submit}>
+      {error && <FormError>{error}</FormError>}
       <Field>
         <FieldLabel>Plugin</FieldLabel>
         <PluginSelect value={pluginId} onChange={selectPlugin} />
       </Field>
       <Field>
         <FieldLabel htmlFor="channel-name">Name</FieldLabel>
-        <Input id="channel-name" value={name} required onChange={(e) => setName(e.target.value)} />
+        <Input
+          id="channel-name"
+          value={name}
+          required
+          disabled={isPending}
+          onChange={(e) => setName(e.target.value)}
+        />
       </Field>
       <CredentialFieldsInput fields={fields} values={credentials} onChange={setCredentials} />
-      <Button type="submit" disabled={create.isPending || !canSubmit}>
-        Add channel account
-      </Button>
     </form>
   )
 }
