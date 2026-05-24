@@ -60,6 +60,23 @@ upgrade without a data migration. Tampering throws
 **Impact:** The pilot cannot actually deliver touches until CRM-owner → user mapping is built; messages may go out off-hours; templated messages send without filled variables (Meta rejects if it expects parameters).
 **Fix:** Add an owner-identity mapping (e.g. per-membership external id per connector) consumed at ingestion to set `ownerUserId`; add `sendingWindow` (timezone/days/hours) to the cadence and honor it in `dispatchOne`; add a template-variable resolver from lead fields.
 
+_(Resolved — owner mapping) Feature `047` (Phase 2.0): new
+`MemberConnectorIdentity` aggregate (workspace-owned, keyed
+`(membershipId, connectorAccountId, externalId)`), `ResolveOwnerService`
+auto-matches by verified email via the new optional
+`CRMConnector.fetchOwner?` (Pipedrive: `GET /v1/users/{id}`), admin REST
+CRUD surface backed by WorkspaceAdminGuard, and a one-transaction backfill
+that re-claims leads + resumes parked journeys when admin creates a
+mapping. New `lead_journeys.errorReason` column (free `varchar(80)`) +
+`LeadJourneyErrorReason` const object carry the why-of-error_state:
+`no_channel`, `template_required`, `owner_not_mapped`,
+`owner_lookup_failed`. Migration `0010`. Web admin UI deferred to a
+follow-up (api-client hooks shipped; auto-match covers the 2-BDR pilot
+without admin clicks)._
+
+The `sendingWindow` and `template variables` sub-bullets remain open
+(features `049` and `048`, both PLANNED on the ROADMAP).
+
 ### Migrations run on every API boot
 **Evidence:** `main.ts` `runMigrations()` runs before `bootstrap()` on every start.
 **Impact:** Convenient for single-instance/dev, but multiple replicas starting concurrently can race on `drizzle-kit`'s migration table; a long migration also blocks readiness. Not a problem at pilot scale, a problem at deploy scale.

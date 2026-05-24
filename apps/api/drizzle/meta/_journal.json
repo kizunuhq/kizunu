@@ -71,6 +71,13 @@
       "when": 1779472505622,
       "tag": "0009_sweet_ricochet",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1779633704786,
+      "tag": "0010_lean_jimmy_woo",
+      "breakpoints": true
     }
   ]
 }

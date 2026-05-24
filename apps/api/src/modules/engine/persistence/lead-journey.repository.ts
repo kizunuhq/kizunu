@@ -29,6 +29,7 @@ export interface LockedJourney {
   status: LeadJourneyStatusType
   currentStepOrder: number
   nextTouchAt: Date | null
+  errorReason: string | null
   cadenceId: string
   workspaceId: string
   connectorAccountId: string
@@ -60,11 +61,19 @@ export class LeadJourneyRepository {
   async create(input: {
     leadId: string
     cadenceId: string
-    nextTouchAt: Date
+    nextTouchAt: Date | null
+    status?: LeadJourneyStatusType
+    errorReason?: string | null
   }): Promise<{ id: string }> {
     const rows = await this.drizzle.db
       .insert(leadJourneys)
-      .values({ leadId: input.leadId, cadenceId: input.cadenceId, nextTouchAt: input.nextTouchAt })
+      .values({
+        leadId: input.leadId,
+        cadenceId: input.cadenceId,
+        nextTouchAt: input.nextTouchAt,
+        status: input.status ?? LeadJourneyStatus.Running,
+        errorReason: input.errorReason ?? null,
+      })
       .returning({ id: leadJourneys.id })
     const journey = rows[0]
     if (!journey) throw new Error('Failed to create lead journey')
@@ -92,6 +101,7 @@ export class LeadJourneyRepository {
         status: leadJourneys.status,
         currentStepOrder: leadJourneys.currentStepOrder,
         nextTouchAt: leadJourneys.nextTouchAt,
+        errorReason: leadJourneys.errorReason,
         cadenceId: leadJourneys.cadenceId,
         workspaceId: leads.workspaceId,
         connectorAccountId: leads.connectorAccountId,
@@ -120,8 +130,16 @@ export class LeadJourneyRepository {
       .where(eq(leadJourneys.id, id))
   }
 
-  async setStatus(tx: DbTransaction, id: string, status: LeadJourneyStatusType): Promise<void> {
-    await tx.update(leadJourneys).set({ status, nextTouchAt: null }).where(eq(leadJourneys.id, id))
+  async setStatus(
+    tx: DbTransaction,
+    id: string,
+    status: LeadJourneyStatusType,
+    errorReason: string | null = null,
+  ): Promise<void> {
+    await tx
+      .update(leadJourneys)
+      .set({ status, nextTouchAt: null, errorReason })
+      .where(eq(leadJourneys.id, id))
   }
 
   async listByWorkspace(
@@ -176,6 +194,31 @@ export class LeadJourneyRepository {
           inArray(leadJourneys.leadId, owned),
         ),
       )
+  }
+
+  /**
+   * Resumes journeys parked in `error_state` for a specific reason against a set of leads.
+   * Used by the owner-mapping backfill — when admin creates a mapping, leads matching the
+   * external owner have their ownerUserId set and any journey that landed in
+   * `error_state` reason `owner_not_mapped` flips back to `running` immediately.
+   */
+  async resumeErrorStateByLeadsAndReason(
+    tx: DbTransaction,
+    input: { leadIds: readonly string[]; reason: string; nextTouchAt: Date },
+  ): Promise<{ updated: number }> {
+    if (input.leadIds.length === 0) return { updated: 0 }
+    const rows = await tx
+      .update(leadJourneys)
+      .set({ status: LeadJourneyStatus.Running, errorReason: null, nextTouchAt: input.nextTouchAt })
+      .where(
+        and(
+          inArray(leadJourneys.leadId, [...input.leadIds]),
+          eq(leadJourneys.status, LeadJourneyStatus.ErrorState),
+          eq(leadJourneys.errorReason, input.reason),
+        ),
+      )
+      .returning({ id: leadJourneys.id })
+    return { updated: rows.length }
   }
 
   /** Inbound seam: a running journey for the lead reachable at this phone in a workspace. */

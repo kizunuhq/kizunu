@@ -2,6 +2,7 @@ import { z } from 'zod'
 
 import type { CrmActivity } from '../../core/connector/crm-activity'
 import type { NormalizedLead } from '../../core/connector/normalized-lead'
+import type { NormalizedOwner } from '../../core/connector/normalized-owner'
 import type { StageRef } from '../../core/connector/stage-ref'
 import { CrmRequestFailedException } from '../../core/errors/crm.errors'
 import type { PipedriveCredentials } from './pipedrive-credentials'
@@ -78,6 +79,28 @@ export class PipedriveApi {
       phone: this.resolvePhone(data, credentials.phoneFieldKey),
       raw: data,
     }
+  }
+
+  async fetchOwner(
+    externalId: string,
+    credentials: PipedriveCredentials,
+  ): Promise<NormalizedOwner | null> {
+    const base = this.baseUrlOverride ?? pipedriveBaseUrl(credentials.companyDomain)
+    const url = `${base}/users/${externalId}?api_token=${credentials.apiToken}`
+    const response = await this.fetchFn(url, { method: 'GET' })
+    if (response.status === 404) return null
+    if (!response.ok) {
+      throw new CrmRequestFailedException(
+        `Pipedrive GET /users/${externalId} -> ${response.status}`,
+      )
+    }
+    const raw: unknown = await response.json().catch(() => ({}))
+    const parsed = pipedriveResponseSchema.parse(raw)
+    const data = parsed.data
+    if (!data) return null
+    const email = typeof data['email'] === 'string' ? data['email'] : null
+    const name = typeof data['name'] === 'string' ? data['name'] : ''
+    return { externalId, name, email }
   }
 
   private resolvePhone(

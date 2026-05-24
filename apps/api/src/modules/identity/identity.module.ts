@@ -91,5 +91,6 @@ function buildMailSender(config: ConfigService<Config>): MailSender {
       useClass: AuthGuard,
     },
   ],
+  exports: [UserRepository],
 })
 export class IdentityModule {}

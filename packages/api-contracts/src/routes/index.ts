@@ -43,6 +43,10 @@ export const Routes = {
   },
   connectorAccounts: {
     collection: (workspaceId: string) => `/workspaces/${workspaceId}/connector-accounts`,
+    identities: (workspaceId: string, accountId: string) =>
+      `/workspaces/${workspaceId}/connector-accounts/${accountId}/identities`,
+    identity: (workspaceId: string, accountId: string, identityId: string) =>
+      `/workspaces/${workspaceId}/connector-accounts/${accountId}/identities/${identityId}`,
   },
   templates: {
     collection: (workspaceId: string) => `/workspaces/${workspaceId}/templates`,

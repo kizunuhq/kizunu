@@ -469,6 +469,61 @@ CRUD. Each feature below is independent and self-contained.
 
 ---
 
+## Phase 2.0 — Pilot delivery hardening
+
+**Goal:** Close the documented High items in `.specs/codebase/CONCERNS.md`
+("Dispatcher gaps: owner mapping, sendingWindow, template variables") that
+block a real pilot from delivering. Without these, the v0.1 contract works
+in tests but cannot run for a paying customer. Each feature is a discrete
+slice; `047` unblocks the other two (no journey dispatches until owner
+mapping resolves).
+
+The first customer concretely needing this lands the doc
+`~/Downloads/automacao-fup.md` — a 2-BDR Pipedrive→WhatsApp pilot that
+matches the v0.1 reference use case point-for-point.
+
+**CRM owner mapping** - COMPLETE (feature `047`)
+- _Landed (feature `047`): closes the owner-mapping sub-bullet of the
+  Dispatcher gaps HIGH item in CONCERNS. New workspace-owned
+  `MemberConnectorIdentity` aggregate keyed
+  `(membershipId, connectorAccountId, externalId)` with two unique
+  indexes (one externalId per account; one externalId per member per
+  account). New optional `CRMConnector.fetchOwner?` method; Pipedrive
+  implements via `GET /v1/users/{id}` with 404→null. `ResolveOwnerService`
+  composes mapping lookup + connector fetchOwner + verified-active email
+  match + auto-create (createdBy `'auto:email'`, `sourceEmail` audited);
+  `LeadOwnerBackfillService` runs lead-update + journey-resume in one
+  transaction when admin creates the mapping. New
+  `LeadJourneyErrorReason` const object + `lead_journeys.errorReason`
+  varchar(80) column (free string so plugins can emit their own reasons;
+  initial values `no_channel`, `template_required`, `owner_not_mapped`,
+  `owner_lookup_failed`). Migration `0010`. Admin REST CRUD at
+  `/workspaces/:id/connector-accounts/:accountId/identities` under
+  `WorkspaceAdminGuard`; e2e covers happy paths + 422
+  `owner.mapping-conflict`. API-client hooks landed; the web admin UI is
+  the only deferred bit (auto-match by verified email covers the 2-BDR
+  pilot without admin clicks)._
+
+**Template-variable resolution** - PLANNED (feature `048`)
+- The dispatcher sends templates without filling `{{n}}` parameters. Meta
+  rejects the send if the approved template declares variables. Required
+  only if any of the pilot's 5 HSM templates carry variables (decided
+  after Meta approval round).
+- Resolves variables from `Lead` fields (`name`, `phone`, future custom
+  fields) and the `LeadJourney` (current step ordinal, cadence name).
+
+**Cadence sending window** - PLANNED (feature `049`)
+- Engine respects `cadence.sendingWindow` (timezone + days + hours);
+  dispatches outside the window slide `nextTouchAt` forward to the next
+  valid slot rather than firing immediately.
+- Pilot UX + WhatsApp rep risk (no 3am template sends).
+
+**Pipedrive webhook HMAC verification** - DEFERRED (CONCERNS Medium)
+- Keep the UUIDv7-as-shared-secret model for the first pilot; add HMAC
+  when onboarding the second customer or when an audit demands it.
+
+---
+
 ## Future Considerations (Phase 2+)
 
 - Native CRM (deals, own pipeline, contacts)
