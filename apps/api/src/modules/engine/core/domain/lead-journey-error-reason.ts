@@ -9,6 +9,8 @@ export const LeadJourneyErrorReason = {
   TemplateRequired: 'template_required',
   OwnerNotMapped: 'owner_not_mapped',
   OwnerLookupFailed: 'owner_lookup_failed',
+  TemplateVariableMissing: 'template_variable_missing',
+  TemplateVariableUnknown: 'template_variable_unknown',
 } as const
 
 export type LeadJourneyErrorReason =
