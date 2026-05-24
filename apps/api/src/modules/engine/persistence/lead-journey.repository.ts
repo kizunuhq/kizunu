@@ -61,11 +61,19 @@ export class LeadJourneyRepository {
   async create(input: {
     leadId: string
     cadenceId: string
-    nextTouchAt: Date
+    nextTouchAt: Date | null
+    status?: LeadJourneyStatusType
+    errorReason?: string | null
   }): Promise<{ id: string }> {
     const rows = await this.drizzle.db
       .insert(leadJourneys)
-      .values({ leadId: input.leadId, cadenceId: input.cadenceId, nextTouchAt: input.nextTouchAt })
+      .values({
+        leadId: input.leadId,
+        cadenceId: input.cadenceId,
+        nextTouchAt: input.nextTouchAt,
+        status: input.status ?? LeadJourneyStatus.Running,
+        errorReason: input.errorReason ?? null,
+      })
       .returning({ id: leadJourneys.id })
     const journey = rows[0]
     if (!journey) throw new Error('Failed to create lead journey')

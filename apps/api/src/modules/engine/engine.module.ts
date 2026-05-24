@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common'
+import { forwardRef, Module } from '@nestjs/common'
 
 import { CadenceModule } from '../cadence/cadence.module'
 import { ChannelModule } from '../channel/channel.module'
@@ -28,7 +28,7 @@ import { LeadRepository } from './persistence/lead.repository'
 import { TouchAttemptRepository } from './persistence/touch-attempt.repository'
 
 @Module({
-  imports: [WorkspaceModule, CrmModule, CadenceModule, ChannelModule],
+  imports: [WorkspaceModule, forwardRef(() => CrmModule), CadenceModule, ChannelModule],
   controllers: [
     EntryTriggerController,
     CrmWebhookController,
