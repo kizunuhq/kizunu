@@ -1,19 +1,15 @@
 import type { DirectoryResult, DirectoryRow } from '@kizunu/api-contracts/shared'
 import {
-  ConnectorDirectoryFailedException,
-  ConnectorRateLimitedException,
-  ConnectorTokenExpiredException,
-} from '@kizunu/api/modules/_shared/directory/directory.errors'
+  assertProviderOk,
+  toTruncatedResult,
+} from '@kizunu/api/modules/_shared/directory/provider-http'
 import { z } from 'zod'
 
 import type { FetchFn } from './pipedrive-api'
 import { pipedriveBaseUrl } from './pipedrive-api'
 import type { PipedriveCredentials } from './pipedrive-credentials'
 
-const TRUNCATION_LIMIT = 500
 const PAGE_LIMIT = 500
-const UNAUTHORIZED = 401
-const TOO_MANY = 429
 
 const PIPEDRIVE_LIST_SCHEMA = z
   .object({
@@ -22,102 +18,68 @@ const PIPEDRIVE_LIST_SCHEMA = z
   })
   .catch({ data: [] })
 
-interface PipedriveDirectoryDeps {
+export interface PipedriveDirectoryContext {
   fetchFn: FetchFn
   baseUrlOverride?: string
   accountId: string
+  credentials: PipedriveCredentials
 }
 
-export class PipedriveDirectory {
-  constructor(private readonly deps: PipedriveDirectoryDeps) {}
-
-  async listUsers(credentials: PipedriveCredentials): Promise<DirectoryResult> {
-    const rows = await this.fetchList(credentials, 'users', `/users?start=0&limit=${PAGE_LIMIT}`)
-    return toResult(
-      rows
-        .map(toUserRow)
-        .filter((row): row is DirectoryRow => row !== null)
-        .sort(byLabel),
-    )
-  }
-
-  async listPipelines(credentials: PipedriveCredentials): Promise<DirectoryResult> {
-    const rows = await this.fetchList(credentials, 'pipelines', '/pipelines')
-    return toResult(toSortedByOrder(rows, toPipelineRow))
-  }
-
-  async listStages(
-    credentials: PipedriveCredentials,
-    pipelineId: string,
-  ): Promise<DirectoryResult> {
-    const rows = await this.fetchList(
-      credentials,
-      'stages',
-      `/stages?pipeline_id=${encodeURIComponent(pipelineId)}`,
-    )
-    return toResult(toSortedByOrder(rows, toStageRow))
-  }
-
-  async listDealFields(credentials: PipedriveCredentials): Promise<DirectoryResult> {
-    const rows = await this.fetchList(
-      credentials,
-      'fields',
-      `/dealFields?start=0&limit=${PAGE_LIMIT}`,
-    )
-    return toResult(
-      rows
-        .map(toFieldRow)
-        .filter((row): row is DirectoryRow => row !== null)
-        .sort(byLabel),
-    )
-  }
-
-  private async fetchList(
-    credentials: PipedriveCredentials,
-    resource: string,
-    path: string,
-  ): Promise<Record<string, unknown>[]> {
-    const base = this.deps.baseUrlOverride ?? pipedriveBaseUrl(credentials.companyDomain)
-    const separator = path.includes('?') ? '&' : '?'
-    const url = `${base}${path}${separator}api_token=${credentials.apiToken}`
-    const response = await this.deps.fetchFn(url, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-    })
-    if (response.status === UNAUTHORIZED) {
-      throw new ConnectorTokenExpiredException({ accountId: this.deps.accountId, scope: 'crm' })
-    }
-    if (response.status === TOO_MANY) {
-      throw new ConnectorRateLimitedException({
-        accountId: this.deps.accountId,
-        ...readRetryAfter(response.headers),
-      })
-    }
-    if (!response.ok) {
-      throw new ConnectorDirectoryFailedException({
-        accountId: this.deps.accountId,
-        resource,
-        detail: `Pipedrive ${path} -> ${response.status}`,
-      })
-    }
-    const raw: unknown = await response.json().catch(() => ({}))
-    const parsed = PIPEDRIVE_LIST_SCHEMA.parse(raw)
-    return parsed.data ?? []
-  }
+export async function listPipedriveUsers(ctx: PipedriveDirectoryContext): Promise<DirectoryResult> {
+  const raws = await fetchList(ctx, 'users', `/users?start=0&limit=${PAGE_LIMIT}`)
+  const rows = raws
+    .map(toUserRow)
+    .filter((row): row is DirectoryRow => row !== null)
+    .sort(byLabel)
+  return toTruncatedResult(rows)
 }
 
-function readRetryAfter(headers: Headers): { retryAfterSeconds?: number } {
-  const raw = headers.get('retry-after')
-  if (!raw) return {}
-  const seconds = Number.parseInt(raw, 10)
-  return Number.isFinite(seconds) && seconds > 0 ? { retryAfterSeconds: seconds } : {}
+export async function listPipedrivePipelines(
+  ctx: PipedriveDirectoryContext,
+): Promise<DirectoryResult> {
+  const raws = await fetchList(ctx, 'pipelines', '/pipelines')
+  return toTruncatedResult(toSortedByOrder(raws, toPipelineRow))
 }
 
-function toResult(items: DirectoryRow[]): DirectoryResult {
-  if (items.length > TRUNCATION_LIMIT) {
-    return { items: items.slice(0, TRUNCATION_LIMIT), meta: { truncated: true } }
-  }
-  return { items, meta: { truncated: false } }
+export async function listPipedriveStages(
+  ctx: PipedriveDirectoryContext,
+  pipelineId: string,
+): Promise<DirectoryResult> {
+  const raws = await fetchList(
+    ctx,
+    'stages',
+    `/stages?pipeline_id=${encodeURIComponent(pipelineId)}`,
+  )
+  return toTruncatedResult(toSortedByOrder(raws, toStageRow))
+}
+
+export async function listPipedriveDealFields(
+  ctx: PipedriveDirectoryContext,
+): Promise<DirectoryResult> {
+  const raws = await fetchList(ctx, 'fields', `/dealFields?start=0&limit=${PAGE_LIMIT}`)
+  const rows = raws
+    .map(toFieldRow)
+    .filter((row): row is DirectoryRow => row !== null)
+    .sort(byLabel)
+  return toTruncatedResult(rows)
+}
+
+async function fetchList(
+  ctx: PipedriveDirectoryContext,
+  resource: string,
+  path: string,
+): Promise<Record<string, unknown>[]> {
+  const base = ctx.baseUrlOverride ?? pipedriveBaseUrl(ctx.credentials.companyDomain)
+  const separator = path.includes('?') ? '&' : '?'
+  const url = `${base}${path}${separator}api_token=${ctx.credentials.apiToken}`
+  const response = await ctx.fetchFn(url, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+  })
+  assertProviderOk({ response, accountId: ctx.accountId, resource, scope: 'crm' })
+  const raw: unknown = await response.json().catch(() => ({}))
+  const parsed = PIPEDRIVE_LIST_SCHEMA.parse(raw)
+  return parsed.data ?? []
 }
 
 function toUserRow(raw: Record<string, unknown>): DirectoryRow | null {
@@ -161,16 +123,6 @@ function toFieldRow(raw: Record<string, unknown>): DirectoryRow | null {
   }
 }
 
-function scalarToString(value: unknown): string | null {
-  if (typeof value === 'string') return value
-  if (typeof value === 'number') return String(value)
-  return null
-}
-
-function byLabel(a: DirectoryRow, b: DirectoryRow): number {
-  return a.label.localeCompare(b.label)
-}
-
 function toSortedByOrder(
   raws: Record<string, unknown>[],
   mapper: (raw: Record<string, unknown>) => DirectoryRow | null,
@@ -193,4 +145,14 @@ function orderOf(raw: Record<string, unknown>): number {
     if (Number.isFinite(parsed)) return parsed
   }
   return Number.POSITIVE_INFINITY
+}
+
+function scalarToString(value: unknown): string | null {
+  if (typeof value === 'string') return value
+  if (typeof value === 'number') return String(value)
+  return null
+}
+
+function byLabel(a: DirectoryRow, b: DirectoryRow): number {
+  return a.label.localeCompare(b.label)
 }

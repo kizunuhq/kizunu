@@ -12,7 +12,6 @@ import { LookupSelect } from '@kizunu/web/components/composed/lookup-select'
 import { ReconnectConnectorEmptyState } from '@kizunu/web/components/composed/reconnect-connector-empty-state'
 import { Field, FieldError, FieldGroup, FieldLabel } from '@kizunu/web/components/primitives/field'
 import { useNavigate } from '@tanstack/react-router'
-import { useEffect } from 'react'
 import { Controller, useForm, useWatch } from 'react-hook-form'
 import { z } from 'zod'
 
@@ -45,15 +44,6 @@ export function EntryTriggerForm(props: EntryTriggerFormProps) {
 
   const pipelines = useDirectoryPipedrivePipelines(workspaceId, connectorAccountId)
   const stages = useDirectoryPipedriveStages(workspaceId, connectorAccountId, pipelineId)
-
-  useEffect(() => {
-    setValue('pipelineId', '', { shouldValidate: false })
-    setValue('stageId', '', { shouldValidate: false })
-  }, [connectorAccountId, setValue])
-
-  useEffect(() => {
-    setValue('stageId', '', { shouldValidate: false })
-  }, [pipelineId, setValue])
 
   const connectorOptions = (connectors.data?.accounts ?? []).map((a) => ({
     value: a.id,
@@ -88,7 +78,11 @@ export function EntryTriggerForm(props: EntryTriggerFormProps) {
                 value={field.value ?? ''}
                 placeholder="Select connector"
                 options={connectorOptions}
-                onChange={field.onChange}
+                onChange={(value) => {
+                  field.onChange(value)
+                  setValue('pipelineId', '')
+                  setValue('stageId', '')
+                }}
                 disabled={isPending}
               />
               {fieldState.error && (
@@ -116,7 +110,10 @@ export function EntryTriggerForm(props: EntryTriggerFormProps) {
                       connectorAccountId ? 'Select a pipeline' : 'Pick a connector first'
                     }
                     options={pipelineOptions}
-                    onChange={field.onChange}
+                    onChange={(value) => {
+                      field.onChange(value)
+                      setValue('stageId', '')
+                    }}
                     disabled={isPending || !connectorAccountId || pipelines.isPending}
                   />
                   {fieldState.error && (

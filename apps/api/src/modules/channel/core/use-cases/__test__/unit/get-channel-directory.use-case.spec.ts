@@ -1,5 +1,6 @@
 import type { DirectoryResult } from '@kizunu/api-contracts/shared'
 import { DirectoryCacheService } from '@kizunu/api/modules/_shared/directory/directory-cache.service'
+import { DirectoryQueryService } from '@kizunu/api/modules/_shared/directory/directory-query.service'
 import { ConnectorDirectoryUnsupportedException } from '@kizunu/api/modules/_shared/directory/directory.errors'
 import { ChannelAccountNotFoundException } from '@kizunu/api/modules/channel/core/errors/channel.errors'
 import type { ChannelPlugin } from '@kizunu/api/modules/channel/core/plugin/channel-plugin'
@@ -46,8 +47,8 @@ function buildUseCase(input: { account: typeof ACCOUNT_ROW | undefined; plugin: 
     findForDirectory: async () => input.account,
   } as unknown as ChannelAccountRepository
   const registry = new ChannelPluginRegistry([input.plugin])
-  const cache = new DirectoryCacheService()
-  return { useCase: new GetChannelDirectoryUseCase(registry, accounts, cache) }
+  const directories = new DirectoryQueryService(new DirectoryCacheService())
+  return { useCase: new GetChannelDirectoryUseCase(registry, accounts, directories) }
 }
 
 describe('GetChannelDirectoryUseCase', () => {

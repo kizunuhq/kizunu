@@ -1,5 +1,6 @@
 import type { DirectoryResult } from '@kizunu/api-contracts/shared'
 import { DirectoryCacheService } from '@kizunu/api/modules/_shared/directory/directory-cache.service'
+import { DirectoryQueryService } from '@kizunu/api/modules/_shared/directory/directory-query.service'
 import {
   ConnectorDirectoryParamsInvalidException,
   ConnectorDirectoryUnsupportedException,
@@ -57,8 +58,8 @@ function buildUseCase(input: { account: typeof ACCOUNT_ROW | undefined; connecto
     findById: async () => input.account,
   } as unknown as ConnectorAccountRepository
   const registry = new CrmConnectorRegistry([input.connector])
-  const cache = new DirectoryCacheService()
-  return { useCase: new GetConnectorDirectoryUseCase(registry, accounts, cache) }
+  const directories = new DirectoryQueryService(new DirectoryCacheService())
+  return { useCase: new GetConnectorDirectoryUseCase(registry, accounts, directories) }
 }
 
 describe('GetConnectorDirectoryUseCase', () => {

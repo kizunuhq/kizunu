@@ -12,7 +12,12 @@ import type { NormalizedOwner } from '../../core/connector/normalized-owner'
 import type { StageRef } from '../../core/connector/stage-ref'
 import { type FetchFn, PipedriveApi } from './pipedrive-api'
 import { pipedriveCredentialsSchema } from './pipedrive-credentials'
-import { PipedriveDirectory } from './pipedrive-directory'
+import {
+  listPipedriveDealFields,
+  listPipedrivePipelines,
+  listPipedriveStages,
+  listPipedriveUsers,
+} from './pipedrive-directory'
 import { parsePipedriveWebhook } from './pipedrive-webhook'
 
 const STAGE_PARAMS_SCHEMA = z.object({ pipelineId: z.string().min(1) }).strict()
@@ -89,19 +94,19 @@ export class PipedriveConnector implements CRMConnector {
   }
 
   async directory(input: DirectoryInput): Promise<DirectoryResult> {
-    const credentials = pipedriveCredentialsSchema.parse(input.credentials)
-    const directory = new PipedriveDirectory({
+    const ctx = {
       fetchFn: this.fetchFn,
       baseUrlOverride: this.baseUrlOverride,
       accountId: input.accountId,
-    })
-    if (input.resource === 'users') return await directory.listUsers(credentials)
-    if (input.resource === 'pipelines') return await directory.listPipelines(credentials)
+      credentials: pipedriveCredentialsSchema.parse(input.credentials),
+    }
+    if (input.resource === 'users') return await listPipedriveUsers(ctx)
+    if (input.resource === 'pipelines') return await listPipedrivePipelines(ctx)
     if (input.resource === 'stages') {
       const params = STAGE_PARAMS_SCHEMA.parse(input.params ?? {})
-      return await directory.listStages(credentials, params.pipelineId)
+      return await listPipedriveStages(ctx, params.pipelineId)
     }
-    if (input.resource === 'fields') return await directory.listDealFields(credentials)
+    if (input.resource === 'fields') return await listPipedriveDealFields(ctx)
     throw new ConnectorDirectoryUnsupportedException({
       connectorId: this.manifest.id,
       resource: input.resource,

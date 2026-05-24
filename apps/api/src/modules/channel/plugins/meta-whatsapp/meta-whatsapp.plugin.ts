@@ -21,7 +21,7 @@ import {
   type MetaCoexistenceCredentials,
   type MetaCredentials,
 } from './meta-credentials'
-import { MetaDirectory } from './meta-directory'
+import { listMetaPhoneNumbers, listMetaTemplates } from './meta-directory'
 import { parseMetaInbound } from './meta-inbound'
 import { type FetchFn, META_GRAPH_API_BASE, sendMetaMessage } from './meta-send'
 import { subscribeMetaChannel, subscribeWabaToMeta } from './meta-subscribe'
@@ -154,14 +154,14 @@ export class MetaWhatsappPlugin implements ChannelPlugin {
   }
 
   async directory(input: DirectoryInput): Promise<DirectoryResult> {
-    const credentials = metaCredentialsSchema.parse(input.credentials)
-    const directory = new MetaDirectory({
+    const ctx = {
       fetchFn: this.fetchFn,
       baseUrl: this.baseUrl,
       accountId: input.accountId,
-    })
-    if (input.resource === 'templates') return await directory.listTemplates(credentials)
-    if (input.resource === 'phoneNumbers') return await directory.listPhoneNumbers(credentials)
+      credentials: metaCredentialsSchema.parse(input.credentials),
+    }
+    if (input.resource === 'templates') return await listMetaTemplates(ctx)
+    if (input.resource === 'phoneNumbers') return await listMetaPhoneNumbers(ctx)
     throw new ConnectorDirectoryUnsupportedException({
       connectorId: this.manifest.id,
       resource: input.resource,
