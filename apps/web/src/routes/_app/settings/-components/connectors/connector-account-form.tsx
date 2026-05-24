@@ -18,7 +18,7 @@ export function ConnectorAccountForm({ workspaceId }: { workspaceId: string }) {
 
   function submit(event: React.FormEvent) {
     event.preventDefault()
-    if (parsed) create.mutate({ connectorId, name, credentials: parsed })
+    if (parsed) create.createConnectorAccount({ connectorId, name, credentials: parsed })
   }
 
   return (

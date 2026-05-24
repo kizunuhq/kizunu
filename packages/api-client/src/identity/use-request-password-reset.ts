@@ -7,5 +7,6 @@ import { requestPasswordReset } from './auth.api'
 export function useRequestPasswordReset(
   options?: UseMutationOptions<void, ApiError, RequestPasswordReset>,
 ) {
-  return useMutation({ mutationFn: requestPasswordReset, ...options })
+  const { mutate, ...rest } = useMutation({ mutationFn: requestPasswordReset, ...options })
+  return { ...rest, requestPasswordReset: mutate }
 }

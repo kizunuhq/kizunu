@@ -11,7 +11,7 @@ export function useReassignLeads(
 ) {
   const queryClient = useQueryClient()
 
-  return useMutation({
+  const { mutate, ...rest } = useMutation({
     mutationFn: (body: ReassignLeadsRequest) => reassignLeads(workspaceId, body),
     ...options,
     onSuccess: async (...args) => {
@@ -21,4 +21,5 @@ export function useReassignLeads(
       await options?.onSuccess?.(...args)
     },
   })
+  return { ...rest, reassignLeads: mutate }
 }

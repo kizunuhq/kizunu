@@ -14,7 +14,7 @@ export function useCreateEntryTrigger(
 ) {
   const queryClient = useQueryClient()
 
-  return useMutation({
+  const { mutate, ...rest } = useMutation({
     mutationFn: (body: CreateEntryTriggerRequest) => createEntryTrigger(workspaceId, body),
     ...options,
     onSuccess: async (...args) => {
@@ -24,4 +24,5 @@ export function useCreateEntryTrigger(
       await options?.onSuccess?.(...args)
     },
   })
+  return { ...rest, createEntryTrigger: mutate }
 }

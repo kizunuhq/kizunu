@@ -14,7 +14,7 @@ export function useCreateChannelAccount(
 ) {
   const queryClient = useQueryClient()
 
-  return useMutation({
+  const { mutate, ...rest } = useMutation({
     mutationFn: (body: CreateChannelAccountRequest) => createChannelAccount(workspaceId, body),
     ...options,
     onSuccess: async (...args) => {
@@ -22,4 +22,5 @@ export function useCreateChannelAccount(
       await options?.onSuccess?.(...args)
     },
   })
+  return { ...rest, createChannelAccount: mutate }
 }

@@ -11,7 +11,7 @@ export function useConnectMetaCoex(
 ) {
   const queryClient = useQueryClient()
 
-  return useMutation({
+  const { mutate, ...rest } = useMutation({
     mutationFn: (body: ConnectMetaCoexRequest) => connectMetaCoex(workspaceId, body),
     ...options,
     onSuccess: async (...args) => {
@@ -19,4 +19,5 @@ export function useConnectMetaCoex(
       await options?.onSuccess?.(...args)
     },
   })
+  return { ...rest, connectMetaCoex: mutate }
 }

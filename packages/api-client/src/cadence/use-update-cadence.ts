@@ -16,7 +16,7 @@ export function useUpdateCadence(
 ) {
   const queryClient = useQueryClient()
 
-  return useMutation({
+  const { mutate, ...rest } = useMutation({
     mutationFn: ({ cadenceId, body }: UpdateCadenceInput) =>
       updateCadence(workspaceId, cadenceId, body),
     ...options,
@@ -25,4 +25,5 @@ export function useUpdateCadence(
       await options?.onSuccess?.(...args)
     },
   })
+  return { ...rest, updateCadence: mutate }
 }

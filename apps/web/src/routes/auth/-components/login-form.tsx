@@ -11,12 +11,14 @@ export function LoginForm() {
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const login = useLogin({ onSuccess: () => navigate({ to: '/workspace' }) })
-  const errorCopy = login.isError ? mapLoginError(login.error) : null
+  const { login, isPending, isError, error } = useLogin({
+    onSuccess: () => navigate({ to: '/workspace' }),
+  })
+  const errorCopy = isError ? mapLoginError(error) : null
 
   function submit(event: React.FormEvent) {
     event.preventDefault()
-    login.mutate({ email, password })
+    login({ email, password })
   }
 
   return (
@@ -40,8 +42,8 @@ export function LoginForm() {
           onChange={setPassword}
         />
         {errorCopy ? <LoginFieldError copy={errorCopy} /> : null}
-        <Button type="submit" disabled={login.isPending}>
-          {login.isPending ? 'Signing in…' : 'Sign in'}
+        <Button type="submit" disabled={isPending}>
+          {isPending ? 'Signing in…' : 'Sign in'}
         </Button>
       </form>
       <div className="text-muted-foreground flex flex-col gap-1 text-sm">

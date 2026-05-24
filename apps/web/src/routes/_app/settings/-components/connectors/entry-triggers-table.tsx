@@ -35,7 +35,7 @@ export function EntryTriggersTable({ workspaceId }: { workspaceId: string }) {
                 variant="outline"
                 size="sm"
                 disabled={remove.isPending}
-                onClick={() => remove.mutate(trigger.id)}
+                onClick={() => remove.deleteEntryTrigger(trigger.id)}
               >
                 Remove
               </Button>

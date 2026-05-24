@@ -18,7 +18,7 @@ export function EntryTriggerForm({ workspaceId }: { workspaceId: string }) {
   function submit(event: React.FormEvent) {
     event.preventDefault()
     if (connectorAccountId && cadenceId && stageId) {
-      create.mutate({ connectorAccountId, cadenceId, stageId, pipelineId: null })
+      create.createEntryTrigger({ connectorAccountId, cadenceId, stageId, pipelineId: null })
     }
   }
 

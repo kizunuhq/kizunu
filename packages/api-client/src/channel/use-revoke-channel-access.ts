@@ -15,7 +15,7 @@ export function useRevokeChannelAccess(
 ) {
   const queryClient = useQueryClient()
 
-  return useMutation({
+  const { mutate, ...rest } = useMutation({
     mutationFn: ({ accountId, userId }: RevokeChannelAccessInput) =>
       revokeChannelAccess(workspaceId, accountId, userId),
     ...options,
@@ -24,4 +24,5 @@ export function useRevokeChannelAccess(
       await options?.onSuccess?.(...args)
     },
   })
+  return { ...rest, revokeChannelAccess: mutate }
 }

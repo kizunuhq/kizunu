@@ -11,7 +11,7 @@ export function useCreateTemplate(
 ) {
   const queryClient = useQueryClient()
 
-  return useMutation({
+  const { mutate, ...rest } = useMutation({
     mutationFn: (body: CreateTemplateRequest) => createTemplate(workspaceId, body),
     ...options,
     onSuccess: async (...args) => {
@@ -19,4 +19,5 @@ export function useCreateTemplate(
       await options?.onSuccess?.(...args)
     },
   })
+  return { ...rest, createTemplate: mutate }
 }

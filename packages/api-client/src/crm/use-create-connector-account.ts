@@ -18,7 +18,7 @@ export function useCreateConnectorAccount(
 ) {
   const queryClient = useQueryClient()
 
-  return useMutation({
+  const { mutate, ...rest } = useMutation({
     mutationFn: (body: CreateConnectorAccountRequest) => createConnectorAccount(workspaceId, body),
     ...options,
     onSuccess: async (...args) => {
@@ -28,4 +28,5 @@ export function useCreateConnectorAccount(
       await options?.onSuccess?.(...args)
     },
   })
+  return { ...rest, createConnectorAccount: mutate }
 }

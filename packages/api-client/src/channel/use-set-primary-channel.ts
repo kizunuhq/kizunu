@@ -7,7 +7,7 @@ import { setPrimaryChannel } from './channel.api'
 export function useSetPrimaryChannel(options?: UseMutationOptions<void, ApiError, string>) {
   const queryClient = useQueryClient()
 
-  return useMutation({
+  const { mutate, ...rest } = useMutation({
     mutationFn: (accountId: string) => setPrimaryChannel(accountId),
     ...options,
     onSuccess: async (...args) => {
@@ -15,4 +15,5 @@ export function useSetPrimaryChannel(options?: UseMutationOptions<void, ApiError
       await options?.onSuccess?.(...args)
     },
   })
+  return { ...rest, setPrimaryChannel: mutate }
 }

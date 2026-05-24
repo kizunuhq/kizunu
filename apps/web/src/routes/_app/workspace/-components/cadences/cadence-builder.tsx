@@ -25,7 +25,7 @@ export function CadenceBuilder({ workspaceId }: { workspaceId: string }) {
 
   function submit(event: React.FormEvent) {
     event.preventDefault()
-    create.mutate(buildCadenceRequest({ name, steps, onReplyStageId }))
+    create.createCadence(buildCadenceRequest({ name, steps, onReplyStageId }))
   }
 
   const templateOptions = (templates.data?.templates ?? []).map((t) => ({

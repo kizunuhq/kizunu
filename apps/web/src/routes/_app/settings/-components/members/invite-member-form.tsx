@@ -10,7 +10,7 @@ export function InviteMemberForm({ workspaceId }: { workspaceId: string }) {
 
   function submit(event: React.FormEvent) {
     event.preventDefault()
-    invite.mutate({ email })
+    invite.inviteMember({ email })
   }
 
   return (

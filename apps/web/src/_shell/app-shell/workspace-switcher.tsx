@@ -62,7 +62,7 @@ function WorkspaceLabel({ name }: { name: string }) {
 function WorkspacePopoverContent() {
   const navigate = useNavigate()
   const { memberships, activeWorkspaceId } = useCurrentUser()
-  const switchWorkspace = useSwitchWorkspace({
+  const { switchWorkspace, isPending } = useSwitchWorkspace({
     onSuccess: () => navigate({ to: '/workspace' }),
     onError: (error) => toast.error(getApiErrorMessage(error)),
   })
@@ -75,8 +75,8 @@ function WorkspacePopoverContent() {
             <button
               key={membership.workspaceId}
               type="button"
-              disabled={switchWorkspace.isPending}
-              onClick={() => switchWorkspace.mutate({ workspaceId: membership.workspaceId })}
+              disabled={isPending}
+              onClick={() => switchWorkspace({ workspaceId: membership.workspaceId })}
               className={cn(
                 'hover:bg-accent flex items-center justify-between rounded-[2px] px-2 py-1.5 text-left text-sm transition-colors disabled:opacity-50',
                 isActive && 'bg-background-300',

@@ -16,7 +16,7 @@ export function useUpdateTemplate(
 ) {
   const queryClient = useQueryClient()
 
-  return useMutation({
+  const { mutate, ...rest } = useMutation({
     mutationFn: ({ templateId, patch }: UpdateTemplateInput) =>
       updateTemplate(workspaceId, templateId, patch),
     ...options,
@@ -25,4 +25,5 @@ export function useUpdateTemplate(
       await options?.onSuccess?.(...args)
     },
   })
+  return { ...rest, updateTemplate: mutate }
 }

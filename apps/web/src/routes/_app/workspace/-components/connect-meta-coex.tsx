@@ -138,7 +138,7 @@ export function ConnectMetaCoex({
       setStatus('Finish the Embedded Signup flow before submitting.')
       return
     }
-    mutation.mutate({ code, businessId, wabaId, phoneNumberId, name })
+    mutation.connectMetaCoex({ code, businessId, wabaId, phoneNumberId, name })
   }
 
   const ready = Boolean(code && businessId && wabaId && phoneNumberId)

@@ -11,7 +11,7 @@ export function useCreateCadence(
 ) {
   const queryClient = useQueryClient()
 
-  return useMutation({
+  const { mutate, ...rest } = useMutation({
     mutationFn: (body: CadenceRequest) => createCadence(workspaceId, body),
     ...options,
     onSuccess: async (...args) => {
@@ -19,4 +19,5 @@ export function useCreateCadence(
       await options?.onSuccess?.(...args)
     },
   })
+  return { ...rest, createCadence: mutate }
 }

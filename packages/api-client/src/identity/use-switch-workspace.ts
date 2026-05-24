@@ -13,7 +13,7 @@ export function useSwitchWorkspace(
 ) {
   const queryClient = useQueryClient()
 
-  return useMutation({
+  const { mutate, ...rest } = useMutation({
     mutationFn: switchWorkspace,
     ...options,
     onSuccess: async (...args) => {
@@ -21,4 +21,5 @@ export function useSwitchWorkspace(
       await options?.onSuccess?.(...args)
     },
   })
+  return { ...rest, switchWorkspace: mutate }
 }

@@ -12,12 +12,14 @@ export function SignupForm() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const register = useRegister({ onSuccess: () => navigate({ to: '/workspace' }) })
-  const errorCopy = register.isError ? mapLoginError(register.error) : null
+  const { register, isPending, isError, error } = useRegister({
+    onSuccess: () => navigate({ to: '/workspace' }),
+  })
+  const errorCopy = isError ? mapLoginError(error) : null
 
   function submit(event: React.FormEvent) {
     event.preventDefault()
-    register.mutate({ name, email, password })
+    register({ name, email, password })
   }
 
   return (
@@ -52,8 +54,8 @@ export function SignupForm() {
           onChange={setPassword}
         />
         {errorCopy ? <SignupFieldError copy={errorCopy} /> : null}
-        <Button type="submit" disabled={register.isPending}>
-          {register.isPending ? 'Creating…' : 'Create workspace'}
+        <Button type="submit" disabled={isPending}>
+          {isPending ? 'Creating…' : 'Create workspace'}
         </Button>
       </form>
       <p className="text-muted-foreground text-sm">
