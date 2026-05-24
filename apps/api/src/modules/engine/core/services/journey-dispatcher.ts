@@ -27,7 +27,12 @@ import { LeadJourneyErrorReason } from '../domain/lead-journey-error-reason'
 import { LeadJourneyStatus } from '../domain/lead-journey-status'
 import { transition } from '../domain/lead-journey-transition'
 import { resolveNextStep } from '../domain/next-step'
+import {
+  TemplateVariableUnknownException,
+  TemplateVariableUnresolvedException,
+} from '../errors/template-variable.errors'
 import { CadenceActionExecutor } from './cadence-action-executor'
+import { TemplateVariableResolver } from './template-variable-resolver'
 
 const BATCH_SIZE = 50
 const MS_PER_MINUTE = 60 * 1000
@@ -55,6 +60,7 @@ export class JourneyDispatcher {
     private readonly connectors: ConnectorAccountRepository,
     private readonly crmRegistry: CrmConnectorRegistry,
     private readonly executor: CadenceActionExecutor,
+    private readonly variableResolver: TemplateVariableResolver,
     private readonly jitter: Jitter,
     private readonly clock: Clock,
   ) {}
@@ -135,10 +141,66 @@ export class JourneyDispatcher {
 
     if (decision.action === 'skip') {
       await this.touchAttempts.recordResult(tx, attempt.id, { status: 'skipped' })
-    } else {
-      await this.sendStep(tx, journey, step, stepOrder, attempt.id, channelAccountId)
+      await this.scheduleNext(tx, journey.id, cadence.steps, stepOrder, now)
+      return
     }
+    const template = step.templateId
+      ? await this.templates.findByIdInWorkspace(step.templateId, journey.workspaceId)
+      : undefined
+    const variables = this.tryResolveVariables(journey, template?.variables)
+    if (variables.kind === 'failed') {
+      await this.touchAttempts.recordResult(tx, attempt.id, {
+        status: 'failed',
+        error: `${variables.reason}:${variables.variableName}`,
+      })
+      return await this.errorOut(tx, journey.id, variables.reason)
+    }
+    await this.sendStep(
+      tx,
+      journey,
+      step,
+      stepOrder,
+      attempt.id,
+      channelAccountId,
+      template,
+      variables.value,
+    )
     await this.scheduleNext(tx, journey.id, cadence.steps, stepOrder, now)
+  }
+
+  private tryResolveVariables(
+    journey: LockedJourney,
+    variables: readonly string[] | undefined,
+  ):
+    | { kind: 'value'; value: Record<string, string> | undefined }
+    | { kind: 'failed'; reason: string; variableName: string } {
+    if (!variables || variables.length === 0) return { kind: 'value', value: undefined }
+    try {
+      const resolved = this.variableResolver.resolve(variables, {
+        lead: {
+          name: journey.leadName,
+          phone: journey.leadPhone,
+          ownerExternalId: journey.leadOwnerExternalId,
+        },
+      })
+      return { kind: 'value', value: resolved }
+    } catch (error) {
+      if (error instanceof TemplateVariableUnknownException) {
+        return {
+          kind: 'failed',
+          reason: LeadJourneyErrorReason.TemplateVariableUnknown,
+          variableName: error.variableName,
+        }
+      }
+      if (error instanceof TemplateVariableUnresolvedException) {
+        return {
+          kind: 'failed',
+          reason: LeadJourneyErrorReason.TemplateVariableMissing,
+          variableName: error.variableName,
+        }
+      }
+      throw error
+    }
   }
 
   private async sendStep(
@@ -148,17 +210,18 @@ export class JourneyDispatcher {
     stepOrder: number,
     attemptId: string,
     channelAccountId: string,
+    template:
+      | { providerTemplateName: string; language: string; variables: readonly string[] }
+      | undefined,
+    variables: Record<string, string> | undefined,
   ): Promise<void> {
     const channel = await this.channelAccounts.findCredentials(channelAccountId)
-    const template = step.templateId
-      ? await this.templates.findByIdInWorkspace(step.templateId, journey.workspaceId)
-      : undefined
     const plugin = this.channelRegistry.get(step.channelPluginId)
     const payload: SendPayload = {
       to: journey.leadPhone ?? '',
       mode: 'template',
       template: template
-        ? { name: template.providerTemplateName, language: template.language }
+        ? { name: template.providerTemplateName, language: template.language, variables }
         : undefined,
     }
     const result = await plugin.send(payload, channel?.credentials)

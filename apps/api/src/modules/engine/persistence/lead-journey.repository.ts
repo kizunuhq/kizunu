@@ -34,6 +34,7 @@ export interface LockedJourney {
   workspaceId: string
   connectorAccountId: string
   leadExternalId: string
+  leadName: string
   leadOwnerExternalId: string | null
   leadOwnerUserId: string | null
   leadPhone: string | null
@@ -106,6 +107,7 @@ export class LeadJourneyRepository {
         workspaceId: leads.workspaceId,
         connectorAccountId: leads.connectorAccountId,
         leadExternalId: leads.externalId,
+        leadName: leads.name,
         leadOwnerExternalId: leads.ownerExternalId,
         leadOwnerUserId: leads.ownerUserId,
         leadPhone: leads.phone,

@@ -164,6 +164,54 @@ describe('MetaWhatsappPlugin', () => {
       expect(body.template).toMatchObject({ name: 'followup_1', language: { code: 'en_US' } })
     })
 
+    it('maps named variables onto positional Meta HSM body components in insertion order', async () => {
+      const { plugin, fetchFn } = pluginWithFetch(
+        new Response(JSON.stringify({ messages: [{ id: 'wamid.tpl' }] }), { status: 200 }),
+      )
+
+      await plugin.send(
+        {
+          to: '5511999',
+          mode: 'template',
+          template: {
+            name: 'followup_2',
+            language: 'pt_BR',
+            variables: { leadFirstName: 'Ada', leadName: 'Ada Lovelace' },
+          },
+        },
+        credentials,
+      )
+
+      const body = JSON.parse(fetchFn.mock.calls[0]![1]!.body as string)
+      expect(body.template.components).toEqual([
+        {
+          type: 'body',
+          parameters: [
+            { type: 'text', text: 'Ada' },
+            { type: 'text', text: 'Ada Lovelace' },
+          ],
+        },
+      ])
+    })
+
+    it('omits components when the template has no variables', async () => {
+      const { plugin, fetchFn } = pluginWithFetch(
+        new Response(JSON.stringify({ messages: [{ id: 'wamid.tpl' }] }), { status: 200 }),
+      )
+
+      await plugin.send(
+        {
+          to: '5511999',
+          mode: 'template',
+          template: { name: 'followup_3', language: 'en_US' },
+        },
+        credentials,
+      )
+
+      const body = JSON.parse(fetchFn.mock.calls[0]![1]!.body as string)
+      expect(body.template).not.toHaveProperty('components')
+    })
+
     it('reports failure when the Graph API responds non-ok', async () => {
       const { plugin } = pluginWithFetch(
         new Response(JSON.stringify({ error: { message: 'invalid token' } }), { status: 401 }),
