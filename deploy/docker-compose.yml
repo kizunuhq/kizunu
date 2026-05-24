@@ -1,9 +1,10 @@
 # Dev-only stack. Envs are set inline here by default; a few opt-in secrets
 # (Meta Coex app credentials) are forwarded from the operator's shell or a
-# `deploy/.env` file via `${VAR:-}` interpolation. Changing those requires
-# restarting the affected service — Vite inlines `import.meta.env.VITE_*` at
-# dev-server startup, so the web container needs a fresh boot to pick them
-# up. Each service opts into profiles; `all` brings up everything:
+# `deploy/.env` file via `${VAR:-}` interpolation — see `deploy/.env.example`
+# for the names. Changing those requires restarting the affected service —
+# Vite inlines `import.meta.env.VITE_*` at dev-server startup, so the web
+# container needs a fresh boot to pick them up. Each service opts into
+# profiles; `all` brings up everything:
 #
 #   docker compose -f deploy/docker-compose.yml --profile all up      # full stack
 #   docker compose -f deploy/docker-compose.yml --profile api up      # api (+ postgres)
