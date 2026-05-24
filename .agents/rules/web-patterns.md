@@ -35,10 +35,11 @@ primitives/` (shadcn-installed; see `react.md` §0).
 per-feature subfolder per route. Area-level `-components/` and `-utils/`
 are reserved for **cross-feature** concerns:
 
-- area-layout content consumed by the area's own `route.tsx` (e.g.
-  `auth/-components/auth-branding-panel.tsx` for `auth/route.tsx`'s
+- area-root content consumed by the area's own `route.tsx` (when the
+  area is a layout) or `index.tsx` (when the area itself is a page)
+  (e.g. `auth/-components/auth-branding-panel.tsx` for `auth/route.tsx`'s
   layout, `workspace/-components/dashboard/*` for `workspace/index.tsx`'s
-  dashboard);
+  dashboard page);
 - helpers consumed by **two or more** feature-routes inside the area but
   too area-specific to graduate to `components/composed/` or `lib/`
   (e.g. `auth/-utils/login-error-copy.ts` consumed by login, signup, and
@@ -53,6 +54,10 @@ stray reference is ever found, migrate it in the same PR — there is no
 transition clause to lean on.
 
 ## 1.5. No naked container routes
+
+**Reject criterion.** A folder containing a `route.tsx` layout but no
+sibling `index.tsx` is the bug shape: the user lands on the layout
+chrome wrapped around an empty `<Outlet />`. Reviews reject it on sight.
 
 Every folder under `routes/` whose **segment appears in the URL** must
 respond meaningfully at the bare URL. Two valid shapes:
@@ -81,10 +86,6 @@ Two folder shapes are **exempt** because their segment is not in the URL:
   bare URL exists, so nothing to land on.
 - **Pathless layouts** `_area/` — TanStack's underscore-prefixed folders
   (e.g. `_app/`). Same reason: the segment never appears in the URL.
-
-A `route.tsx` wrapper with no sibling `index.tsx` is the bug shape: the
-user sees the layout chrome wrapped around an empty `<Outlet />`.
-Reviews reject it.
 
 ## 2. Page recipe
 
