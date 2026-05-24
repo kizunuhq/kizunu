@@ -1,5 +1,5 @@
 import { Button } from '@kizunu/web/components/primitives/button'
-import { lookupOAuthErrorCopy } from '@kizunu/web/routes/auth/-utils/oauth-error-copy'
+import { lookupOAuthErrorCopy } from '@kizunu/web/routes/auth/login/-utils/oauth-error-copy'
 import { X } from '@phosphor-icons/react'
 
 interface OAuthErrorAlertProps {

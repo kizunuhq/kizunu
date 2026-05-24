@@ -17,9 +17,9 @@ import { Route as AuthIndexRouteImport } from './routes/auth/index'
 import { Route as AuthVerifyEmailRouteImport } from './routes/auth/verify-email'
 import { Route as AuthSignupRouteImport } from './routes/auth/signup'
 import { Route as AuthResetPasswordRouteImport } from './routes/auth/reset-password'
-import { Route as AuthLoginRouteImport } from './routes/auth/login'
 import { Route as AuthForgotPasswordRouteImport } from './routes/auth/forgot-password'
 import { Route as AppSettingsRouteRouteImport } from './routes/_app/settings/route'
+import { Route as AuthLoginIndexRouteImport } from './routes/auth/login/index'
 import { Route as AppWorkspaceIndexRouteImport } from './routes/_app/workspace/index'
 import { Route as AppSettingsIndexRouteImport } from './routes/_app/settings/index'
 import { Route as AuthAcceptInviteTokenRouteImport } from './routes/auth/accept-invite.$token'
@@ -74,11 +74,6 @@ const AuthResetPasswordRoute = AuthResetPasswordRouteImport.update({
   path: '/reset-password',
   getParentRoute: () => AuthRouteRoute,
 } as any)
-const AuthLoginRoute = AuthLoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => AuthRouteRoute,
-} as any)
 const AuthForgotPasswordRoute = AuthForgotPasswordRouteImport.update({
   id: '/forgot-password',
   path: '/forgot-password',
@@ -88,6 +83,11 @@ const AppSettingsRouteRoute = AppSettingsRouteRouteImport.update({
   id: '/settings',
   path: '/settings',
   getParentRoute: () => AppRouteRoute,
+} as any)
+const AuthLoginIndexRoute = AuthLoginIndexRouteImport.update({
+  id: '/login/',
+  path: '/login/',
+  getParentRoute: () => AuthRouteRoute,
 } as any)
 const AppWorkspaceIndexRoute = AppWorkspaceIndexRouteImport.update({
   id: '/workspace/',
@@ -174,7 +174,6 @@ export interface FileRoutesByFullPath {
   '/not-found': typeof NotFoundRoute
   '/settings': typeof AppSettingsRouteRouteWithChildren
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
-  '/auth/login': typeof AuthLoginRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/auth/signup': typeof AuthSignupRoute
   '/auth/verify-email': typeof AuthVerifyEmailRoute
@@ -182,6 +181,7 @@ export interface FileRoutesByFullPath {
   '/auth/accept-invite/$token': typeof AuthAcceptInviteTokenRoute
   '/settings/': typeof AppSettingsIndexRoute
   '/workspace/': typeof AppWorkspaceIndexRoute
+  '/auth/login/': typeof AuthLoginIndexRoute
   '/settings/billing/': typeof AppSettingsBillingIndexRoute
   '/settings/channels/': typeof AppSettingsChannelsIndexRoute
   '/settings/connectors/': typeof AppSettingsConnectorsIndexRoute
@@ -198,7 +198,6 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/not-found': typeof NotFoundRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
-  '/auth/login': typeof AuthLoginRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/auth/signup': typeof AuthSignupRoute
   '/auth/verify-email': typeof AuthVerifyEmailRoute
@@ -206,6 +205,7 @@ export interface FileRoutesByTo {
   '/auth/accept-invite/$token': typeof AuthAcceptInviteTokenRoute
   '/settings': typeof AppSettingsIndexRoute
   '/workspace': typeof AppWorkspaceIndexRoute
+  '/auth/login': typeof AuthLoginIndexRoute
   '/settings/billing': typeof AppSettingsBillingIndexRoute
   '/settings/channels': typeof AppSettingsChannelsIndexRoute
   '/settings/connectors': typeof AppSettingsConnectorsIndexRoute
@@ -226,7 +226,6 @@ export interface FileRoutesById {
   '/not-found': typeof NotFoundRoute
   '/_app/settings': typeof AppSettingsRouteRouteWithChildren
   '/auth/forgot-password': typeof AuthForgotPasswordRoute
-  '/auth/login': typeof AuthLoginRoute
   '/auth/reset-password': typeof AuthResetPasswordRoute
   '/auth/signup': typeof AuthSignupRoute
   '/auth/verify-email': typeof AuthVerifyEmailRoute
@@ -234,6 +233,7 @@ export interface FileRoutesById {
   '/auth/accept-invite/$token': typeof AuthAcceptInviteTokenRoute
   '/_app/settings/': typeof AppSettingsIndexRoute
   '/_app/workspace/': typeof AppWorkspaceIndexRoute
+  '/auth/login/': typeof AuthLoginIndexRoute
   '/_app/settings/billing/': typeof AppSettingsBillingIndexRoute
   '/_app/settings/channels/': typeof AppSettingsChannelsIndexRoute
   '/_app/settings/connectors/': typeof AppSettingsConnectorsIndexRoute
@@ -254,7 +254,6 @@ export interface FileRouteTypes {
     | '/not-found'
     | '/settings'
     | '/auth/forgot-password'
-    | '/auth/login'
     | '/auth/reset-password'
     | '/auth/signup'
     | '/auth/verify-email'
@@ -262,6 +261,7 @@ export interface FileRouteTypes {
     | '/auth/accept-invite/$token'
     | '/settings/'
     | '/workspace/'
+    | '/auth/login/'
     | '/settings/billing/'
     | '/settings/channels/'
     | '/settings/connectors/'
@@ -278,7 +278,6 @@ export interface FileRouteTypes {
     | '/'
     | '/not-found'
     | '/auth/forgot-password'
-    | '/auth/login'
     | '/auth/reset-password'
     | '/auth/signup'
     | '/auth/verify-email'
@@ -286,6 +285,7 @@ export interface FileRouteTypes {
     | '/auth/accept-invite/$token'
     | '/settings'
     | '/workspace'
+    | '/auth/login'
     | '/settings/billing'
     | '/settings/channels'
     | '/settings/connectors'
@@ -305,7 +305,6 @@ export interface FileRouteTypes {
     | '/not-found'
     | '/_app/settings'
     | '/auth/forgot-password'
-    | '/auth/login'
     | '/auth/reset-password'
     | '/auth/signup'
     | '/auth/verify-email'
@@ -313,6 +312,7 @@ export interface FileRouteTypes {
     | '/auth/accept-invite/$token'
     | '/_app/settings/'
     | '/_app/workspace/'
+    | '/auth/login/'
     | '/_app/settings/billing/'
     | '/_app/settings/channels/'
     | '/_app/settings/connectors/'
@@ -391,13 +391,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthResetPasswordRouteImport
       parentRoute: typeof AuthRouteRoute
     }
-    '/auth/login': {
-      id: '/auth/login'
-      path: '/login'
-      fullPath: '/auth/login'
-      preLoaderRoute: typeof AuthLoginRouteImport
-      parentRoute: typeof AuthRouteRoute
-    }
     '/auth/forgot-password': {
       id: '/auth/forgot-password'
       path: '/forgot-password'
@@ -411,6 +404,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/settings'
       preLoaderRoute: typeof AppSettingsRouteRouteImport
       parentRoute: typeof AppRouteRoute
+    }
+    '/auth/login/': {
+      id: '/auth/login/'
+      path: '/login'
+      fullPath: '/auth/login/'
+      preLoaderRoute: typeof AuthLoginIndexRouteImport
+      parentRoute: typeof AuthRouteRoute
     }
     '/_app/workspace/': {
       id: '/_app/workspace/'
@@ -562,22 +562,22 @@ const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
 
 interface AuthRouteRouteChildren {
   AuthForgotPasswordRoute: typeof AuthForgotPasswordRoute
-  AuthLoginRoute: typeof AuthLoginRoute
   AuthResetPasswordRoute: typeof AuthResetPasswordRoute
   AuthSignupRoute: typeof AuthSignupRoute
   AuthVerifyEmailRoute: typeof AuthVerifyEmailRoute
   AuthIndexRoute: typeof AuthIndexRoute
   AuthAcceptInviteTokenRoute: typeof AuthAcceptInviteTokenRoute
+  AuthLoginIndexRoute: typeof AuthLoginIndexRoute
 }
 
 const AuthRouteRouteChildren: AuthRouteRouteChildren = {
   AuthForgotPasswordRoute: AuthForgotPasswordRoute,
-  AuthLoginRoute: AuthLoginRoute,
   AuthResetPasswordRoute: AuthResetPasswordRoute,
   AuthSignupRoute: AuthSignupRoute,
   AuthVerifyEmailRoute: AuthVerifyEmailRoute,
   AuthIndexRoute: AuthIndexRoute,
   AuthAcceptInviteTokenRoute: AuthAcceptInviteTokenRoute,
+  AuthLoginIndexRoute: AuthLoginIndexRoute,
 }
 
 const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(

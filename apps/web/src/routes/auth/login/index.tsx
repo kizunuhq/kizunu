@@ -3,11 +3,11 @@ import { useCurrentUser } from '@kizunu/api-client/identity/use-current-user'
 import { useLogin } from '@kizunu/api-client/identity/use-login'
 import { PageHeader } from '@kizunu/web/components/composed/page-header'
 import { Button } from '@kizunu/web/components/primitives/button'
-import { LoginForm } from '@kizunu/web/routes/auth/-components/login-form'
-import { OAuthButtons } from '@kizunu/web/routes/auth/-components/oauth-buttons'
-import { OAuthErrorAlert } from '@kizunu/web/routes/auth/-components/oauth-error-alert'
-import { OAuthSeparator } from '@kizunu/web/routes/auth/-components/oauth-separator'
 import { mapLoginError } from '@kizunu/web/routes/auth/-utils/login-error-copy'
+import { LoginForm } from '@kizunu/web/routes/auth/login/-components/login-form'
+import { OAuthButtons } from '@kizunu/web/routes/auth/login/-components/oauth-buttons'
+import { OAuthErrorAlert } from '@kizunu/web/routes/auth/login/-components/oauth-error-alert'
+import { OAuthSeparator } from '@kizunu/web/routes/auth/login/-components/oauth-separator'
 import { createFileRoute, Link, Navigate, useNavigate } from '@tanstack/react-router'
 
 interface LoginSearch {
@@ -17,7 +17,7 @@ interface LoginSearch {
 
 const FORM_ID = 'login-form'
 
-export const Route = createFileRoute('/auth/login')({
+export const Route = createFileRoute('/auth/login/')({
   validateSearch: (search: Record<string, unknown>): LoginSearch => ({
     error: typeof search.error === 'string' ? search.error : undefined,
     next: typeof search.next === 'string' ? search.next : undefined,
