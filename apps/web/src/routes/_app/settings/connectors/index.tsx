@@ -1,13 +1,13 @@
 import { useCurrentUser } from '@kizunu/api-client/identity/use-current-user'
 import { PageHeader } from '@kizunu/web/components/composed/page-header'
 import { Button } from '@kizunu/web/components/primitives/button'
-import { ConnectorsManager } from '@kizunu/web/routes/_app/settings/-components/connectors/connectors-manager'
-import { CreateConnectorAccountDialog } from '@kizunu/web/routes/_app/settings/-dialogs/create-connector-account-dialog'
+import { ConnectorsManager } from '@kizunu/web/routes/_app/settings/connectors/-components/connectors-manager'
+import { CreateConnectorAccountDialog } from '@kizunu/web/routes/_app/settings/connectors/-dialogs/create-connector-account-dialog'
 import { Plus } from '@phosphor-icons/react'
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
 
-export const Route = createFileRoute('/_app/settings/connectors')({
+export const Route = createFileRoute('/_app/settings/connectors/')({
   component: ConnectorsPage,
 })
 

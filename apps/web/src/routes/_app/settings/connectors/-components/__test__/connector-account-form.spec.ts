@@ -1,4 +1,4 @@
-import { connectorAccountFormSchema } from '@kizunu/web/routes/_app/settings/-components/connectors/connector-account-form'
+import { connectorAccountFormSchema } from '@kizunu/web/routes/_app/settings/connectors/-components/connector-account-form'
 import { describe, expect, it } from 'vite-plus/test'
 
 describe('connectorAccountFormSchema', () => {

@@ -6,8 +6,8 @@ import {
   CardHeader,
   CardTitle,
 } from '@kizunu/web/components/primitives/card'
-import { EntryTriggersTable } from '@kizunu/web/routes/_app/settings/-components/connectors/entry-triggers-table'
-import { CreateEntryTriggerDialog } from '@kizunu/web/routes/_app/settings/-dialogs/create-entry-trigger-dialog'
+import { EntryTriggersTable } from '@kizunu/web/routes/_app/settings/connectors/-components/entry-triggers-table'
+import { CreateEntryTriggerDialog } from '@kizunu/web/routes/_app/settings/connectors/-dialogs/create-entry-trigger-dialog'
 import { Plus } from '@phosphor-icons/react'
 import { useState } from 'react'
 

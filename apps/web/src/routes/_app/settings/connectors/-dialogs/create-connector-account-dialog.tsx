@@ -2,7 +2,7 @@ import { useCreateConnectorAccount } from '@kizunu/api-client/crm/use-create-con
 import type { CreateConnectorAccountRequest } from '@kizunu/api-contracts/crm'
 import { ResourceDialog } from '@kizunu/web/components/composed/resource-dialog'
 import { useMutationDialog } from '@kizunu/web/lib/use-mutation-dialog'
-import { ConnectorAccountForm } from '@kizunu/web/routes/_app/settings/-components/connectors/connector-account-form'
+import { ConnectorAccountForm } from '@kizunu/web/routes/_app/settings/connectors/-components/connector-account-form'
 import { toast } from 'sonner'
 
 interface CreateConnectorAccountDialogProps {

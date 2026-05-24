@@ -15,7 +15,7 @@ import {
   TableHeader,
   TableRow,
 } from '@kizunu/web/components/primitives/table'
-import { DeleteEntryTriggerDialog } from '@kizunu/web/routes/_app/settings/-dialogs/delete-entry-trigger-dialog'
+import { DeleteEntryTriggerDialog } from '@kizunu/web/routes/_app/settings/connectors/-dialogs/delete-entry-trigger-dialog'
 import { DotsThree } from '@phosphor-icons/react'
 import { useState } from 'react'
 
