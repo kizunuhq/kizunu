@@ -43,6 +43,7 @@ export function CreateTemplateDialog(props: CreateTemplateDialogProps) {
     >
       <TemplateForm
         formId={FORM_ID}
+        workspaceId={workspaceId}
         isPending={isPending}
         error={dialog.error}
         onSubmit={handleSubmit}
