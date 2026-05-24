@@ -79,6 +79,10 @@ Settled before code (from `docs/v0.1-scope.md`; rationale in `docs/adr/`):
 ## Deferred ideas
 
 - See ROADMAP.md → Phase 1.5 and Future Considerations.
+- **Feature `054`** ships the connector-lookups MVP (Pipedrive users/pipelines/stages/fields, Meta APPROVED templates) on the existing surfaces. Three slices are explicitly deferred:
+  - **Coex phone-number picker (LOOKUP-16..18)** — needs a pre-row preview endpoint (`POST /channel-accounts/meta-whatsapp/preview-phone-numbers`) because the channel-account row is only persisted after Coex Finish. Tracked in `CONCERNS.md`.
+  - **Pipedrive custom-field UI swap (LOOKUP-11)** — endpoint + hook (`useDirectoryPipedriveFields`) ship green, but no variable-resolver UI exists yet to consume them. Picker lands when the resolver UI is built.
+  - **Multi-Meta-account template scoping** — `template-form.tsx` picks the first Meta channel account; add an account picker when a multi-account workspace materializes.
 
 ## Preferences
 

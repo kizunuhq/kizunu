@@ -47,9 +47,9 @@ export class ConnectorAccountController {
     }
   }
 
-  @Get(':workspaceId/connector-accounts/:accountId/directory/:resource')
+  @Get(':id/connector-accounts/:accountId/directory/:resource')
   async getDirectory(
-    @Param('workspaceId') workspaceId: string,
+    @Param('id') workspaceId: string,
     @Param('accountId') accountId: string,
     @Param('resource') resource: string,
     @Query() query: GetConnectorDirectoryQueryDto,
