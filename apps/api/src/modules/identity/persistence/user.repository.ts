@@ -1,7 +1,8 @@
+import { memberships } from '@kizunu/api/db/schemas/memberships'
 import { type User, users } from '@kizunu/api/db/schemas/users'
 import { DrizzleService } from '@kizunu/nestjs-shared/modules/persistence/services/drizzle.service'
 import { Injectable } from '@nestjs/common'
-import { eq, sql } from 'drizzle-orm'
+import { and, eq, isNotNull, sql } from 'drizzle-orm'
 
 @Injectable()
 export class UserRepository {
@@ -14,6 +15,32 @@ export class UserRepository {
 
   async findByEmail(email: string): Promise<User | undefined> {
     const rows = await this.drizzle.db.select().from(users).where(eq(users.email, email)).limit(1)
+    return rows[0]
+  }
+
+  /**
+   * Resolves a workspace member whose email matches the (lowercased) candidate AND
+   * whose email is verified AND whose membership is active. The owner-mapping
+   * auto-match path uses this — only verified, active members can claim a CRM
+   * external owner identity by email.
+   */
+  async findVerifiedActiveByEmail(
+    workspaceId: string,
+    lowercaseEmail: string,
+  ): Promise<{ userId: string; membershipId: string } | undefined> {
+    const rows = await this.drizzle.db
+      .select({ userId: users.id, membershipId: memberships.id })
+      .from(users)
+      .innerJoin(memberships, eq(memberships.userId, users.id))
+      .where(
+        and(
+          eq(users.email, lowercaseEmail),
+          isNotNull(users.emailVerifiedAt),
+          eq(memberships.workspaceId, workspaceId),
+          eq(memberships.status, 'active'),
+        ),
+      )
+      .limit(1)
     return rows[0]
   }
 
