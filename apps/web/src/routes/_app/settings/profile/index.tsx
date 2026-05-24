@@ -5,7 +5,7 @@ import { buttonVariants } from '@kizunu/web/components/primitives/button'
 import { Card } from '@kizunu/web/components/primitives/card'
 import { createFileRoute, Link } from '@tanstack/react-router'
 
-export const Route = createFileRoute('/_app/settings/profile')({
+export const Route = createFileRoute('/_app/settings/profile/')({
   component: ProfilePage,
 })
 

@@ -29,10 +29,10 @@ import { Route as AppWorkspaceConnectMetaCoexRouteImport } from './routes/_app/w
 import { Route as AppWorkspaceCadencesRouteImport } from './routes/_app/workspace/cadences'
 import { Route as AppSettingsWorkspaceRouteImport } from './routes/_app/settings/workspace'
 import { Route as AppSettingsSecurityRouteImport } from './routes/_app/settings/security'
-import { Route as AppSettingsProfileRouteImport } from './routes/_app/settings/profile'
 import { Route as AppSettingsMembersRouteImport } from './routes/_app/settings/members'
 import { Route as AppSettingsConnectorsRouteImport } from './routes/_app/settings/connectors'
 import { Route as AppSettingsChannelsRouteImport } from './routes/_app/settings/channels'
+import { Route as AppSettingsProfileIndexRouteImport } from './routes/_app/settings/profile/index'
 import { Route as AppSettingsBillingIndexRouteImport } from './routes/_app/settings/billing/index'
 
 const NotFoundRoute = NotFoundRouteImport.update({
@@ -135,11 +135,6 @@ const AppSettingsSecurityRoute = AppSettingsSecurityRouteImport.update({
   path: '/security',
   getParentRoute: () => AppSettingsRouteRoute,
 } as any)
-const AppSettingsProfileRoute = AppSettingsProfileRouteImport.update({
-  id: '/profile',
-  path: '/profile',
-  getParentRoute: () => AppSettingsRouteRoute,
-} as any)
 const AppSettingsMembersRoute = AppSettingsMembersRouteImport.update({
   id: '/members',
   path: '/members',
@@ -153,6 +148,11 @@ const AppSettingsConnectorsRoute = AppSettingsConnectorsRouteImport.update({
 const AppSettingsChannelsRoute = AppSettingsChannelsRouteImport.update({
   id: '/channels',
   path: '/channels',
+  getParentRoute: () => AppSettingsRouteRoute,
+} as any)
+const AppSettingsProfileIndexRoute = AppSettingsProfileIndexRouteImport.update({
+  id: '/profile/',
+  path: '/profile/',
   getParentRoute: () => AppSettingsRouteRoute,
 } as any)
 const AppSettingsBillingIndexRoute = AppSettingsBillingIndexRouteImport.update({
@@ -175,7 +175,6 @@ export interface FileRoutesByFullPath {
   '/settings/channels': typeof AppSettingsChannelsRoute
   '/settings/connectors': typeof AppSettingsConnectorsRoute
   '/settings/members': typeof AppSettingsMembersRoute
-  '/settings/profile': typeof AppSettingsProfileRoute
   '/settings/security': typeof AppSettingsSecurityRoute
   '/settings/workspace': typeof AppSettingsWorkspaceRoute
   '/workspace/cadences': typeof AppWorkspaceCadencesRoute
@@ -186,6 +185,7 @@ export interface FileRoutesByFullPath {
   '/settings/': typeof AppSettingsIndexRoute
   '/workspace/': typeof AppWorkspaceIndexRoute
   '/settings/billing/': typeof AppSettingsBillingIndexRoute
+  '/settings/profile/': typeof AppSettingsProfileIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -199,7 +199,6 @@ export interface FileRoutesByTo {
   '/settings/channels': typeof AppSettingsChannelsRoute
   '/settings/connectors': typeof AppSettingsConnectorsRoute
   '/settings/members': typeof AppSettingsMembersRoute
-  '/settings/profile': typeof AppSettingsProfileRoute
   '/settings/security': typeof AppSettingsSecurityRoute
   '/settings/workspace': typeof AppSettingsWorkspaceRoute
   '/workspace/cadences': typeof AppWorkspaceCadencesRoute
@@ -210,6 +209,7 @@ export interface FileRoutesByTo {
   '/settings': typeof AppSettingsIndexRoute
   '/workspace': typeof AppWorkspaceIndexRoute
   '/settings/billing': typeof AppSettingsBillingIndexRoute
+  '/settings/profile': typeof AppSettingsProfileIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -227,7 +227,6 @@ export interface FileRoutesById {
   '/_app/settings/channels': typeof AppSettingsChannelsRoute
   '/_app/settings/connectors': typeof AppSettingsConnectorsRoute
   '/_app/settings/members': typeof AppSettingsMembersRoute
-  '/_app/settings/profile': typeof AppSettingsProfileRoute
   '/_app/settings/security': typeof AppSettingsSecurityRoute
   '/_app/settings/workspace': typeof AppSettingsWorkspaceRoute
   '/_app/workspace/cadences': typeof AppWorkspaceCadencesRoute
@@ -238,6 +237,7 @@ export interface FileRoutesById {
   '/_app/settings/': typeof AppSettingsIndexRoute
   '/_app/workspace/': typeof AppWorkspaceIndexRoute
   '/_app/settings/billing/': typeof AppSettingsBillingIndexRoute
+  '/_app/settings/profile/': typeof AppSettingsProfileIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -255,7 +255,6 @@ export interface FileRouteTypes {
     | '/settings/channels'
     | '/settings/connectors'
     | '/settings/members'
-    | '/settings/profile'
     | '/settings/security'
     | '/settings/workspace'
     | '/workspace/cadences'
@@ -266,6 +265,7 @@ export interface FileRouteTypes {
     | '/settings/'
     | '/workspace/'
     | '/settings/billing/'
+    | '/settings/profile/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -279,7 +279,6 @@ export interface FileRouteTypes {
     | '/settings/channels'
     | '/settings/connectors'
     | '/settings/members'
-    | '/settings/profile'
     | '/settings/security'
     | '/settings/workspace'
     | '/workspace/cadences'
@@ -290,6 +289,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/workspace'
     | '/settings/billing'
+    | '/settings/profile'
   id:
     | '__root__'
     | '/'
@@ -306,7 +306,6 @@ export interface FileRouteTypes {
     | '/_app/settings/channels'
     | '/_app/settings/connectors'
     | '/_app/settings/members'
-    | '/_app/settings/profile'
     | '/_app/settings/security'
     | '/_app/settings/workspace'
     | '/_app/workspace/cadences'
@@ -317,6 +316,7 @@ export interface FileRouteTypes {
     | '/_app/settings/'
     | '/_app/workspace/'
     | '/_app/settings/billing/'
+    | '/_app/settings/profile/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -468,13 +468,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSettingsSecurityRouteImport
       parentRoute: typeof AppSettingsRouteRoute
     }
-    '/_app/settings/profile': {
-      id: '/_app/settings/profile'
-      path: '/profile'
-      fullPath: '/settings/profile'
-      preLoaderRoute: typeof AppSettingsProfileRouteImport
-      parentRoute: typeof AppSettingsRouteRoute
-    }
     '/_app/settings/members': {
       id: '/_app/settings/members'
       path: '/members'
@@ -496,6 +489,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSettingsChannelsRouteImport
       parentRoute: typeof AppSettingsRouteRoute
     }
+    '/_app/settings/profile/': {
+      id: '/_app/settings/profile/'
+      path: '/profile'
+      fullPath: '/settings/profile/'
+      preLoaderRoute: typeof AppSettingsProfileIndexRouteImport
+      parentRoute: typeof AppSettingsRouteRoute
+    }
     '/_app/settings/billing/': {
       id: '/_app/settings/billing/'
       path: '/billing'
@@ -510,22 +510,22 @@ interface AppSettingsRouteRouteChildren {
   AppSettingsChannelsRoute: typeof AppSettingsChannelsRoute
   AppSettingsConnectorsRoute: typeof AppSettingsConnectorsRoute
   AppSettingsMembersRoute: typeof AppSettingsMembersRoute
-  AppSettingsProfileRoute: typeof AppSettingsProfileRoute
   AppSettingsSecurityRoute: typeof AppSettingsSecurityRoute
   AppSettingsWorkspaceRoute: typeof AppSettingsWorkspaceRoute
   AppSettingsIndexRoute: typeof AppSettingsIndexRoute
   AppSettingsBillingIndexRoute: typeof AppSettingsBillingIndexRoute
+  AppSettingsProfileIndexRoute: typeof AppSettingsProfileIndexRoute
 }
 
 const AppSettingsRouteRouteChildren: AppSettingsRouteRouteChildren = {
   AppSettingsChannelsRoute: AppSettingsChannelsRoute,
   AppSettingsConnectorsRoute: AppSettingsConnectorsRoute,
   AppSettingsMembersRoute: AppSettingsMembersRoute,
-  AppSettingsProfileRoute: AppSettingsProfileRoute,
   AppSettingsSecurityRoute: AppSettingsSecurityRoute,
   AppSettingsWorkspaceRoute: AppSettingsWorkspaceRoute,
   AppSettingsIndexRoute: AppSettingsIndexRoute,
   AppSettingsBillingIndexRoute: AppSettingsBillingIndexRoute,
+  AppSettingsProfileIndexRoute: AppSettingsProfileIndexRoute,
 }
 
 const AppSettingsRouteRouteWithChildren =
