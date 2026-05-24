@@ -2,14 +2,14 @@ import { useCurrentUser } from '@kizunu/api-client/identity/use-current-user'
 import { useResetPassword } from '@kizunu/api-client/identity/use-reset-password'
 import { PageHeader } from '@kizunu/web/components/composed/page-header'
 import { Button, buttonVariants } from '@kizunu/web/components/primitives/button'
-import { ResetPasswordForm } from '@kizunu/web/routes/auth/-components/reset-password-form'
 import { mapLoginError } from '@kizunu/web/routes/auth/-utils/login-error-copy'
+import { ResetPasswordForm } from '@kizunu/web/routes/auth/reset-password/-components/reset-password-form'
 import { createFileRoute, Link, Navigate } from '@tanstack/react-router'
 
 const MAX_TOKEN_LENGTH = 512
 const FORM_ID = 'reset-password-form'
 
-export const Route = createFileRoute('/auth/reset-password')({
+export const Route = createFileRoute('/auth/reset-password/')({
   validateSearch: (search: Record<string, unknown>) => ({
     token: typeof search.token === 'string' ? search.token : '',
   }),

@@ -1,4 +1,4 @@
-import { resetPasswordFormSchema } from '@kizunu/web/routes/auth/-components/reset-password-form'
+import { resetPasswordFormSchema } from '@kizunu/web/routes/auth/reset-password/-components/reset-password-form'
 import { describe, expect, it } from 'vite-plus/test'
 
 describe('resetPasswordFormSchema', () => {
