@@ -631,10 +631,22 @@ readiness, per-BDR WhatsApp number routing, 5-step cadence configuration, reply
 task handoff, lost handling, safe launch checks, pause/resume controls, audit
 timeline, reachable HTTPS webhooks, and a live pilot acceptance run.
 
-**Token-first Pipedrive connector setup** - PLANNED
-- API token becomes the main input. The backend calls Pipedrive `GET /users/me`
-  to derive `companyDomain`; manual domain override is a fallback. Hide
-  `webhookToken`; move `phoneFieldKey` and `activityType` to advanced settings.
+**Token-first Pipedrive connector setup** - COMPLETE
+- _Landed (feature `059`): the CRM connector port mirrors the channel-plugin
+  pattern from features 029/031/056 — `inputSchema?` on the manifest +
+  `prepareCredentials?` hook on the connector. Pipedrive ships an
+  `inputSchema` (apiToken required, companyDomain/activityType/phoneFieldKey
+  optional, webhookToken absent) plus a `prepareCredentials` that calls
+  `GET https://api.pipedrive.com/v1/users/me` and derives `companyDomain`
+  when omitted. `CrmConnectorRegistry.prepareCredentials(id, raw)` is the
+  new seam; `CreateConnectorAccountUseCase` calls it before persistence.
+  Two new 422 errors — `crm.token-invalid` (401/403 from /users/me) and
+  `crm.company-domain-unresolved` (200 with no domain). Web form splits the
+  Pipedrive fields into a primary level (Name + API token) and a `<details>`
+  "Advanced settings" disclosure (Company domain override, Activity type,
+  Phone field key); `connector-client-schemas.ts` now plugs
+  `pipedriveCredentialsInputSchema` into `zodResolver`. Existing manual
+  curl with `companyDomain` provided is preserved end-to-end._
 
 **Pipedrive connector health check** - PLANNED
 - Add a connector status/readiness check: valid token, readable user, readable
