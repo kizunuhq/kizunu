@@ -20,6 +20,7 @@ import { ApiTags } from '@nestjs/swagger'
 import { createZodDto } from 'nestjs-zod'
 
 import { AcceptInvitationUseCase } from '../../core/use-cases/accept-invitation.use-case'
+import { GetRoutingReadinessUseCase } from '../../core/use-cases/get-routing-readiness.use-case'
 import { InviteMemberUseCase } from '../../core/use-cases/invite-member.use-case'
 import { ListWorkspaceMembersUseCase } from '../../core/use-cases/list-workspace-members.use-case'
 import { UpdateMemberStatusUseCase } from '../../core/use-cases/update-member-status.use-case'
@@ -37,6 +38,7 @@ export class WorkspaceController {
     private readonly acceptUseCase: AcceptInvitationUseCase,
     private readonly listMembersUseCase: ListWorkspaceMembersUseCase,
     private readonly updateMemberUseCase: UpdateMemberStatusUseCase,
+    private readonly routingReadinessUseCase: GetRoutingReadinessUseCase,
   ) {}
 
   @UseGuards(WorkspaceAdminGuard)
@@ -95,5 +97,11 @@ export class WorkspaceController {
       membershipId,
       status: body.status,
     })
+  }
+
+  @UseGuards(WorkspaceAdminGuard)
+  @Get(':id/routing-readiness')
+  async routingReadiness(@Param('id') workspaceId: string) {
+    return await this.routingReadinessUseCase.execute(workspaceId)
   }
 }

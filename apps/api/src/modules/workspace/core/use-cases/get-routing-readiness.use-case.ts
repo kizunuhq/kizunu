@@ -6,7 +6,7 @@ import { forwardRef, Inject, Injectable } from '@nestjs/common'
 
 import { WorkspaceMemberRepository } from '../../persistence/workspace-member.repository'
 
-const META_PLUGIN_IDS = ['meta-whatsapp', 'meta-whatsapp-coex'] as const
+const META_PLUGIN_IDS: ReadonlySet<string> = new Set(['meta-whatsapp', 'meta-whatsapp-coex'])
 
 @Injectable()
 export class GetRoutingReadinessUseCase {
@@ -28,9 +28,7 @@ export class GetRoutingReadinessUseCase {
     const members = await Promise.all(
       memberRows.map(async (member) => {
         const accesses = await this.channelAccesses.listByUser(member.userId)
-        const whatsappAccesses = accesses.filter((access) =>
-          META_PLUGIN_IDS.includes(access.pluginId as (typeof META_PLUGIN_IDS)[number]),
-        )
+        const whatsappAccesses = accesses.filter((access) => META_PLUGIN_IDS.has(access.pluginId))
         const memberIdentities = await this.identities.listForUser(member.userId)
         const mappedConnectorAccountIds = memberIdentities
           .filter((identity) => connectorAccountIds.has(identity.connectorAccountId))

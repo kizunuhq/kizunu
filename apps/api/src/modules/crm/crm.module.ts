@@ -26,7 +26,7 @@ import { buildPipedriveConnector } from './plugins/pipedrive/pipedrive.connector
 @Module({
   imports: [
     DirectoryModule,
-    WorkspaceModule,
+    forwardRef(() => WorkspaceModule),
     forwardRef(() => IdentityModule),
     forwardRef(() => EngineModule),
   ],
