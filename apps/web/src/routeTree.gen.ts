@@ -28,6 +28,7 @@ import { Route as AppWorkspaceMyChannelsIndexRouteImport } from './routes/_app/w
 import { Route as AppWorkspaceJourneysIndexRouteImport } from './routes/_app/workspace/journeys/index'
 import { Route as AppWorkspaceConnectMetaCoexIndexRouteImport } from './routes/_app/workspace/connect-meta-coex/index'
 import { Route as AppWorkspaceCadencesIndexRouteImport } from './routes/_app/workspace/cadences/index'
+import { Route as AppWorkspaceAuditIndexRouteImport } from './routes/_app/workspace/audit/index'
 import { Route as AppSettingsWorkspaceIndexRouteImport } from './routes/_app/settings/workspace/index'
 import { Route as AppSettingsSecurityIndexRouteImport } from './routes/_app/settings/security/index'
 import { Route as AppSettingsProfileIndexRouteImport } from './routes/_app/settings/profile/index'
@@ -134,6 +135,11 @@ const AppWorkspaceCadencesIndexRoute =
     path: '/workspace/cadences/',
     getParentRoute: () => AppRouteRoute,
   } as any)
+const AppWorkspaceAuditIndexRoute = AppWorkspaceAuditIndexRouteImport.update({
+  id: '/workspace/audit/',
+  path: '/workspace/audit/',
+  getParentRoute: () => AppRouteRoute,
+} as any)
 const AppSettingsWorkspaceIndexRoute =
   AppSettingsWorkspaceIndexRouteImport.update({
     id: '/workspace/',
@@ -196,6 +202,7 @@ export interface FileRoutesByFullPath {
   '/settings/profile/': typeof AppSettingsProfileIndexRoute
   '/settings/security/': typeof AppSettingsSecurityIndexRoute
   '/settings/workspace/': typeof AppSettingsWorkspaceIndexRoute
+  '/workspace/audit/': typeof AppWorkspaceAuditIndexRoute
   '/workspace/cadences/': typeof AppWorkspaceCadencesIndexRoute
   '/workspace/connect-meta-coex/': typeof AppWorkspaceConnectMetaCoexIndexRoute
   '/workspace/journeys/': typeof AppWorkspaceJourneysIndexRoute
@@ -221,6 +228,7 @@ export interface FileRoutesByTo {
   '/settings/profile': typeof AppSettingsProfileIndexRoute
   '/settings/security': typeof AppSettingsSecurityIndexRoute
   '/settings/workspace': typeof AppSettingsWorkspaceIndexRoute
+  '/workspace/audit': typeof AppWorkspaceAuditIndexRoute
   '/workspace/cadences': typeof AppWorkspaceCadencesIndexRoute
   '/workspace/connect-meta-coex': typeof AppWorkspaceConnectMetaCoexIndexRoute
   '/workspace/journeys': typeof AppWorkspaceJourneysIndexRoute
@@ -250,6 +258,7 @@ export interface FileRoutesById {
   '/_app/settings/profile/': typeof AppSettingsProfileIndexRoute
   '/_app/settings/security/': typeof AppSettingsSecurityIndexRoute
   '/_app/settings/workspace/': typeof AppSettingsWorkspaceIndexRoute
+  '/_app/workspace/audit/': typeof AppWorkspaceAuditIndexRoute
   '/_app/workspace/cadences/': typeof AppWorkspaceCadencesIndexRoute
   '/_app/workspace/connect-meta-coex/': typeof AppWorkspaceConnectMetaCoexIndexRoute
   '/_app/workspace/journeys/': typeof AppWorkspaceJourneysIndexRoute
@@ -279,6 +288,7 @@ export interface FileRouteTypes {
     | '/settings/profile/'
     | '/settings/security/'
     | '/settings/workspace/'
+    | '/workspace/audit/'
     | '/workspace/cadences/'
     | '/workspace/connect-meta-coex/'
     | '/workspace/journeys/'
@@ -304,6 +314,7 @@ export interface FileRouteTypes {
     | '/settings/profile'
     | '/settings/security'
     | '/settings/workspace'
+    | '/workspace/audit'
     | '/workspace/cadences'
     | '/workspace/connect-meta-coex'
     | '/workspace/journeys'
@@ -332,6 +343,7 @@ export interface FileRouteTypes {
     | '/_app/settings/profile/'
     | '/_app/settings/security/'
     | '/_app/settings/workspace/'
+    | '/_app/workspace/audit/'
     | '/_app/workspace/cadences/'
     | '/_app/workspace/connect-meta-coex/'
     | '/_app/workspace/journeys/'
@@ -480,6 +492,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppWorkspaceCadencesIndexRouteImport
       parentRoute: typeof AppRouteRoute
     }
+    '/_app/workspace/audit/': {
+      id: '/_app/workspace/audit/'
+      path: '/workspace/audit'
+      fullPath: '/workspace/audit/'
+      preLoaderRoute: typeof AppWorkspaceAuditIndexRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
     '/_app/settings/workspace/': {
       id: '/_app/settings/workspace/'
       path: '/workspace'
@@ -561,6 +580,7 @@ interface AppRouteRouteChildren {
   AppSettingsRouteRoute: typeof AppSettingsRouteRouteWithChildren
   AppSetupIndexRoute: typeof AppSetupIndexRoute
   AppWorkspaceIndexRoute: typeof AppWorkspaceIndexRoute
+  AppWorkspaceAuditIndexRoute: typeof AppWorkspaceAuditIndexRoute
   AppWorkspaceCadencesIndexRoute: typeof AppWorkspaceCadencesIndexRoute
   AppWorkspaceConnectMetaCoexIndexRoute: typeof AppWorkspaceConnectMetaCoexIndexRoute
   AppWorkspaceJourneysIndexRoute: typeof AppWorkspaceJourneysIndexRoute
@@ -571,6 +591,7 @@ const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppSettingsRouteRoute: AppSettingsRouteRouteWithChildren,
   AppSetupIndexRoute: AppSetupIndexRoute,
   AppWorkspaceIndexRoute: AppWorkspaceIndexRoute,
+  AppWorkspaceAuditIndexRoute: AppWorkspaceAuditIndexRoute,
   AppWorkspaceCadencesIndexRoute: AppWorkspaceCadencesIndexRoute,
   AppWorkspaceConnectMetaCoexIndexRoute: AppWorkspaceConnectMetaCoexIndexRoute,
   AppWorkspaceJourneysIndexRoute: AppWorkspaceJourneysIndexRoute,

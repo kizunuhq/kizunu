@@ -11,6 +11,7 @@ import { CrmConnectorRegistry } from '@kizunu/api/modules/crm/core/connector/crm
 import { ConnectorAccountRepository } from '@kizunu/api/modules/crm/persistence/connector-account.repository'
 import { CadenceActionExecutor } from '@kizunu/api/modules/engine/core/services/cadence-action-executor'
 import { MarkReplyUseCase } from '@kizunu/api/modules/engine/core/use-cases/mark-reply.use-case'
+import { AuditEventRepository } from '@kizunu/api/modules/engine/persistence/audit-event.repository'
 import { LeadJourneyRepository } from '@kizunu/api/modules/engine/persistence/lead-journey.repository'
 import type { DrizzleService } from '@kizunu/nestjs-shared/modules/persistence/services/drizzle.service'
 import { eq } from 'drizzle-orm'
@@ -46,6 +47,7 @@ function buildUseCase() {
     new CadenceRepository(service),
     new ConnectorAccountRepository(service, buildCredentialsCipher()),
     new CadenceActionExecutor(crmRegistry),
+    new AuditEventRepository(service),
   )
 }
 

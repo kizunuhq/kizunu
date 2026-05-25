@@ -3,6 +3,7 @@ import { ConnectorAccountRepository } from '@kizunu/api/modules/crm/persistence/
 import { DrizzleService } from '@kizunu/nestjs-shared/modules/persistence/services/drizzle.service'
 import { Injectable } from '@nestjs/common'
 
+import { AuditEventRepository } from '../../persistence/audit-event.repository'
 import {
   type LockedJourney,
   LeadJourneyRepository,
@@ -25,6 +26,7 @@ export class MarkReplyUseCase {
     private readonly cadences: CadenceRepository,
     private readonly connectors: ConnectorAccountRepository,
     private readonly executor: CadenceActionExecutor,
+    private readonly audit: AuditEventRepository,
   ) {}
 
   async execute(input: MarkReplyInput): Promise<void> {
@@ -39,7 +41,15 @@ export class MarkReplyUseCase {
       await this.journeys.setStatus(tx, journey.id, transition(journey.status, JourneyEvent.Reply))
       return journey
     })
-    if (replied) await this.runReplyActions(replied)
+    if (replied) {
+      await this.audit.record({
+        workspaceId: replied.workspaceId,
+        journeyId: replied.id,
+        kind: 'journey.reply',
+        payload: { phone: input.phone },
+      })
+      await this.runReplyActions(replied)
+    }
   }
 
   private async runReplyActions(journey: LockedJourney): Promise<void> {

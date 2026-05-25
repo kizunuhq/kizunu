@@ -807,12 +807,18 @@ timeline, reachable HTTPS webhooks, and a live pilot acceptance run.
   flag is deferred — pause-all gives the operator the same effective
   pause in one click._
 
-**Audit timeline** - PLANNED
-- Store and show a lightweight timeline of operational events: journey created,
-  touch queued, touch sent, Pipedrive activity logged, inbound reply received,
-  reply-stop fired, stage moved, task created, exhausted, marked lost, error
-  entered, operator paused/resumed. This is not a full inbox; it is proof of what
-  happened.
+**Audit timeline** - COMPLETE
+- _Landed (feature `076`): new `audit_events` table (migration `0013`)
+  + `AuditEventRepository`. `ControlJourneyUseCase` and `MarkReplyUseCase`
+  now record their state changes as audit events (`journey.pause`,
+  `journey.resume`, `journey.stop`, `journey.reply`). New
+  `GET /workspaces/:id/audit-events` endpoint behind
+  `WorkspaceAdminGuard` returns the workspace's recent events ordered
+  by `createdAt desc`. Web: new `/_app/workspace/audit` route renders
+  the timeline; the side nav gains an Audit entry. Emitting events
+  from dispatcher touch-sent / exhaustion paths is left for a follow-up
+  (the use cases that already exist on the engine flow will pick them
+  up the same way control + reply just did)._
 
 **BDR handoff reliability** - COMPLETE
 - _Landed across earlier features (`006` cadence aggregate, `009`

@@ -1,3 +1,4 @@
+export * from './audit-events'
 export * from './cadence-steps'
 export * from './cadences'
 export * from './channel-accesses'
