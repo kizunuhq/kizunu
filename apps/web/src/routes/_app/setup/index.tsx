@@ -7,15 +7,23 @@ import { useCurrentUser } from '@kizunu/api-client/identity/use-current-user'
 import { useRoutingReadiness } from '@kizunu/api-client/workspace/use-routing-readiness'
 import { PageHeader } from '@kizunu/web/components/composed/page-header'
 import { Badge } from '@kizunu/web/components/primitives/badge'
+import { Button } from '@kizunu/web/components/primitives/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@kizunu/web/components/primitives/card'
-import { CaretRight, CheckCircle, Circle, Spinner } from '@phosphor-icons/react'
+import { CreateChannelAccountDialog } from '@kizunu/web/routes/_app/settings/channels/-dialogs/create-channel-account-dialog'
+import { CreateConnectorAccountDialog } from '@kizunu/web/routes/_app/settings/connectors/-dialogs/create-connector-account-dialog'
+import { CreateEntryTriggerDialog } from '@kizunu/web/routes/_app/settings/connectors/-dialogs/create-entry-trigger-dialog'
+import { CreateCadenceDialog } from '@kizunu/web/routes/_app/workspace/cadences/-dialogs/create-cadence-dialog'
+import { CreateTemplateDialog } from '@kizunu/web/routes/_app/workspace/cadences/-dialogs/create-template-dialog'
+import { CaretRight, CheckCircle, Circle, Plus, Spinner } from '@phosphor-icons/react'
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { useState } from 'react'
 
 export const Route = createFileRoute('/_app/setup/')({
   component: SetupPage,
 })
 
 type StepStatus = 'done' | 'pending' | 'loading'
+type WizardDialog = 'connector' | 'channel' | 'template' | 'cadence' | 'trigger' | null
 
 interface SetupStep {
   id: string
@@ -23,6 +31,8 @@ interface SetupStep {
   description: string
   to: string
   status: StepStatus
+  inlineDialog?: Exclude<WizardDialog, null>
+  actionLabel?: string
 }
 
 function statusFromCount(isPending: boolean, count: number): StepStatus {
@@ -40,6 +50,7 @@ function SetupPage() {
   const templates = useTemplates(activeWorkspaceId)
   const cadences = useCadences(activeWorkspaceId)
   const triggers = useEntryTriggers(activeWorkspaceId)
+  const [openDialog, setOpenDialog] = useState<WizardDialog>(null)
 
   if (!activeWorkspaceId) {
     return (
@@ -62,6 +73,8 @@ function SetupPage() {
       description: 'Paste your Pipedrive API token to enable CRM-driven cadences.',
       to: '/settings/connectors',
       status: statusFromCount(connectors.isPending, connectors.data?.accounts.length ?? 0),
+      inlineDialog: 'connector',
+      actionLabel: 'Add connector',
     },
     {
       id: 'channel',
@@ -69,6 +82,8 @@ function SetupPage() {
       description: 'Add a Meta Cloud API or Coex channel account.',
       to: '/settings/channels',
       status: statusFromCount(channels.isPending, channels.data?.accounts.length ?? 0),
+      inlineDialog: 'channel',
+      actionLabel: 'Add channel',
     },
     {
       id: 'routing',
@@ -83,6 +98,8 @@ function SetupPage() {
       description: 'Register at least one approved Meta template.',
       to: '/workspace/cadences',
       status: statusFromCount(templates.isPending, templates.data?.templates.length ?? 0),
+      inlineDialog: 'template',
+      actionLabel: 'New template',
     },
     {
       id: 'cadence',
@@ -90,6 +107,8 @@ function SetupPage() {
       description: 'Order the touches and pick the templates they send.',
       to: '/workspace/cadences',
       status: statusFromCount(cadences.isPending, cadences.data?.cadences.length ?? 0),
+      inlineDialog: 'cadence',
+      actionLabel: 'New cadence',
     },
     {
       id: 'trigger',
@@ -97,6 +116,8 @@ function SetupPage() {
       description: 'Map a Pipedrive stage → cadence to start ingesting deals.',
       to: '/settings/connectors',
       status: statusFromCount(triggers.isPending, triggers.data?.entryTriggers.length ?? 0),
+      inlineDialog: 'trigger',
+      actionLabel: 'Add entry trigger',
     },
   ]
 
@@ -112,32 +133,77 @@ function SetupPage() {
         </CardHeader>
         <CardContent className="flex flex-col gap-2">
           {steps.map((step) => (
-            <SetupStepRow key={step.id} step={step} />
+            <SetupStepRow key={step.id} step={step} onOpenDialog={setOpenDialog} />
           ))}
         </CardContent>
       </Card>
+      <CreateConnectorAccountDialog
+        workspaceId={activeWorkspaceId}
+        open={openDialog === 'connector'}
+        onOpenChange={(next) => setOpenDialog(next ? 'connector' : null)}
+      />
+      <CreateChannelAccountDialog
+        workspaceId={activeWorkspaceId}
+        open={openDialog === 'channel'}
+        onOpenChange={(next) => setOpenDialog(next ? 'channel' : null)}
+      />
+      <CreateTemplateDialog
+        workspaceId={activeWorkspaceId}
+        open={openDialog === 'template'}
+        onOpenChange={(next) => setOpenDialog(next ? 'template' : null)}
+      />
+      <CreateCadenceDialog
+        workspaceId={activeWorkspaceId}
+        open={openDialog === 'cadence'}
+        onOpenChange={(next) => setOpenDialog(next ? 'cadence' : null)}
+      />
+      <CreateEntryTriggerDialog
+        workspaceId={activeWorkspaceId}
+        open={openDialog === 'trigger'}
+        onOpenChange={(next) => setOpenDialog(next ? 'trigger' : null)}
+      />
     </div>
   )
 }
 
-function SetupStepRow({ step }: { step: SetupStep }) {
+interface SetupStepRowProps {
+  step: SetupStep
+  onOpenDialog: (dialog: WizardDialog) => void
+}
+
+function SetupStepRow({ step, onOpenDialog }: SetupStepRowProps) {
+  const showInlineAction =
+    step.inlineDialog !== undefined && step.actionLabel !== undefined && step.status === 'pending'
   return (
-    <Link
-      to={step.to}
-      className="hover:bg-muted/30 border-border bg-background flex items-center justify-between rounded-md border p-4 transition-colors"
-    >
-      <div className="flex items-center gap-3">
+    <div className="hover:bg-muted/30 border-border bg-background flex items-center justify-between rounded-md border p-4 transition-colors">
+      <Link to={step.to} className="flex flex-1 items-center gap-3">
         <StepIcon status={step.status} />
         <div className="flex flex-col">
           <span className="font-medium">{step.title}</span>
           <span className="text-muted-foreground text-sm">{step.description}</span>
         </div>
-      </div>
+      </Link>
       <div className="flex items-center gap-3">
         <StepBadge status={step.status} />
-        <CaretRight weight="bold" className="text-muted-foreground" />
+        {showInlineAction ? (
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            onClick={(event) => {
+              event.preventDefault()
+              event.stopPropagation()
+              onOpenDialog(step.inlineDialog ?? null)
+            }}
+          >
+            <Plus weight="bold" />
+            {step.actionLabel}
+          </Button>
+        ) : (
+          <CaretRight weight="bold" className="text-muted-foreground" />
+        )}
       </div>
-    </Link>
+    </div>
   )
 }
 

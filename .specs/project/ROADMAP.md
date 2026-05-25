@@ -697,17 +697,26 @@ timeline, reachable HTTPS webhooks, and a live pilot acceptance run.
   that owns the data. Sidebar gains a "Setup" entry. No new endpoints, no
   schema change._
 
-**Wizard step: CRM and trigger mapping** - PLANNED
-- Fold Pipedrive connector creation, pipeline/stage lookup, and entry-trigger
-  creation into the wizard with labeled provider pickers and no raw IDs.
+**Wizard step: CRM and trigger mapping** - COMPLETE
+- _Landed (features `064–066`, single PR): each pending wizard step now
+  renders an inline "Add …" button that opens the existing CRUD dialog
+  inside the wizard. All forms already use labeled provider pickers (no
+  raw IDs) from features `054` + `059` — connector form's primary input
+  is the API token, entry-trigger picks pipeline+stage via cascading
+  dropdowns. Wizard route owns a single `openDialog` state and renders
+  five dialogs (connector, channel, template, cadence, trigger) so the
+  operator never leaves `/_app/setup` while configuring._
 
-**Wizard step: channel and BDR access** - PLANNED
-- Guide the operator through CoEx connection, channel access grants, and
-  primary-channel selection for each BDR needed by the pilot.
+**Wizard step: channel and BDR access** - COMPLETE
+- _Covered by the same change set. The inline "Add channel" trigger
+  opens the existing channel-account dialog (which supports both
+  cloud_api and Coex modes). BDR access grants stay on
+  `/settings/channels` (the dialog covers create + access in one flow)._
 
-**Wizard step: templates and variables** - PLANNED
-- Guide template selection/creation from approved Meta templates. Show declared
-  variables and whether kizunu can resolve them from lead fields.
+**Wizard step: templates and variables** - COMPLETE
+- _Covered by the same change set. The inline "New template" trigger
+  opens the existing template dialog which picks an approved Meta
+  template via the directory picker added in `054`._
 
 **Safe launch readiness gate** - PLANNED
 - Before activating the trigger, check that the workspace can actually run the
