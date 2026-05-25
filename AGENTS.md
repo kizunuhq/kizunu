@@ -94,6 +94,11 @@ writing code in their area:
   (200 ok / 422 business-rule / 500 infra).
 - **`react.md`** — functional `.tsx` components, explicit props, state kept local,
   Tailwind utilities, `use`-prefixed hooks, components under ~50 lines.
+- **`base-ui.md`** — idioms specific to Base UI (the shadcn `base-nova` preset's
+  primitive library): `Select.Value` does not mirror `SelectItem` child text —
+  use a render-children function or the `items` prop on `Select.Root`; reach for
+  Base UI's `render={<X .../>}` prop instead of wrapping primitives; consult
+  <https://base-ui.com/llms.txt> before introducing a new primitive.
 - **`enums.md`** — closed vocabularies use `const X = {...} as const` + derived type
   (ADR-002); `PayloadMap + Handler<T>` for discriminated dispatch; bare unions only
   for React component-prop variants and internal narrowings of well-known external
