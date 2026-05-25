@@ -58,6 +58,15 @@ export default defineConfig({
         rules: { 'no-unsafe-type-assertion': 'off' },
       },
       {
+        // Zod introspection walker: reads opaque _def/def internals to derive
+        // CredentialFields from arbitrary plugin schemas. Every access starts
+        // from `unknown` and narrows after a runtime shape check, so the
+        // narrowing assertions at this seam are intentional.
+        files: ['packages/api-contracts/src/shared/credentials/describe-credential-fields.ts'],
+        plugins: ['typescript'],
+        rules: { 'no-unsafe-type-assertion': 'off' },
+      },
+      {
         // Shadcn-installed primitives ship with patterns the project lints
         // stricter than the upstream registry — `open` shadowing inside
         // controlled open/setOpen pairs, and `style={{...} as React.CSSProperties}`
