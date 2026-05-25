@@ -38,3 +38,23 @@ export class CrmRequestFailedException extends ApplicationException {
     super('crm.request-failed', 'A CRM provider request failed.', 502, { detail })
   }
 }
+
+export class PipedriveTokenInvalidException extends ApplicationException {
+  constructor() {
+    super(
+      'crm.token-invalid',
+      'Pipedrive rejected the API token. Double-check that the token is active and belongs to a user with API access.',
+      422,
+    )
+  }
+}
+
+export class PipedriveCompanyDomainUnresolvedException extends ApplicationException {
+  constructor() {
+    super(
+      'crm.company-domain-unresolved',
+      'Could not derive the Pipedrive company domain from /users/me. Provide it manually under Advanced settings.',
+      422,
+    )
+  }
+}
