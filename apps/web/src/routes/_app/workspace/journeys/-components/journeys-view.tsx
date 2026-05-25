@@ -110,6 +110,16 @@ const JOURNEY_COLUMNS: DataTableColumn<Journey>[] = [
       </span>
     ),
   },
+  {
+    key: 'errorReason',
+    header: 'Error reason',
+    cell: (row: Journey) =>
+      row.errorReason ? (
+        <span className="font-mono text-xs text-amber-700">{row.errorReason}</span>
+      ) : (
+        <span className="text-muted-foreground">—</span>
+      ),
+  },
 ]
 
 function formatTimestamp(iso: string): string {

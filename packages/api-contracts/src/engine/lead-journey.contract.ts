@@ -27,6 +27,7 @@ export const ListLeadJourneysResponseSchema = z.object({
       status: LeadJourneyStatusSchema,
       currentStepOrder: z.number().int(),
       nextTouchAt: z.iso.datetime().nullable(),
+      errorReason: z.string().nullable(),
     }),
   ),
 })
