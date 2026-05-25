@@ -1,5 +1,8 @@
 import type { CadenceStepDraft } from '@kizunu/web/routes/_app/workspace/cadences/-components/cadence-step-row'
-import { buildCadenceRequest } from '@kizunu/web/routes/_app/workspace/cadences/-utils/build-cadence-request'
+import {
+  type BuildCadenceInput,
+  buildCadenceRequest,
+} from '@kizunu/web/routes/_app/workspace/cadences/-utils/build-cadence-request'
 import { describe, expect, it } from 'vite-plus/test'
 
 function buildStep(overrides: Partial<CadenceStepDraft> = {}): CadenceStepDraft {
@@ -12,15 +15,23 @@ function buildStep(overrides: Partial<CadenceStepDraft> = {}): CadenceStepDraft 
   }
 }
 
+function buildInput(overrides: Partial<BuildCadenceInput> = {}): BuildCadenceInput {
+  return {
+    name: 'Follow-up',
+    steps: [buildStep()],
+    onReplyStageId: '',
+    onReplyTaskSubject: '',
+    onReplyTaskNote: '',
+    onExhaustedLostReason: '',
+    sendingWindowPreset: 'always_on',
+    ...overrides,
+  }
+}
+
 describe('buildCadenceRequest', () => {
   describe('step mapping', () => {
     it('maps a draft step to a lead-owner template touch', () => {
-      const request = buildCadenceRequest({
-        name: 'Follow-up L1',
-        steps: [buildStep()],
-        onReplyStageId: '',
-        sendingWindowPreset: 'always_on',
-      })
+      const request = buildCadenceRequest(buildInput({ name: 'Follow-up L1' }))
 
       expect(request.steps).toEqual([
         {
@@ -34,23 +45,20 @@ describe('buildCadenceRequest', () => {
     })
 
     it('nulls an empty templateId so the step carries no template reference', () => {
-      const request = buildCadenceRequest({
-        name: 'Follow-up',
-        steps: [buildStep({ templateId: '' })],
-        onReplyStageId: '',
-        sendingWindowPreset: 'always_on',
-      })
+      const request = buildCadenceRequest(buildInput({ steps: [buildStep({ templateId: '' })] }))
 
       expect(request.steps[0]?.templateId).toBeNull()
     })
 
     it('preserves the order of multiple steps', () => {
-      const request = buildCadenceRequest({
-        name: 'Follow-up',
-        steps: [buildStep({ id: 'a', delayMinutes: 10 }), buildStep({ id: 'b', delayMinutes: 20 })],
-        onReplyStageId: '',
-        sendingWindowPreset: 'always_on',
-      })
+      const request = buildCadenceRequest(
+        buildInput({
+          steps: [
+            buildStep({ id: 'a', delayMinutes: 10 }),
+            buildStep({ id: 'b', delayMinutes: 20 }),
+          ],
+        }),
+      )
 
       expect(request.steps.map((step) => step.delayMinutes)).toEqual([10, 20])
     })
@@ -58,35 +66,73 @@ describe('buildCadenceRequest', () => {
 
   describe('onReply action', () => {
     it('adds a move_stage action when a reply stage is set', () => {
-      const request = buildCadenceRequest({
-        name: 'Follow-up',
-        steps: [buildStep()],
-        onReplyStageId: 'replied-stage',
-        sendingWindowPreset: 'always_on',
-      })
+      const request = buildCadenceRequest(buildInput({ onReplyStageId: 'replied-stage' }))
 
       expect(request.onReply).toEqual([{ type: 'move_stage', stageId: 'replied-stage' }])
     })
 
-    it('leaves onReply empty when no reply stage is set', () => {
-      const request = buildCadenceRequest({
-        name: 'Follow-up',
-        steps: [buildStep()],
-        onReplyStageId: '',
-        sendingWindowPreset: 'always_on',
-      })
+    it('leaves onReply empty when neither stage nor task subject is set', () => {
+      const request = buildCadenceRequest(buildInput())
 
       expect(request.onReply).toEqual([])
     })
+
+    it('adds a log_activity task when onReplyTaskSubject is set', () => {
+      const request = buildCadenceRequest(
+        buildInput({
+          onReplyTaskSubject: 'Lead replied',
+          onReplyTaskNote: 'BDR follow up',
+        }),
+      )
+
+      expect(request.onReply).toEqual([
+        {
+          type: 'log_activity',
+          activityType: 'task',
+          subject: 'Lead replied',
+          note: 'BDR follow up',
+        },
+      ])
+    })
+
+    it('combines move_stage + log_activity when both are set', () => {
+      const request = buildCadenceRequest(
+        buildInput({
+          onReplyStageId: 'replied-stage',
+          onReplyTaskSubject: 'Lead replied',
+        }),
+      )
+
+      expect(request.onReply).toHaveLength(2)
+      expect(request.onReply[0]).toEqual({ type: 'move_stage', stageId: 'replied-stage' })
+      expect(request.onReply[1]).toMatchObject({
+        type: 'log_activity',
+        activityType: 'task',
+        subject: 'Lead replied',
+      })
+    })
   })
 
-  it('builds an active, stop-on-reply cadence with empty terminal hooks', () => {
-    const request = buildCadenceRequest({
-      name: 'Follow-up L1',
-      steps: [buildStep()],
-      onReplyStageId: '',
-      sendingWindowPreset: 'always_on',
+  describe('onExhausted action', () => {
+    it('adds a mark_lost action when a lost reason is set', () => {
+      const request = buildCadenceRequest(
+        buildInput({ onExhaustedLostReason: 'No reply after follow-up' }),
+      )
+
+      expect(request.onExhausted).toEqual([
+        { type: 'mark_lost', reason: 'No reply after follow-up' },
+      ])
     })
+
+    it('leaves onExhausted empty when no lost reason is set', () => {
+      const request = buildCadenceRequest(buildInput())
+
+      expect(request.onExhausted).toEqual([])
+    })
+  })
+
+  it('builds an active, stop-on-reply cadence with empty terminal hooks by default', () => {
+    const request = buildCadenceRequest(buildInput({ name: 'Follow-up L1' }))
 
     expect(request.name).toBe('Follow-up L1')
     expect(request.status).toBe('active')

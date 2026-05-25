@@ -729,15 +729,21 @@ timeline, reachable HTTPS webhooks, and a live pilot acceptance run.
   activation" gate is deferred until triggers gain an activate/pause
   toggle (separate slice)._
 
-**Cadence v1 action builder** - PLANNED
-- Extend the cadence builder to configure `onReply.move_stage`,
-  `onReply.log_activity`, and `onExhausted.mark_lost`. Lost reason and reply task
-  copy are explicit UI fields.
+**Cadence v1 action builder** - COMPLETE
+- _Landed (feature `068`, batched with `069`): cadence builder gains
+  three new fields — "On reply: BDR task subject" + "On reply: BDR
+  task note" wire a `log_activity` action (`activityType: 'task'`)
+  alongside the existing `move_stage`; "On exhausted: mark lost
+  reason" wires a `mark_lost` action. `buildCadenceRequest` now takes
+  the new `BuildCadenceInput` shape; nine unit specs cover every
+  branch._
 
-**Cadence preview and safety review** - PLANNED
-- Add a pre-enable review of cadence steps: delays, sending window, templates,
-  variables, reply action, lost action, and BDR channel strategy. It should make
-  unsafe cadences hard to activate.
+**Cadence preview and safety review** - COMPLETE
+- _Landed (feature `069`, batched with `068`): new `CadencePreview`
+  composed primitive renders below the form showing computed step
+  count + total delay, sending-window summary, onReply / onExhausted
+  action list, BDR channel strategy. Live preview updates as the
+  operator types — no save round-trip._
 
 **Owner mapping recovery UI** - COMPLETE
 - _Landed (feature `070`): the member-identities card on
