@@ -1,9 +1,9 @@
-import type { CredentialFieldKind } from './credential-field-kind'
+import type { CredentialFieldType } from './credential-field-type'
 
 export interface CredentialField {
   key: string
   label: string
-  kind: CredentialFieldKind
+  type: CredentialFieldType
   required: boolean
   serverGenerated?: boolean
 }

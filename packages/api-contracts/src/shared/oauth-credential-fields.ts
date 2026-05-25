@@ -15,11 +15,11 @@ import { z } from 'zod'
  * `jsonb` column.
  */
 export const oauthCredentialFields = {
-  accessToken: z.string().min(1).meta({ label: 'Access token', kind: 'secret' }),
-  refreshToken: z.string().min(1).meta({ label: 'Refresh token', kind: 'secret' }).optional(),
+  accessToken: z.string().min(1).meta({ label: 'Access token', type: 'secret' }),
+  refreshToken: z.string().min(1).meta({ label: 'Refresh token', type: 'secret' }).optional(),
   accessTokenExpiresAt: z.iso
     .datetime()
-    .meta({ label: 'Access token expires at', kind: 'text' })
+    .meta({ label: 'Access token expires at', type: 'text' })
     .optional(),
 } satisfies z.ZodRawShape
 

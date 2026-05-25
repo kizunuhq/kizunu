@@ -30,7 +30,7 @@ function buildPlugin(
       name: 'Meta WhatsApp',
       capabilities: [],
       configSchema: z.unknown(),
-      credentialFields: [],
+      credentialFields: { kind: 'flat', fields: [] },
       directoryResources: [{ name: 'templates' }, { name: 'phoneNumbers' }],
     },
     send: async () => ({ externalMessageId: '', status: 'sent' as const }),

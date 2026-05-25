@@ -1,17 +1,17 @@
 import { describe, expect, it } from 'vite-plus/test'
 import { z } from 'zod'
 
-import { CredentialFieldKind } from '../../credential-field-kind'
+import { CredentialFieldType } from '../../credential-field-type'
 import { describeCredentialFields } from '../../describe-credential-fields'
 import { PluginCredentialsShapeUnsupportedException } from '../../plugin-credentials-shape-unsupported.exception'
 
 describe('describeCredentialFields', () => {
   describe('flat ZodObject', () => {
-    it('emits one field per shape entry with .meta() label and kind', () => {
+    it('emits one field per shape entry with .meta() label and type', () => {
       const schema = z
         .object({
-          apiToken: z.string().min(1).meta({ label: 'API token', kind: 'secret' }),
-          companyDomain: z.string().min(1).meta({ label: 'Company domain', kind: 'text' }),
+          apiToken: z.string().min(1).meta({ label: 'API token', type: 'secret' }),
+          companyDomain: z.string().min(1).meta({ label: 'Company domain', type: 'text' }),
         })
         .strict()
 
@@ -20,11 +20,11 @@ describe('describeCredentialFields', () => {
       expect(result).toEqual({
         kind: 'flat',
         fields: [
-          { key: 'apiToken', label: 'API token', kind: CredentialFieldKind.Secret, required: true },
+          { key: 'apiToken', label: 'API token', type: CredentialFieldType.Secret, required: true },
           {
             key: 'companyDomain',
             label: 'Company domain',
-            kind: CredentialFieldKind.Text,
+            type: CredentialFieldType.Text,
             required: true,
           },
         ],
@@ -34,8 +34,8 @@ describe('describeCredentialFields', () => {
     it('marks .optional() fields as required: false', () => {
       const schema = z
         .object({
-          required: z.string().min(1).meta({ label: 'Required', kind: 'text' }),
-          optional: z.string().optional().meta({ label: 'Optional', kind: 'text' }),
+          required: z.string().min(1).meta({ label: 'Required', type: 'text' }),
+          optional: z.string().optional().meta({ label: 'Optional', type: 'text' }),
         })
         .strict()
 
@@ -55,7 +55,7 @@ describe('describeCredentialFields', () => {
             .string()
             .min(1)
             .default('task')
-            .meta({ label: 'Activity type', kind: 'text' }),
+            .meta({ label: 'Activity type', type: 'text' }),
         })
         .strict()
 
@@ -66,7 +66,7 @@ describe('describeCredentialFields', () => {
         {
           key: 'activityType',
           label: 'Activity type',
-          kind: CredentialFieldKind.Text,
+          type: CredentialFieldType.Text,
           required: false,
         },
       ])
@@ -78,7 +78,7 @@ describe('describeCredentialFields', () => {
           verifyToken: z
             .string()
             .min(1)
-            .meta({ label: 'Verify token', kind: 'secret', serverGenerated: true }),
+            .meta({ label: 'Verify token', type: 'secret', serverGenerated: true }),
         })
         .strict()
 
@@ -89,7 +89,7 @@ describe('describeCredentialFields', () => {
       expect(result.fields[0]?.serverGenerated).toBe(true)
     })
 
-    it('falls back to key + text kind when .meta() is missing', () => {
+    it('falls back to key + text type when .meta() is missing', () => {
       const schema = z.object({ raw: z.string().min(1) }).strict()
 
       const result = describeCredentialFields(schema)
@@ -99,7 +99,7 @@ describe('describeCredentialFields', () => {
         {
           key: 'raw',
           label: 'raw',
-          kind: CredentialFieldKind.Text,
+          type: CredentialFieldType.Text,
           required: true,
         },
       ])
@@ -108,7 +108,7 @@ describe('describeCredentialFields', () => {
     it('reads .meta() from the inner type when the outer wrapper has none', () => {
       const schema = z
         .object({
-          field: z.string().min(1).meta({ label: 'Inner-annotated', kind: 'secret' }).optional(),
+          field: z.string().min(1).meta({ label: 'Inner-annotated', type: 'secret' }).optional(),
         })
         .strict()
 
@@ -119,7 +119,7 @@ describe('describeCredentialFields', () => {
         {
           key: 'field',
           label: 'Inner-annotated',
-          kind: CredentialFieldKind.Secret,
+          type: CredentialFieldType.Secret,
           required: false,
         },
       ])
@@ -132,13 +132,13 @@ describe('describeCredentialFields', () => {
         z
           .object({
             channelMode: z.literal('cloud_api'),
-            appId: z.string().min(1).meta({ label: 'App ID', kind: 'text' }),
+            appId: z.string().min(1).meta({ label: 'App ID', type: 'text' }),
           })
           .strict(),
         z
           .object({
             channelMode: z.literal('coexistence'),
-            accessToken: z.string().min(1).meta({ label: 'Access token', kind: 'secret' }),
+            accessToken: z.string().min(1).meta({ label: 'Access token', type: 'secret' }),
           })
           .strict(),
       ])
@@ -150,13 +150,13 @@ describe('describeCredentialFields', () => {
         key: 'channelMode',
         variants: {
           cloud_api: [
-            { key: 'appId', label: 'App ID', kind: CredentialFieldKind.Text, required: true },
+            { key: 'appId', label: 'App ID', type: CredentialFieldType.Text, required: true },
           ],
           coexistence: [
             {
               key: 'accessToken',
               label: 'Access token',
-              kind: CredentialFieldKind.Secret,
+              type: CredentialFieldType.Secret,
               required: true,
             },
           ],

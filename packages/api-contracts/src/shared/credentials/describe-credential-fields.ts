@@ -1,17 +1,17 @@
-import type { ZodTypeAny } from 'zod'
+import type { ZodType } from 'zod'
 
 import type { CredentialField } from './credential-field'
-import { CredentialFieldKind } from './credential-field-kind'
+import { CredentialFieldType } from './credential-field-type'
 import type { CredentialFields } from './credential-fields'
 import { PluginCredentialsShapeUnsupportedException } from './plugin-credentials-shape-unsupported.exception'
 
 interface FieldMeta {
   label?: string
-  kind?: CredentialFieldKind
+  type?: CredentialFieldType
   serverGenerated?: boolean
 }
 
-export function describeCredentialFields(schema: ZodTypeAny): CredentialFields {
+export function describeCredentialFields(schema: ZodType): CredentialFields {
   const def = readDef(schema)
   if (def.type === 'object') {
     return { kind: 'flat', fields: walkObject(def) }
@@ -58,7 +58,7 @@ function toCredentialField(key: string, field: unknown): CredentialField {
   const result: CredentialField = {
     key,
     label: meta.label ?? key,
-    kind: meta.kind ?? CredentialFieldKind.Text,
+    type: meta.type ?? CredentialFieldType.Text,
     required: !isOptional(field),
   }
   if (meta.serverGenerated) result.serverGenerated = true
@@ -86,10 +86,10 @@ function toFieldMeta(value: unknown): FieldMeta | undefined {
   const meta: FieldMeta = {}
   if (typeof record['label'] === 'string') meta.label = record['label']
   if (
-    record['kind'] === CredentialFieldKind.Text ||
-    record['kind'] === CredentialFieldKind.Secret
+    record['type'] === CredentialFieldType.Text ||
+    record['type'] === CredentialFieldType.Secret
   ) {
-    meta.kind = record['kind']
+    meta.type = record['type']
   }
   if (typeof record['serverGenerated'] === 'boolean') {
     meta.serverGenerated = record['serverGenerated']

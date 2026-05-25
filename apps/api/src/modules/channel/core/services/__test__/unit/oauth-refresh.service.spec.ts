@@ -40,7 +40,7 @@ function manifest(id: string): ChannelPlugin['manifest'] {
     configSchema: {
       safeParse: () => ({ success: true, data: {} }),
     } as unknown as ChannelPlugin['manifest']['configSchema'],
-    credentialFields: [],
+    credentialFields: { kind: 'flat', fields: [] },
   }
 }
 

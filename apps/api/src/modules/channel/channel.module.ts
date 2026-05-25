@@ -19,7 +19,7 @@ import { ChannelAccountController } from './http/controllers/channel-account.con
 import { MyChannelController } from './http/controllers/my-channel.controller'
 import { ChannelAccessRepository } from './persistence/channel-access.repository'
 import { ChannelAccountRepository } from './persistence/channel-account.repository'
-import { MetaWhatsappPlugin } from './plugins/meta-whatsapp/meta-whatsapp.plugin'
+import { buildMetaWhatsappPlugin } from './plugins/meta-whatsapp/meta-whatsapp.plugin'
 
 @Module({
   imports: [DirectoryModule, WorkspaceModule],
@@ -28,7 +28,7 @@ import { MetaWhatsappPlugin } from './plugins/meta-whatsapp/meta-whatsapp.plugin
     {
       provide: CHANNEL_PLUGINS,
       useFactory: (config: ConfigService<Config>) => [
-        new MetaWhatsappPlugin({
+        buildMetaWhatsappPlugin({
           config: {
             appId: config.get('meta.appId') ?? '',
             appSecret: config.get('meta.appSecret') ?? '',

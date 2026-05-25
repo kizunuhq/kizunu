@@ -1,6 +1,6 @@
 import { ChannelPluginRegistry } from '@kizunu/api/modules/channel/core/plugin/channel-plugin-registry'
 import { ConnectMetaCoexUseCase } from '@kizunu/api/modules/channel/core/use-cases/connect-meta-coex.use-case'
-import { MetaWhatsappPlugin } from '@kizunu/api/modules/channel/plugins/meta-whatsapp/meta-whatsapp.plugin'
+import { buildMetaWhatsappPlugin } from '@kizunu/api/modules/channel/plugins/meta-whatsapp/meta-whatsapp.plugin'
 import type { INestApplication } from '@nestjs/common'
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vite-plus/test'
@@ -47,7 +47,7 @@ function fakeMetaFetch(routes: FakeRoute[]): typeof fetch {
 
 function injectMetaFetch(app: INestApplication, fetchFn: typeof fetch): void {
   const registry = app.get(ChannelPluginRegistry)
-  const replacement = new MetaWhatsappPlugin({
+  const replacement = buildMetaWhatsappPlugin({
     baseUrl: META_BASE,
     fetchFn,
     config: { appId: 'fixture-app', appSecret: 'fixture-secret' },

@@ -1,9 +1,11 @@
 import { z } from 'zod'
 
+import { CredentialFieldType } from '../shared/credentials/credential-field-type'
+
 export const ChannelCredentialFieldSchema = z.object({
   key: z.string(),
   label: z.string(),
-  type: z.enum(['text', 'secret']),
+  type: z.enum([CredentialFieldType.Text, CredentialFieldType.Secret]),
   required: z.boolean(),
   // True when the value is filled by the server (e.g. a generated per-channel
   // verify token) rather than the operator. UI omits these from the input form

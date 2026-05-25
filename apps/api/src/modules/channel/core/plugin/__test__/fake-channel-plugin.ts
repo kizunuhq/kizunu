@@ -1,7 +1,7 @@
+import { CredentialFieldType } from '@kizunu/api-contracts/shared'
 import { z } from 'zod'
 
 import { ChannelCapability } from '../channel-capability'
-import { ChannelCredentialFieldType } from '../channel-credential-field-type'
 import type { ChannelDecision } from '../channel-decision'
 import type { ChannelPlugin } from '../channel-plugin'
 import type { ChannelPluginManifest } from '../channel-plugin-manifest'
@@ -12,42 +12,37 @@ import type { ValidateInput } from '../validate-input'
 
 const fakeConfigSchema = z
   .object({
-    apiKey: z.string().min(1),
-    sender: z.string().min(1),
+    apiKey: z.string().min(1).meta({ label: 'API key', kind: 'secret' }),
+    sender: z.string().min(1).meta({ label: 'Sender', kind: 'text' }),
   })
   .strict()
+
+type FakeCredentials = z.infer<typeof fakeConfigSchema>
 
 /**
  * In-memory plugin used to exercise the registry and channel use-cases without a
  * real provider. Its strict `configSchema` lets tests assert credential validation.
  */
-export class FakeChannelPlugin implements ChannelPlugin {
-  readonly manifest: ChannelPluginManifest = {
+export class FakeChannelPlugin implements ChannelPlugin<typeof fakeConfigSchema> {
+  readonly manifest: ChannelPluginManifest<typeof fakeConfigSchema> = {
     id: 'fake',
     name: 'Fake Channel',
     capabilities: [ChannelCapability.Freeform, ChannelCapability.Template],
     configSchema: fakeConfigSchema,
-    credentialFields: [
-      {
-        key: 'apiKey',
-        label: 'API key',
-        type: ChannelCredentialFieldType.Secret,
-        required: true,
-      },
-      {
-        key: 'sender',
-        label: 'Sender',
-        type: ChannelCredentialFieldType.Text,
-        required: true,
-      },
-    ],
+    credentialFields: {
+      kind: 'flat',
+      fields: [
+        { key: 'apiKey', label: 'API key', type: CredentialFieldType.Secret, required: true },
+        { key: 'sender', label: 'Sender', type: CredentialFieldType.Text, required: true },
+      ],
+    },
   }
 
-  async send(_payload: SendPayload, _credentials: unknown): Promise<SendResult> {
+  async send(_payload: SendPayload, _credentials: FakeCredentials): Promise<SendResult> {
     return { externalMessageId: 'fake-message', status: 'sent' }
   }
 
-  async parseInbound(_raw: unknown, _credentials: unknown): Promise<InboundMessage[]> {
+  async parseInbound(_raw: unknown, _credentials: FakeCredentials): Promise<InboundMessage[]> {
     return []
   }
 

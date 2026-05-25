@@ -1,4 +1,4 @@
-import { MetaWhatsappPlugin } from '@kizunu/api/modules/channel/plugins/meta-whatsapp/meta-whatsapp.plugin'
+import { buildMetaWhatsappPlugin } from '@kizunu/api/modules/channel/plugins/meta-whatsapp/meta-whatsapp.plugin'
 import { describe, expect, it, vi } from 'vite-plus/test'
 
 const credentials = {
@@ -15,14 +15,14 @@ const HOUR_MS = 60 * 60 * 1000
 
 function pluginWithFetch(response: Response) {
   const fetchFn = vi.fn(async (_input: string | URL | Request, _init?: RequestInit) => response)
-  const plugin = new MetaWhatsappPlugin({ baseUrl: 'https://graph.test/v21.0', fetchFn })
+  const plugin = buildMetaWhatsappPlugin({ baseUrl: 'https://graph.test/v21.0', fetchFn })
   return { plugin, fetchFn }
 }
 
 describe('MetaWhatsappPlugin', () => {
   describe('manifest', () => {
     it('declares meta-whatsapp with freeform and template capabilities', () => {
-      const plugin = new MetaWhatsappPlugin()
+      const plugin = buildMetaWhatsappPlugin()
 
       expect(plugin.manifest.id).toBe('meta-whatsapp')
       expect(plugin.manifest.capabilities).toEqual(['freeform', 'template'])
@@ -30,7 +30,7 @@ describe('MetaWhatsappPlugin', () => {
   })
 
   describe('validate (24h customer-service window)', () => {
-    const plugin = new MetaWhatsappPlugin()
+    const plugin = buildMetaWhatsappPlugin()
 
     it('allows freeform when the last inbound is within the window', () => {
       const lastInboundAt = new Date(now.getTime() - HOUR_MS)
@@ -71,7 +71,7 @@ describe('MetaWhatsappPlugin', () => {
   })
 
   describe('parseInbound', () => {
-    const plugin = new MetaWhatsappPlugin()
+    const plugin = buildMetaWhatsappPlugin()
 
     it('normalizes a text message with the phone_number_id as the routing key', async () => {
       const raw = {
@@ -96,7 +96,7 @@ describe('MetaWhatsappPlugin', () => {
         ],
       }
 
-      const messages = await plugin.parseInbound(raw)
+      const messages = await plugin.parseInbound(raw, undefined as never)
 
       expect(messages).toEqual([
         {
@@ -116,12 +116,12 @@ describe('MetaWhatsappPlugin', () => {
         ],
       }
 
-      expect(await plugin.parseInbound(raw)).toEqual([])
+      expect(await plugin.parseInbound(raw, undefined as never)).toEqual([])
     })
 
     it('returns no messages for a malformed payload instead of throwing', async () => {
-      expect(await plugin.parseInbound({ junk: true })).toEqual([])
-      expect(await plugin.parseInbound('not-json')).toEqual([])
+      expect(await plugin.parseInbound({ junk: true }, undefined as never)).toEqual([])
+      expect(await plugin.parseInbound('not-json', undefined as never)).toEqual([])
     })
   })
 
@@ -241,7 +241,7 @@ describe('MetaWhatsappPlugin', () => {
           headers: { 'Content-Type': 'application/json' },
         })
       })
-      const plugin = new MetaWhatsappPlugin({ baseUrl: 'https://graph.test/v21.0', fetchFn })
+      const plugin = buildMetaWhatsappPlugin({ baseUrl: 'https://graph.test/v21.0', fetchFn })
       return { plugin, fetchFn }
     }
 
@@ -251,7 +251,7 @@ describe('MetaWhatsappPlugin', () => {
         { status: 200, body: { success: true } },
       ])
 
-      const result = (await plugin.onAccountCreated({
+      const result = (await plugin.onAccountCreated!({
         channelAccountId: 'channel-1',
         appUrl: 'https://api.example',
         credentials: clientCredentials,
@@ -269,7 +269,7 @@ describe('MetaWhatsappPlugin', () => {
       ])
 
       await expect(
-        plugin.onAccountCreated({
+        plugin.onAccountCreated!({
           channelAccountId: 'channel-1',
           appUrl: 'https://api.example',
           credentials: clientCredentials,
@@ -287,7 +287,7 @@ describe('MetaWhatsappPlugin', () => {
       ])
 
       await expect(
-        plugin.onAccountCreated({
+        plugin.onAccountCreated!({
           channelAccountId: 'channel-1',
           appUrl: 'https://api.example',
           credentials: clientCredentials,
@@ -305,7 +305,7 @@ describe('MetaWhatsappPlugin', () => {
       ])
 
       await expect(
-        plugin.onAccountCreated({
+        plugin.onAccountCreated!({
           channelAccountId: 'channel-1',
           appUrl: 'https://api.example',
           credentials: { ...clientCredentials, verifyToken: 'forged' },
@@ -329,13 +329,13 @@ describe('MetaWhatsappPlugin', () => {
         const next = responses.shift() ?? { status: 200, body: { success: true } }
         return new Response(JSON.stringify(next.body), { status: next.status })
       })
-      const plugin = new MetaWhatsappPlugin({
+      const plugin = buildMetaWhatsappPlugin({
         baseUrl: 'https://graph.test/v21.0',
         fetchFn,
         config: { appId: 'app-x', appSecret: 'secret-x' },
       })
 
-      const result = (await plugin.onAccountCreated({
+      const result = (await plugin.onAccountCreated!({
         channelAccountId: 'channel-1',
         appUrl: 'https://api.example',
         credentials: coexInput,
@@ -356,9 +356,9 @@ describe('MetaWhatsappPlugin', () => {
   describe('refreshCredentials', () => {
     it('passes cloud_api credentials through unchanged (no expiry)', async () => {
       const fetchFn = vi.fn() as never
-      const plugin = new MetaWhatsappPlugin({ baseUrl: 'https://graph.test/v21.0', fetchFn })
+      const plugin = buildMetaWhatsappPlugin({ baseUrl: 'https://graph.test/v21.0', fetchFn })
 
-      const result = await plugin.refreshCredentials({
+      const result = await plugin.refreshCredentials!({
         channelAccountId: 'channel-1',
         credentials,
       })
@@ -372,13 +372,13 @@ describe('MetaWhatsappPlugin', () => {
           status: 200,
         })
       })
-      const plugin = new MetaWhatsappPlugin({
+      const plugin = buildMetaWhatsappPlugin({
         baseUrl: 'https://graph.test/v21.0',
         fetchFn,
         config: { appId: 'app-x', appSecret: 'secret-x' },
       })
 
-      const result = (await plugin.refreshCredentials({
+      const result = (await plugin.refreshCredentials!({
         channelAccountId: 'channel-1',
         credentials: {
           channelMode: 'coexistence',
@@ -395,14 +395,14 @@ describe('MetaWhatsappPlugin', () => {
 
     it('throws MetaConnectFailedException with refresh-exchange step when Meta rejects', async () => {
       const fetchFn = vi.fn(async () => new Response(JSON.stringify({}), { status: 401 }))
-      const plugin = new MetaWhatsappPlugin({
+      const plugin = buildMetaWhatsappPlugin({
         baseUrl: 'https://graph.test/v21.0',
         fetchFn,
         config: { appId: 'a', appSecret: 's' },
       })
 
       await expect(
-        plugin.refreshCredentials({
+        plugin.refreshCredentials!({
           channelAccountId: 'channel-1',
           credentials: {
             channelMode: 'coexistence',
@@ -420,31 +420,34 @@ describe('MetaWhatsappPlugin', () => {
   })
 
   describe('parseInbound (Coex echoes)', () => {
-    const plugin = new MetaWhatsappPlugin()
+    const plugin = buildMetaWhatsappPlugin()
 
     it('parses smb_message_echoes with customer phone as fromExternalId', async () => {
-      const messages = await plugin.parseInbound({
-        entry: [
-          {
-            changes: [
-              {
-                field: 'smb_message_echoes',
-                value: {
-                  message_echoes: [
-                    {
-                      from: 'business-number',
-                      to: 'customer-phone',
-                      id: 'wamid.echo.1',
-                      timestamp: '1700000000',
-                      text: { body: 'manual reply' },
-                    },
-                  ],
+      const messages = await plugin.parseInbound(
+        {
+          entry: [
+            {
+              changes: [
+                {
+                  field: 'smb_message_echoes',
+                  value: {
+                    message_echoes: [
+                      {
+                        from: 'business-number',
+                        to: 'customer-phone',
+                        id: 'wamid.echo.1',
+                        timestamp: '1700000000',
+                        text: { body: 'manual reply' },
+                      },
+                    ],
+                  },
                 },
-              },
-            ],
-          },
-        ],
-      })
+              ],
+            },
+          ],
+        },
+        undefined as never,
+      )
 
       expect(messages).toEqual([
         {
@@ -458,21 +461,27 @@ describe('MetaWhatsappPlugin', () => {
     })
 
     it('returns [] for smb_app_state_sync and history fields (200-ack only)', async () => {
-      const stateSync = await plugin.parseInbound({
-        entry: [
-          {
-            changes: [
-              {
-                field: 'smb_app_state_sync',
-                value: { state_sync: [{ type: 'contact', action: 'add' }] },
-              },
-            ],
-          },
-        ],
-      })
-      const history = await plugin.parseInbound({
-        entry: [{ changes: [{ field: 'history', value: { messages: [] } }] }],
-      })
+      const stateSync = await plugin.parseInbound(
+        {
+          entry: [
+            {
+              changes: [
+                {
+                  field: 'smb_app_state_sync',
+                  value: { state_sync: [{ type: 'contact', action: 'add' }] },
+                },
+              ],
+            },
+          ],
+        },
+        undefined as never,
+      )
+      const history = await plugin.parseInbound(
+        {
+          entry: [{ changes: [{ field: 'history', value: { messages: [] } }] }],
+        },
+        undefined as never,
+      )
 
       expect(stateSync).toEqual([])
       expect(history).toEqual([])

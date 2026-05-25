@@ -3,22 +3,13 @@ import {
   metaCredentialsSchema,
   type MetaCoexistenceCredentials,
   type MetaCredentials,
+  type MetaCredentialsClientInput,
 } from '@kizunu/api-contracts/channel'
-import type { DirectoryResult } from '@kizunu/api-contracts/shared'
-import type { DirectoryInput } from '@kizunu/api/modules/_shared/directory/directory-input'
 import { ConnectorDirectoryUnsupportedException } from '@kizunu/api/modules/_shared/directory/directory.errors'
 
 import { ChannelCapability } from '../../core/plugin/channel-capability'
-import { ChannelCredentialFieldType } from '../../core/plugin/channel-credential-field-type'
-import type { ChannelDecision } from '../../core/plugin/channel-decision'
 import type { ChannelPlugin } from '../../core/plugin/channel-plugin'
-import type { ChannelPluginManifest } from '../../core/plugin/channel-plugin-manifest'
-import type { InboundMessage } from '../../core/plugin/inbound-message'
-import type { OnAccountCreatedInput } from '../../core/plugin/on-account-created-input'
-import type { RefreshCredentialsInput } from '../../core/plugin/refresh-credentials-input'
-import type { SendPayload } from '../../core/plugin/send-payload'
-import type { SendResult } from '../../core/plugin/send-result'
-import type { ValidateInput } from '../../core/plugin/validate-input'
+import { defineChannelPlugin } from '../../core/plugin/define-channel-plugin'
 import { isWithinServiceWindow } from './customer-service-window'
 import { exchangeForRefreshedToken } from './meta-coex-token'
 import { listMetaPhoneNumbers, listMetaTemplates } from './meta-directory'
@@ -41,6 +32,12 @@ export interface MetaWhatsappPluginConfig {
   appSecret: string
 }
 
+export interface MetaWhatsappPluginOptions {
+  baseUrl?: string
+  fetchFn?: FetchFn
+  config?: Partial<MetaWhatsappPluginConfig>
+}
+
 /**
  * Meta Cloud API / WhatsApp channel plugin. Two onboarding modes are supported
  * via the `channelMode` discriminator on the credentials schema:
@@ -55,190 +52,96 @@ export interface MetaWhatsappPluginConfig {
  *   `refreshCredentials` rolls the token via long-lived exchange before expiry.
  *
  * `baseUrl`/`fetchFn` are injectable for tests; `config` carries the app-wide
- * Meta credentials needed in Coex paths.
+ * Meta credentials needed in Coex paths. The plugin is built via
+ * `defineChannelPlugin(...)` so every credential-touching method receives
+ * already-parsed `MetaCredentials` from the registry seam.
  */
-export class MetaWhatsappPlugin implements ChannelPlugin {
-  readonly manifest: ChannelPluginManifest = {
-    id: 'meta-whatsapp',
-    name: 'WhatsApp (Meta Cloud API)',
-    capabilities: [ChannelCapability.Freeform, ChannelCapability.Template],
-    configSchema: metaCredentialsClientSchema,
-    credentialFields: [
-      { key: 'appId', label: 'Meta App ID', type: ChannelCredentialFieldType.Text, required: true },
-      {
-        key: 'appSecret',
-        label: 'Meta App Secret',
-        type: ChannelCredentialFieldType.Secret,
-        required: true,
-      },
-      { key: 'wabaId', label: 'WABA ID', type: ChannelCredentialFieldType.Text, required: true },
-      {
-        key: 'phoneNumberId',
-        label: 'Phone number ID',
-        type: ChannelCredentialFieldType.Text,
-        required: true,
-      },
-      {
-        key: 'systemToken',
-        label: 'System token',
-        type: ChannelCredentialFieldType.Secret,
-        required: true,
-      },
-      // Generated server-side during onAccountCreated, never operator-supplied.
-      // The web form filters serverGenerated entries via userInputFields().
-      {
-        key: 'verifyToken',
-        label: 'Verify token',
-        type: ChannelCredentialFieldType.Secret,
-        required: true,
-        serverGenerated: true,
-      },
-    ],
-    directoryResources: [{ name: 'templates', ttlMs: TEMPLATES_TTL_MS }, { name: 'phoneNumbers' }],
+export function buildMetaWhatsappPlugin(
+  options?: MetaWhatsappPluginOptions,
+): ChannelPlugin<typeof metaCredentialsSchema> {
+  const baseUrl = options?.baseUrl ?? META_GRAPH_API_BASE
+  const fetchFn = options?.fetchFn ?? globalThis.fetch
+  const config: MetaWhatsappPluginConfig = {
+    appId: options?.config?.appId ?? '',
+    appSecret: options?.config?.appSecret ?? '',
   }
 
-  private readonly baseUrl: string
-  private readonly fetchFn: FetchFn
-  private readonly config: MetaWhatsappPluginConfig
-
-  constructor(options?: {
-    baseUrl?: string
-    fetchFn?: FetchFn
-    config?: Partial<MetaWhatsappPluginConfig>
-  }) {
-    this.baseUrl = options?.baseUrl ?? META_GRAPH_API_BASE
-    this.fetchFn = options?.fetchFn ?? globalThis.fetch
-    this.config = {
-      appId: options?.config?.appId ?? '',
-      appSecret: options?.config?.appSecret ?? '',
-    }
-  }
-
-  validate(input: ValidateInput): ChannelDecision {
-    if (isWithinServiceWindow(input.now, input.lastInboundAt)) {
-      return { action: 'send', mode: 'freeform' }
-    }
-    if (input.hasApprovedTemplate) {
-      return { action: 'send', mode: 'template' }
-    }
-    return { action: 'error', reason: 'template_required' }
-  }
-
-  async parseInbound(raw: unknown): Promise<InboundMessage[]> {
-    return parseMetaInbound(raw)
-  }
-
-  async send(payload: SendPayload, credentials: unknown): Promise<SendResult> {
-    const parsed = metaCredentialsSchema.parse(credentials)
-    return await sendMetaMessage({
-      payload,
-      credentials: parsed,
-      baseUrl: this.baseUrl,
-      fetchFn: this.fetchFn,
-    })
-  }
-
-  async onAccountCreated(input: OnAccountCreatedInput): Promise<unknown> {
-    if (isCoexistenceInput(input.credentials)) {
-      return await this.onCoexAccountCreated(
-        input.appUrl,
-        input.channelAccountId,
-        input.credentials,
-      )
-    }
-    return await this.onCloudApiAccountCreated(
-      input.appUrl,
-      input.channelAccountId,
-      input.credentials,
-    )
-  }
-
-  async directory(input: DirectoryInput): Promise<DirectoryResult> {
-    const ctx = {
-      fetchFn: this.fetchFn,
-      baseUrl: this.baseUrl,
-      accountId: input.accountId,
-      credentials: metaCredentialsSchema.parse(input.credentials),
-    }
-    if (input.resource === 'templates') return await listMetaTemplates(ctx)
-    if (input.resource === 'phoneNumbers') return await listMetaPhoneNumbers(ctx)
-    throw new ConnectorDirectoryUnsupportedException({
-      connectorId: this.manifest.id,
-      resource: input.resource,
-    })
-  }
-
-  async refreshCredentials(input: RefreshCredentialsInput): Promise<unknown> {
-    const parsed = metaCredentialsSchema.parse(input.credentials)
-    if (parsed.channelMode !== 'coexistence') return parsed
-    const refreshed = await exchangeForRefreshedToken({
-      baseUrl: this.baseUrl,
-      fetchFn: this.fetchFn,
-      appId: this.config.appId,
-      appSecret: this.config.appSecret,
-      currentToken: parsed.accessToken,
-    })
-    return {
-      ...parsed,
-      accessToken: refreshed.accessToken,
-      accessTokenExpiresAt: refreshed.accessTokenExpiresAt,
-    }
-  }
-
-  private async onCloudApiAccountCreated(
-    appUrl: string,
-    channelAccountId: string,
-    rawCredentials: unknown,
-  ): Promise<MetaCredentials> {
-    const clientCredentials = metaCredentialsClientSchema.parse(rawCredentials)
-    const { verifyToken } = await subscribeMetaChannel({
-      baseUrl: this.baseUrl,
-      fetchFn: this.fetchFn,
-      appUrl,
-      channelAccountId,
-      appId: clientCredentials.appId,
-      appSecret: clientCredentials.appSecret,
-      wabaId: clientCredentials.wabaId,
-      systemToken: clientCredentials.systemToken,
-    })
-    return { channelMode: 'cloud_api', ...clientCredentials, verifyToken }
-  }
-
-  /**
-   * Coex onboarding skips the app-level subscription (Meta handles it during
-   * Embedded Signup) and only runs the per-WABA `subscribed_apps` override
-   * with the Coex subscribed_fields. The connect endpoint has already
-   * exchanged the OAuth code for a business token; we just need to wire the
-   * verify token and the per-channel callback URL.
-   */
-  private async onCoexAccountCreated(
-    appUrl: string,
-    channelAccountId: string,
-    input: CoexistenceOnCreateInput,
-  ): Promise<MetaCoexistenceCredentials> {
-    const verifyToken = await randomVerifyToken()
-    const callbackUrl = buildCallbackUrl(appUrl, channelAccountId)
-    await subscribeWabaToMeta({
-      baseUrl: this.baseUrl,
-      fetchFn: this.fetchFn,
-      wabaId: input.wabaId,
-      systemToken: input.accessToken,
-      callbackUrl,
-      verifyToken,
-      subscribedFields: COEX_SUBSCRIBED_FIELDS,
-    })
-    return {
-      channelMode: 'coexistence',
-      wabaId: input.wabaId,
-      phoneNumberId: input.phoneNumberId,
-      verifyToken,
-      accessToken: input.accessToken,
-      ...(input.refreshToken === undefined ? {} : { refreshToken: input.refreshToken }),
-      ...(input.accessTokenExpiresAt === undefined
-        ? {}
-        : { accessTokenExpiresAt: input.accessTokenExpiresAt }),
-    }
-  }
+  return defineChannelPlugin({
+    manifest: {
+      id: 'meta-whatsapp',
+      name: 'WhatsApp (Meta Cloud API)',
+      capabilities: [ChannelCapability.Freeform, ChannelCapability.Template],
+      configSchema: metaCredentialsSchema,
+      inputSchema: metaCredentialsClientSchema,
+      directoryResources: [
+        { name: 'templates', ttlMs: TEMPLATES_TTL_MS },
+        { name: 'phoneNumbers' },
+      ],
+    },
+    validate(input) {
+      if (isWithinServiceWindow(input.now, input.lastInboundAt)) {
+        return { action: 'send', mode: 'freeform' }
+      }
+      if (input.hasApprovedTemplate) {
+        return { action: 'send', mode: 'template' }
+      }
+      return { action: 'error', reason: 'template_required' }
+    },
+    async parseInbound(raw) {
+      return parseMetaInbound(raw)
+    },
+    async send(payload, credentials) {
+      return sendMetaMessage({ payload, credentials, baseUrl, fetchFn })
+    },
+    async directory(input) {
+      const ctx = {
+        fetchFn,
+        baseUrl,
+        accountId: input.accountId,
+        credentials: input.credentials,
+      }
+      if (input.resource === 'templates') return listMetaTemplates(ctx)
+      if (input.resource === 'phoneNumbers') return listMetaPhoneNumbers(ctx)
+      throw new ConnectorDirectoryUnsupportedException({
+        connectorId: 'meta-whatsapp',
+        resource: input.resource,
+      })
+    },
+    async refreshCredentials({ credentials }) {
+      if (credentials.channelMode !== 'coexistence') return credentials
+      const refreshed = await exchangeForRefreshedToken({
+        baseUrl,
+        fetchFn,
+        appId: config.appId,
+        appSecret: config.appSecret,
+        currentToken: credentials.accessToken,
+      })
+      return {
+        ...credentials,
+        accessToken: refreshed.accessToken,
+        accessTokenExpiresAt: refreshed.accessTokenExpiresAt,
+      }
+    },
+    async onAccountCreated({ channelAccountId, appUrl, credentials }) {
+      if (isCoexistenceInput(credentials)) {
+        return onCoexAccountCreated({
+          baseUrl,
+          fetchFn,
+          appUrl,
+          channelAccountId,
+          credentials,
+        })
+      }
+      const clientCredentials = metaCredentialsClientSchema.parse(credentials)
+      return onCloudApiAccountCreated({
+        baseUrl,
+        fetchFn,
+        appUrl,
+        channelAccountId,
+        credentials: clientCredentials,
+      })
+    },
+  })
 }
 
 interface CoexistenceOnCreateInput {
@@ -252,7 +155,71 @@ interface CoexistenceOnCreateInput {
 
 function isCoexistenceInput(value: unknown): value is CoexistenceOnCreateInput {
   if (!value || typeof value !== 'object' || !('channelMode' in value)) return false
-  return value.channelMode === 'coexistence'
+  return (value as { channelMode: unknown }).channelMode === 'coexistence'
+}
+
+interface OnCreateCloudApiInput {
+  baseUrl: string
+  fetchFn: FetchFn
+  appUrl: string
+  channelAccountId: string
+  credentials: MetaCredentialsClientInput
+}
+
+async function onCloudApiAccountCreated(input: OnCreateCloudApiInput): Promise<MetaCredentials> {
+  const { verifyToken } = await subscribeMetaChannel({
+    baseUrl: input.baseUrl,
+    fetchFn: input.fetchFn,
+    appUrl: input.appUrl,
+    channelAccountId: input.channelAccountId,
+    appId: input.credentials.appId,
+    appSecret: input.credentials.appSecret,
+    wabaId: input.credentials.wabaId,
+    systemToken: input.credentials.systemToken,
+  })
+  return { channelMode: 'cloud_api', ...input.credentials, verifyToken }
+}
+
+interface OnCreateCoexInput {
+  baseUrl: string
+  fetchFn: FetchFn
+  appUrl: string
+  channelAccountId: string
+  credentials: CoexistenceOnCreateInput
+}
+
+/**
+ * Coex onboarding skips the app-level subscription (Meta handles it during
+ * Embedded Signup) and only runs the per-WABA `subscribed_apps` override with
+ * the Coex subscribed_fields. The connect endpoint has already exchanged the
+ * OAuth code for a business token; we just need to wire the verify token and
+ * the per-channel callback URL.
+ */
+async function onCoexAccountCreated(input: OnCreateCoexInput): Promise<MetaCoexistenceCredentials> {
+  const verifyToken = await randomVerifyToken()
+  const callbackUrl = buildCallbackUrl(input.appUrl, input.channelAccountId)
+  await subscribeWabaToMeta({
+    baseUrl: input.baseUrl,
+    fetchFn: input.fetchFn,
+    wabaId: input.credentials.wabaId,
+    systemToken: input.credentials.accessToken,
+    callbackUrl,
+    verifyToken,
+    subscribedFields: COEX_SUBSCRIBED_FIELDS,
+  })
+  return {
+    channelMode: 'coexistence',
+    wabaId: input.credentials.wabaId,
+    phoneNumberId: input.credentials.phoneNumberId,
+    verifyToken,
+    accessToken: input.credentials.accessToken,
+    ...(input.credentials.refreshToken === undefined
+      ? {}
+      : { refreshToken: input.credentials.refreshToken }),
+    ...(input.credentials.accessTokenExpiresAt === undefined
+      ? {}
+      : { accessTokenExpiresAt: input.credentials.accessTokenExpiresAt }),
+  }
 }
 
 function buildCallbackUrl(appUrl: string, channelAccountId: string): string {
