@@ -739,9 +739,14 @@ timeline, reachable HTTPS webhooks, and a live pilot acceptance run.
   variables, reply action, lost action, and BDR channel strategy. It should make
   unsafe cadences hard to activate.
 
-**Owner mapping recovery UI** - PLANNED
-- Make owner mapping first-class in the wizard and error recovery. Show Pipedrive
-  users, mapped kizunu members, unmapped owners, and fix actions.
+**Owner mapping recovery UI** - COMPLETE
+- _Landed (feature `070`): the member-identities card on
+  `/settings/connectors` (introduced in feature `047`, extended with
+  labeled Pipedrive-user pickers in `054`) gains an "Unmapped" summary.
+  `UnmappedSummary` cross-references the Pipedrive `users` directory
+  against the workspace's `member-connector-identities` and renders
+  "N unmapped" or "Every Pipedrive user is mapped". Fix actions remain
+  the existing "Add identity" dialog._
 
 **Journey error reason read model** - COMPLETE
 - _Landed (feature `071`): the `GET /workspaces/:id/lead-journeys`
