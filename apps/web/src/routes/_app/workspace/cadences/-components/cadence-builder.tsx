@@ -9,6 +9,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@kizunu/web/components/primitives/select'
+import { Textarea } from '@kizunu/web/components/primitives/textarea'
+import { CadencePreview } from '@kizunu/web/routes/_app/workspace/cadences/-components/cadence-preview'
 import {
   type CadenceStepDraft,
   newStepDraft,
@@ -38,12 +40,25 @@ export function CadenceBuilder(props: CadenceBuilderProps) {
   const [name, setName] = useState('')
   const [steps, setSteps] = useState<CadenceStepDraft[]>([newStepDraft()])
   const [onReplyStageId, setOnReplyStageId] = useState('')
+  const [onReplyTaskSubject, setOnReplyTaskSubject] = useState('')
+  const [onReplyTaskNote, setOnReplyTaskNote] = useState('')
+  const [onExhaustedLostReason, setOnExhaustedLostReason] = useState('')
   const [sendingWindowPreset, setSendingWindowPreset] =
     useState<SendingWindowPresetKey>('always_on')
 
+  const current = buildCadenceRequest({
+    name,
+    steps,
+    onReplyStageId,
+    onReplyTaskSubject,
+    onReplyTaskNote,
+    onExhaustedLostReason,
+    sendingWindowPreset,
+  })
+
   function submit(event: React.FormEvent) {
     event.preventDefault()
-    onSubmit(buildCadenceRequest({ name, steps, onReplyStageId, sendingWindowPreset }))
+    onSubmit(current)
   }
 
   const templateOptions = (templates.data?.templates ?? []).map((t) => ({
@@ -75,6 +90,41 @@ export function CadenceBuilder(props: CadenceBuilderProps) {
         />
       </Field>
       <Field>
+        <FieldLabel htmlFor="onreply-task-subject">
+          On reply: BDR task subject (optional)
+        </FieldLabel>
+        <Input
+          id="onreply-task-subject"
+          placeholder="Lead replied — assume conversation"
+          value={onReplyTaskSubject}
+          disabled={isPending}
+          onChange={(e) => setOnReplyTaskSubject(e.target.value)}
+        />
+      </Field>
+      {onReplyTaskSubject.trim().length > 0 && (
+        <Field>
+          <FieldLabel htmlFor="onreply-task-note">On reply: BDR task note (optional)</FieldLabel>
+          <Textarea
+            id="onreply-task-note"
+            value={onReplyTaskNote}
+            disabled={isPending}
+            onChange={(e) => setOnReplyTaskNote(e.target.value)}
+          />
+        </Field>
+      )}
+      <Field>
+        <FieldLabel htmlFor="onexhausted-lost-reason">
+          On exhausted: mark lost reason (optional)
+        </FieldLabel>
+        <Input
+          id="onexhausted-lost-reason"
+          placeholder="No reply after cadence completed"
+          value={onExhaustedLostReason}
+          disabled={isPending}
+          onChange={(e) => setOnExhaustedLostReason(e.target.value)}
+        />
+      </Field>
+      <Field>
         <FieldLabel htmlFor="sending-window-preset">Sending window</FieldLabel>
         <Select
           value={sendingWindowPreset}
@@ -93,6 +143,7 @@ export function CadenceBuilder(props: CadenceBuilderProps) {
           </SelectContent>
         </Select>
       </Field>
+      <CadencePreview cadence={current} />
     </form>
   )
 }
