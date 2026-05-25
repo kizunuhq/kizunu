@@ -3,6 +3,37 @@ import { useEffect, useState } from 'react'
 const FB_SDK_SRC = 'https://connect.facebook.net/en_US/sdk.js'
 const FB_VERSION = 'v22.0'
 
+interface FacebookSdk {
+  init: (options: {
+    appId: string
+    autoLogAppEvents: boolean
+    xfbml: boolean
+    version: string
+  }) => void
+  login: (
+    callback: (response: { authResponse?: { code?: string } }) => void,
+    params: FBLoginParams,
+  ) => void
+}
+
+interface FBLoginParams {
+  config_id: string
+  response_type: 'code'
+  override_default_response_type: true
+  extras: {
+    setup: Record<string, never>
+    featureType: 'whatsapp_business_app_onboarding'
+    sessionInfoVersion: '3'
+  }
+}
+
+declare global {
+  interface Window {
+    FB?: FacebookSdk
+    fbAsyncInit?: () => void
+  }
+}
+
 interface CoexCallbackData {
   type?: string
   event?: string

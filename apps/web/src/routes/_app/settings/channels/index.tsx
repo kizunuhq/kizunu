@@ -5,11 +5,19 @@ import { Card, CardContent, CardHeader, CardTitle } from '@kizunu/web/components
 import { ChannelAccountsTable } from '@kizunu/web/routes/_app/settings/channels/-components/channel-accounts-table'
 import { CreateChannelAccountDialog } from '@kizunu/web/routes/_app/settings/channels/-dialogs/create-channel-account-dialog'
 import { GrantChannelAccessDialog } from '@kizunu/web/routes/_app/settings/channels/-dialogs/grant-channel-access-dialog'
+import {
+  channelsSearchSchema,
+  useChannelsSearch,
+} from '@kizunu/web/routes/_app/settings/channels/-hooks/use-channels-search'
 import { Plus } from '@phosphor-icons/react'
 import { createFileRoute } from '@tanstack/react-router'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+
+const COEX_PLUGIN_ID = 'meta-whatsapp-coex'
 
 export const Route = createFileRoute('/_app/settings/channels/')({
+  validateSearch: (search: Record<string, unknown>) =>
+    channelsSearchSchema.parse({ addCoex: search.addCoex }),
   component: ChannelsPage,
 })
 
@@ -17,6 +25,18 @@ function ChannelsPage() {
   const { activeWorkspaceId } = useCurrentUser()
   const [createOpen, setCreateOpen] = useState(false)
   const [grantOpen, setGrantOpen] = useState(false)
+  const { searchValues, clearAddCoex } = useChannelsSearch()
+  const autoOpenedRef = useRef(false)
+  const [preselectedPluginId, setPreselectedPluginId] = useState<string | undefined>(undefined)
+
+  useEffect(() => {
+    if (searchValues.addCoex === 1 && !autoOpenedRef.current && !createOpen) {
+      autoOpenedRef.current = true
+      setPreselectedPluginId(COEX_PLUGIN_ID)
+      setCreateOpen(true)
+      clearAddCoex()
+    }
+  }, [searchValues.addCoex, createOpen, clearAddCoex])
 
   if (!activeWorkspaceId) {
     return (
@@ -56,6 +76,7 @@ function ChannelsPage() {
         workspaceId={activeWorkspaceId}
         open={createOpen}
         onOpenChange={setCreateOpen}
+        preselectedPluginId={preselectedPluginId}
       />
       <GrantChannelAccessDialog
         workspaceId={activeWorkspaceId}
