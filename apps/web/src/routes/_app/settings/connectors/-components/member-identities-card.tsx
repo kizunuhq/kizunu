@@ -1,5 +1,8 @@
+import { useDirectoryPipedriveUsers } from '@kizunu/api-client/crm/use-directory-pipedrive-users'
+import { useMemberConnectorIdentities } from '@kizunu/api-client/crm/use-member-connector-identities'
 import { useWorkspaceConnectors } from '@kizunu/api-client/crm/use-workspace-connectors'
 import { LookupSelect } from '@kizunu/web/components/composed/lookup-select'
+import { Badge } from '@kizunu/web/components/primitives/badge'
 import { Button } from '@kizunu/web/components/primitives/button'
 import {
   Card,
@@ -55,6 +58,9 @@ export function MemberIdentitiesCard({ workspaceId }: MemberIdentitiesCardProps)
             />
           </Field>
         )}
+        {hasAccount && (
+          <UnmappedSummary workspaceId={workspaceId} connectorAccountId={activeAccountId} />
+        )}
         {isPending ? (
           <p className="text-muted-foreground text-sm">Loading…</p>
         ) : !hasAccount ? (
@@ -74,5 +80,39 @@ export function MemberIdentitiesCard({ workspaceId }: MemberIdentitiesCardProps)
         />
       )}
     </Card>
+  )
+}
+
+interface UnmappedSummaryProps {
+  workspaceId: string
+  connectorAccountId: string
+}
+
+function UnmappedSummary({ workspaceId, connectorAccountId }: UnmappedSummaryProps) {
+  const users = useDirectoryPipedriveUsers(workspaceId, connectorAccountId)
+  const identities = useMemberConnectorIdentities(workspaceId, connectorAccountId)
+
+  if (users.isPending || identities.isPending) return null
+  if (users.needsReconnect) return null
+
+  const externalIds = new Set((identities.data?.items ?? []).map((identity) => identity.externalId))
+  const items = users.data?.items ?? []
+  const unmappedCount = items.filter((item) => !externalIds.has(item.value)).length
+
+  if (unmappedCount === 0) {
+    return (
+      <div className="text-muted-foreground text-sm">
+        Every Pipedrive user is mapped to a member.
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex items-center gap-2 text-sm">
+      <Badge variant="secondary">{unmappedCount} unmapped</Badge>
+      <span className="text-muted-foreground">
+        Pipedrive owner{unmappedCount === 1 ? '' : 's'} with no member identity.
+      </span>
+    </div>
   )
 }
