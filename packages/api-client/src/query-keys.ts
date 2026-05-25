@@ -20,4 +20,5 @@ export const QueryKeys = Object.freeze({
   workspaceEntryTriggers: 'workspaceEntryTriggers',
   workspaceLeadJourneys: 'workspaceLeadJourneys',
   directory: 'directory',
+  connectorHealth: 'connectorHealth',
 })
