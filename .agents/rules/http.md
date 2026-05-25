@@ -1,6 +1,6 @@
 # HTTP API Standards
 
-These rules apply to all HTTP APIs in `backend/`.
+These rules apply to all HTTP APIs in `apps/api/`.
 
 ## REST Conventions
 

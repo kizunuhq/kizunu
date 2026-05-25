@@ -256,6 +256,36 @@ function createInvoice(order: Order) {
   return persistInvoice(order, totals);
 }
 ```
-## 11. Split types in different files
 
-Do not create different types in the same file, always split them in different files
+## 11. Split Types Into Different Files
+
+Each type or interface lives in its own file. Do not declare multiple unrelated types in the same file; the const-object + derived-type pair from `enums.md` §1 counts as one cohesive declaration and stays together.
+
+Bad:
+
+```ts
+// user-types.ts — two unrelated shapes sharing a file
+interface UserProfile {
+  name: string;
+}
+
+interface OrderSummary {
+  total: number;
+}
+```
+
+Good:
+
+```ts
+// user-profile.ts
+export interface UserProfile {
+  name: string;
+}
+```
+
+```ts
+// order-summary.ts
+export interface OrderSummary {
+  total: number;
+}
+```
