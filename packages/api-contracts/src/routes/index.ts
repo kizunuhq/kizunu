@@ -26,6 +26,7 @@ export const Routes = {
     members: (workspaceId: string) => `/workspaces/${workspaceId}/members`,
     member: (workspaceId: string, membershipId: string) =>
       `/workspaces/${workspaceId}/members/${membershipId}`,
+    routingReadiness: (workspaceId: string) => `/workspaces/${workspaceId}/routing-readiness`,
   },
   channelAccounts: {
     collection: (workspaceId: string) => `/workspaces/${workspaceId}/channel-accounts`,
