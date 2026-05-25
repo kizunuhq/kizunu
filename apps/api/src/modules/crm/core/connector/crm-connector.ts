@@ -15,17 +15,24 @@ import type { StageRef } from './stage-ref'
  * and never see a provider. `parseWebhook` is pure and must never throw (a
  * webhook handler always acknowledges).
  *
- * `S` is the connector's credentials schema. Every credentials-touching
- * method receives `z.infer<S>` — already parsed by the registry seam against
- * `manifest.configSchema`. Connector implementations don't re-parse.
+ * `S` is the connector's **stored credentials schema**. Every
+ * credentials-touching method receives `z.infer<S>` — already parsed by the
+ * registry seam against `manifest.configSchema`. Connector implementations
+ * don't re-parse.
+ *
+ * `I` is the connector's **operator-input credentials schema**, defaulting
+ * to `S` when create-time input matches the stored shape. `prepareCredentials`
+ * is an optional hook that receives `z.infer<I>` (typed by the registry's
+ * input parse) and returns `z.infer<S>` — the registry validates the return
+ * against `configSchema` before persistence so a buggy hook surfaces as 422.
  *
  * `fetchOwner` is optional. Connectors that can surface a deal owner's
  * identity (id + email) implement it so ResolveOwnerService can auto-map by
  * email match; connectors that don't simply omit the method and ingestion
  * falls back to admin mapping.
  */
-export interface CRMConnector<S extends ZodType = ZodType> {
-  readonly manifest: CrmConnectorManifest<S>
+export interface CRMConnector<S extends ZodType = ZodType, I extends ZodType = S> {
+  readonly manifest: CrmConnectorManifest<S, I>
   parseWebhook(raw: unknown, config: z.infer<S>): NormalizedEvent[]
   fetchLead(externalId: string, credentials: z.infer<S>): Promise<NormalizedLead>
   fetchOwner?(externalId: string, credentials: z.infer<S>): Promise<NormalizedOwner | null>
@@ -42,5 +49,6 @@ export interface CRMConnector<S extends ZodType = ZodType> {
     value: unknown,
     credentials: z.infer<S>,
   ): Promise<void>
+  prepareCredentials?(input: { credentials: z.infer<I> }): Promise<z.infer<S>>
   directory?(input: DirectoryInput<z.infer<S>>): Promise<DirectoryResult>
 }
