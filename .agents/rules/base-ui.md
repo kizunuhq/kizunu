@@ -132,20 +132,7 @@ for cases where the rendered element needs to read the primitive's
 state. Use the JSX-element form when you only care about styling; reach
 for the function form when state-driven rendering is unavoidable.
 
-## 3. Form Integration
-
-Our primitives composition already wires `aria-invalid` and
-`aria-describedby` by hand in
-`apps/web/src/components/primitives/field.tsx`, and forms bind to
-schemas via `react-hook-form` + `zodResolver` per `web-patterns.md` §
-3. Base UI also ships its own `@base-ui/react/field` primitive that
-provides those wirings automatically. We currently do not use it. If
-a new primitive needs richer field behavior (e.g. validity state
-driven by the browser's constraint validation), consider Base UI's
-Field rather than re-implementing the wiring in our composed layer.
-Until then, follow `web-patterns.md` § 3 unchanged.
-
-## 4. When This Rule Doesn't Cover It — `base-ui.com/llms.txt`
+## 3. When This Rule Doesn't Cover It — `base-ui.com/llms.txt`
 
 Base UI is large and evolving. When introducing a primitive we don't
 already wrap — `Combobox`, `NumberField`, `Slider`, etc. — go to
@@ -162,7 +149,7 @@ After the page, prefer to wrap the primitive in
 (`shadcn search` / `shadcn add` / `shadcn docs`) so the result picks
 up our preset's tokens, typography, and motion automatically.
 
-## 5. Related
+## 4. Related
 
 - **`react.md`** § 0 — shadcn-first primitives; the contract that
   every primitive in `apps/web` is installed via shadcn (which, on
