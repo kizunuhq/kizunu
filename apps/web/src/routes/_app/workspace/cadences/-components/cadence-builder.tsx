@@ -132,7 +132,11 @@ export function CadenceBuilder(props: CadenceBuilderProps) {
           disabled={isPending}
         >
           <SelectTrigger id="sending-window-preset">
-            <SelectValue />
+            <SelectValue>
+              {(value: string) =>
+                SENDING_WINDOW_PRESETS.find((preset) => preset.key === value)?.label ?? value
+              }
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             {SENDING_WINDOW_PRESETS.map((preset) => (
