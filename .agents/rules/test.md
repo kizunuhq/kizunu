@@ -1,6 +1,6 @@
 # Test Standards
 
-These rules apply to all automated tests in `frontend/` and `backend/`.
+These rules apply to all automated tests across `apps/` and `packages/`.
 
 ## 1. Cover Code With Tests
 

@@ -42,6 +42,10 @@
 
 ## Lessons Learned
 
+Durable architectural patterns and recurring traps — knowledge that prevents a **repeat** mistake on a future feature. **Per-feature recall ("feature 048 added X") does NOT belong here**; on projects that maintain a `HISTORY.md` (see [roadmap.md §Scaling](roadmap.md)), the `_Landed (NNN)…_` blurb lives there instead. If the lesson would only inform the agent about something already in the code or the changelog, drop it.
+
+A good Lessons entry answers: "if a future feature did X again, would this entry save us from the same mistake?" If no, it's recall, not a lesson.
+
 ### L-[NNN]: [Learning description]
 
 **Context:** [Situation that occurred]

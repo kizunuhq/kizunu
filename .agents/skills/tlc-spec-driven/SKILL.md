@@ -48,8 +48,9 @@ Plan and implement projects with precision. Granular tasks. Clear dependencies. 
 .specs/
 ├── project/
 │   ├── PROJECT.md      # Vision & goals
-│   ├── ROADMAP.md      # Features & milestones
-│   └── STATE.md        # Memory: decisions, blockers, lessons, todos, deferred ideas
+│   ├── ROADMAP.md      # Forward-looking: planned + in-progress features (and current milestone)
+│   ├── HISTORY.md      # OPTIONAL — append-only changelog of shipped features (see references/roadmap.md §Scaling)
+│   └── STATE.md        # Memory: durable decisions, blockers, architectural lessons, todos, deferred ideas
 ├── codebase/           # Brownfield analysis (existing projects)
 │   ├── STACK.md
 │   ├── ARCHITECTURE.md
@@ -90,11 +91,12 @@ Plan and implement projects with precision. Granular tasks. Clear dependencies. 
 **Base load (~15k tokens):**
 
 - PROJECT.md (if exists)
-- ROADMAP.md (when planning/working on features)
-- STATE.md (persistent memory)
+- ROADMAP.md (when planning/working on features — should stay forward-looking; if it carries every past feature, the project needs HISTORY.md split per [roadmap.md §Scaling](references/roadmap.md))
+- STATE.md (persistent memory — durable lessons only, not per-feature recall)
 
 **On-demand load:**
 
+- HISTORY.md (only when retrospective context is explicitly needed — "what shipped in phase X", "why did feature N happen". Never auto-loaded; it grows without bound by design.)
 - Codebase docs (when working in existing project)
 - CONCERNS.md (when planning features that touch flagged areas, estimating risk, or modifying fragile components)
 - TESTING.md (when creating tasks or executing — drives test type assignment and gate checks)

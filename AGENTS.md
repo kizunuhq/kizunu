@@ -29,10 +29,15 @@ duplicate their content here.
 ### `.specs/project/` — vision and memory
 
 - **`PROJECT.md`** — vision, goals, tech stack, scope boundaries, constraints.
-- **`ROADMAP.md`** — the v0.1 milestone broken into features, each with a status
-  (`PLANNED` / `IN PROGRESS` / `COMPLETE`); plus Phase 1.5 and future phases.
-- **`STATE.md`** — persistent memory across sessions: settled decisions (D1–D7),
-  open questions, blockers, lessons, preferences. Update it as work progresses.
+- **`ROADMAP.md`** — forward-looking only: current focus + `Now` / `Next` / `Later`
+  buckets of features (`PLANNED` / `IN PROGRESS`). Past phases collapse to a one-line
+  pointer into `HISTORY.md` — never let completed features accumulate here.
+- **`HISTORY.md`** — append-only changelog: when a feature ships, its `_Landed_`
+  blurb moves out of `ROADMAP.md` and into the phase section here. Not loaded by
+  default — consulted only when an agent needs retrospective context.
+- **`STATE.md`** — durable persistent memory across sessions: settled decisions
+  (D1–D7), open questions, blockers, **architectural lessons that prevent repeat
+  mistakes**, preferences. Feature-by-feature recall belongs in `HISTORY.md`, not here.
 
 ### `.specs/codebase/` — brownfield map (read before touching code)
 
@@ -172,7 +177,10 @@ advance past a feature until they do.
 5. **Conventional Commits** — focused commits, one logical change each, subjects
    describing the outcome; commitlint clean with no warnings.
 6. **Docs updated** — if scope/behavior changed, update the relevant `.specs/*`,
-   `docs/v0.1-scope.md`, or an ADR. Keep `ROADMAP.md`/`STATE.md` current.
+   `docs/v0.1-scope.md`, or an ADR. When a feature ships, **remove it from
+   `ROADMAP.md` and append its `_Landed_` blurb to the matching phase section in
+   `HISTORY.md`** so `ROADMAP.md` stays forward-looking. Keep `STATE.md` current
+   for durable decisions/lessons only.
 
 ## Skills are invoked, not just read
 
@@ -225,7 +233,9 @@ end to end and autonomously:
     until all checks pass. Loop back to `ci-watcher`.
 11. **Squash to `master`.** Once CI is green and every Definition-of-Done item is
     satisfied and the feature is spec-aligned, **squash-merge to `master`**
-    (autonomous — no human gate). Delete the branch.
+    (autonomous — no human gate). Delete the branch. Before declaring the
+    feature done, confirm its entry has moved from `ROADMAP.md` to
+    `HISTORY.md` (DoD §6) — `ROADMAP.md` only carries planned/in-flight work.
 
 Guardrails: never commit or merge with a red `bun check`, failing tests, or red CI;
 never bypass git hooks; keep unrelated work on separate branches.
