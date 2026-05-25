@@ -53,6 +53,18 @@ export const metaCredentialsSchema = z.discriminatedUnion('channelMode', [
   coexistenceCredentialsSchema,
 ])
 
+export const metaCoexistenceCredentialsSchema = z
+  .object({
+    channelMode: z.literal('coexistence'),
+    wabaId: z.string().min(1),
+    phoneNumberId: z.string().min(1),
+    verifyToken: z.string().min(1),
+    accessToken: z.string().min(1),
+    refreshToken: z.string().min(1).optional(),
+    accessTokenExpiresAt: z.iso.datetime().optional(),
+  })
+  .strict()
+
 export type MetaCredentials = z.infer<typeof metaCredentialsSchema>
 export type MetaCloudApiCredentials = z.infer<typeof cloudApiCredentialsSchema>
 export type MetaCoexistenceCredentials = z.infer<typeof coexistenceCredentialsSchema>
