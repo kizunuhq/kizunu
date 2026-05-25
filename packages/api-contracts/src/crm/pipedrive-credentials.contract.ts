@@ -44,3 +44,26 @@ export const pipedriveCredentialsSchema = z
   .strict()
 
 export type PipedriveCredentials = z.infer<typeof pipedriveCredentialsSchema>
+
+/**
+ * Create-time input shape for the Pipedrive connector. `apiToken` is the only
+ * required field; the server derives `companyDomain` from Pipedrive
+ * `/v1/users/me` when omitted, and `webhookToken` is server-generated. The
+ * optional `companyDomain` here lets a custom-host operator override the
+ * auto-derive. `webhookToken` is intentionally absent — the create use case
+ * strips client values defensively.
+ */
+export const pipedriveCredentialsInputSchema = z
+  .object({
+    apiToken: pipedriveCredentialsSchema.shape.apiToken,
+    companyDomain: z
+      .string()
+      .min(1)
+      .register(credentialFieldRegistry, { label: 'Company domain', type: 'text' })
+      .optional(),
+    activityType: pipedriveCredentialsSchema.shape.activityType,
+    phoneFieldKey: pipedriveCredentialsSchema.shape.phoneFieldKey,
+  })
+  .strict()
+
+export type PipedriveCredentialsInput = z.infer<typeof pipedriveCredentialsInputSchema>
