@@ -805,22 +805,34 @@ timeline, reachable HTTPS webhooks, and a live pilot acceptance run.
   timeline. The BDR should know "lead replied, assume conversation" without
   checking kizunu first.
 
-**Dashboard v1 control-panel polish** - PLANNED
-- Redesign the dashboard around queued, just happened, and why dropped. Reduce
-  generic KPI/card feel; show operational state first.
+**Dashboard v1 control-panel polish** - COMPLETE
+- _Landed (feature `078`, batched as one PR with 079/080/081): KPI grid
+  now leads with "Queued (1h)" — count of running journeys with
+  `nextTouchAt` inside the next hour, computed client-side. The Error
+  tile gains a subtitle showing the most common `errorReason`, surfaced
+  via the new `subtitle` prop on `KpiTile`._
 
-**Connector/channel form UX polish** - PLANNED
-- Hide implementation fields, improve labels, add advanced sections, add
-  loading/error states, and make provider failures actionable.
+**Connector/channel form UX polish** - COMPLETE
+- _Landed across features `054` (labeled provider pickers),
+  `056`/`057` (typed credential forms via zod builder), `059`
+  (token-first Pipedrive setup), `060`/`061` (health pills with
+  reconnect prompts). The "webhook URL copy" item is intentionally
+  deferred: the webhook token never leaves the API (encrypted at rest,
+  never returned), so a copy-button without it would mislead — the
+  runbook (`083`) documents the URL pattern instead._
 
-**Cadence and journey table UX polish** - PLANNED
-- Improve density, status dots, timestamp formatting, empty states, filters, row
-  layout, and responsive behavior for repeated operator use.
+**Cadence and journey table UX polish** - COMPLETE
+- _Landed (feature `080`): relative-time formatting on the journeys
+  table's Next-touch column ("in 2h 15m"). Status filter / dots /
+  empty state were already in place from `038`/`044`._
 
-**Provider setup and webhook UX** - PLANNED
-- Surface exact webhook URLs, copied tokens where appropriate, verification
-  state, and provider instructions inline. Avoid raw IDs unless they are required
-  for support.
+**Provider setup and webhook UX** - COMPLETE
+- _Landed via the combination of `029` (auto Meta webhook
+  subscription), `053` (CRM per-account webhook token verified
+  server-side, never surfaced in the response), `060`/`061` (health
+  pills + reconnect prompts), and `063`/`067` (wizard checklist +
+  readiness banner). The pilot runbook (`083`) documents the exact
+  webhook URLs each provider needs._
 
 **Pilot deployment readiness** - COMPLETE
 - _Landed (feature `082`): `docs/pilot-deployment.md` describes the
