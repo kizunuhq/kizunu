@@ -1,4 +1,5 @@
 import type { Config } from '@kizunu/api/api.config'
+import { finalizeMetaCoexConnection } from '@kizunu/api/modules/channel/plugins/meta-whatsapp-coex/meta-coex-finalize'
 import { ConfigService } from '@kizunu/config-module/config.service'
 import { Injectable } from '@nestjs/common'
 
@@ -9,7 +10,6 @@ import {
   type ExchangedToken,
 } from '../../plugins/meta-whatsapp/meta-coex-token'
 import { META_GRAPH_API_BASE, type FetchFn } from '../../plugins/meta-whatsapp/meta-send'
-import { finalizeMetaCoexConnection } from '../../plugins/meta-whatsapp/meta-whatsapp.plugin'
 
 const META_PLUGIN_ID = 'meta-whatsapp'
 
