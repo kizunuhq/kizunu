@@ -14,6 +14,7 @@ import {
   listPipedriveStages,
   listPipedriveUsers,
 } from './pipedrive-directory'
+import { runPipedriveHealth } from './pipedrive-health'
 import { preparePipedriveCredentials } from './pipedrive-prepare'
 import { parsePipedriveWebhook } from './pipedrive-webhook'
 
@@ -79,6 +80,9 @@ export function buildPipedriveConnector(
     },
     async prepareCredentials({ credentials }) {
       return preparePipedriveCredentials({ fetchFn, baseUrlOverride }, credentials)
+    },
+    async checkHealth({ credentials }) {
+      return runPipedriveHealth({ fetchFn, baseUrlOverride }, credentials)
     },
     async directory(input) {
       const ctx = {
