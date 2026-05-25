@@ -11,14 +11,16 @@ import { CreateConnectorAccountUseCase } from './core/use-cases/create-connector
 import { CreateMemberConnectorIdentityUseCase } from './core/use-cases/create-member-connector-identity.use-case'
 import { DeleteMemberConnectorIdentityUseCase } from './core/use-cases/delete-member-connector-identity.use-case'
 import { GetConnectorDirectoryUseCase } from './core/use-cases/get-connector-directory.use-case'
+import { ListAvailableConnectorsUseCase } from './core/use-cases/list-available-connectors.use-case'
 import { ListMemberConnectorIdentitiesUseCase } from './core/use-cases/list-member-connector-identities.use-case'
 import { ListWorkspaceConnectorAccountsUseCase } from './core/use-cases/list-workspace-connector-accounts.use-case'
 import { UpdateMemberConnectorIdentityUseCase } from './core/use-cases/update-member-connector-identity.use-case'
 import { ConnectorAccountController } from './http/controllers/connector-account.controller'
+import { ConnectorController } from './http/controllers/connector.controller'
 import { MemberConnectorIdentityController } from './http/controllers/member-connector-identity.controller'
 import { ConnectorAccountRepository } from './persistence/connector-account.repository'
 import { MemberConnectorIdentityRepository } from './persistence/member-connector-identity.repository'
-import { PipedriveConnector } from './plugins/pipedrive/pipedrive.connector'
+import { buildPipedriveConnector } from './plugins/pipedrive/pipedrive.connector'
 
 @Module({
   imports: [
@@ -27,9 +29,9 @@ import { PipedriveConnector } from './plugins/pipedrive/pipedrive.connector'
     forwardRef(() => IdentityModule),
     forwardRef(() => EngineModule),
   ],
-  controllers: [ConnectorAccountController, MemberConnectorIdentityController],
+  controllers: [ConnectorAccountController, ConnectorController, MemberConnectorIdentityController],
   providers: [
-    { provide: CRM_CONNECTORS, useValue: [new PipedriveConnector()] },
+    { provide: CRM_CONNECTORS, useValue: [buildPipedriveConnector()] },
     CrmConnectorRegistry,
     ConnectorAccountRepository,
     MemberConnectorIdentityRepository,
@@ -42,6 +44,7 @@ import { PipedriveConnector } from './plugins/pipedrive/pipedrive.connector'
     DeleteMemberConnectorIdentityUseCase,
     ListMemberConnectorIdentitiesUseCase,
     GetConnectorDirectoryUseCase,
+    ListAvailableConnectorsUseCase,
   ],
   exports: [
     CrmConnectorRegistry,

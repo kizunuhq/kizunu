@@ -1,12 +1,12 @@
 import { CrmRequestFailedException } from '@kizunu/api/modules/crm/core/errors/crm.errors'
-import { PipedriveConnector } from '@kizunu/api/modules/crm/plugins/pipedrive/pipedrive.connector'
+import { buildPipedriveConnector } from '@kizunu/api/modules/crm/plugins/pipedrive/pipedrive.connector'
 import { describe, expect, it, vi } from 'vite-plus/test'
 
 const credentials = { apiToken: 'token-1', companyDomain: 'acme', activityType: 'task' }
 
 function connectorWithFetch(response: Response) {
   const fetchFn = vi.fn(async (_input: string | URL | Request, _init?: RequestInit) => response)
-  const connector = new PipedriveConnector({ baseUrl: 'https://api.test/v1', fetchFn })
+  const connector = buildPipedriveConnector({ baseUrl: 'https://api.test/v1', fetchFn })
   return { connector, fetchFn }
 }
 
@@ -71,7 +71,7 @@ describe('PipedriveConnector.fetchOwner', () => {
       ),
     )
 
-    const owner = await connector.fetchOwner('42', credentials)
+    const owner = await connector.fetchOwner!('42', credentials)
 
     expect(owner).toEqual({ externalId: '42', name: 'Ada Lovelace', email: 'ada@acme.com' })
     expect(fetchFn.mock.calls[0]![0]).toBe('https://api.test/v1/users/42?api_token=token-1')
@@ -82,7 +82,7 @@ describe('PipedriveConnector.fetchOwner', () => {
       new Response(JSON.stringify({ data: { id: 42, name: 'No Email' } }), { status: 200 }),
     )
 
-    const owner = await connector.fetchOwner('42', credentials)
+    const owner = await connector.fetchOwner!('42', credentials)
 
     expect(owner).toEqual({ externalId: '42', name: 'No Email', email: null })
   })
@@ -90,7 +90,7 @@ describe('PipedriveConnector.fetchOwner', () => {
   it('returns null when the user does not exist (Pipedrive 404)', async () => {
     const { connector } = connectorWithFetch(new Response('not found', { status: 404 }))
 
-    const owner = await connector.fetchOwner('42', credentials)
+    const owner = await connector.fetchOwner!('42', credentials)
 
     expect(owner).toBeNull()
   })
@@ -98,7 +98,7 @@ describe('PipedriveConnector.fetchOwner', () => {
   it('throws CrmRequestFailedException on Pipedrive 5xx', async () => {
     const { connector } = connectorWithFetch(new Response('server down', { status: 500 }))
 
-    await expect(connector.fetchOwner('42', credentials)).rejects.toBeInstanceOf(
+    await expect(connector.fetchOwner!('42', credentials)).rejects.toBeInstanceOf(
       CrmRequestFailedException,
     )
   })

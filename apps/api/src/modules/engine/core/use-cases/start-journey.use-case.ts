@@ -67,8 +67,11 @@ export class StartJourneyUseCase {
   private async upsertLead(
     input: StartJourneyInput,
   ): Promise<{ leadId: string; decision: JourneyDecision }> {
-    const connector = this.registry.get(input.connectorId)
-    const lead = await connector.fetchLead(input.event.externalId, input.credentials)
+    const lead = await this.registry.fetchLead(
+      input.connectorId,
+      input.event.externalId,
+      input.credentials,
+    )
     const decision = await this.resolveOwner(input, lead.ownerExternalId)
     const { id } = await this.leads.upsert({
       workspaceId: input.workspaceId,

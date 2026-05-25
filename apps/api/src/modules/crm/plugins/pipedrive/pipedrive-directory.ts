@@ -1,3 +1,4 @@
+import type { PipedriveCredentials } from '@kizunu/api-contracts/crm'
 import type { DirectoryResult, DirectoryRow } from '@kizunu/api-contracts/shared'
 import {
   assertProviderOk,
@@ -7,7 +8,6 @@ import { z } from 'zod'
 
 import type { FetchFn } from './pipedrive-api'
 import { pipedriveBaseUrl } from './pipedrive-api'
-import type { PipedriveCredentials } from './pipedrive-credentials'
 
 const PAGE_LIMIT = 500
 

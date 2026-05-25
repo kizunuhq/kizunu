@@ -40,7 +40,13 @@ const cipher = buildCredentialsCipher()
 const markLostCalls: string[] = []
 
 const fakeConnector = {
-  manifest: { id: 'fake-crm', name: 'Fake CRM', capabilities: [], configSchema: z.object({}) },
+  manifest: {
+    id: 'fake-crm',
+    name: 'Fake CRM',
+    capabilities: [],
+    configSchema: z.object({}),
+    credentialFields: { kind: 'flat' as const, fields: [] },
+  },
   parseWebhook: () => [],
   fetchLead: async () => ({ externalId: '', ownerExternalId: null, name: '', raw: {} }),
   logActivity: async () => ({ externalActivityId: 'activity-1' }),
@@ -52,6 +58,7 @@ const fakeConnector = {
 } as unknown as CRMConnector
 
 function buildDispatcher() {
+  const crmRegistry = new CrmConnectorRegistry([fakeConnector])
   return new JourneyDispatcher(
     service,
     new LeadJourneyRepository(service),
@@ -62,8 +69,8 @@ function buildDispatcher() {
     new ChannelAccountRepository(service, cipher),
     new ChannelPluginRegistry([new FakeChannelPlugin()]),
     new ConnectorAccountRepository(service, cipher),
-    new CrmConnectorRegistry([fakeConnector]),
-    new CadenceActionExecutor(),
+    crmRegistry,
+    new CadenceActionExecutor(crmRegistry),
     new TemplateVariableResolver(),
     { apply: (delayMinutes: number) => delayMinutes } as Jitter,
     { now: () => NOW } as Clock,

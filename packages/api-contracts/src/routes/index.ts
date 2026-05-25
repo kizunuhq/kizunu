@@ -43,6 +43,9 @@ export const Routes = {
     primary: (accountId: string) => `/channel-accounts/${accountId}/primary`,
     plugins: '/channel-plugins',
   },
+  connectors: {
+    list: '/connectors',
+  },
   connectorAccounts: {
     collection: (workspaceId: string) => `/workspaces/${workspaceId}/connector-accounts`,
     identities: (workspaceId: string, accountId: string) =>

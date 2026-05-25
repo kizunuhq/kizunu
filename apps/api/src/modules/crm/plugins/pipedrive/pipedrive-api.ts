@@ -1,3 +1,4 @@
+import type { PipedriveCredentials } from '@kizunu/api-contracts/crm'
 import { z } from 'zod'
 
 import type { CrmActivity } from '../../core/connector/crm-activity'
@@ -5,7 +6,6 @@ import type { NormalizedLead } from '../../core/connector/normalized-lead'
 import type { NormalizedOwner } from '../../core/connector/normalized-owner'
 import type { StageRef } from '../../core/connector/stage-ref'
 import { CrmRequestFailedException } from '../../core/errors/crm.errors'
-import type { PipedriveCredentials } from './pipedrive-credentials'
 
 export type FetchFn = (input: string | URL | Request, init?: RequestInit) => Promise<Response>
 

@@ -1,5 +1,4 @@
 import { CadenceRepository } from '@kizunu/api/modules/cadence/persistence/cadence.repository'
-import { CrmConnectorRegistry } from '@kizunu/api/modules/crm/core/connector/crm-connector-registry'
 import { ConnectorAccountRepository } from '@kizunu/api/modules/crm/persistence/connector-account.repository'
 import { DrizzleService } from '@kizunu/nestjs-shared/modules/persistence/services/drizzle.service'
 import { Injectable } from '@nestjs/common'
@@ -25,7 +24,6 @@ export class MarkReplyUseCase {
     private readonly journeys: LeadJourneyRepository,
     private readonly cadences: CadenceRepository,
     private readonly connectors: ConnectorAccountRepository,
-    private readonly crmRegistry: CrmConnectorRegistry,
     private readonly executor: CadenceActionExecutor,
   ) {}
 
@@ -49,7 +47,7 @@ export class MarkReplyUseCase {
     const account = await this.connectors.findById(journey.connectorAccountId)
     if (!cadence || !account || cadence.onReply.length === 0) return
     await this.executor.execute(cadence.onReply, {
-      connector: this.crmRegistry.get(account.connectorId),
+      connectorId: account.connectorId,
       credentials: account.credentials,
       externalId: journey.leadExternalId,
     })

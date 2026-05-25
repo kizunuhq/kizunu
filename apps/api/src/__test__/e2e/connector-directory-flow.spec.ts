@@ -1,5 +1,5 @@
 import { CrmConnectorRegistry } from '@kizunu/api/modules/crm/core/connector/crm-connector-registry'
-import { PipedriveConnector } from '@kizunu/api/modules/crm/plugins/pipedrive/pipedrive.connector'
+import { buildPipedriveConnector } from '@kizunu/api/modules/crm/plugins/pipedrive/pipedrive.connector'
 import type { INestApplication } from '@nestjs/common'
 import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vite-plus/test'
@@ -46,11 +46,10 @@ function fakePipedriveFetch(routes: FakeRoute[]): typeof fetch {
 
 function injectPipedriveFetch(app: INestApplication, fetchFn: typeof fetch): void {
   const registry = app.get(CrmConnectorRegistry)
-  const replacement = new PipedriveConnector({ baseUrl: PIPEDRIVE_BASE, fetchFn })
-  ;(registry as unknown as { connectors: Map<string, PipedriveConnector> }).connectors.set(
-    'pipedrive',
-    replacement,
-  )
+  const replacement = buildPipedriveConnector({ baseUrl: PIPEDRIVE_BASE, fetchFn })
+  ;(
+    registry as unknown as { connectors: Map<string, ReturnType<typeof buildPipedriveConnector>> }
+  ).connectors.set('pipedrive', replacement)
 }
 
 describe('CRM directory (e2e)', () => {

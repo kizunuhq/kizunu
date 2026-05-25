@@ -1,34 +1,14 @@
-import { zodResolver } from '@hookform/resolvers/zod'
-import {
-  type CreateConnectorAccountRequest,
-  CreateConnectorAccountRequestSchema,
+import { useAvailableConnectors } from '@kizunu/api-client/crm/use-available-connectors'
+import type {
+  ConnectorCredentialField,
+  CreateConnectorAccountRequest,
 } from '@kizunu/api-contracts/crm'
 import { FormError } from '@kizunu/web/components/composed/form-error'
 import { LookupSelect } from '@kizunu/web/components/composed/lookup-select'
-import { RhfField } from '@kizunu/web/components/composed/rhf-field'
-import { Field, FieldError, FieldGroup, FieldLabel } from '@kizunu/web/components/primitives/field'
-import { Textarea } from '@kizunu/web/components/primitives/textarea'
-import { parseJsonObject } from '@kizunu/web/lib/parse-json-object'
-import { Controller, useForm } from 'react-hook-form'
-import { z } from 'zod'
+import { Field, FieldGroup, FieldLabel } from '@kizunu/web/components/primitives/field'
+import { useState } from 'react'
 
-const CONNECTOR_OPTIONS = [{ value: 'pipedrive', label: 'Pipedrive' }]
-
-export const connectorAccountFormSchema = CreateConnectorAccountRequestSchema.omit({
-  credentials: true,
-})
-  .extend({ credentialsRaw: z.string() })
-  .superRefine(({ credentialsRaw }, ctx) => {
-    if (parseJsonObject(credentialsRaw) === null) {
-      ctx.addIssue({
-        code: 'custom',
-        path: ['credentialsRaw'],
-        message: 'Credentials must be a valid JSON object.',
-      })
-    }
-  })
-
-export type ConnectorAccountFormValues = z.infer<typeof connectorAccountFormSchema>
+import { ConnectorAccountFormBody } from './connector-account-form-body'
 
 interface ConnectorAccountFormProps {
   formId: string
@@ -37,72 +17,56 @@ interface ConnectorAccountFormProps {
   onSubmit: (values: CreateConnectorAccountRequest) => void
 }
 
+/**
+ * Outer shell: connector picker (ephemeral state) plus the inner form body
+ * re-keyed by connectorId, so the inner zodResolver initializes once per
+ * connector. Mirrors the channel form's two-component structure landed in
+ * Feature 056.
+ */
 export function ConnectorAccountForm(props: ConnectorAccountFormProps) {
   const { formId, isPending, error, onSubmit } = props
-  const {
-    register,
-    handleSubmit,
-    control,
-    formState: { errors },
-  } = useForm<ConnectorAccountFormValues>({
-    resolver: zodResolver(connectorAccountFormSchema),
-    defaultValues: { connectorId: '', name: '', credentialsRaw: '{}' },
-  })
-
-  function submit(values: ConnectorAccountFormValues) {
-    const credentials = parseJsonObject(values.credentialsRaw)
-    if (credentials === null) return
-    onSubmit({ connectorId: values.connectorId, name: values.name, credentials })
-  }
+  const connectors = useAvailableConnectors()
+  const [connectorId, setConnectorId] = useState('')
+  const options = (connectors.data?.connectors ?? []).map((connector) => ({
+    value: connector.id,
+    label: connector.name,
+  }))
+  const fields = userInputFieldsFor(
+    connectors.data?.connectors.find((connector) => connector.id === connectorId)?.credentialFields,
+  )
 
   return (
-    <form id={formId} className="flex flex-col gap-3" onSubmit={handleSubmit(submit)}>
+    <div className="flex flex-col gap-3">
+      {error && <FormError>{error}</FormError>}
       <FieldGroup>
-        {error && <FormError>{error}</FormError>}
-        <Controller
-          control={control}
-          name="connectorId"
-          render={({ field, fieldState }) => (
-            <Field>
-              <FieldLabel>Connector</FieldLabel>
-              <LookupSelect
-                value={field.value ?? ''}
-                placeholder="Choose a CRM connector"
-                options={CONNECTOR_OPTIONS}
-                onChange={field.onChange}
-                disabled={isPending}
-              />
-              {fieldState.error && (
-                <FieldError id="connectorId-error">{fieldState.error.message}</FieldError>
-              )}
-            </Field>
-          )}
-        />
-        <RhfField
-          name="name"
-          label="Name"
-          id="connector-name"
-          register={register}
-          error={errors.name}
-          disabled={isPending}
-        />
         <Field>
-          <FieldLabel htmlFor="connector-credentials">Credentials (JSON)</FieldLabel>
-          <Textarea
-            id="connector-credentials"
-            rows={4}
-            aria-invalid={!!errors.credentialsRaw}
-            aria-describedby={errors.credentialsRaw ? 'connector-credentials-error' : undefined}
+          <FieldLabel>Connector</FieldLabel>
+          <LookupSelect
+            value={connectorId}
+            placeholder="Choose a CRM connector"
+            options={options}
+            onChange={setConnectorId}
             disabled={isPending}
-            {...register('credentialsRaw')}
           />
-          {errors.credentialsRaw && (
-            <FieldError id="connector-credentials-error">
-              {errors.credentialsRaw.message}
-            </FieldError>
-          )}
         </Field>
       </FieldGroup>
-    </form>
+      {connectorId && (
+        <ConnectorAccountFormBody
+          key={connectorId}
+          formId={formId}
+          connectorId={connectorId}
+          fields={fields}
+          isPending={isPending}
+          onSubmit={onSubmit}
+        />
+      )}
+    </div>
   )
+}
+
+function userInputFieldsFor(
+  fields: ConnectorCredentialField[] | undefined,
+): ConnectorCredentialField[] {
+  if (!fields) return []
+  return fields.filter((field) => field.serverGenerated !== true)
 }

@@ -1,9 +1,9 @@
 import type { CadenceAction } from '@kizunu/api-contracts/cadence'
-import type { CRMConnector } from '@kizunu/api/modules/crm/core/connector/crm-connector'
+import type { CrmConnectorRegistry } from '@kizunu/api/modules/crm/core/connector/crm-connector-registry'
 import { CadenceActionExecutor } from '@kizunu/api/modules/engine/core/services/cadence-action-executor'
 import { describe, expect, it } from 'vite-plus/test'
 
-function buildConnector() {
+function buildRegistry() {
   const calls: Array<{ method: string; args: unknown[] }> = []
   const record =
     (method: string) =>
@@ -11,48 +11,48 @@ function buildConnector() {
       calls.push({ method, args })
       return { externalActivityId: 'activity-1' }
     }
-  const connector = {
+  const registry = {
     moveStage: record('moveStage'),
     markLost: record('markLost'),
     logActivity: record('logActivity'),
     setField: record('setField'),
-  } as unknown as CRMConnector
-  return { calls, connector }
+  } as unknown as CrmConnectorRegistry
+  return { calls, registry }
 }
 
-const ctx = (connector: CRMConnector) => ({ connector, credentials: {}, externalId: 'deal-99' })
+const ctx = { connectorId: 'pipedrive', credentials: {}, externalId: 'deal-99' }
 
 describe('CadenceActionExecutor', () => {
-  it('routes move_stage and mark_lost to the connector', async () => {
-    const { calls, connector } = buildConnector()
+  it('routes move_stage and mark_lost through the registry', async () => {
+    const { calls, registry } = buildRegistry()
     const actions: CadenceAction[] = [
       { type: 'move_stage', stageId: 'stage-7' },
       { type: 'mark_lost', reason: 'No reply' },
     ]
 
-    await new CadenceActionExecutor().execute(actions, ctx(connector))
+    await new CadenceActionExecutor(registry).execute(actions, ctx)
 
     expect(calls.map((c) => c.method)).toEqual(['moveStage', 'markLost'])
   })
 
-  it('routes log_activity and set_field to the connector', async () => {
-    const { calls, connector } = buildConnector()
+  it('routes log_activity and set_field through the registry', async () => {
+    const { calls, registry } = buildRegistry()
     const actions: CadenceAction[] = [
       { type: 'log_activity', activityType: 'task', subject: 'Called' },
       { type: 'set_field', key: 'temperature', value: 'cold' },
     ]
 
-    await new CadenceActionExecutor().execute(actions, ctx(connector))
+    await new CadenceActionExecutor(registry).execute(actions, ctx)
 
     expect(calls.map((c) => c.method)).toEqual(['logActivity', 'setField'])
   })
 
-  it('treats notify_user as an internal no-op (no connector call)', async () => {
-    const { calls, connector } = buildConnector()
+  it('treats notify_user as an internal no-op (no registry call)', async () => {
+    const { calls, registry } = buildRegistry()
 
-    await new CadenceActionExecutor().execute(
+    await new CadenceActionExecutor(registry).execute(
       [{ type: 'notify_user', userId: crypto.randomUUID() }],
-      ctx(connector),
+      ctx,
     )
 
     expect(calls).toHaveLength(0)

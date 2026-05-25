@@ -4,7 +4,6 @@ import { DrizzleService } from '@kizunu/nestjs-shared/modules/persistence/servic
 import { Injectable, Logger } from '@nestjs/common'
 
 import { MemberConnectorIdentityRepository } from '../../persistence/member-connector-identity.repository'
-import type { CRMConnector } from '../connector/crm-connector'
 import { CrmConnectorRegistry } from '../connector/crm-connector-registry'
 import type { NormalizedOwner } from '../connector/normalized-owner'
 
@@ -51,7 +50,7 @@ export class ResolveOwnerService {
     const connector = this.connectors.get(input.connectorId)
     if (!connector.fetchOwner) return PARKED_NOT_MAPPED
 
-    const owner = await this.safeFetchOwner(connector, input)
+    const owner = await this.safeFetchOwner(input)
     if (owner === 'error') return PARKED_LOOKUP_FAILED
     if (!owner?.email) return PARKED_NOT_MAPPED
 
@@ -66,11 +65,14 @@ export class ResolveOwnerService {
   }
 
   private async safeFetchOwner(
-    connector: CRMConnector,
     input: ResolveOwnerInput,
   ): Promise<NormalizedOwner | null | 'error'> {
     try {
-      return (await connector.fetchOwner?.(input.ownerExternalId, input.credentials)) ?? null
+      return await this.connectors.fetchOwner(
+        input.connectorId,
+        input.ownerExternalId,
+        input.credentials,
+      )
     } catch (error) {
       this.logger.warn(
         `fetchOwner failed for connector=${input.connectorId} external=${input.ownerExternalId}: ${
