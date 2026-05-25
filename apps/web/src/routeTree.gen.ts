@@ -21,6 +21,7 @@ import { Route as AuthResetPasswordIndexRouteImport } from './routes/auth/reset-
 import { Route as AuthLoginIndexRouteImport } from './routes/auth/login/index'
 import { Route as AuthForgotPasswordIndexRouteImport } from './routes/auth/forgot-password/index'
 import { Route as AppWorkspaceIndexRouteImport } from './routes/_app/workspace/index'
+import { Route as AppSetupIndexRouteImport } from './routes/_app/setup/index'
 import { Route as AppSettingsIndexRouteImport } from './routes/_app/settings/index'
 import { Route as AuthAcceptInviteTokenRouteImport } from './routes/auth/accept-invite/$token'
 import { Route as AppWorkspaceMyChannelsIndexRouteImport } from './routes/_app/workspace/my-channels/index'
@@ -92,6 +93,11 @@ const AuthForgotPasswordIndexRoute = AuthForgotPasswordIndexRouteImport.update({
 const AppWorkspaceIndexRoute = AppWorkspaceIndexRouteImport.update({
   id: '/workspace/',
   path: '/workspace/',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const AppSetupIndexRoute = AppSetupIndexRouteImport.update({
+  id: '/setup/',
+  path: '/setup/',
   getParentRoute: () => AppRouteRoute,
 } as any)
 const AppSettingsIndexRoute = AppSettingsIndexRouteImport.update({
@@ -176,6 +182,7 @@ export interface FileRoutesByFullPath {
   '/auth/': typeof AuthIndexRoute
   '/auth/accept-invite/$token': typeof AuthAcceptInviteTokenRoute
   '/settings/': typeof AppSettingsIndexRoute
+  '/setup/': typeof AppSetupIndexRoute
   '/workspace/': typeof AppWorkspaceIndexRoute
   '/auth/forgot-password/': typeof AuthForgotPasswordIndexRoute
   '/auth/login/': typeof AuthLoginIndexRoute
@@ -200,6 +207,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthIndexRoute
   '/auth/accept-invite/$token': typeof AuthAcceptInviteTokenRoute
   '/settings': typeof AppSettingsIndexRoute
+  '/setup': typeof AppSetupIndexRoute
   '/workspace': typeof AppWorkspaceIndexRoute
   '/auth/forgot-password': typeof AuthForgotPasswordIndexRoute
   '/auth/login': typeof AuthLoginIndexRoute
@@ -228,6 +236,7 @@ export interface FileRoutesById {
   '/auth/': typeof AuthIndexRoute
   '/auth/accept-invite/$token': typeof AuthAcceptInviteTokenRoute
   '/_app/settings/': typeof AppSettingsIndexRoute
+  '/_app/setup/': typeof AppSetupIndexRoute
   '/_app/workspace/': typeof AppWorkspaceIndexRoute
   '/auth/forgot-password/': typeof AuthForgotPasswordIndexRoute
   '/auth/login/': typeof AuthLoginIndexRoute
@@ -256,6 +265,7 @@ export interface FileRouteTypes {
     | '/auth/'
     | '/auth/accept-invite/$token'
     | '/settings/'
+    | '/setup/'
     | '/workspace/'
     | '/auth/forgot-password/'
     | '/auth/login/'
@@ -280,6 +290,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/auth/accept-invite/$token'
     | '/settings'
+    | '/setup'
     | '/workspace'
     | '/auth/forgot-password'
     | '/auth/login'
@@ -307,6 +318,7 @@ export interface FileRouteTypes {
     | '/auth/'
     | '/auth/accept-invite/$token'
     | '/_app/settings/'
+    | '/_app/setup/'
     | '/_app/workspace/'
     | '/auth/forgot-password/'
     | '/auth/login/'
@@ -417,6 +429,13 @@ declare module '@tanstack/react-router' {
       path: '/workspace'
       fullPath: '/workspace/'
       preLoaderRoute: typeof AppWorkspaceIndexRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/_app/setup/': {
+      id: '/_app/setup/'
+      path: '/setup'
+      fullPath: '/setup/'
+      preLoaderRoute: typeof AppSetupIndexRouteImport
       parentRoute: typeof AppRouteRoute
     }
     '/_app/settings/': {
@@ -540,6 +559,7 @@ const AppSettingsRouteRouteWithChildren =
 
 interface AppRouteRouteChildren {
   AppSettingsRouteRoute: typeof AppSettingsRouteRouteWithChildren
+  AppSetupIndexRoute: typeof AppSetupIndexRoute
   AppWorkspaceIndexRoute: typeof AppWorkspaceIndexRoute
   AppWorkspaceCadencesIndexRoute: typeof AppWorkspaceCadencesIndexRoute
   AppWorkspaceConnectMetaCoexIndexRoute: typeof AppWorkspaceConnectMetaCoexIndexRoute
@@ -549,6 +569,7 @@ interface AppRouteRouteChildren {
 
 const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppSettingsRouteRoute: AppSettingsRouteRouteWithChildren,
+  AppSetupIndexRoute: AppSetupIndexRoute,
   AppWorkspaceIndexRoute: AppWorkspaceIndexRoute,
   AppWorkspaceCadencesIndexRoute: AppWorkspaceCadencesIndexRoute,
   AppWorkspaceConnectMetaCoexIndexRoute: AppWorkspaceConnectMetaCoexIndexRoute,
