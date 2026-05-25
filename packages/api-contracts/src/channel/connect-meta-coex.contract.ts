@@ -12,7 +12,7 @@ export type ConnectMetaCoexRequest = z.infer<typeof ConnectMetaCoexRequestSchema
 
 export const ConnectMetaCoexResponseSchema = z.object({
   id: z.uuid(),
-  pluginId: z.literal('meta-whatsapp'),
+  pluginId: z.literal('meta-whatsapp-coex'),
   channelMode: z.literal('coexistence'),
   name: z.string(),
 })

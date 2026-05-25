@@ -11,7 +11,7 @@ import {
 } from '../../plugins/meta-whatsapp/meta-coex-token'
 import { META_GRAPH_API_BASE, type FetchFn } from '../../plugins/meta-whatsapp/meta-send'
 
-const META_PLUGIN_ID = 'meta-whatsapp'
+const META_COEX_PLUGIN_ID = 'meta-whatsapp-coex'
 
 export interface ConnectMetaCoexInput {
   workspaceId: string
@@ -24,7 +24,7 @@ export interface ConnectMetaCoexInput {
 
 export interface ConnectMetaCoexOutput {
   id: string
-  pluginId: 'meta-whatsapp'
+  pluginId: 'meta-whatsapp-coex'
   channelMode: 'coexistence'
   name: string
 }
@@ -72,13 +72,13 @@ export class ConnectMetaCoexUseCase {
     await this.accounts.create({
       id: channelAccountId,
       workspaceId: input.workspaceId,
-      pluginId: META_PLUGIN_ID,
+      pluginId: META_COEX_PLUGIN_ID,
       name: input.name,
       credentials,
     })
     return {
       id: channelAccountId,
-      pluginId: 'meta-whatsapp',
+      pluginId: 'meta-whatsapp-coex',
       channelMode: 'coexistence',
       name: input.name,
     }

@@ -109,7 +109,7 @@ describe('Meta Coex connect (e2e)', () => {
 
     expect(response.status).toBe(CREATED)
     expect(response.body).toMatchObject({
-      pluginId: 'meta-whatsapp',
+      pluginId: 'meta-whatsapp-coex',
       channelMode: 'coexistence',
       name: 'WA Coex',
     })
