@@ -59,6 +59,8 @@ export const Routes = {
       `/workspaces/${workspaceId}/connector-accounts/${accountId}/directory/${resource}`,
     health: (workspaceId: string, accountId: string) =>
       `/workspaces/${workspaceId}/connector-accounts/${accountId}/health`,
+    dryRun: (workspaceId: string, accountId: string) =>
+      `/workspaces/${workspaceId}/connector-accounts/${accountId}/dry-run`,
   },
   templates: {
     collection: (workspaceId: string) => `/workspaces/${workspaceId}/templates`,

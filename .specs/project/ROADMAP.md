@@ -774,15 +774,24 @@ timeline, reachable HTTPS webhooks, and a live pilot acceptance run.
   `template_variable_*` variants which surface the variable name
   inline. Unknown reasons fall back to "Provider failure" → channels._
 
-**Pilot dry-run and selected-deal test** - PLANNED
-- Add a controlled validation path for one selected Pipedrive deal. It verifies
-  deal fetch, owner mapping, phone resolution, channel resolution, template
-  resolution, first-touch eligibility, and Pipedrive action reachability before
-  broad launch.
+**Pilot dry-run and selected-deal test** - COMPLETE
+- _Landed (feature `073`, batched with `074`): new
+  `POST /workspaces/:id/connector-accounts/:accountId/dry-run` endpoint
+  takes `{ externalDealId }` and returns a `ConnectorHealth` report
+  covering five checks: `dealFetch` (connector.fetchLead), `ownerExternal`
+  (lead has ownerExternalId), `ownerResolved` (ResolveOwnerService from
+  047), `phone`, `primaryChannel` (findPrimaryAccount across the two
+  Meta plugin ids). The endpoint runs every step that a live dispatch
+  would except `plugin.send` — so the operator can validate a deal
+  without sending a stray touch._
 
-**Pilot dry-run UI** - PLANNED
-- Add the final wizard step that runs the pilot validation, shows pass/fail
-  checks, and provides the exact webhook URL and Pipedrive stage instructions.
+**Pilot dry-run UI** - COMPLETE
+- _Landed (feature `074`, batched with `073`): the `/setup` wizard
+  gains a "Dry run a deal" card. The operator picks a connector
+  account (single-account workspaces skip the picker), types a
+  Pipedrive deal id, and clicks Run dry-run. Result renders as a
+  `ResourceHealthPill` plus a per-check list with status colored
+  green/amber and an optional detail line._
 
 **Pause, resume, and emergency stop controls** - COMPLETE
 - _Landed (feature `075`): four new admin endpoints behind

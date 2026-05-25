@@ -1,5 +1,6 @@
 import {
   CreateConnectorAccountRequestSchema,
+  DryRunDealRequestSchema,
   GetConnectorDirectoryRequestSchema,
 } from '@kizunu/api-contracts/crm'
 import { WorkspaceAdminGuard } from '@kizunu/api/modules/workspace/http/guards/workspace-admin.guard'
@@ -9,11 +10,13 @@ import { createZodDto } from 'nestjs-zod'
 
 import { CheckConnectorHealthUseCase } from '../../core/use-cases/check-connector-health.use-case'
 import { CreateConnectorAccountUseCase } from '../../core/use-cases/create-connector-account.use-case'
+import { DryRunDealUseCase } from '../../core/use-cases/dry-run-deal.use-case'
 import { GetConnectorDirectoryUseCase } from '../../core/use-cases/get-connector-directory.use-case'
 import { ListWorkspaceConnectorAccountsUseCase } from '../../core/use-cases/list-workspace-connector-accounts.use-case'
 
 class CreateConnectorAccountDto extends createZodDto(CreateConnectorAccountRequestSchema) {}
 class GetConnectorDirectoryQueryDto extends createZodDto(GetConnectorDirectoryRequestSchema) {}
+class DryRunDealDto extends createZodDto(DryRunDealRequestSchema) {}
 
 @UseGuards(WorkspaceAdminGuard)
 @ApiTags('crm')
@@ -24,6 +27,7 @@ export class ConnectorAccountController {
     private readonly listUseCase: ListWorkspaceConnectorAccountsUseCase,
     private readonly directoryUseCase: GetConnectorDirectoryUseCase,
     private readonly healthUseCase: CheckConnectorHealthUseCase,
+    private readonly dryRunUseCase: DryRunDealUseCase,
   ) {}
 
   @Post(':id/connector-accounts')
@@ -64,5 +68,18 @@ export class ConnectorAccountController {
   @Get(':id/connector-accounts/:accountId/health')
   async health(@Param('id') workspaceId: string, @Param('accountId') accountId: string) {
     return await this.healthUseCase.execute({ workspaceId, accountId })
+  }
+
+  @Post(':id/connector-accounts/:accountId/dry-run')
+  async dryRun(
+    @Param('id') workspaceId: string,
+    @Param('accountId') accountId: string,
+    @Body() body: DryRunDealDto,
+  ) {
+    return await this.dryRunUseCase.execute({
+      workspaceId,
+      connectorAccountId: accountId,
+      externalDealId: body.externalDealId,
+    })
   }
 }

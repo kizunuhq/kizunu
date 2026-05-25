@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@kizunu/web/components
 import { CreateChannelAccountDialog } from '@kizunu/web/routes/_app/settings/channels/-dialogs/create-channel-account-dialog'
 import { CreateConnectorAccountDialog } from '@kizunu/web/routes/_app/settings/connectors/-dialogs/create-connector-account-dialog'
 import { CreateEntryTriggerDialog } from '@kizunu/web/routes/_app/settings/connectors/-dialogs/create-entry-trigger-dialog'
+import { DryRunPanel } from '@kizunu/web/routes/_app/setup/-components/dry-run-panel'
 import { CreateCadenceDialog } from '@kizunu/web/routes/_app/workspace/cadences/-dialogs/create-cadence-dialog'
 import { CreateTemplateDialog } from '@kizunu/web/routes/_app/workspace/cadences/-dialogs/create-template-dialog'
 import { CaretRight, CheckCircle, Circle, Plus, Spinner } from '@phosphor-icons/react'
@@ -140,6 +141,7 @@ function SetupPage() {
           ))}
         </CardContent>
       </Card>
+      <DryRunPanel workspaceId={activeWorkspaceId} />
       <CreateConnectorAccountDialog
         workspaceId={activeWorkspaceId}
         open={openDialog === 'connector'}
