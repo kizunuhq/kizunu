@@ -2,6 +2,7 @@ import { useConfirmEmailVerification } from '@kizunu/api-client/identity/use-con
 import { PageHeader } from '@kizunu/web/components/composed/page-header'
 import { buttonVariants } from '@kizunu/web/components/primitives/button'
 import { getApiErrorMessage } from '@kizunu/web/lib/get-api-error-message'
+import { VerifyErrorActions } from '@kizunu/web/routes/auth/verify-email/-components/verify-error-actions'
 import { Link } from '@tanstack/react-router'
 import { useEffect } from 'react'
 
@@ -37,11 +38,7 @@ export function VerifyEmailPanel({ token }: { token: string }) {
           Continue
         </Link>
       ) : null}
-      {state === 'error' ? (
-        <Link to="/auth/forgot-password" className={buttonVariants({ variant: 'outline' })}>
-          Request a new link
-        </Link>
-      ) : null}
+      {state === 'error' ? <VerifyErrorActions /> : null}
     </div>
   )
 }
