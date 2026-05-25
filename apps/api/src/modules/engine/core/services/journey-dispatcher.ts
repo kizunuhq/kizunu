@@ -225,7 +225,6 @@ export class JourneyDispatcher {
     variables: Record<string, string> | undefined,
   ): Promise<void> {
     const channel = await this.channelAccounts.findCredentials(channelAccountId)
-    const plugin = this.channelRegistry.get(step.channelPluginId)
     const payload: SendPayload = {
       to: journey.leadPhone ?? '',
       mode: 'template',
@@ -233,7 +232,11 @@ export class JourneyDispatcher {
         ? { name: template.providerTemplateName, language: template.language, variables }
         : undefined,
     }
-    const result = await plugin.send(payload, channel?.credentials)
+    const result = await this.channelRegistry.send(
+      step.channelPluginId,
+      payload,
+      channel?.credentials,
+    )
     const externalActivityId = await this.logTouch(journey, stepOrder)
     await this.touchAttempts.recordResult(tx, attemptId, {
       status: result.status === 'sent' ? 'sent' : 'failed',

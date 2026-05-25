@@ -88,10 +88,11 @@ export class OAuthRefreshService implements OnModuleInit, OnModuleDestroy {
     const plugin = this.registry.get(row.pluginId)
     if (!plugin.refreshCredentials) return false
     try {
-      const refreshed = await plugin.refreshCredentials({
-        channelAccountId: row.id,
-        credentials: row.credentials,
-      })
+      const refreshed = await this.registry.refreshCredentials(
+        row.pluginId,
+        row.id,
+        row.credentials,
+      )
       await this.accounts.persistCredentials(row.id, refreshed)
       return true
     } catch (error) {

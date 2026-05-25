@@ -20,6 +20,14 @@ function buildUseCase(plugin: Partial<ChannelPlugin>) {
   const registry = {
     validateCredentials: (_pluginId: string, value: unknown) => value,
     get: (_pluginId: string) => plugin as ChannelPlugin,
+    onAccountCreated: async (
+      _pluginId: string,
+      hookInput: { channelAccountId: string; appUrl: string },
+      validatedCredentials: unknown,
+    ) => {
+      if (!plugin.onAccountCreated) return validatedCredentials
+      return await plugin.onAccountCreated({ ...hookInput, credentials: validatedCredentials })
+    },
   } as unknown as ChannelPluginRegistry
 
   const config = {

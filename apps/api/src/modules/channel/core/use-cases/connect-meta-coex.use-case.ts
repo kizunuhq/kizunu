@@ -124,12 +124,10 @@ export class ConnectMetaCoexUseCase {
     channelAccountId: string
     coexInput: { channelMode: 'coexistence' } & Record<string, unknown>
   }): Promise<unknown> {
-    const plugin = this.registry.get(META_PLUGIN_ID)
-    if (!plugin.onAccountCreated) return args.coexInput
-    return await plugin.onAccountCreated({
-      channelAccountId: args.channelAccountId,
-      appUrl: this.config.get('appUrl') ?? '',
-      credentials: args.coexInput,
-    })
+    return this.registry.onAccountCreated(
+      META_PLUGIN_ID,
+      { channelAccountId: args.channelAccountId, appUrl: this.config.get('appUrl') ?? '' },
+      args.coexInput,
+    )
   }
 }
