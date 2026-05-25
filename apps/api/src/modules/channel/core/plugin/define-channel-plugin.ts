@@ -5,27 +5,30 @@ import type { ChannelPlugin } from './channel-plugin'
 import type { ChannelPluginManifest } from './channel-plugin-manifest'
 
 /**
- * Spec a plugin author writes — same shape as `ChannelPlugin<S>`, minus the
- * derived `credentialFields` on the manifest. The factory fills that in by
- * walking `inputSchema ?? configSchema`.
+ * Spec a plugin author writes — same shape as `ChannelPlugin<S, I>`, minus
+ * the derived `credentialFields` on the manifest. The factory fills that in
+ * by walking `inputSchema ?? configSchema`.
  */
-export interface ChannelPluginSpec<S extends ZodType> extends Omit<ChannelPlugin<S>, 'manifest'> {
-  manifest: Omit<ChannelPluginManifest<S>, 'credentialFields'>
+export interface ChannelPluginSpec<S extends ZodType, I extends ZodType = S> extends Omit<
+  ChannelPlugin<S, I>,
+  'manifest'
+> {
+  manifest: Omit<ChannelPluginManifest<S, I>, 'credentialFields'>
 }
 
 /**
- * Build a `ChannelPlugin<S>` from a spec by deriving the manifest's
+ * Build a `ChannelPlugin<S, I>` from a spec by deriving the manifest's
  * `credentialFields` from `inputSchema ?? configSchema`. The factory captures
- * `S` via inference, so plugin methods (`send`, `parseInbound`, …) receive
- * `z.infer<S>` parameters and TypeScript checks every assignment without the
- * implementor declaring the generic explicitly.
+ * `S` and `I` via inference, so plugin methods (`send`, `parseInbound`,
+ * `onAccountCreated`, …) receive their typed credentials without the
+ * implementor declaring the generics explicitly.
  *
  * Throws `PluginCredentialsShapeUnsupportedException` at boot when the schema
  * is neither a `ZodObject` nor a `ZodDiscriminatedUnion`.
  */
-export function defineChannelPlugin<S extends ZodType>(
-  spec: ChannelPluginSpec<S>,
-): ChannelPlugin<S> {
+export function defineChannelPlugin<S extends ZodType, I extends ZodType = S>(
+  spec: ChannelPluginSpec<S, I>,
+): ChannelPlugin<S, I> {
   return {
     ...spec,
     manifest: {

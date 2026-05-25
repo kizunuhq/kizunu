@@ -1,4 +1,7 @@
-import { buildMetaWhatsappPlugin } from '@kizunu/api/modules/channel/plugins/meta-whatsapp/meta-whatsapp.plugin'
+import {
+  buildMetaWhatsappPlugin,
+  finalizeMetaCoexConnection,
+} from '@kizunu/api/modules/channel/plugins/meta-whatsapp/meta-whatsapp.plugin'
 import { describe, expect, it, vi } from 'vite-plus/test'
 
 const credentials = {
@@ -297,49 +300,27 @@ describe('MetaWhatsappPlugin', () => {
         context: { step: 'waba-subscription', metaError: 'waba locked' },
       })
     })
-
-    it('rejects client credentials that include the server-generated verifyToken', async () => {
-      const { plugin } = pluginWithSubscribeResponses([
-        { status: 200, body: { success: true } },
-        { status: 200, body: { success: true } },
-      ])
-
-      await expect(
-        plugin.onAccountCreated!({
-          channelAccountId: 'channel-1',
-          appUrl: 'https://api.example',
-          credentials: { ...clientCredentials, verifyToken: 'forged' },
-        }),
-      ).rejects.toBeInstanceOf(Error)
-    })
   })
 
-  describe('onAccountCreated (coexistence)', () => {
-    const coexInput = {
-      channelMode: 'coexistence' as const,
-      wabaId: 'waba-coex',
-      phoneNumberId: 'phone-coex',
-      accessToken: 'biz-token',
-      accessTokenExpiresAt: '2026-07-22T00:00:00.000Z',
-    }
-
-    it('runs ONLY the per-WABA subscription with Coex subscribed_fields', async () => {
+  describe('finalizeMetaCoexConnection', () => {
+    it('runs ONLY the per-WABA subscription with Coex subscribed_fields and stamps a verifyToken', async () => {
       const responses = [{ status: 200, body: { success: true } }]
       const fetchFn = vi.fn(async (_input: string | URL | Request, _init?: RequestInit) => {
         const next = responses.shift() ?? { status: 200, body: { success: true } }
         return new Response(JSON.stringify(next.body), { status: next.status })
       })
-      const plugin = buildMetaWhatsappPlugin({
-        baseUrl: 'https://graph.test/v21.0',
-        fetchFn,
-        config: { appId: 'app-x', appSecret: 'secret-x' },
-      })
 
-      const result = (await plugin.onAccountCreated!({
-        channelAccountId: 'channel-1',
-        appUrl: 'https://api.example',
-        credentials: coexInput,
-      })) as Record<string, string>
+      const result = await finalizeMetaCoexConnection(
+        {
+          channelAccountId: 'channel-1',
+          appUrl: 'https://api.example',
+          wabaId: 'waba-coex',
+          phoneNumberId: 'phone-coex',
+          accessToken: 'biz-token',
+          accessTokenExpiresAt: '2026-07-22T00:00:00.000Z',
+        },
+        { baseUrl: 'https://graph.test/v21.0', fetchFn },
+      )
 
       expect(fetchFn).toHaveBeenCalledTimes(1) // ONLY waba subscription, no app-level call
       const url = fetchFn.mock.calls[0]![0] as string

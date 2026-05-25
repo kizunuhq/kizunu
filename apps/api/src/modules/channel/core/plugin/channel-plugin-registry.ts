@@ -10,9 +10,13 @@ import {
 import type { ChannelPlugin } from './channel-plugin'
 import type { ChannelPluginManifest } from './channel-plugin-manifest'
 import type { InboundMessage } from './inbound-message'
-import type { OnAccountCreatedInput } from './on-account-created-input'
 import type { SendPayload } from './send-payload'
 import type { SendResult } from './send-result'
+
+interface OnAccountCreatedContext {
+  channelAccountId: string
+  appUrl: string
+}
 
 /** DI token for the array of channel plugins wired into the module. */
 export const CHANNEL_PLUGINS = Symbol('CHANNEL_PLUGINS')
@@ -124,7 +128,7 @@ export class ChannelPluginRegistry {
    */
   async onAccountCreated(
     id: string,
-    input: Omit<OnAccountCreatedInput, 'credentials'>,
+    input: OnAccountCreatedContext,
     validatedCredentials: unknown,
   ): Promise<unknown> {
     const plugin = this.get(id)

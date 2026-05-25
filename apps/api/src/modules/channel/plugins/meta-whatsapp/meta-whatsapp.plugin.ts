@@ -3,7 +3,6 @@ import {
   metaCredentialsSchema,
   type MetaCoexistenceCredentials,
   type MetaCredentials,
-  type MetaCredentialsClientInput,
 } from '@kizunu/api-contracts/channel'
 import { ConnectorDirectoryUnsupportedException } from '@kizunu/api/modules/_shared/directory/directory.errors'
 
@@ -39,26 +38,30 @@ export interface MetaWhatsappPluginOptions {
 }
 
 /**
- * Meta Cloud API / WhatsApp channel plugin. Two onboarding modes are supported
- * via the `channelMode` discriminator on the credentials schema:
+ * Meta Cloud API / WhatsApp channel plugin. Built via `defineChannelPlugin`
+ * with two schemas:
  *
- * - `cloud_api` — operator pastes WABA + phone + System Token + App ID/Secret;
- *   `onAccountCreated` runs both the app-level and per-WABA subscription calls.
+ * - `configSchema = metaCredentialsSchema` — the stored shape, a discriminated
+ *   union over `channelMode` (`cloud_api` | `coexistence`). Downstream methods
+ *   (`send`, `parseInbound`, `directory`, `refreshCredentials`) receive this
+ *   typed value from the registry.
+ * - `inputSchema = metaCredentialsClientSchema` — the cloud_api operator-input
+ *   shape (App ID/Secret + WABA + phone + System Token, no discriminator, no
+ *   verifyToken). `onAccountCreated` receives this typed; it appends
+ *   `channelMode: 'cloud_api'` + the server-generated `verifyToken` and
+ *   returns the full stored shape.
  *
- * - `coexistence` — operator finishes Embedded Signup; the connect endpoint
- *   exchanges the OAuth code for a business token; this plugin's
- *   `onAccountCreated` only runs the per-WABA subscription (Meta handles
- *   app-level during signup), with Coex subscribed_fields.
- *   `refreshCredentials` rolls the token via long-lived exchange before expiry.
+ * Coexistence onboarding (Embedded Signup) does NOT flow through
+ * `onAccountCreated`. Its credentials are constructed server-side by the
+ * connect endpoint, which then calls {@link finalizeMetaCoexConnection}
+ * directly to run the per-WABA subscription and stamp the verifyToken.
  *
  * `baseUrl`/`fetchFn` are injectable for tests; `config` carries the app-wide
- * Meta credentials needed in Coex paths. The plugin is built via
- * `defineChannelPlugin(...)` so every credential-touching method receives
- * already-parsed `MetaCredentials` from the registry seam.
+ * Meta credentials needed when refreshing Coex tokens.
  */
 export function buildMetaWhatsappPlugin(
   options?: MetaWhatsappPluginOptions,
-): ChannelPlugin<typeof metaCredentialsSchema> {
+): ChannelPlugin<typeof metaCredentialsSchema, typeof metaCredentialsClientSchema> {
   const baseUrl = options?.baseUrl ?? META_GRAPH_API_BASE
   const fetchFn = options?.fetchFn ?? globalThis.fetch
   const config: MetaWhatsappPluginConfig = {
@@ -123,29 +126,31 @@ export function buildMetaWhatsappPlugin(
       }
     },
     async onAccountCreated({ channelAccountId, appUrl, credentials }) {
-      if (isCoexistenceInput(credentials)) {
-        return onCoexAccountCreated({
-          baseUrl,
-          fetchFn,
-          appUrl,
-          channelAccountId,
-          credentials,
-        })
-      }
-      const clientCredentials = metaCredentialsClientSchema.parse(credentials)
-      return onCloudApiAccountCreated({
+      const { verifyToken } = await subscribeMetaChannel({
         baseUrl,
         fetchFn,
         appUrl,
         channelAccountId,
-        credentials: clientCredentials,
+        appId: credentials.appId,
+        appSecret: credentials.appSecret,
+        wabaId: credentials.wabaId,
+        systemToken: credentials.systemToken,
       })
+      return { channelMode: 'cloud_api', ...credentials, verifyToken }
     },
   })
 }
 
-interface CoexistenceOnCreateInput {
-  channelMode: 'coexistence'
+/**
+ * Coexistence-onboarding hook for `ConnectMetaCoexUseCase`. Runs the per-WABA
+ * `subscribed_apps` override with the Coex subscribed_fields and stamps a
+ * fresh verifyToken on the row before persistence. The app-level subscription
+ * is handled by Meta during Embedded Signup; this only finalizes the
+ * per-channel webhook wiring.
+ */
+export interface CoexConnectionInput {
+  channelAccountId: string
+  appUrl: string
   wabaId: string
   phoneNumberId: string
   accessToken: string
@@ -153,72 +158,33 @@ interface CoexistenceOnCreateInput {
   accessTokenExpiresAt?: string
 }
 
-function isCoexistenceInput(value: unknown): value is CoexistenceOnCreateInput {
-  if (!value || typeof value !== 'object' || !('channelMode' in value)) return false
-  return (value as { channelMode: unknown }).channelMode === 'coexistence'
-}
-
-interface OnCreateCloudApiInput {
-  baseUrl: string
-  fetchFn: FetchFn
-  appUrl: string
-  channelAccountId: string
-  credentials: MetaCredentialsClientInput
-}
-
-async function onCloudApiAccountCreated(input: OnCreateCloudApiInput): Promise<MetaCredentials> {
-  const { verifyToken } = await subscribeMetaChannel({
-    baseUrl: input.baseUrl,
-    fetchFn: input.fetchFn,
-    appUrl: input.appUrl,
-    channelAccountId: input.channelAccountId,
-    appId: input.credentials.appId,
-    appSecret: input.credentials.appSecret,
-    wabaId: input.credentials.wabaId,
-    systemToken: input.credentials.systemToken,
-  })
-  return { channelMode: 'cloud_api', ...input.credentials, verifyToken }
-}
-
-interface OnCreateCoexInput {
-  baseUrl: string
-  fetchFn: FetchFn
-  appUrl: string
-  channelAccountId: string
-  credentials: CoexistenceOnCreateInput
-}
-
-/**
- * Coex onboarding skips the app-level subscription (Meta handles it during
- * Embedded Signup) and only runs the per-WABA `subscribed_apps` override with
- * the Coex subscribed_fields. The connect endpoint has already exchanged the
- * OAuth code for a business token; we just need to wire the verify token and
- * the per-channel callback URL.
- */
-async function onCoexAccountCreated(input: OnCreateCoexInput): Promise<MetaCoexistenceCredentials> {
+export async function finalizeMetaCoexConnection(
+  input: CoexConnectionInput,
+  options?: { baseUrl?: string; fetchFn?: FetchFn },
+): Promise<MetaCoexistenceCredentials> {
+  const baseUrl = options?.baseUrl ?? META_GRAPH_API_BASE
+  const fetchFn = options?.fetchFn ?? globalThis.fetch
   const verifyToken = await randomVerifyToken()
   const callbackUrl = buildCallbackUrl(input.appUrl, input.channelAccountId)
   await subscribeWabaToMeta({
-    baseUrl: input.baseUrl,
-    fetchFn: input.fetchFn,
-    wabaId: input.credentials.wabaId,
-    systemToken: input.credentials.accessToken,
+    baseUrl,
+    fetchFn,
+    wabaId: input.wabaId,
+    systemToken: input.accessToken,
     callbackUrl,
     verifyToken,
     subscribedFields: COEX_SUBSCRIBED_FIELDS,
   })
   return {
     channelMode: 'coexistence',
-    wabaId: input.credentials.wabaId,
-    phoneNumberId: input.credentials.phoneNumberId,
+    wabaId: input.wabaId,
+    phoneNumberId: input.phoneNumberId,
     verifyToken,
-    accessToken: input.credentials.accessToken,
-    ...(input.credentials.refreshToken === undefined
+    accessToken: input.accessToken,
+    ...(input.refreshToken === undefined ? {} : { refreshToken: input.refreshToken }),
+    ...(input.accessTokenExpiresAt === undefined
       ? {}
-      : { refreshToken: input.credentials.refreshToken }),
-    ...(input.credentials.accessTokenExpiresAt === undefined
-      ? {}
-      : { accessTokenExpiresAt: input.credentials.accessTokenExpiresAt }),
+      : { accessTokenExpiresAt: input.accessTokenExpiresAt }),
   }
 }
 
@@ -231,3 +197,7 @@ async function randomVerifyToken(): Promise<string> {
   const { randomBytes } = await import('node:crypto')
   return randomBytes(VERIFY_TOKEN_BYTE_LENGTH).toString('hex')
 }
+
+// Re-export the stored type so external consumers (use-cases, services)
+// don't have to reach into the contracts package for it.
+export type { MetaCredentials }

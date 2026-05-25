@@ -7,20 +7,18 @@ import type { ChannelCapability } from './channel-capability'
 /**
  * Static description of a channel plugin.
  *
- * `configSchema` is the **stored shape** — the full credentials object the
- * plugin persists on the `channelAccounts.credentials jsonb` column and that
- * downstream methods (`send`, `parseInbound`, `directory`,
- * `refreshCredentials`) receive already-parsed via the registry's typed
- * bridges.
+ * `configSchema` is the **stored shape** — the credentials object the plugin
+ * persists on the `channelAccounts.credentials jsonb` column. Downstream
+ * methods (`send`, `parseInbound`, `directory`, `refreshCredentials`) receive
+ * `z.infer<S>` already-parsed via the registry's typed bridges.
  *
- * `inputSchema` (optional) is the **operator-input shape** — the subset the
- * operator submits when creating a channel account, used by the
- * `CreateChannelAccountUseCase`'s registry seam. Plugins whose stored shape
- * matches the operator input exactly omit it (the registry falls back to
- * `configSchema`). Plugins like Meta whose stored shape carries
- * server-generated fields (e.g. `verifyToken`) or a discriminator the
- * operator does not provide (e.g. `channelMode: 'cloud_api'`) declare
- * `inputSchema` separately.
+ * `inputSchema` is the **operator-input shape** — the subset of credentials
+ * the operator submits at create time. Plugins whose stored shape matches
+ * the operator input exactly omit it, in which case `I` defaults to `S`.
+ * Plugins like Meta whose stored shape carries server-generated fields
+ * (e.g. `verifyToken`) or a discriminator the operator does not provide
+ * (e.g. `channelMode: 'cloud_api'`) declare it separately; `onAccountCreated`
+ * receives `z.infer<I>` and returns `z.infer<S>`.
  *
  * `credentialFields` is the declarative projection of `inputSchema ??
  * configSchema` the web app renders a form from — derived by
@@ -31,12 +29,12 @@ import type { ChannelCapability } from './channel-capability'
  * via `directory(input)`. The directory controller uses it to reject
  * unsupported resources with 422 before any provider call.
  */
-export interface ChannelPluginManifest<S extends ZodType = ZodType> {
+export interface ChannelPluginManifest<S extends ZodType = ZodType, I extends ZodType = S> {
   id: string
   name: string
   capabilities: ChannelCapability[]
   configSchema: S
-  inputSchema?: ZodType
+  inputSchema?: I
   credentialFields: CredentialFields
   directoryResources?: readonly DirectoryResourceDescriptor[]
 }

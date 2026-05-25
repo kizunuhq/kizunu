@@ -13,33 +13,32 @@ import type { ValidateInput } from './validate-input'
 
 /**
  * The frozen channel plugin port (decision D2). Channels (Meta/WhatsApp, future
- * Telegram/email/SMS) implement this as in-monorepo modules; the engine depends on
- * this contract alone and never on a provider's specifics. `validate` is a pure,
- * synchronous decision; `send` and `parseInbound` touch the network.
+ * Telegram/email/SMS) implement this as in-monorepo modules; the engine depends
+ * on this contract alone and never on a provider's specifics. `validate` is a
+ * pure, synchronous decision; `send` and `parseInbound` touch the network.
  *
- * The `S extends ZodType` generic is the plugin's **stored** credentials
- * schema. `send`, `parseInbound`, `directory`, and `refreshCredentials` receive
- * `z.infer<S>` — already parsed by the registry seam against the manifest's
- * `configSchema`. Plugin implementations don't re-parse.
+ * `S` is the plugin's **stored credentials schema**. `send`, `parseInbound`,
+ * `directory`, and `refreshCredentials` receive `z.infer<S>` — already parsed
+ * by the registry seam against the manifest's `configSchema`. Plugin
+ * implementations don't re-parse.
  *
- * `onAccountCreated` runs before persistence and may receive a value that is
- * not yet the stored shape (operator-input cloud_api fields, or a Coex
- * pre-stamped object); its `credentials` parameter is therefore `unknown`. The
- * hook returns `z.infer<S>` — the registry then validates the return against
- * `configSchema` before persisting, so a buggy enrichment surfaces as 422
- * instead of writing a malformed row.
+ * `I` is the plugin's **operator-input credentials schema**, defaulting to `S`
+ * when create-time input matches the stored shape. `onAccountCreated`
+ * receives `z.infer<I>` (typed by the registry's `validateCredentials`) and
+ * returns `z.infer<S>` — the registry validates the return against
+ * `configSchema` before persistence so a buggy hook surfaces as 422.
  *
  * `refreshCredentials` is an OPTIONAL token-refresh hook called by
  * `OAuthRefreshService` when the plugin's stored `accessTokenExpiresAt` is
  * within the refresh window. Plugins whose provider uses static API tokens
  * (Pipedrive, Meta standalone Cloud API system token) leave this absent.
  */
-export interface ChannelPlugin<S extends ZodType = ZodType> {
-  readonly manifest: ChannelPluginManifest<S>
+export interface ChannelPlugin<S extends ZodType = ZodType, I extends ZodType = S> {
+  readonly manifest: ChannelPluginManifest<S, I>
   send(payload: SendPayload, credentials: z.infer<S>): Promise<SendResult>
   parseInbound(raw: unknown, credentials: z.infer<S>): Promise<InboundMessage[]>
   validate(input: ValidateInput): ChannelDecision
-  onAccountCreated?(input: OnAccountCreatedInput): Promise<z.infer<S>>
+  onAccountCreated?(input: OnAccountCreatedInput<z.infer<I>>): Promise<z.infer<S>>
   refreshCredentials?(input: RefreshCredentialsInput<z.infer<S>>): Promise<z.infer<S>>
   directory?(input: DirectoryInput<z.infer<S>>): Promise<DirectoryResult>
 }

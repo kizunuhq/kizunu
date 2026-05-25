@@ -9,7 +9,7 @@ import {
   type ExchangedToken,
 } from '../../plugins/meta-whatsapp/meta-coex-token'
 import { META_GRAPH_API_BASE, type FetchFn } from '../../plugins/meta-whatsapp/meta-send'
-import { ChannelPluginRegistry } from '../plugin/channel-plugin-registry'
+import { finalizeMetaCoexConnection } from '../../plugins/meta-whatsapp/meta-whatsapp.plugin'
 
 const META_PLUGIN_ID = 'meta-whatsapp'
 
@@ -30,11 +30,11 @@ export interface ConnectMetaCoexOutput {
 }
 
 /**
- * Embedded Signup server endpoint. Exchanges the OAuth code for
- * a business token, then runs the same pre-mint + onAccountCreated + persist
- * flow as `CreateChannelAccountUseCase` — only the credentials shape is
- * different (`channelMode: 'coexistence'` with the OAuth triplet). The plugin's
- * Coex branch runs the per-WABA subscription with the Coex subscribed_fields.
+ * Embedded Signup server endpoint. Exchanges the OAuth code for a business
+ * token, then runs the Coex-specific finalization (per-WABA subscription +
+ * verifyToken stamping) via {@link finalizeMetaCoexConnection}. The Cloud API
+ * `onAccountCreated` hook is bypassed because Coex's input shape (OAuth
+ * triplet + business identifiers) differs from the cloud_api operator input.
  *
  * Fails fast with `MetaCoexNotConfiguredException` when the operator has not
  * set the app-wide `META_APP_ID` / `META_APP_SECRET` env vars; the connect
@@ -48,7 +48,6 @@ export class ConnectMetaCoexUseCase {
   fetchFn: FetchFn = globalThis.fetch
 
   constructor(
-    private readonly registry: ChannelPluginRegistry,
     private readonly accounts: ChannelAccountRepository,
     private readonly config: ConfigService<Config>,
   ) {}
@@ -57,10 +56,19 @@ export class ConnectMetaCoexUseCase {
     const meta = this.assertConfigured()
     const token = await this.exchange(meta, input.code)
     const channelAccountId = Bun.randomUUIDv7()
-    const credentials = await this.runHook({
-      channelAccountId,
-      coexInput: this.buildCoexCredentials(token, input),
-    })
+    const credentials = await finalizeMetaCoexConnection(
+      {
+        channelAccountId,
+        appUrl: this.config.get('appUrl') ?? '',
+        wabaId: input.wabaId,
+        phoneNumberId: input.phoneNumberId,
+        accessToken: token.accessToken,
+        ...(token.accessTokenExpiresAt === undefined
+          ? {}
+          : { accessTokenExpiresAt: token.accessTokenExpiresAt }),
+      },
+      { baseUrl: this.baseUrl, fetchFn: this.fetchFn },
+    )
     await this.accounts.create({
       id: channelAccountId,
       workspaceId: input.workspaceId,
@@ -97,37 +105,5 @@ export class ConnectMetaCoexUseCase {
       appSecret: meta.appSecret,
       code,
     })
-  }
-
-  private buildCoexCredentials(
-    token: ExchangedToken,
-    input: ConnectMetaCoexInput,
-  ): {
-    channelMode: 'coexistence'
-    wabaId: string
-    phoneNumberId: string
-    accessToken: string
-    accessTokenExpiresAt?: string
-  } {
-    return {
-      channelMode: 'coexistence',
-      wabaId: input.wabaId,
-      phoneNumberId: input.phoneNumberId,
-      accessToken: token.accessToken,
-      ...(token.accessTokenExpiresAt === undefined
-        ? {}
-        : { accessTokenExpiresAt: token.accessTokenExpiresAt }),
-    }
-  }
-
-  private async runHook(args: {
-    channelAccountId: string
-    coexInput: { channelMode: 'coexistence' } & Record<string, unknown>
-  }): Promise<unknown> {
-    return this.registry.onAccountCreated(
-      META_PLUGIN_ID,
-      { channelAccountId: args.channelAccountId, appUrl: this.config.get('appUrl') ?? '' },
-      args.coexInput,
-    )
   }
 }

@@ -1,148 +1,107 @@
-import type { ZodType } from 'zod'
+import { z, type ZodType } from 'zod'
 
 import type { CredentialField } from './credential-field'
-import { CredentialFieldType } from './credential-field-type'
+import type { CredentialFieldType } from './credential-field-type'
 import type { CredentialFields } from './credential-fields'
 import { PluginCredentialsShapeUnsupportedException } from './plugin-credentials-shape-unsupported.exception'
 
-interface FieldMeta {
-  label?: string
-  type?: CredentialFieldType
+export interface CredentialFieldMeta {
+  label: string
+  type: CredentialFieldType
   serverGenerated?: boolean
 }
 
+/**
+ * Schemas attach `CredentialFieldMeta` to each credential field via
+ * `.register(credentialFieldRegistry, { ... })` instead of inventing a meta
+ * shape. The walker reads from this registry — typed, public, no `_def`
+ * traversal — to derive `CredentialFields` for the channel/connector
+ * manifests.
+ *
+ * Authors may register on the inner schema before chaining `.optional()` /
+ * `.default()` (typical) OR on the wrapper itself; the walker tries the
+ * outer first, then unwraps once.
+ */
+export const credentialFieldRegistry = z.registry<CredentialFieldMeta>()
+
 export function describeCredentialFields(schema: ZodType): CredentialFields {
-  const def = readDef(schema)
-  if (def.type === 'object') {
-    return { kind: 'flat', fields: walkObject(def) }
+  if (schema instanceof z.ZodObject) {
+    return { kind: 'flat', fields: walkShape(schema) }
   }
-  if (def.type === 'union' && typeof def.discriminator === 'string') {
-    return walkDiscriminatedUnion(def.discriminator, def.options)
+  if (schema instanceof z.ZodDiscriminatedUnion) {
+    return walkDiscriminatedUnion(schema)
   }
   throw new PluginCredentialsShapeUnsupportedException(
-    `expected ZodObject or ZodDiscriminatedUnion, got ${def.type}`,
+    'expected ZodObject or ZodDiscriminatedUnion',
   )
 }
 
-function walkDiscriminatedUnion(key: string, options: readonly unknown[]): CredentialFields {
+function walkDiscriminatedUnion(schema: z.ZodDiscriminatedUnion): CredentialFields {
   const variants: Record<string, CredentialField[]> = {}
-  for (const option of options) {
-    const optionDef = readDef(option)
-    if (optionDef.type !== 'object') {
+  let discriminatorKey: string | undefined
+  for (const option of schema.options) {
+    if (!(option instanceof z.ZodObject)) {
       throw new PluginCredentialsShapeUnsupportedException(
         'discriminated-union variants must be ZodObject',
       )
     }
-    const literalValue = readLiteralValue(optionDef.shape[key])
-    if (literalValue === undefined) {
+    const { key, value } = findDiscriminator(option)
+    if (discriminatorKey === undefined) discriminatorKey = key
+    else if (discriminatorKey !== key) {
       throw new PluginCredentialsShapeUnsupportedException(
-        `discriminated-union variant is missing literal at key "${key}"`,
+        `discriminated-union variants disagree on discriminator: "${discriminatorKey}" vs "${key}"`,
       )
     }
-    variants[literalValue] = walkObject(optionDef, key)
+    variants[value] = walkShape(option, key)
   }
-  return { kind: 'discriminated', key, variants }
+  if (discriminatorKey === undefined) {
+    throw new PluginCredentialsShapeUnsupportedException('discriminated-union has no variants')
+  }
+  return { kind: 'discriminated', key: discriminatorKey, variants }
 }
 
-function walkObject(def: ZodDef, skipKey?: string): CredentialField[] {
-  const fields: CredentialField[] = []
-  for (const [key, field] of Object.entries(def.shape)) {
-    if (key === skipKey) continue
-    fields.push(toCredentialField(key, field))
+function findDiscriminator(option: z.ZodObject): { key: string; value: string } {
+  for (const [key, field] of Object.entries(option.shape)) {
+    if (field instanceof z.ZodLiteral) {
+      const value = field.value
+      if (typeof value !== 'string') {
+        throw new PluginCredentialsShapeUnsupportedException(
+          `discriminator literal at "${key}" must be a string`,
+        )
+      }
+      return { key, value }
+    }
   }
-  return fields
+  throw new PluginCredentialsShapeUnsupportedException('variant has no literal discriminator')
 }
 
-function toCredentialField(key: string, field: unknown): CredentialField {
+function walkShape(object: z.ZodObject, skipKey?: string): CredentialField[] {
+  return Object.entries(object.shape)
+    .filter(([key]) => key !== skipKey)
+    .map(([key, field]) => toCredentialField(key, field))
+}
+
+function toCredentialField(key: string, field: z.core.$ZodType): CredentialField {
   const meta = readMeta(field)
   const result: CredentialField = {
     key,
-    label: meta.label ?? key,
-    type: meta.type ?? CredentialFieldType.Text,
-    required: !isOptional(field),
+    label: meta?.label ?? key,
+    type: meta?.type ?? 'text',
+    required: isRequired(field),
   }
-  if (meta.serverGenerated) result.serverGenerated = true
+  if (meta?.serverGenerated) result.serverGenerated = true
   return result
 }
 
-function isOptional(field: unknown): boolean {
-  const fn = readFn(field, 'isOptional')
-  return typeof fn === 'function' ? fn() === true : false
-}
-
-function readMeta(field: unknown): FieldMeta {
-  const outer = toFieldMeta(callOptionalFn(field, 'meta'))
-  if (outer) return outer
-  const def = readDef(field)
-  if (def.innerType !== undefined) {
-    return toFieldMeta(callOptionalFn(def.innerType, 'meta')) ?? {}
+function readMeta(field: z.core.$ZodType): CredentialFieldMeta | undefined {
+  const direct = credentialFieldRegistry.get(field)
+  if (direct) return direct
+  if (field instanceof z.ZodOptional || field instanceof z.ZodDefault) {
+    return credentialFieldRegistry.get(field.unwrap())
   }
-  return {}
+  return undefined
 }
 
-function toFieldMeta(value: unknown): FieldMeta | undefined {
-  if (!value || typeof value !== 'object') return undefined
-  const record = value as Record<string, unknown>
-  const meta: FieldMeta = {}
-  if (typeof record['label'] === 'string') meta.label = record['label']
-  if (
-    record['type'] === CredentialFieldType.Text ||
-    record['type'] === CredentialFieldType.Secret
-  ) {
-    meta.type = record['type']
-  }
-  if (typeof record['serverGenerated'] === 'boolean') {
-    meta.serverGenerated = record['serverGenerated']
-  }
-  return meta
-}
-
-function readLiteralValue(field: unknown): string | undefined {
-  if (field === undefined) return undefined
-  const def = readDef(field)
-  if (def.type !== 'literal') return undefined
-  const value = def.values[0]
-  return typeof value === 'string' ? value : undefined
-}
-
-interface ZodDef {
-  type: string
-  shape: Record<string, unknown>
-  innerType: unknown
-  discriminator: string | undefined
-  options: readonly unknown[]
-  values: readonly unknown[]
-}
-
-function readDef(field: unknown): ZodDef {
-  if (!field || typeof field !== 'object') {
-    throw new PluginCredentialsShapeUnsupportedException('zod schema is missing its _def/def')
-  }
-  const record = field as Record<string, unknown>
-  const raw = record['_def'] ?? record['def']
-  if (!raw || typeof raw !== 'object') {
-    throw new PluginCredentialsShapeUnsupportedException('zod schema is missing its _def/def')
-  }
-  const rec = raw as Record<string, unknown>
-  return {
-    type: typeof rec['type'] === 'string' ? rec['type'] : '',
-    shape:
-      rec['shape'] && typeof rec['shape'] === 'object'
-        ? (rec['shape'] as Record<string, unknown>)
-        : {},
-    innerType: rec['innerType'],
-    discriminator: typeof rec['discriminator'] === 'string' ? rec['discriminator'] : undefined,
-    options: Array.isArray(rec['options']) ? rec['options'] : [],
-    values: Array.isArray(rec['values']) ? rec['values'] : [],
-  }
-}
-
-function readFn(field: unknown, key: string): unknown {
-  if (!field || typeof field !== 'object') return undefined
-  return (field as Record<string, unknown>)[key]
-}
-
-function callOptionalFn(field: unknown, key: string): unknown {
-  const fn = readFn(field, key)
-  return typeof fn === 'function' ? (fn as () => unknown).call(field) : undefined
+function isRequired(field: z.core.$ZodType): boolean {
+  return !(field instanceof z.ZodOptional) && !(field instanceof z.ZodDefault)
 }
