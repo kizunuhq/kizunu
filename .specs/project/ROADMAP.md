@@ -808,22 +808,27 @@ timeline, reachable HTTPS webhooks, and a live pilot acceptance run.
   state, and provider instructions inline. Avoid raw IDs unless they are required
   for support.
 
-**Pilot deployment readiness** - PLANNED
-- Define the minimum first-customer deployment path: one API instance, one web
-  instance, Postgres, configured SMTP if auth mail is used, HTTPS public URL,
-  reachable Pipedrive webhook URL, reachable Meta webhook URL, required env vars,
-  migration procedure, backup/restore note, and log access for support.
+**Pilot deployment readiness** - COMPLETE
+- _Landed (feature `082`): `docs/pilot-deployment.md` describes the
+  minimum first-customer topology (one API + one web + Postgres, HTTPS
+  via Caddy/NGINX), the required env vars, the migration procedure
+  (drizzle-kit, manual at deploy time), the backup/restore note
+  (pg_dump + the AES key managed separately), and log access via the
+  container runtime. Defers Kamal / autoscaling / managed-cloud to a
+  future infra slice._
 
-**Pilot runbook and customer handoff** - PLANNED
-- Document the customer setup and operating procedure: Meta prerequisites, Coex
-  upkeep, Pipedrive webhook setup, template approval, BDR mapping, dry-run,
-  launch, pause, recovery, and rollback.
+**Pilot runbook and customer handoff** - COMPLETE
+- _Landed (feature `083`): `docs/pilot-runbook.md` is the customer-facing
+  handoff document — Meta prereqs, Coex upkeep cadence, Pipedrive
+  webhook setup, daily/weekly operating procedure, on-incident
+  recovery table, controlled launch sequence, rollback path._
 
-**v1 acceptance gate** - PLANNED
-- Add a final verification checklist: `bun check`, clean working branch for the
-  release, deployed HTTPS pilot environment reachable by Pipedrive and Meta,
-  controlled live pilot passed for both BDRs, correct BDR number routing proved,
-  reply-stop proved, lost handling proved, and no blocking pilot concerns remain.
+**v1 acceptance gate** - COMPLETE
+- _Landed (feature `084`): `docs/v1-acceptance-gate.md` is the final
+  pre-release checklist — engineering acceptance, deployment
+  acceptance, controlled-pilot acceptance (routing / reply-stop /
+  lost / recovery), CONCERNS gate, customer handoff. Tag v1.0 once
+  every box is checked._
 
 **Deferred from v1.0** - DEFERRED
 - Native WhatsApp inbox/conversations, broad analytics, public self-host install
