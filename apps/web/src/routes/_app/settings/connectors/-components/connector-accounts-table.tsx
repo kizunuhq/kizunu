@@ -1,7 +1,7 @@
 import { useConnectorHealth } from '@kizunu/api-client/crm/use-connector-health'
 import { useWorkspaceConnectors } from '@kizunu/api-client/crm/use-workspace-connectors'
-import { ConnectorHealthPill } from '@kizunu/web/components/composed/connector-health-pill'
 import { DataTable } from '@kizunu/web/components/composed/data-table'
+import { ResourceHealthPill } from '@kizunu/web/components/composed/resource-health-pill'
 
 interface ConnectorAccountsTableProps {
   workspaceId: string
@@ -52,7 +52,5 @@ function ConnectorHealthCell({
   accountId: string
 }) {
   const { data, isPending, refetch } = useConnectorHealth(workspaceId, accountId)
-  return (
-    <ConnectorHealthPill health={data} isPending={isPending} onRefresh={() => void refetch()} />
-  )
+  return <ResourceHealthPill health={data} isPending={isPending} onRefresh={() => void refetch()} />
 }

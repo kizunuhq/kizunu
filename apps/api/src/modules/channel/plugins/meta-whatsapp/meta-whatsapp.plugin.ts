@@ -11,6 +11,7 @@ import { defineChannelPlugin } from '@kizunu/api/modules/channel/core/plugin/def
 import { decideMetaAction } from './decide-meta-action'
 import { dispatchMetaDirectory } from './dispatch-meta-directory'
 import { exchangeForRefreshedToken } from './meta-coex-token'
+import { runMetaHealth } from './meta-health'
 import { parseMetaInbound } from './meta-inbound'
 import { type FetchFn, META_GRAPH_API_BASE, sendMetaMessage } from './meta-send'
 import { subscribeMetaChannel } from './meta-subscribe'
@@ -115,6 +116,9 @@ export function buildMetaWhatsappPlugin(
         systemToken: credentials.systemToken,
       })
       return { channelMode: 'cloud_api', ...credentials, verifyToken }
+    },
+    async checkHealth({ credentials }) {
+      return runMetaHealth({ fetchFn, baseUrl }, credentials)
     },
   })
 }

@@ -50,3 +50,14 @@ export class UserNotInWorkspaceException extends ApplicationException {
     })
   }
 }
+
+export class ChannelHealthUnsupportedException extends ApplicationException {
+  constructor(pluginId: string) {
+    super(
+      'channel.health-unsupported',
+      'This channel plugin does not expose a health check.',
+      422,
+      { pluginId },
+    )
+  }
+}

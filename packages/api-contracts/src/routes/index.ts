@@ -37,6 +37,8 @@ export const Routes = {
       `/workspaces/${workspaceId}/channel-accounts/meta-whatsapp/connect`,
     directory: (workspaceId: string, accountId: string, resource: string) =>
       `/workspaces/${workspaceId}/channel-accounts/${accountId}/directory/${resource}`,
+    health: (workspaceId: string, accountId: string) =>
+      `/workspaces/${workspaceId}/channel-accounts/${accountId}/health`,
   },
   channels: {
     mine: '/channel-accounts/mine',

@@ -8,6 +8,7 @@ import type {
   ListChannelAccountsResponse,
   MyChannelsResponse,
 } from '@kizunu/api-contracts/channel'
+import type { ConnectorHealth } from '@kizunu/api-contracts/crm'
 import { Routes } from '@kizunu/api-contracts/routes'
 
 import { del, get, patch, post } from '../client/api-client'
@@ -47,3 +48,9 @@ export const connectMetaCoex = (
   body: ConnectMetaCoexRequest,
 ): Promise<ConnectMetaCoexResponse> =>
   post<ConnectMetaCoexResponse>(Routes.channelAccounts.connectMetaCoex(workspaceId), body)
+
+export const getChannelHealth = (
+  workspaceId: string,
+  accountId: string,
+): Promise<ConnectorHealth> =>
+  get<ConnectorHealth>(Routes.channelAccounts.health(workspaceId, accountId))

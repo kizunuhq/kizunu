@@ -661,10 +661,21 @@ timeline, reachable HTTPS webhooks, and a live pilot acceptance run.
   a Connectors card with a per-row `ConnectorHealthPill` (composed
   primitive) + tooltip listing failing checks + manual refresh button._
 
-**WhatsApp CoEx setup readiness** - PLANNED
-- Show whether Meta app config, CoEx channel, verify token, phone number, access
-  token, and primary channel access are ready. Do not build an inbox here. Focus
-  only on send/reply-stop readiness.
+**WhatsApp CoEx setup readiness** - COMPLETE
+- _Landed (feature `061`): mirrors 060's pattern at the channel-plugin
+  port. New `ChannelPlugin.checkHealth?` hook and
+  `ChannelPluginRegistry.checkHealth(id, raw)` seam. The Meta plugin
+  (both Cloud API and Coex) ships `runMetaHealth`: `/me` + `/{phoneNumberId}`
+  in parallel, synchronous `verifyToken` check, plus a Coex-only
+  `expiry` check when `accessTokenExpiresAt` is inside the 5-min refresh
+  buffer. New `GET /workspaces/:id/channel-accounts/:accountId/health`
+  endpoint; the `ConnectorHealth` types are reused as a generic
+  health envelope. Web `ConnectorHealthPill` is renamed to
+  `ResourceHealthPill` and consumed by both the connector and channel
+  tables._
+- Per-BDR primary-channel-access check is deferred to feature `062`.
+- App-wide Meta config presence is deferred to feature `067`
+  (safe-launch readiness gate).
 
 **Per-BDR WhatsApp number routing** - PLANNED
 - Make the 2-BDR pilot rule explicit: each Pipedrive deal owner must map to a

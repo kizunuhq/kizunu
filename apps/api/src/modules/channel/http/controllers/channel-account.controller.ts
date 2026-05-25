@@ -19,6 +19,7 @@ import {
 import { ApiTags } from '@nestjs/swagger'
 import { createZodDto } from 'nestjs-zod'
 
+import { CheckChannelHealthUseCase } from '../../core/use-cases/check-channel-health.use-case'
 import { ConnectMetaCoexUseCase } from '../../core/use-cases/connect-meta-coex.use-case'
 import { CreateChannelAccountUseCase } from '../../core/use-cases/create-channel-account.use-case'
 import { GetChannelDirectoryUseCase } from '../../core/use-cases/get-channel-directory.use-case'
@@ -42,6 +43,7 @@ export class ChannelAccountController {
     private readonly revokeUseCase: RevokeChannelAccessUseCase,
     private readonly connectMetaCoex: ConnectMetaCoexUseCase,
     private readonly directoryUseCase: GetChannelDirectoryUseCase,
+    private readonly healthUseCase: CheckChannelHealthUseCase,
   ) {}
 
   @Post(':id/channel-accounts')
@@ -118,5 +120,10 @@ export class ChannelAccountController {
     const params: Record<string, string> = {}
     if (query.language) params.language = query.language
     return await this.directoryUseCase.execute({ workspaceId, accountId, resource, params })
+  }
+
+  @Get(':id/channel-accounts/:accountId/health')
+  async health(@Param('id') workspaceId: string, @Param('accountId') accountId: string) {
+    return await this.healthUseCase.execute({ workspaceId, accountId })
   }
 }

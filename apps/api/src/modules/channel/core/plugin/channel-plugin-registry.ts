@@ -1,8 +1,10 @@
+import type { ConnectorHealth } from '@kizunu/api-contracts/crm'
 import type { DirectoryResult } from '@kizunu/api-contracts/shared'
 import type { DirectoryInput } from '@kizunu/api/modules/_shared/directory/directory-input'
 import { Inject, Injectable } from '@nestjs/common'
 
 import {
+  ChannelHealthUnsupportedException,
   DuplicateChannelPluginException,
   InvalidChannelCredentialsException,
   UnknownChannelPluginException,
@@ -96,6 +98,16 @@ export class ChannelPluginRegistry {
       throw new InvalidChannelCredentialsException(id)
     }
     return plugin.directory({ ...input, credentials: this.parseStored(plugin, id, rawCredentials) })
+  }
+
+  /**
+   * Run the plugin's optional health check. Plugins that omit the hook
+   * surface as 422 `channel.health-unsupported`.
+   */
+  async checkHealth(id: string, rawCredentials: unknown): Promise<ConnectorHealth> {
+    const plugin = this.get(id)
+    if (!plugin.checkHealth) throw new ChannelHealthUnsupportedException(id)
+    return plugin.checkHealth({ credentials: this.parseStored(plugin, id, rawCredentials) })
   }
 
   /**

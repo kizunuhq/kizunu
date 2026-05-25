@@ -9,6 +9,7 @@ import { defineChannelPlugin } from '@kizunu/api/modules/channel/core/plugin/def
 import { decideMetaAction } from '@kizunu/api/modules/channel/plugins/meta-whatsapp/decide-meta-action'
 import { dispatchMetaDirectory } from '@kizunu/api/modules/channel/plugins/meta-whatsapp/dispatch-meta-directory'
 import { exchangeForRefreshedToken } from '@kizunu/api/modules/channel/plugins/meta-whatsapp/meta-coex-token'
+import { runMetaHealth } from '@kizunu/api/modules/channel/plugins/meta-whatsapp/meta-health'
 import { parseMetaInbound } from '@kizunu/api/modules/channel/plugins/meta-whatsapp/meta-inbound'
 import {
   type FetchFn,
@@ -67,6 +68,9 @@ export function buildMetaWhatsappCoexPlugin(
         accessToken: refreshed.accessToken,
         accessTokenExpiresAt: refreshed.accessTokenExpiresAt,
       }
+    },
+    async checkHealth({ credentials }) {
+      return runMetaHealth({ fetchFn, baseUrl }, credentials)
     },
   })
 }

@@ -4,7 +4,7 @@ import { Button } from '@kizunu/web/components/primitives/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@kizunu/web/components/primitives/tooltip'
 import { ArrowsClockwise, Spinner } from '@phosphor-icons/react'
 
-interface ConnectorHealthPillProps {
+interface ResourceHealthPillProps {
   health: ConnectorHealth | undefined
   isPending: boolean
   onRefresh: () => void
@@ -25,7 +25,7 @@ const OVERALL_STYLES: Record<ConnectorHealth['overall'], { label: string; classN
   },
 }
 
-export function ConnectorHealthPill({ health, isPending, onRefresh }: ConnectorHealthPillProps) {
+export function ResourceHealthPill({ health, isPending, onRefresh }: ResourceHealthPillProps) {
   if (isPending && !health) {
     return (
       <span className="bg-muted text-muted-foreground inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs">
