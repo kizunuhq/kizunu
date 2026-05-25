@@ -3,7 +3,6 @@ import { Injectable } from '@nestjs/common'
 import type { ZodType } from 'zod'
 
 import { DirectoryCacheService } from './directory-cache.service'
-import type { DirectoryInput } from './directory-input'
 import type { DirectoryResourceDescriptor } from './directory-resource-descriptor'
 import {
   ConnectorDirectoryFailedException,
@@ -15,40 +14,30 @@ import {
 
 const DEFAULT_TTL_MS = 60_000
 
-export interface DirectoryCapable {
-  manifest: {
-    id: string
-    directoryResources?: readonly DirectoryResourceDescriptor[]
-  }
-  directory?: (input: DirectoryInput) => Promise<DirectoryResult>
-}
-
-interface RunDirectoryQueryInput {
+export interface DirectoryQueryInput {
   workspaceId: string
   accountId: string
   resource: string
   params: Readonly<Record<string, string>>
-  credentials: unknown
-  plugin: DirectoryCapable
+  connectorId: string
+  resources: readonly DirectoryResourceDescriptor[] | undefined
+  invoke: (params: Readonly<Record<string, string>>) => Promise<DirectoryResult>
 }
 
 @Injectable()
 export class DirectoryQueryService {
   constructor(private readonly cache: DirectoryCacheService) {}
 
-  async run(input: RunDirectoryQueryInput): Promise<DirectoryResult> {
-    const descriptor = input.plugin.manifest.directoryResources?.find(
-      (entry) => entry.name === input.resource,
-    )
-    if (!descriptor || !input.plugin.directory) {
+  async run(input: DirectoryQueryInput): Promise<DirectoryResult> {
+    const descriptor = input.resources?.find((entry) => entry.name === input.resource)
+    if (!descriptor) {
       throw new ConnectorDirectoryUnsupportedException({
-        connectorId: input.plugin.manifest.id,
+        connectorId: input.connectorId,
         resource: input.resource,
       })
     }
     const params = parseParams(descriptor.paramsSchema, input.resource, input.params)
     const ttlMs = descriptor.ttlMs ?? DEFAULT_TTL_MS
-    const directoryFn = input.plugin.directory.bind(input.plugin)
     try {
       return await this.cache.getOrLoad(
         {
@@ -57,13 +46,7 @@ export class DirectoryQueryService {
           resource: input.resource,
           params,
         },
-        () =>
-          directoryFn({
-            accountId: input.accountId,
-            resource: input.resource,
-            credentials: input.credentials,
-            params,
-          }),
+        () => input.invoke(params),
         ttlMs,
       )
     } catch (error) {

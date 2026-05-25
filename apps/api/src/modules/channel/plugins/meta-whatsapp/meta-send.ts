@@ -1,8 +1,8 @@
+import type { MetaCredentials } from '@kizunu/api-contracts/channel'
 import { z } from 'zod'
 
 import type { SendPayload } from '../../core/plugin/send-payload'
 import type { SendResult } from '../../core/plugin/send-result'
-import type { MetaCredentials } from './meta-credentials'
 
 export const META_GRAPH_API_BASE = 'https://graph.facebook.com/v21.0'
 

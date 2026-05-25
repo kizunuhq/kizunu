@@ -3,7 +3,6 @@ import { ConfigService } from '@kizunu/config-module/config.service'
 import { Injectable } from '@nestjs/common'
 
 import { ChannelAccountRepository } from '../../persistence/channel-account.repository'
-import type { ChannelPlugin } from '../plugin/channel-plugin'
 import { ChannelPluginRegistry } from '../plugin/channel-plugin-registry'
 
 export interface CreateChannelAccountInput {
@@ -38,9 +37,12 @@ export class CreateChannelAccountUseCase {
 
   async execute(input: CreateChannelAccountInput): Promise<CreateChannelAccountOutput> {
     const validated = this.registry.validateCredentials(input.pluginId, input.credentials)
-    const plugin = this.registry.get(input.pluginId)
     const channelAccountId = Bun.randomUUIDv7()
-    const credentials = await this.enrich(plugin, channelAccountId, validated)
+    const credentials = await this.registry.onAccountCreated(
+      input.pluginId,
+      { channelAccountId, appUrl: this.config.get('appUrl') ?? '' },
+      validated,
+    )
     await this.accounts.create({
       id: channelAccountId,
       workspaceId: input.workspaceId,
@@ -49,18 +51,5 @@ export class CreateChannelAccountUseCase {
       credentials,
     })
     return { id: channelAccountId, pluginId: input.pluginId, name: input.name }
-  }
-
-  private async enrich(
-    plugin: ChannelPlugin,
-    channelAccountId: string,
-    credentials: unknown,
-  ): Promise<unknown> {
-    if (!plugin.onAccountCreated) return credentials
-    return await plugin.onAccountCreated({
-      channelAccountId,
-      appUrl: this.config.get('appUrl') ?? '',
-      credentials,
-    })
   }
 }

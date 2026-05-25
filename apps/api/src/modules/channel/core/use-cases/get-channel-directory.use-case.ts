@@ -26,13 +26,20 @@ export class GetChannelDirectoryUseCase {
     if (!account || account.workspaceId !== input.workspaceId) {
       throw new ChannelAccountNotFoundException(input.accountId)
     }
-    return await this.directories.run({
+    const manifest = this.registry.get(account.pluginId).manifest
+    return this.directories.run({
       workspaceId: input.workspaceId,
       accountId: input.accountId,
       resource: input.resource,
       params: input.params ?? {},
-      credentials: account.credentials,
-      plugin: this.registry.get(account.pluginId),
+      connectorId: manifest.id,
+      resources: manifest.directoryResources,
+      invoke: (params) =>
+        this.registry.directory(
+          account.pluginId,
+          { accountId: input.accountId, resource: input.resource, params },
+          account.credentials,
+        ),
     })
   }
 }

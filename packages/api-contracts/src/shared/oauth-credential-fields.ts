@@ -1,5 +1,7 @@
 import { z } from 'zod'
 
+import { credentialFieldRegistry } from './credentials/describe-credential-fields'
+
 /**
  * Reusable zod shape for any plugin/connector whose provider issues OAuth-style
  * credentials. Spread into the plugin's own credentials object via `.extend()`
@@ -15,9 +17,22 @@ import { z } from 'zod'
  * `jsonb` column.
  */
 export const oauthCredentialFields = {
-  accessToken: z.string().min(1),
-  refreshToken: z.string().min(1).optional(),
-  accessTokenExpiresAt: z.iso.datetime().optional(),
+  accessToken: z
+    .string()
+    .min(1)
+    .register(credentialFieldRegistry, { label: 'Access token', type: 'secret' }),
+  refreshToken: z
+    .string()
+    .min(1)
+    .register(credentialFieldRegistry, { label: 'Refresh token', type: 'secret' })
+    .optional(),
+  accessTokenExpiresAt: z.iso
+    .datetime()
+    .register(credentialFieldRegistry, {
+      label: 'Access token expires at',
+      type: 'text',
+    })
+    .optional(),
 } satisfies z.ZodRawShape
 
 export type OAuthCredentialFields = z.infer<z.ZodObject<typeof oauthCredentialFields>>

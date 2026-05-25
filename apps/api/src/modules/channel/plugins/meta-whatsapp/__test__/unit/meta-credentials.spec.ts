@@ -1,7 +1,4 @@
-import {
-  metaCredentialsClientSchema,
-  metaCredentialsSchema,
-} from '@kizunu/api/modules/channel/plugins/meta-whatsapp/meta-credentials'
+import { metaCredentialsClientSchema, metaCredentialsSchema } from '@kizunu/api-contracts/channel'
 import { describe, expect, it } from 'vite-plus/test'
 
 const cloudApiCredentials = {

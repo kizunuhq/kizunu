@@ -38,9 +38,9 @@ function manifest(id: string): ChannelPlugin['manifest'] {
     name: id,
     capabilities: [],
     configSchema: {
-      safeParse: () => ({ success: true, data: {} }),
+      safeParse: (value: unknown) => ({ success: true, data: value }),
     } as unknown as ChannelPlugin['manifest']['configSchema'],
-    credentialFields: [],
+    credentialFields: { kind: 'flat', fields: [] },
   }
 }
 

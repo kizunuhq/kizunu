@@ -45,13 +45,6 @@ describe('Channel plugins (e2e)', () => {
       { key: 'wabaId', label: 'WABA ID', type: 'text', required: true },
       { key: 'phoneNumberId', label: 'Phone number ID', type: 'text', required: true },
       { key: 'systemToken', label: 'System token', type: 'secret', required: true },
-      {
-        key: 'verifyToken',
-        label: 'Verify token',
-        type: 'secret',
-        required: true,
-        serverGenerated: true,
-      },
     ])
   })
 })

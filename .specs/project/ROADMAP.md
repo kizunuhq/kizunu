@@ -539,7 +539,23 @@ matches the v0.1 reference use case point-for-point.
 
 **Connector lookups** - COMPLETE (feature `054`)
 
-**Email-verification CTAs fix** - IN PROGRESS (feature `055`)
+**Channel credentials zod builder** - IN PROGRESS (feature `056`)
+- _Removes the `unknown`/re-parse pattern from the channel plugin port by
+  making `ChannelPlugin<S extends ZodTypeAny>` and its manifest generic on
+  the credentials schema. A new `defineChannelPlugin(spec)` factory captures
+  `S` via inference; the registry exposes typed bridges (`send`, `parseInbound`,
+  `directory`, `refreshCredentials`, `onAccountCreated`) so plugin methods
+  receive already-parsed `z.infer<S>`. `credentialFields` is **derived** from
+  the schema via a new shared walker in
+  `@kizunu/api-contracts/shared/credentials/` that reads zod v4 `.meta()`
+  annotations and supports flat `ZodObject` and `z.discriminatedUnion` shapes
+  (proven against a Pipedrive-shaped fixture for Feature 057 readiness). Meta
+  credential schemas move to `@kizunu/api-contracts/channel/`; the web form
+  validates with the same `zodResolver` and `hasRequiredCredentials` /
+  `z.record(z.string(), z.unknown())` go away. Sets up the foundation Feature
+  057 reuses unchanged._
+
+**Email-verification CTAs fix** - COMPLETE (feature `055`)
 - _Removes the dead-end "Open verify page" link from `EmailVerificationBanner`
   and the matching "Verify" button on `settings/profile`'s email row (both used
   to navigate to `/auth/verify-email?token=` and short-circuit to the panel's
