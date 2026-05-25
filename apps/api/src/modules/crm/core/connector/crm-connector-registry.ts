@@ -62,6 +62,29 @@ export class CrmConnectorRegistry {
     return result.data
   }
 
+  /**
+   * Parse the create-time input against `inputSchema ?? configSchema`, run
+   * the connector's optional `prepareCredentials` hook, then re-parse the
+   * hook's return against `configSchema`. The result is ready to persist on
+   * the ConnectorAccount.
+   *
+   * Hook-thrown exceptions (e.g. PipedriveTokenInvalidException) bubble
+   * unchanged so use cases never need to wrap registry calls. Schema
+   * failures throw `InvalidConnectorCredentialsException`.
+   */
+  async prepareCredentials(id: string, rawInput: unknown): Promise<unknown> {
+    const connector = this.get(id)
+    const inputSchema = connector.manifest.inputSchema ?? connector.manifest.configSchema
+    const inputParsed = inputSchema.safeParse(rawInput)
+    if (!inputParsed.success) throw new InvalidConnectorCredentialsException(id)
+    const enriched = connector.prepareCredentials
+      ? await connector.prepareCredentials({ credentials: inputParsed.data })
+      : inputParsed.data
+    const storageParsed = connector.manifest.configSchema.safeParse(enriched)
+    if (!storageParsed.success) throw new InvalidConnectorCredentialsException(id)
+    return storageParsed.data
+  }
+
   parseWebhook(id: string, raw: unknown, rawCredentials: unknown): NormalizedEvent[] {
     const connector = this.get(id)
     return connector.parseWebhook(raw, this.parseCredentials(connector, id, rawCredentials))
