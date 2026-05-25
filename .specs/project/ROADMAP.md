@@ -738,10 +738,18 @@ timeline, reachable HTTPS webhooks, and a live pilot acceptance run.
 - Make owner mapping first-class in the wizard and error recovery. Show Pipedrive
   users, mapped kizunu members, unmapped owners, and fix actions.
 
-**Journey error reason read model** - PLANNED
-- Extend journey list responses with `errorReason`, owner/channel/template
-  context, and next recovery action. Keep this focused on recovery, not
-  analytics.
+**Journey error reason read model** - COMPLETE
+- _Landed (feature `071`): the `GET /workspaces/:id/lead-journeys`
+  response now carries `errorReason` per journey (already stored on
+  `lead_journeys` since feature `047`). `LeadJourneySummary` widens by
+  one column; the controller projection and
+  `ListLeadJourneysResponseSchema` contract move in lockstep. Web
+  journeys page gains an "Error reason" column in amber-on-muted. The
+  matching recovery web surface (feature `072`) uses this field for
+  fix-link routing._
+- Owner/channel/template **context** + **next recovery action** are
+  deferred — the raw reason string is enough for feature `072`'s
+  hard-coded recovery table.
 
 **Journey recovery web surface** - PLANNED
 - Upgrade the journeys UI to show precise blockers and fix links: no channel,

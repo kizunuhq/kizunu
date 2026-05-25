@@ -22,6 +22,7 @@ export interface LeadJourneySummary {
   status: LeadJourneyStatusType
   currentStepOrder: number
   nextTouchAt: Date | null
+  errorReason: string | null
 }
 
 export interface LockedJourney {
@@ -158,6 +159,7 @@ export class LeadJourneyRepository {
         status: leadJourneys.status,
         currentStepOrder: leadJourneys.currentStepOrder,
         nextTouchAt: leadJourneys.nextTouchAt,
+        errorReason: leadJourneys.errorReason,
       })
       .from(leadJourneys)
       .innerJoin(leads, eq(leadJourneys.leadId, leads.id))

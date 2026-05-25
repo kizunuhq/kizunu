@@ -25,6 +25,7 @@ export class LeadJourneyController {
         status: journey.status,
         currentStepOrder: journey.currentStepOrder,
         nextTouchAt: journey.nextTouchAt?.toISOString() ?? null,
+        errorReason: journey.errorReason,
       })),
     }
   }
