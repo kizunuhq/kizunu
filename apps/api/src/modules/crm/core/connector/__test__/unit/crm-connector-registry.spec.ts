@@ -1,7 +1,9 @@
+import type { ConnectorHealth } from '@kizunu/api-contracts/crm'
 import { credentialFieldRegistry } from '@kizunu/api-contracts/shared'
 import { CrmConnectorRegistry } from '@kizunu/api/modules/crm/core/connector/crm-connector-registry'
 import { defineCrmConnector } from '@kizunu/api/modules/crm/core/connector/define-crm-connector'
 import {
+  ConnectorHealthUnsupportedException,
   DuplicateCrmConnectorException,
   InvalidConnectorCredentialsException,
   UnknownCrmConnectorException,
@@ -49,6 +51,7 @@ type StorageCredentials = z.infer<typeof storageSchema>
 function buildFakeConnector(
   options: {
     prepareCredentials?: (input: { credentials: InputCredentials }) => Promise<StorageCredentials>
+    checkHealth?: (input: { credentials: StorageCredentials }) => Promise<ConnectorHealth>
   } = {},
 ) {
   return defineCrmConnector<typeof storageSchema, typeof inputSchema>({
@@ -61,6 +64,7 @@ function buildFakeConnector(
     },
     ...baseSpec,
     ...(options.prepareCredentials ? { prepareCredentials: options.prepareCredentials } : {}),
+    ...(options.checkHealth ? { checkHealth: options.checkHealth } : {}),
   })
 }
 
@@ -167,6 +171,35 @@ describe('CrmConnectorRegistry', () => {
       await expect(registry.prepareCredentials('fake', { apiToken: 't' })).rejects.toBeInstanceOf(
         DomainSpecific,
       )
+    })
+  })
+
+  describe('checkHealth', () => {
+    it('throws crm.health-unsupported when the connector omits the hook', async () => {
+      const registry = new CrmConnectorRegistry([buildFakeConnector()])
+
+      await expect(
+        registry.checkHealth('fake', { apiToken: 't', region: 'us-east' }),
+      ).rejects.toBeInstanceOf(ConnectorHealthUnsupportedException)
+    })
+
+    it('invokes the hook with parsed storage credentials', async () => {
+      const health: ConnectorHealth = {
+        overall: 'ready',
+        checks: [{ id: 'token', label: 'API token', status: 'ok' }],
+      }
+      const registry = new CrmConnectorRegistry([
+        buildFakeConnector({
+          checkHealth: async ({ credentials }) => {
+            expect(credentials).toEqual({ apiToken: 't', region: 'us-east' })
+            return health
+          },
+        }),
+      ])
+
+      await expect(
+        registry.checkHealth('fake', { apiToken: 't', region: 'us-east' }),
+      ).resolves.toEqual(health)
     })
   })
 })
