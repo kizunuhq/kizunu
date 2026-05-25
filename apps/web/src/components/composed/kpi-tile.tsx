@@ -7,6 +7,7 @@ type KpiAccent = 'default' | 'success' | 'warning' | 'danger'
 interface KpiTileProps {
   label: string
   value: ReactNode
+  subtitle?: string
   isPending?: boolean
   accent?: KpiAccent
 }
@@ -18,7 +19,7 @@ const ACCENT_DOT: Record<KpiAccent, string> = {
   danger: 'bg-kizunu-pink',
 }
 
-export function KpiTile({ label, value, isPending, accent = 'default' }: KpiTileProps) {
+export function KpiTile({ label, value, subtitle, isPending, accent = 'default' }: KpiTileProps) {
   return (
     <div className="border-border bg-background flex flex-col gap-2 rounded-[2px] border p-4">
       <p className="text-muted-foreground font-mono text-xs tracking-wide uppercase">{label}</p>
@@ -30,6 +31,11 @@ export function KpiTile({ label, value, isPending, accent = 'default' }: KpiTile
           <span className="text-foreground font-mono text-2xl font-medium">{value}</span>
         </div>
       )}
+      {subtitle && !isPending ? (
+        <p className="text-muted-foreground truncate font-mono text-xs" title={subtitle}>
+          {subtitle}
+        </p>
+      ) : null}
     </div>
   )
 }

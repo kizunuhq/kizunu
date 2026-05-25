@@ -217,8 +217,10 @@ function JourneyRowActions({ workspaceId, row }: JourneyRowActionsProps) {
   )
 }
 
+import { formatRelativeTime } from '@kizunu/web/lib/format-relative-time'
+
 function formatTimestamp(iso: string): string {
-  return iso.replace('T', ' ').replace(/\.\d+Z$/, 'Z')
+  return formatRelativeTime(iso)
 }
 
 const STATUS_VALUES: ReadonlyArray<LeadJourneyStatusValue> = [
