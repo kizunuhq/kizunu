@@ -7,6 +7,13 @@ import {
   SelectValue,
 } from '@kizunu/web/components/primitives/select'
 
+const PLACEHOLDER = 'Choose a channel plugin'
+
+function resolveName(value: string, plugins: Array<{ id: string; name: string }>) {
+  if (!value) return PLACEHOLDER
+  return plugins.find((plugin) => plugin.id === value)?.name ?? PLACEHOLDER
+}
+
 export function PluginSelect({
   value,
   onChange,
@@ -15,14 +22,17 @@ export function PluginSelect({
   onChange: (value: string) => void
 }) {
   const plugins = useChannelPlugins()
+  const list = plugins.data?.plugins ?? []
 
   return (
     <Select value={value} onValueChange={(next) => onChange(next ?? '')}>
       <SelectTrigger>
-        <SelectValue placeholder="Choose a channel plugin" />
+        <SelectValue placeholder={PLACEHOLDER}>
+          {(current: string) => resolveName(current, list)}
+        </SelectValue>
       </SelectTrigger>
       <SelectContent>
-        {(plugins.data?.plugins ?? []).map((plugin) => (
+        {list.map((plugin) => (
           <SelectItem key={plugin.id} value={plugin.id}>
             {plugin.name}
           </SelectItem>
