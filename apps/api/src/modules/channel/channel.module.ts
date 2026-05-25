@@ -6,6 +6,7 @@ import { DirectoryModule } from '../_shared/directory/directory.module'
 import { WorkspaceModule } from '../workspace/workspace.module'
 import { CHANNEL_PLUGINS, ChannelPluginRegistry } from './core/plugin/channel-plugin-registry'
 import { OAuthRefreshService } from './core/services/oauth-refresh.service'
+import { CheckChannelHealthUseCase } from './core/use-cases/check-channel-health.use-case'
 import { ConnectMetaCoexUseCase } from './core/use-cases/connect-meta-coex.use-case'
 import { CreateChannelAccountUseCase } from './core/use-cases/create-channel-account.use-case'
 import { GetChannelDirectoryUseCase } from './core/use-cases/get-channel-directory.use-case'
@@ -44,6 +45,7 @@ import { buildMetaWhatsappPlugin } from './plugins/meta-whatsapp/meta-whatsapp.p
     ChannelAccountRepository,
     ChannelAccessRepository,
     CreateChannelAccountUseCase,
+    CheckChannelHealthUseCase,
     ConnectMetaCoexUseCase,
     ListWorkspaceChannelAccountsUseCase,
     GrantChannelAccessUseCase,
