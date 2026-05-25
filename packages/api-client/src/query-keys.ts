@@ -21,4 +21,5 @@ export const QueryKeys = Object.freeze({
   workspaceLeadJourneys: 'workspaceLeadJourneys',
   directory: 'directory',
   connectorHealth: 'connectorHealth',
+  channelHealth: 'channelHealth',
 })
