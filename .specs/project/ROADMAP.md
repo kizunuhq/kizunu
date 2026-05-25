@@ -689,10 +689,13 @@ timeline, reachable HTTPS webhooks, and a live pilot acceptance run.
   channel. Web settings/members gains a "Routing readiness" card listing
   each active member as Ready / Missing primary / No channel access._
 
-**Provider setup wizard shell** - PLANNED
-- Add the first-run wizard route and state machine: CRM, WhatsApp, templates,
-  cadence, trigger, owner mapping, and test run. Existing settings pages remain
-  edit surfaces.
+**Provider setup wizard shell** - COMPLETE
+- _Landed (feature `063`): new `/_app/setup` route renders six pilot steps
+  with status badges (Done / Not started / Checking) derived client-side
+  from existing list endpoints — connectors, channels, routing readiness,
+  templates, cadences, entry triggers. Each row links to the settings page
+  that owns the data. Sidebar gains a "Setup" entry. No new endpoints, no
+  schema change._
 
 **Wizard step: CRM and trigger mapping** - PLANNED
 - Fold Pipedrive connector creation, pipeline/stage lookup, and entry-trigger
