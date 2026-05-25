@@ -1,3 +1,4 @@
+import type { MetaCredentials } from '@kizunu/api-contracts/channel'
 import type { DirectoryResult, DirectoryRow } from '@kizunu/api-contracts/shared'
 import {
   assertProviderOk,
@@ -5,7 +6,6 @@ import {
 } from '@kizunu/api/modules/_shared/directory/provider-http'
 import { z } from 'zod'
 
-import type { MetaCredentials } from './meta-credentials'
 import { bearerFor, type FetchFn, META_GRAPH_API_BASE } from './meta-send'
 
 const PAGE_LIMIT = 200

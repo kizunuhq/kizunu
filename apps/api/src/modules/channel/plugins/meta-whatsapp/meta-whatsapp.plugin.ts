@@ -1,3 +1,9 @@
+import {
+  metaCredentialsClientSchema,
+  metaCredentialsSchema,
+  type MetaCoexistenceCredentials,
+  type MetaCredentials,
+} from '@kizunu/api-contracts/channel'
 import type { DirectoryResult } from '@kizunu/api-contracts/shared'
 import type { DirectoryInput } from '@kizunu/api/modules/_shared/directory/directory-input'
 import { ConnectorDirectoryUnsupportedException } from '@kizunu/api/modules/_shared/directory/directory.errors'
@@ -15,12 +21,6 @@ import type { SendResult } from '../../core/plugin/send-result'
 import type { ValidateInput } from '../../core/plugin/validate-input'
 import { isWithinServiceWindow } from './customer-service-window'
 import { exchangeForRefreshedToken } from './meta-coex-token'
-import {
-  metaCredentialsClientSchema,
-  metaCredentialsSchema,
-  type MetaCoexistenceCredentials,
-  type MetaCredentials,
-} from './meta-credentials'
 import { listMetaPhoneNumbers, listMetaTemplates } from './meta-directory'
 import { parseMetaInbound } from './meta-inbound'
 import { type FetchFn, META_GRAPH_API_BASE, sendMetaMessage } from './meta-send'

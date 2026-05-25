@@ -1,4 +1,4 @@
-import { metaCredentialsSchema } from '@kizunu/api/modules/channel/plugins/meta-whatsapp/meta-credentials'
+import { metaCredentialsSchema } from '@kizunu/api-contracts/channel'
 import { MetaWhatsappPlugin } from '@kizunu/api/modules/channel/plugins/meta-whatsapp/meta-whatsapp.plugin'
 import { describe, expect, it } from 'vite-plus/test'
 
