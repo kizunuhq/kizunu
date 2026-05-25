@@ -121,12 +121,15 @@ function SetupPage() {
     },
   ]
 
+  const overall = computeOverallReadiness(steps)
+
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
         title="Setup"
         description="Walk through the six steps the pilot needs in order."
       />
+      <ReadinessBanner overall={overall} />
       <Card>
         <CardHeader>
           <CardTitle>Pilot checklist</CardTitle>
@@ -217,4 +220,40 @@ function StepBadge({ status }: { status: StepStatus }) {
   if (status === 'loading') return <Badge variant="outline">Checking…</Badge>
   if (status === 'done') return <Badge variant="default">Done</Badge>
   return <Badge variant="secondary">Not started</Badge>
+}
+
+type OverallReadiness = 'ready' | 'pending' | 'loading'
+
+function computeOverallReadiness(steps: SetupStep[]): OverallReadiness {
+  if (steps.some((step) => step.status === 'loading')) return 'loading'
+  if (steps.every((step) => step.status === 'done')) return 'ready'
+  return 'pending'
+}
+
+function ReadinessBanner({ overall }: { overall: OverallReadiness }) {
+  if (overall === 'loading') {
+    return (
+      <Card className="border-border bg-muted/30">
+        <CardContent className="text-muted-foreground py-4 text-sm">
+          Checking readiness…
+        </CardContent>
+      </Card>
+    )
+  }
+  if (overall === 'ready') {
+    return (
+      <Card className="border-green-200 bg-green-50">
+        <CardContent className="py-4 text-sm text-green-900">
+          All systems ready — launch when you are.
+        </CardContent>
+      </Card>
+    )
+  }
+  return (
+    <Card className="border-amber-200 bg-amber-50">
+      <CardContent className="py-4 text-sm text-amber-900">
+        Not ready — complete the steps below before launching the pilot.
+      </CardContent>
+    </Card>
+  )
 }

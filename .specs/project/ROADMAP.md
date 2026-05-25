@@ -718,11 +718,16 @@ timeline, reachable HTTPS webhooks, and a live pilot acceptance run.
   opens the existing template dialog which picks an approved Meta
   template via the directory picker added in `054`._
 
-**Safe launch readiness gate** - PLANNED
-- Before activating the trigger, check that the workspace can actually run the
-  pilot: Pipedrive token works, webhook URL exists, stage mapping is set, Coex
-  channel is ready, BDR owner mapping resolves, each BDR has a primary channel,
-  templates exist, variables resolve, and cadence exit actions are configured.
+**Safe launch readiness gate** - COMPLETE
+- _Landed (feature `067`): the `/setup` wizard renders a readiness
+  banner above the checklist computed from the same six step statuses.
+  "All systems ready" (green) when every step is Done; "Not ready"
+  (amber) otherwise; neutral "Checking readiness…" while underlying
+  queries load. The deeper Pipedrive-token + Coex-channel +
+  template-variables-resolve checks live behind the per-row health
+  endpoints from features `060`/`061`/`062`. A real "block trigger
+  activation" gate is deferred until triggers gain an activate/pause
+  toggle (separate slice)._
 
 **Cadence v1 action builder** - PLANNED
 - Extend the cadence builder to configure `onReply.move_stage`,
