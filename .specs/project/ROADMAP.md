@@ -616,6 +616,158 @@ matches the v0.1 reference use case point-for-point.
 
 ---
 
+## Phase 2.1 — v1.0 pilot-plus customer fit
+
+**Goal:** Deliver a customer-fit v1.0 for the first Pipedrive + WhatsApp
+Coexistence pilot: not just the engine path, but the operational controls around
+it. v1.0 must let an operator set up the pilot, safely launch it, audit what
+happened, pause or resume when something is wrong, recover from errors, and prove
+to the customer that kizunu will not keep touching a lead after a reply.
+
+**Definition of v1.0:** One customer workspace can run the full FUP automation
+with Pipedrive as source of truth and WhatsApp Coex as the send channel. The
+product supports guided setup, token-first Pipedrive connection, BDR/channel
+readiness, per-BDR WhatsApp number routing, 5-step cadence configuration, reply
+task handoff, lost handling, safe launch checks, pause/resume controls, audit
+timeline, reachable HTTPS webhooks, and a live pilot acceptance run.
+
+**Token-first Pipedrive connector setup** - PLANNED
+- API token becomes the main input. The backend calls Pipedrive `GET /users/me`
+  to derive `companyDomain`; manual domain override is a fallback. Hide
+  `webhookToken`; move `phoneFieldKey` and `activityType` to advanced settings.
+
+**Pipedrive connector health check** - PLANNED
+- Add a connector status/readiness check: valid token, readable user, readable
+  pipelines/stages, readable deal fields, and webhook URL present. Surface
+  reconnect/fix states in the web app.
+
+**WhatsApp CoEx setup readiness** - PLANNED
+- Show whether Meta app config, CoEx channel, verify token, phone number, access
+  token, and primary channel access are ready. Do not build an inbox here. Focus
+  only on send/reply-stop readiness.
+
+**Per-BDR WhatsApp number routing** - PLANNED
+- Make the 2-BDR pilot rule explicit: each Pipedrive deal owner must map to a
+  kizunu member, each member must have access to their own CoEx channel account,
+  and each member must have that account set as primary. A journey must never
+  fall back to another BDR's number when mapping or channel access is missing.
+
+**Provider setup wizard shell** - PLANNED
+- Add the first-run wizard route and state machine: CRM, WhatsApp, templates,
+  cadence, trigger, owner mapping, and test run. Existing settings pages remain
+  edit surfaces.
+
+**Wizard step: CRM and trigger mapping** - PLANNED
+- Fold Pipedrive connector creation, pipeline/stage lookup, and entry-trigger
+  creation into the wizard with labeled provider pickers and no raw IDs.
+
+**Wizard step: channel and BDR access** - PLANNED
+- Guide the operator through CoEx connection, channel access grants, and
+  primary-channel selection for each BDR needed by the pilot.
+
+**Wizard step: templates and variables** - PLANNED
+- Guide template selection/creation from approved Meta templates. Show declared
+  variables and whether kizunu can resolve them from lead fields.
+
+**Safe launch readiness gate** - PLANNED
+- Before activating the trigger, check that the workspace can actually run the
+  pilot: Pipedrive token works, webhook URL exists, stage mapping is set, Coex
+  channel is ready, BDR owner mapping resolves, each BDR has a primary channel,
+  templates exist, variables resolve, and cadence exit actions are configured.
+
+**Cadence v1 action builder** - PLANNED
+- Extend the cadence builder to configure `onReply.move_stage`,
+  `onReply.log_activity`, and `onExhausted.mark_lost`. Lost reason and reply task
+  copy are explicit UI fields.
+
+**Cadence preview and safety review** - PLANNED
+- Add a pre-enable review of cadence steps: delays, sending window, templates,
+  variables, reply action, lost action, and BDR channel strategy. It should make
+  unsafe cadences hard to activate.
+
+**Owner mapping recovery UI** - PLANNED
+- Make owner mapping first-class in the wizard and error recovery. Show Pipedrive
+  users, mapped kizunu members, unmapped owners, and fix actions.
+
+**Journey error reason read model** - PLANNED
+- Extend journey list responses with `errorReason`, owner/channel/template
+  context, and next recovery action. Keep this focused on recovery, not
+  analytics.
+
+**Journey recovery web surface** - PLANNED
+- Upgrade the journeys UI to show precise blockers and fix links: no channel,
+  owner not mapped, template required, template variable missing, provider token
+  expired, provider failure.
+
+**Pilot dry-run and selected-deal test** - PLANNED
+- Add a controlled validation path for one selected Pipedrive deal. It verifies
+  deal fetch, owner mapping, phone resolution, channel resolution, template
+  resolution, first-touch eligibility, and Pipedrive action reachability before
+  broad launch.
+
+**Pilot dry-run UI** - PLANNED
+- Add the final wizard step that runs the pilot validation, shows pass/fail
+  checks, and provides the exact webhook URL and Pipedrive stage instructions.
+
+**Pause, resume, and emergency stop controls** - PLANNED
+- Let operators pause a cadence, pause a trigger, stop a journey, and resume safe
+  journeys after fixing configuration. Add a workspace-level emergency stop for
+  outbound dispatch during the pilot.
+
+**Audit timeline** - PLANNED
+- Store and show a lightweight timeline of operational events: journey created,
+  touch queued, touch sent, Pipedrive activity logged, inbound reply received,
+  reply-stop fired, stage moved, task created, exhausted, marked lost, error
+  entered, operator paused/resumed. This is not a full inbox; it is proof of what
+  happened.
+
+**BDR handoff reliability** - PLANNED
+- Make the reply handoff explicit: task subject/body configurable enough for the
+  pilot, assigned to the Pipedrive owner when available, and visible in the audit
+  timeline. The BDR should know "lead replied, assume conversation" without
+  checking kizunu first.
+
+**Dashboard v1 control-panel polish** - PLANNED
+- Redesign the dashboard around queued, just happened, and why dropped. Reduce
+  generic KPI/card feel; show operational state first.
+
+**Connector/channel form UX polish** - PLANNED
+- Hide implementation fields, improve labels, add advanced sections, add
+  loading/error states, and make provider failures actionable.
+
+**Cadence and journey table UX polish** - PLANNED
+- Improve density, status dots, timestamp formatting, empty states, filters, row
+  layout, and responsive behavior for repeated operator use.
+
+**Provider setup and webhook UX** - PLANNED
+- Surface exact webhook URLs, copied tokens where appropriate, verification
+  state, and provider instructions inline. Avoid raw IDs unless they are required
+  for support.
+
+**Pilot deployment readiness** - PLANNED
+- Define the minimum first-customer deployment path: one API instance, one web
+  instance, Postgres, configured SMTP if auth mail is used, HTTPS public URL,
+  reachable Pipedrive webhook URL, reachable Meta webhook URL, required env vars,
+  migration procedure, backup/restore note, and log access for support.
+
+**Pilot runbook and customer handoff** - PLANNED
+- Document the customer setup and operating procedure: Meta prerequisites, Coex
+  upkeep, Pipedrive webhook setup, template approval, BDR mapping, dry-run,
+  launch, pause, recovery, and rollback.
+
+**v1 acceptance gate** - PLANNED
+- Add a final verification checklist: `bun check`, clean working branch for the
+  release, deployed HTTPS pilot environment reachable by Pipedrive and Meta,
+  controlled live pilot passed for both BDRs, correct BDR number routing proved,
+  reply-stop proved, lost handling proved, and no blocking pilot concerns remain.
+
+**Deferred from v1.0** - DEFERRED
+- Native WhatsApp inbox/conversations, broad analytics, public self-host install
+  wizard, Pipedrive OAuth, second CRM, second channel, and multi-workspace
+  commercial cloud concerns stay outside this phase.
+
+---
+
 ## Future Considerations (Phase 2+)
 
 - Native CRM (deals, own pipeline, contacts)
