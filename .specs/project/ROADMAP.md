@@ -799,11 +799,15 @@ timeline, reachable HTTPS webhooks, and a live pilot acceptance run.
   entered, operator paused/resumed. This is not a full inbox; it is proof of what
   happened.
 
-**BDR handoff reliability** - PLANNED
-- Make the reply handoff explicit: task subject/body configurable enough for the
-  pilot, assigned to the Pipedrive owner when available, and visible in the audit
-  timeline. The BDR should know "lead replied, assume conversation" without
-  checking kizunu first.
+**BDR handoff reliability** - COMPLETE
+- _Landed across earlier features (`006` cadence aggregate, `009`
+  dispatcher's `CadenceActionExecutor`, `004` Pipedrive activity
+  attribution to deal owner). The cadence's `onReply` action array
+  already supports `log_activity { activityType, subject, note }`;
+  the executor passes `ownerExternalId` from the journey's
+  `LockedJourney` to Pipedrive's `/activities` endpoint as `user_id`
+  so the task is assigned to the deal owner. The visibility-in-audit
+  bit ships with feature `076` (audit timeline)._
 
 **Dashboard v1 control-panel polish** - COMPLETE
 - _Landed (feature `078`, batched as one PR with 079/080/081): KPI grid
