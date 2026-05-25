@@ -1,4 +1,5 @@
 import { useCurrentUser } from '@kizunu/api-client/identity/use-current-user'
+import { MetaPluginId } from '@kizunu/api-contracts/channel'
 import { PageHeader } from '@kizunu/web/components/composed/page-header'
 import { Button } from '@kizunu/web/components/primitives/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@kizunu/web/components/primitives/card'
@@ -12,8 +13,6 @@ import {
 import { Plus } from '@phosphor-icons/react'
 import { createFileRoute } from '@tanstack/react-router'
 import { useEffect, useRef, useState } from 'react'
-
-const COEX_PLUGIN_ID = 'meta-whatsapp-coex'
 
 export const Route = createFileRoute('/_app/settings/channels/')({
   validateSearch: (search: Record<string, unknown>) =>
@@ -32,7 +31,7 @@ function ChannelsPage() {
   useEffect(() => {
     if (searchValues.addCoex === 1 && !autoOpenedRef.current && !createOpen) {
       autoOpenedRef.current = true
-      setPreselectedPluginId(COEX_PLUGIN_ID)
+      setPreselectedPluginId(MetaPluginId.Coex)
       setCreateOpen(true)
       clearAddCoex()
     }

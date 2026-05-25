@@ -1,5 +1,7 @@
 import { z } from 'zod'
 
+import { MetaPluginId } from './meta-plugin-ids'
+
 export const ConnectMetaCoexRequestSchema = z.object({
   code: z.string().min(1),
   businessId: z.string().min(1),
@@ -12,7 +14,7 @@ export type ConnectMetaCoexRequest = z.infer<typeof ConnectMetaCoexRequestSchema
 
 export const ConnectMetaCoexResponseSchema = z.object({
   id: z.uuid(),
-  pluginId: z.literal('meta-whatsapp-coex'),
+  pluginId: z.literal(MetaPluginId.Coex),
   channelMode: z.literal('coexistence'),
   name: z.string(),
 })

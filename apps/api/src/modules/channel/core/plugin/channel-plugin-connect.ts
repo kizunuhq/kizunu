@@ -1,13 +1,3 @@
-import type {
-  MetaCoexistenceCredentials,
-  metaCoexistenceCredentialsSchema,
-} from '@kizunu/api-contracts/channel'
-import type { Assert, Equal } from '@kizunu/nestjs-shared/lib/types/type-assert'
-
-export type _CoexistenceSchemaMatchesVariant = Assert<
-  Equal<(typeof metaCoexistenceCredentialsSchema)['_output'], MetaCoexistenceCredentials>
->
-
 export const ChannelPluginConnectKind = {
   Credentials: 'credentials',
   Oauth: 'oauth',

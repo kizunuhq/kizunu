@@ -1,17 +1,16 @@
+import { MetaPluginId } from '@kizunu/api-contracts/channel'
 import type { Config } from '@kizunu/api/api.config'
 import { finalizeMetaCoexConnection } from '@kizunu/api/modules/channel/plugins/meta-whatsapp-coex/meta-coex-finalize'
+import { MetaCoexNotConfiguredException } from '@kizunu/api/modules/channel/plugins/meta-whatsapp-coex/meta-coex-not-configured.exception'
 import { ConfigService } from '@kizunu/config-module/config.service'
 import { Injectable } from '@nestjs/common'
 
 import { ChannelAccountRepository } from '../../persistence/channel-account.repository'
-import { MetaCoexNotConfiguredException } from '../../plugins/meta-whatsapp/meta-coex-not-configured.exception'
 import {
   exchangeCodeForToken,
   type ExchangedToken,
 } from '../../plugins/meta-whatsapp/meta-coex-token'
 import { META_GRAPH_API_BASE, type FetchFn } from '../../plugins/meta-whatsapp/meta-send'
-
-const META_COEX_PLUGIN_ID = 'meta-whatsapp-coex'
 
 export interface ConnectMetaCoexInput {
   workspaceId: string
@@ -24,7 +23,7 @@ export interface ConnectMetaCoexInput {
 
 export interface ConnectMetaCoexOutput {
   id: string
-  pluginId: 'meta-whatsapp-coex'
+  pluginId: typeof MetaPluginId.Coex
   channelMode: 'coexistence'
   name: string
 }
@@ -72,13 +71,13 @@ export class ConnectMetaCoexUseCase {
     await this.accounts.create({
       id: channelAccountId,
       workspaceId: input.workspaceId,
-      pluginId: META_COEX_PLUGIN_ID,
+      pluginId: MetaPluginId.Coex,
       name: input.name,
       credentials,
     })
     return {
       id: channelAccountId,
-      pluginId: 'meta-whatsapp-coex',
+      pluginId: MetaPluginId.Coex,
       channelMode: 'coexistence',
       name: input.name,
     }

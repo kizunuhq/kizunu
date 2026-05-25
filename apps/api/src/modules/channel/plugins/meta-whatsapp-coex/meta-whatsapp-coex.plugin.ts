@@ -1,5 +1,4 @@
-import { metaCoexistenceCredentialsSchema } from '@kizunu/api-contracts/channel'
-import { ConnectorDirectoryUnsupportedException } from '@kizunu/api/modules/_shared/directory/directory.errors'
+import { metaCoexistenceCredentialsSchema, MetaPluginId } from '@kizunu/api-contracts/channel'
 import { ChannelCapability } from '@kizunu/api/modules/channel/core/plugin/channel-capability'
 import type { ChannelPlugin } from '@kizunu/api/modules/channel/core/plugin/channel-plugin'
 import {
@@ -7,12 +6,9 @@ import {
   OauthProvider,
 } from '@kizunu/api/modules/channel/core/plugin/channel-plugin-connect'
 import { defineChannelPlugin } from '@kizunu/api/modules/channel/core/plugin/define-channel-plugin'
-import { isWithinServiceWindow } from '@kizunu/api/modules/channel/plugins/meta-whatsapp/customer-service-window'
+import { decideMetaAction } from '@kizunu/api/modules/channel/plugins/meta-whatsapp/decide-meta-action'
+import { dispatchMetaDirectory } from '@kizunu/api/modules/channel/plugins/meta-whatsapp/dispatch-meta-directory'
 import { exchangeForRefreshedToken } from '@kizunu/api/modules/channel/plugins/meta-whatsapp/meta-coex-token'
-import {
-  listMetaPhoneNumbers,
-  listMetaTemplates,
-} from '@kizunu/api/modules/channel/plugins/meta-whatsapp/meta-directory'
 import { parseMetaInbound } from '@kizunu/api/modules/channel/plugins/meta-whatsapp/meta-inbound'
 import {
   type FetchFn,
@@ -38,7 +34,7 @@ export function buildMetaWhatsappCoexPlugin(
 
   return defineChannelPlugin({
     manifest: {
-      id: 'meta-whatsapp-coex',
+      id: MetaPluginId.Coex,
       name: 'WhatsApp (Coex / Embedded Signup)',
       capabilities: [ChannelCapability.Freeform, ChannelCapability.Template],
       configSchema: metaCoexistenceCredentialsSchema,
@@ -48,15 +44,7 @@ export function buildMetaWhatsappCoexPlugin(
       ],
       connect: { kind: ChannelPluginConnectKind.Oauth, provider: OauthProvider.MetaCoex },
     },
-    validate(input) {
-      if (isWithinServiceWindow(input.now, input.lastInboundAt)) {
-        return { action: 'send', mode: 'freeform' }
-      }
-      if (input.hasApprovedTemplate) {
-        return { action: 'send', mode: 'template' }
-      }
-      return { action: 'error', reason: 'template_required' }
-    },
+    validate: decideMetaAction,
     async parseInbound(raw) {
       return parseMetaInbound(raw)
     },
@@ -64,18 +52,7 @@ export function buildMetaWhatsappCoexPlugin(
       return sendMetaMessage({ payload, credentials, baseUrl, fetchFn })
     },
     async directory(input) {
-      const ctx = {
-        fetchFn,
-        baseUrl,
-        accountId: input.accountId,
-        credentials: input.credentials,
-      }
-      if (input.resource === 'templates') return listMetaTemplates(ctx)
-      if (input.resource === 'phoneNumbers') return listMetaPhoneNumbers(ctx)
-      throw new ConnectorDirectoryUnsupportedException({
-        connectorId: 'meta-whatsapp-coex',
-        resource: input.resource,
-      })
+      return dispatchMetaDirectory(input, { baseUrl, fetchFn, connectorId: MetaPluginId.Coex })
     },
     async refreshCredentials({ credentials }) {
       const refreshed = await exchangeForRefreshedToken({

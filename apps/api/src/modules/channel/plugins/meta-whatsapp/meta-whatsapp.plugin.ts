@@ -1,16 +1,16 @@
 import {
   metaCredentialsClientSchema,
   metaCredentialsSchema,
+  MetaPluginId,
   type MetaCredentials,
 } from '@kizunu/api-contracts/channel'
-import { ConnectorDirectoryUnsupportedException } from '@kizunu/api/modules/_shared/directory/directory.errors'
+import { ChannelCapability } from '@kizunu/api/modules/channel/core/plugin/channel-capability'
+import type { ChannelPlugin } from '@kizunu/api/modules/channel/core/plugin/channel-plugin'
+import { defineChannelPlugin } from '@kizunu/api/modules/channel/core/plugin/define-channel-plugin'
 
-import { ChannelCapability } from '../../core/plugin/channel-capability'
-import type { ChannelPlugin } from '../../core/plugin/channel-plugin'
-import { defineChannelPlugin } from '../../core/plugin/define-channel-plugin'
-import { isWithinServiceWindow } from './customer-service-window'
+import { decideMetaAction } from './decide-meta-action'
+import { dispatchMetaDirectory } from './dispatch-meta-directory'
 import { exchangeForRefreshedToken } from './meta-coex-token'
-import { listMetaPhoneNumbers, listMetaTemplates } from './meta-directory'
 import { parseMetaInbound } from './meta-inbound'
 import { type FetchFn, META_GRAPH_API_BASE, sendMetaMessage } from './meta-send'
 import { subscribeMetaChannel } from './meta-subscribe'
@@ -47,10 +47,8 @@ export interface MetaWhatsappPluginOptions {
  *   `channelMode: 'cloud_api'` + the server-generated `verifyToken` and
  *   returns the full stored shape.
  *
- * Coexistence onboarding (Embedded Signup) does NOT flow through
- * `onAccountCreated`. Its credentials are constructed server-side by the
- * connect endpoint, which calls `finalizeMetaCoexConnection` directly to run
- * the per-WABA subscription and stamp the verifyToken.
+ * Coex is registered as a separate plugin ({@link buildMetaWhatsappCoexPlugin})
+ * — see `plugins/meta-whatsapp-coex/`.
  *
  * `baseUrl`/`fetchFn` are injectable for tests; `config` carries the app-wide
  * Meta credentials needed when refreshing Coex tokens.
@@ -77,15 +75,7 @@ export function buildMetaWhatsappPlugin(
         { name: 'phoneNumbers' },
       ],
     },
-    validate(input) {
-      if (isWithinServiceWindow(input.now, input.lastInboundAt)) {
-        return { action: 'send', mode: 'freeform' }
-      }
-      if (input.hasApprovedTemplate) {
-        return { action: 'send', mode: 'template' }
-      }
-      return { action: 'error', reason: 'template_required' }
-    },
+    validate: decideMetaAction,
     async parseInbound(raw) {
       return parseMetaInbound(raw)
     },
@@ -93,20 +83,12 @@ export function buildMetaWhatsappPlugin(
       return sendMetaMessage({ payload, credentials, baseUrl, fetchFn })
     },
     async directory(input) {
-      const ctx = {
-        fetchFn,
-        baseUrl,
-        accountId: input.accountId,
-        credentials: input.credentials,
-      }
-      if (input.resource === 'templates') return listMetaTemplates(ctx)
-      if (input.resource === 'phoneNumbers') return listMetaPhoneNumbers(ctx)
-      throw new ConnectorDirectoryUnsupportedException({
-        connectorId: 'meta-whatsapp',
-        resource: input.resource,
-      })
+      return dispatchMetaDirectory(input, { baseUrl, fetchFn, connectorId: MetaPluginId.Cloud })
     },
     async refreshCredentials({ credentials }) {
+      // Defensive: post-058 the coexistence variant routes to the meta-whatsapp-coex
+      // plugin, but metaCredentialsSchema keeps both variants until a follow-up
+      // narrows it to cloud_api-only.
       if (credentials.channelMode !== 'coexistence') return credentials
       const refreshed = await exchangeForRefreshedToken({
         baseUrl,
