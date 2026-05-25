@@ -13,6 +13,7 @@ import { TemplateVariableResolver } from './core/services/template-variable-reso
 import { ControlJourneyUseCase } from './core/use-cases/control-journey.use-case'
 import { CreateEntryTriggerUseCase } from './core/use-cases/create-entry-trigger.use-case'
 import { DeleteEntryTriggerUseCase } from './core/use-cases/delete-entry-trigger.use-case'
+import { ListAuditEventsUseCase } from './core/use-cases/list-audit-events.use-case'
 import { ListEntryTriggersUseCase } from './core/use-cases/list-entry-triggers.use-case'
 import { ListLeadJourneysUseCase } from './core/use-cases/list-lead-journeys.use-case'
 import { MarkReplyUseCase } from './core/use-cases/mark-reply.use-case'
@@ -20,11 +21,13 @@ import { PauseOwnerJourneysUseCase } from './core/use-cases/pause-owner-journeys
 import { ReassignLeadsUseCase } from './core/use-cases/reassign-leads.use-case'
 import { StartJourneyUseCase } from './core/use-cases/start-journey.use-case'
 import { WorkspacePauseAllUseCase } from './core/use-cases/workspace-pause-all.use-case'
+import { AuditEventController } from './http/controllers/audit-event.controller'
 import { CrmWebhookController } from './http/controllers/crm-webhook.controller'
 import { EntryTriggerController } from './http/controllers/entry-trigger.controller'
 import { LeadJourneyController } from './http/controllers/lead-journey.controller'
 import { LeadOwnershipController } from './http/controllers/lead-ownership.controller'
 import { MetaWebhookController } from './http/controllers/meta-webhook.controller'
+import { AuditEventRepository } from './persistence/audit-event.repository'
 import { EntryTriggerRepository } from './persistence/entry-trigger.repository'
 import { LeadJourneyRepository } from './persistence/lead-journey.repository'
 import { LeadRepository } from './persistence/lead.repository'
@@ -38,6 +41,7 @@ import { TouchAttemptRepository } from './persistence/touch-attempt.repository'
     MetaWebhookController,
     LeadJourneyController,
     LeadOwnershipController,
+    AuditEventController,
   ],
   providers: [
     Clock,
@@ -46,6 +50,7 @@ import { TouchAttemptRepository } from './persistence/touch-attempt.repository'
     LeadRepository,
     LeadJourneyRepository,
     TouchAttemptRepository,
+    AuditEventRepository,
     CadenceActionExecutor,
     TemplateVariableResolver,
     JourneyDispatcher,
@@ -60,7 +65,14 @@ import { TouchAttemptRepository } from './persistence/touch-attempt.repository'
     WorkspacePauseAllUseCase,
     PauseOwnerJourneysUseCase,
     ReassignLeadsUseCase,
+    ListAuditEventsUseCase,
   ],
-  exports: [EntryTriggerRepository, LeadRepository, LeadJourneyRepository, Clock],
+  exports: [
+    EntryTriggerRepository,
+    LeadRepository,
+    LeadJourneyRepository,
+    AuditEventRepository,
+    Clock,
+  ],
 })
 export class EngineModule {}

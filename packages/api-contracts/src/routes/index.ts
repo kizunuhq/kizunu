@@ -77,6 +77,9 @@ export const Routes = {
     item: (workspaceId: string, triggerId: string) =>
       `/workspaces/${workspaceId}/entry-triggers/${triggerId}`,
   },
+  auditEvents: {
+    collection: (workspaceId: string) => `/workspaces/${workspaceId}/audit-events`,
+  },
   leadJourneys: {
     collection: (workspaceId: string) => `/workspaces/${workspaceId}/lead-journeys`,
     pause: (workspaceId: string, journeyId: string) =>

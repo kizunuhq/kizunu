@@ -23,4 +23,5 @@ export const QueryKeys = Object.freeze({
   connectorHealth: 'connectorHealth',
   channelHealth: 'channelHealth',
   routingReadiness: 'routingReadiness',
+  auditEvents: 'auditEvents',
 })
