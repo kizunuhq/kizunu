@@ -7,6 +7,7 @@ import { WorkspaceModule } from '../workspace/workspace.module'
 import { CRM_CONNECTORS, CrmConnectorRegistry } from './core/connector/crm-connector-registry'
 import { LeadOwnerBackfillService } from './core/services/lead-owner-backfill.service'
 import { ResolveOwnerService } from './core/services/resolve-owner.service'
+import { CheckConnectorHealthUseCase } from './core/use-cases/check-connector-health.use-case'
 import { CreateConnectorAccountUseCase } from './core/use-cases/create-connector-account.use-case'
 import { CreateMemberConnectorIdentityUseCase } from './core/use-cases/create-member-connector-identity.use-case'
 import { DeleteMemberConnectorIdentityUseCase } from './core/use-cases/delete-member-connector-identity.use-case'
@@ -38,6 +39,7 @@ import { buildPipedriveConnector } from './plugins/pipedrive/pipedrive.connector
     ResolveOwnerService,
     LeadOwnerBackfillService,
     CreateConnectorAccountUseCase,
+    CheckConnectorHealthUseCase,
     ListWorkspaceConnectorAccountsUseCase,
     CreateMemberConnectorIdentityUseCase,
     UpdateMemberConnectorIdentityUseCase,

@@ -7,6 +7,7 @@ import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/co
 import { ApiTags } from '@nestjs/swagger'
 import { createZodDto } from 'nestjs-zod'
 
+import { CheckConnectorHealthUseCase } from '../../core/use-cases/check-connector-health.use-case'
 import { CreateConnectorAccountUseCase } from '../../core/use-cases/create-connector-account.use-case'
 import { GetConnectorDirectoryUseCase } from '../../core/use-cases/get-connector-directory.use-case'
 import { ListWorkspaceConnectorAccountsUseCase } from '../../core/use-cases/list-workspace-connector-accounts.use-case'
@@ -22,6 +23,7 @@ export class ConnectorAccountController {
     private readonly createUseCase: CreateConnectorAccountUseCase,
     private readonly listUseCase: ListWorkspaceConnectorAccountsUseCase,
     private readonly directoryUseCase: GetConnectorDirectoryUseCase,
+    private readonly healthUseCase: CheckConnectorHealthUseCase,
   ) {}
 
   @Post(':id/connector-accounts')
@@ -57,5 +59,10 @@ export class ConnectorAccountController {
     const params: Record<string, string> = {}
     if (query.pipelineId) params.pipelineId = query.pipelineId
     return await this.directoryUseCase.execute({ workspaceId, accountId, resource, params })
+  }
+
+  @Get(':id/connector-accounts/:accountId/health')
+  async health(@Param('id') workspaceId: string, @Param('accountId') accountId: string) {
+    return await this.healthUseCase.execute({ workspaceId, accountId })
   }
 }
