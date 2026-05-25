@@ -4,6 +4,7 @@ import type {
   CreateConnectorAccountRequest,
 } from '@kizunu/api-contracts/crm'
 import { RhfField } from '@kizunu/web/components/composed/rhf-field'
+import { CaretRight } from '@phosphor-icons/react'
 import { Controller, useForm } from 'react-hook-form'
 import { z } from 'zod'
 
@@ -18,10 +19,29 @@ interface ConnectorAccountFormBodyProps {
   onSubmit: (values: CreateConnectorAccountRequest) => void
 }
 
+interface SplitFields {
+  primary: ConnectorCredentialField[]
+  advanced: ConnectorCredentialField[]
+}
+
+function splitFields(fields: ConnectorCredentialField[]): SplitFields {
+  const primary: ConnectorCredentialField[] = []
+  const advanced: ConnectorCredentialField[] = []
+  for (const field of fields) {
+    if (field.required) primary.push(field)
+    else advanced.push(field)
+  }
+  return { primary, advanced }
+}
+
 /**
  * Per-connector form. Mounted by the outer form with a `key={connectorId}`
  * so the resolver is initialized once per connector — React unmounts and
  * remounts when the operator switches connectors.
+ *
+ * Required credential fields render at the primary level; optional fields
+ * collapse under an "Advanced settings" disclosure so the customer-facing
+ * default for Pipedrive is "paste your API token, click connect".
  */
 export function ConnectorAccountFormBody(props: ConnectorAccountFormBodyProps) {
   const { formId, connectorId, fields, isPending, onSubmit } = props
@@ -42,6 +62,9 @@ export function ConnectorAccountFormBody(props: ConnectorAccountFormBodyProps) {
     defaultValues: { name: '', credentials: {} },
   })
 
+  const { primary, advanced } = splitFields(fields)
+  const hasAdvanced = advanced.length > 0
+
   return (
     <form
       id={formId}
@@ -61,15 +84,41 @@ export function ConnectorAccountFormBody(props: ConnectorAccountFormBodyProps) {
       <Controller
         control={control}
         name="credentials"
-        render={({ field, fieldState }) => (
-          <ConnectorCredentialFieldsInput
-            fields={fields}
-            values={toRecord(field.value)}
-            onChange={field.onChange}
-            errors={errorMap(fieldState.error)}
-            disabled={isPending}
-          />
-        )}
+        render={({ field, fieldState }) => {
+          const errorMapped = errorMap(fieldState.error)
+          const currentValues = toRecord(field.value)
+          return (
+            <>
+              <ConnectorCredentialFieldsInput
+                fields={primary}
+                values={currentValues}
+                onChange={field.onChange}
+                errors={errorMapped}
+                disabled={isPending}
+              />
+              {hasAdvanced && (
+                <details className="group border-border bg-muted/30 rounded-md border px-3 py-2 text-sm">
+                  <summary className="text-foreground/80 flex cursor-pointer items-center gap-2 font-medium outline-none select-none">
+                    <CaretRight
+                      weight="bold"
+                      className="transition-transform group-open:rotate-90"
+                    />
+                    Advanced settings
+                  </summary>
+                  <div className="mt-3 flex flex-col gap-3">
+                    <ConnectorCredentialFieldsInput
+                      fields={advanced}
+                      values={currentValues}
+                      onChange={field.onChange}
+                      errors={errorMapped}
+                      disabled={isPending}
+                    />
+                  </div>
+                </details>
+              )}
+            </>
+          )
+        }}
       />
     </form>
   )

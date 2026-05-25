@@ -1,4 +1,7 @@
-import { pipedriveCredentialsSchema } from '@kizunu/api-contracts/crm'
+import {
+  pipedriveCredentialsInputSchema,
+  pipedriveCredentialsSchema,
+} from '@kizunu/api-contracts/crm'
 import { ConnectorDirectoryUnsupportedException } from '@kizunu/api/modules/_shared/directory/directory.errors'
 import { z } from 'zod'
 
@@ -11,6 +14,7 @@ import {
   listPipedriveStages,
   listPipedriveUsers,
 } from './pipedrive-directory'
+import { preparePipedriveCredentials } from './pipedrive-prepare'
 import { parsePipedriveWebhook } from './pipedrive-webhook'
 
 const STAGE_PARAMS_SCHEMA = z.object({ pipelineId: z.string().min(1) }).strict()
@@ -30,17 +34,21 @@ export interface PipedriveConnectorOptions {
  */
 export function buildPipedriveConnector(
   options?: PipedriveConnectorOptions,
-): CRMConnector<typeof pipedriveCredentialsSchema> {
+): CRMConnector<typeof pipedriveCredentialsSchema, typeof pipedriveCredentialsInputSchema> {
   const fetchFn = options?.fetchFn ?? globalThis.fetch
   const baseUrlOverride = options?.baseUrl
   const api = new PipedriveApi(fetchFn, baseUrlOverride)
 
-  return defineCrmConnector({
+  return defineCrmConnector<
+    typeof pipedriveCredentialsSchema,
+    typeof pipedriveCredentialsInputSchema
+  >({
     manifest: {
       id: 'pipedrive',
       name: 'Pipedrive',
       capabilities: ['activities', 'stages', 'lost', 'fields'],
       configSchema: pipedriveCredentialsSchema,
+      inputSchema: pipedriveCredentialsInputSchema,
       directoryResources: [
         { name: 'users' },
         { name: 'pipelines' },
@@ -68,6 +76,9 @@ export function buildPipedriveConnector(
     },
     async setField(externalId, field, value, credentials) {
       await api.setField(externalId, field, value, credentials)
+    },
+    async prepareCredentials({ credentials }) {
+      return preparePipedriveCredentials({ fetchFn, baseUrlOverride }, credentials)
     },
     async directory(input) {
       const ctx = {
