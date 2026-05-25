@@ -11,3 +11,11 @@ export class InvalidJourneyTransitionException extends ApplicationException {
     })
   }
 }
+
+export class JourneyNotFoundException extends ApplicationException {
+  constructor(journeyId: string) {
+    super('journey.not-found', 'No journey found for that id in this workspace.', 404, {
+      journeyId,
+    })
+  }
+}

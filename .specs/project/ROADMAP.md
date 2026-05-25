@@ -773,10 +773,19 @@ timeline, reachable HTTPS webhooks, and a live pilot acceptance run.
 - Add the final wizard step that runs the pilot validation, shows pass/fail
   checks, and provides the exact webhook URL and Pipedrive stage instructions.
 
-**Pause, resume, and emergency stop controls** - PLANNED
-- Let operators pause a cadence, pause a trigger, stop a journey, and resume safe
-  journeys after fixing configuration. Add a workspace-level emergency stop for
-  outbound dispatch during the pilot.
+**Pause, resume, and emergency stop controls** - COMPLETE
+- _Landed (feature `075`): four new admin endpoints behind
+  `WorkspaceAdminGuard` —
+  `POST /workspaces/:id/lead-journeys/:journeyId/{pause,resume,stop}`
+  and `POST /workspaces/:id/lead-journeys/pause-all`. `ControlJourneyUseCase`
+  reuses the existing D1 transition table; resume schedules `nextTouchAt=now`
+  so the dispatcher picks the journey up on the next tick. `WorkspacePauseAllUseCase`
+  flips every running journey in the workspace to `paused` in one SQL
+  update. Web journeys page gains a per-row DropdownMenu with
+  Pause / Resume / Stop (filtered by current status) plus a "Pause all
+  running" button in the header. A persistent workspace-level emergency
+  flag is deferred — pause-all gives the operator the same effective
+  pause in one click._
 
 **Audit timeline** - PLANNED
 - Store and show a lightweight timeline of operational events: journey created,

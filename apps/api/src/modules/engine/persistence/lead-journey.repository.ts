@@ -167,6 +167,46 @@ export class LeadJourneyRepository {
   }
 
   /** Parks an inactive owner's running journeys (admin reassignment, manual). */
+  async findInWorkspace(
+    id: string,
+    workspaceId: string,
+  ): Promise<{ id: string; status: LeadJourneyStatusType } | undefined> {
+    const rows = await this.drizzle.db
+      .select({ id: leadJourneys.id, status: leadJourneys.status })
+      .from(leadJourneys)
+      .innerJoin(leads, eq(leadJourneys.leadId, leads.id))
+      .where(and(eq(leadJourneys.id, id), eq(leads.workspaceId, workspaceId)))
+      .limit(1)
+    return rows[0]
+  }
+
+  async updateStatus(
+    id: string,
+    status: LeadJourneyStatusType,
+    nextTouchAt: Date | null,
+  ): Promise<void> {
+    await this.drizzle.db
+      .update(leadJourneys)
+      .set({ status, nextTouchAt })
+      .where(eq(leadJourneys.id, id))
+  }
+
+  async pauseAllRunningInWorkspace(workspaceId: string): Promise<void> {
+    const ownedLeads = this.drizzle.db
+      .select({ id: leads.id })
+      .from(leads)
+      .where(eq(leads.workspaceId, workspaceId))
+    await this.drizzle.db
+      .update(leadJourneys)
+      .set({ status: LeadJourneyStatus.Paused, nextTouchAt: null })
+      .where(
+        and(
+          eq(leadJourneys.status, LeadJourneyStatus.Running),
+          inArray(leadJourneys.leadId, ownedLeads),
+        ),
+      )
+  }
+
   async pauseRunningForOwner(workspaceId: string, ownerUserId: string): Promise<void> {
     const owned = this.drizzle.db
       .select({ id: leads.id })
