@@ -1,7 +1,7 @@
 import type { DirectoryResult } from '@kizunu/api-contracts/shared'
+import type { DirectoryInput } from '@kizunu/api/modules/_shared/directory/directory-input'
 import { Inject, Injectable } from '@nestjs/common'
 
-import type { DirectoryInput } from '../../../_shared/directory/directory-input'
 import {
   DuplicateChannelPluginException,
   InvalidChannelCredentialsException,

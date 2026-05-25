@@ -8,6 +8,8 @@ const plugins = [
     name: 'WhatsApp (Meta Cloud API)',
     capabilities: ['freeform'],
     credentialFields: [
+      { key: 'appId', label: 'Meta App ID', type: 'text', required: true },
+      { key: 'appSecret', label: 'Meta App Secret', type: 'secret', required: true },
       { key: 'wabaId', label: 'WABA ID', type: 'text', required: true },
       { key: 'phoneNumberId', label: 'Phone number ID', type: 'text', required: true },
       { key: 'systemToken', label: 'System token', type: 'secret', required: true },
@@ -64,12 +66,14 @@ describe('ChannelAccountForm', () => {
     })
   })
 
-  it('submits credentials as an object keyed by each field', async () => {
+  it('submits credentials as an object keyed by each field when every required field is filled', async () => {
     const onSubmit = vi.fn()
     render(<ChannelAccountForm formId={FORM_ID} isPending={false} onSubmit={onSubmit} />)
 
     selectPlugin('meta-whatsapp')
     fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'Primary WA' } })
+    fireEvent.change(screen.getByLabelText('Meta App ID'), { target: { value: 'app-9' } })
+    fireEvent.change(screen.getByLabelText('Meta App Secret'), { target: { value: 'secret-9' } })
     fireEvent.change(screen.getByLabelText('WABA ID'), { target: { value: 'waba-9' } })
     fireEvent.change(screen.getByLabelText('Phone number ID'), { target: { value: 'phone-9' } })
     fireEvent.change(screen.getByLabelText('System token'), { target: { value: 'token-9' } })
@@ -79,21 +83,28 @@ describe('ChannelAccountForm', () => {
       expect(onSubmit).toHaveBeenCalledWith({
         pluginId: 'meta-whatsapp',
         name: 'Primary WA',
-        credentials: { wabaId: 'waba-9', phoneNumberId: 'phone-9', systemToken: 'token-9' },
+        credentials: {
+          appId: 'app-9',
+          appSecret: 'secret-9',
+          wabaId: 'waba-9',
+          phoneNumberId: 'phone-9',
+          systemToken: 'token-9',
+        },
       })
     })
   })
 
-  it('does not submit when required credentials are missing, surfacing a field-level error', async () => {
+  it('surfaces a per-field error when a required credential is missing', async () => {
     const onSubmit = vi.fn()
     render(<ChannelAccountForm formId={FORM_ID} isPending={false} onSubmit={onSubmit} />)
 
     selectPlugin('meta-whatsapp')
     fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'Primary' } })
+    fireEvent.change(screen.getByLabelText('Meta App ID'), { target: { value: 'app-9' } })
     submitForm()
 
     await waitFor(() => {
-      expect(screen.getByText('Fill every required credential field.')).toBeInTheDocument()
+      expect(screen.getByLabelText('Meta App Secret')).toHaveAttribute('aria-invalid', 'true')
     })
     expect(onSubmit).not.toHaveBeenCalled()
   })
