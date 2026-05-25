@@ -14,11 +14,6 @@ interface LookupSelectProps {
   disabled?: boolean
 }
 
-function resolveLabel(value: string, options: LookupSelectProps['options'], placeholder: string) {
-  if (!value) return placeholder
-  return options.find((option) => option.value === value)?.label ?? placeholder
-}
-
 export function LookupSelect(props: LookupSelectProps) {
   return (
     <Select
@@ -28,7 +23,9 @@ export function LookupSelect(props: LookupSelectProps) {
     >
       <SelectTrigger>
         <SelectValue placeholder={props.placeholder}>
-          {(value: string) => resolveLabel(value, props.options, props.placeholder)}
+          {(value: string) =>
+            props.options.find((option) => option.value === value)?.label ?? props.placeholder
+          }
         </SelectValue>
       </SelectTrigger>
       <SelectContent>
