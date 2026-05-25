@@ -21,6 +21,7 @@ interface ResourceDialogProps {
   cancelLabel?: string
   isPending?: boolean
   isActionEnabled?: boolean
+  hideAction?: boolean
   tone?: 'default' | 'destructive'
   size?: 'md' | 'lg'
   children: ReactNode
@@ -38,6 +39,7 @@ export function ResourceDialog(props: ResourceDialogProps) {
     cancelLabel = 'Cancel',
     isPending,
     isActionEnabled = true,
+    hideAction = false,
     tone = 'default',
     size = 'md',
     children,
@@ -55,16 +57,18 @@ export function ResourceDialog(props: ResourceDialogProps) {
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isPending}>
             {cancelLabel}
           </Button>
-          <Button
-            variant={tone === 'destructive' ? 'destructive' : 'default'}
-            disabled={!isActionEnabled}
-            loading={isPending}
-            form={formId}
-            type={formId ? 'submit' : 'button'}
-            onClick={formId ? undefined : onAction}
-          >
-            {actionLabel}
-          </Button>
+          {!hideAction && (
+            <Button
+              variant={tone === 'destructive' ? 'destructive' : 'default'}
+              disabled={!isActionEnabled}
+              loading={isPending}
+              form={formId}
+              type={formId ? 'submit' : 'button'}
+              onClick={formId ? undefined : onAction}
+            >
+              {actionLabel}
+            </Button>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>
