@@ -16,7 +16,6 @@ import { ApiTags } from '@nestjs/swagger'
 
 import { MarkReplyUseCase } from '../../core/use-cases/mark-reply.use-case'
 
-const META_PLUGIN_ID = 'meta-whatsapp'
 const HUB_SUBSCRIBE_MODE = 'subscribe'
 
 /**
@@ -63,7 +62,11 @@ export class MetaWebhookController {
   ): Promise<{ received: number }> {
     const account = await this.channelAccounts.findWorkspaceAndCredentials(channelAccountId)
     if (!account) throw new NotFoundException()
-    const messages = await this.registry.parseInbound(META_PLUGIN_ID, rawBody, account.credentials)
+    const messages = await this.registry.parseInbound(
+      account.pluginId,
+      rawBody,
+      account.credentials,
+    )
     for (const message of messages) {
       await this.markReply.execute({
         workspaceId: account.workspaceId,
