@@ -72,6 +72,21 @@ Settled before code (from `docs/v0.1-scope.md`; rationale in `docs/adr/`):
 
 - Route-folder promotion + no-naked-container rule (feature `046`, Phase 1.9 closure): every flat sub-route under `_app/settings/`, `_app/workspace/`, and `auth/` promoted to its own folder (`<feature>/index.tsx` + own `-components/`, `-dialogs/`, `-utils/`); area-shared `-`-folders survive only for cross-feature concerns (`auth/-components/auth-branding-panel.tsx` for `route.tsx`, `auth/-components/auth-error-block.tsx` for login + signup, `auth/-utils/login-error-copy.ts` for login + signup + reset-password, `workspace/-components/dashboard/` for `workspace/index.tsx`). `journey-status-dot` graduated to `components/composed/` because two features consume it. Two missing index redirects added so `/auth` and `/settings` no longer land on empty layouts: `auth/index.tsx` `beforeLoad → /auth/login`, `_app/settings/index.tsx` `beforeLoad → /settings/profile`. `web-patterns.md` §1 dropped the "flat-file feature-routes" carve-out and gained §1.5 "No naked container routes" (every URL-bearing folder either renders a page or redirects via `beforeLoad`; route groups `(area)/` and pathless layouts `_area/` exempt). §9 + §10 updated to match. 24 atomic commits across settings (8), workspace (5), auth (6), and docs/cleanup (5); `bun check` green at every commit (383 tests). Lesson: when adopting a layout rule, codify the "no escape hatch" version on day one — the original flat-file carve-out was meant to be temporary and survived three feature cycles before this sweep closed it.
 
+- WhatsApp CoEx setup readiness (feature `061`, Phase 2.1): extends the
+  generic health-check pattern to the channel-plugin port. New
+  `ChannelPlugin.checkHealth?` hook + `ChannelPluginRegistry.checkHealth`
+  seam mirror the CRM equivalents from 060. The Meta plugin (both Cloud
+  API and Coex) ships `runMetaHealth` which runs `/me` +
+  `/{phoneNumberId}` against Graph in parallel, evaluates `verifyToken`
+  synchronously, and emits a Coex-only `expiry` check when
+  `accessTokenExpiresAt` is inside a 5-minute refresh buffer. Both
+  plugins delegate to the same helper; the cloud_api system token
+  short-circuits the expiry rule. New `GET .../health` endpoint behind
+  WorkspaceAdminGuard; reuses the existing `ConnectorHealth` envelope
+  (the type intentionally has a "Connector"-shaped name but is
+  resource-agnostic). On web, the pill primitive was renamed
+  `ConnectorHealthPill` → `ResourceHealthPill` and now serves both the
+  CRM and channel tables — no fork, no duplicate styling.
 - Pipedrive connector health check (feature `060`, Phase 2.1): closes the
   "valid token / readable user / pipelines / stages / fields / webhook
   URL present" CONCERNS-adjacent gap for v1.0 pilot operators. New
