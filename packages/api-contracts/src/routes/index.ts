@@ -77,6 +77,13 @@ export const Routes = {
   },
   leadJourneys: {
     collection: (workspaceId: string) => `/workspaces/${workspaceId}/lead-journeys`,
+    pause: (workspaceId: string, journeyId: string) =>
+      `/workspaces/${workspaceId}/lead-journeys/${journeyId}/pause`,
+    resume: (workspaceId: string, journeyId: string) =>
+      `/workspaces/${workspaceId}/lead-journeys/${journeyId}/resume`,
+    stop: (workspaceId: string, journeyId: string) =>
+      `/workspaces/${workspaceId}/lead-journeys/${journeyId}/stop`,
+    pauseAll: (workspaceId: string) => `/workspaces/${workspaceId}/lead-journeys/pause-all`,
   },
   leadOwnership: {
     pauseJourneys: (workspaceId: string, userId: string) =>
