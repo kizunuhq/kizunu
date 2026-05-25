@@ -359,6 +359,20 @@ build v4 from the start; no v2 fallback paths.
   WA Business app v2.24.17+; minimum 7 days of active app usage; number not already linked to
   another Cloud API integration; not in Nigeria/South Africa (unsupported region as of March 2026).
 
+**Coex becomes a second registered channel plugin** - IN PROGRESS (feature `058`)
+- _Splits the Meta WhatsApp integration into two registered plugins:
+  `meta-whatsapp` (Cloud API operator-paste, unchanged) and `meta-whatsapp-coex`
+  (Embedded Signup OAuth, sharing send/parseInbound/directory/refresh with the
+  Cloud API plugin). Closes the discoverability gap where Coex lived only at
+  `/workspace/connect-meta-coex`: the New Channel dialog now lists both
+  options, and the plugin manifest gains a typed `connect: { kind:
+  'credentials' } | { kind: 'oauth', provider: 'meta-coex' }` descriptor that
+  drives the dialog body. A one-shot data migration flips stored coexistence
+  rows from `pluginId='meta-whatsapp'` to `'meta-whatsapp-coex'`; the Meta
+  webhook controller drops its hard-coded plugin id and dispatches by the
+  row's actual id. `/workspace/connect-meta-coex` becomes a redirect to
+  `/settings/channels?addCoex=1` to keep bookmarked URLs working._
+
 ---
 
 ## Phase 1.9 — Web frontend polish & doctrine
