@@ -4,6 +4,7 @@ import { PageHeader } from '@kizunu/web/components/composed/page-header'
 import { Button } from '@kizunu/web/components/primitives/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@kizunu/web/components/primitives/card'
 import { MembersTable } from '@kizunu/web/routes/_app/settings/members/-components/members-table'
+import { RoutingReadinessPanel } from '@kizunu/web/routes/_app/settings/members/-components/routing-readiness-panel'
 import { InvitationTokenDialog } from '@kizunu/web/routes/_app/settings/members/-dialogs/invitation-token-dialog'
 import { InviteMemberDialog } from '@kizunu/web/routes/_app/settings/members/-dialogs/invite-member-dialog'
 import { Plus } from '@phosphor-icons/react'
@@ -46,6 +47,14 @@ function MembersPage() {
         </CardHeader>
         <CardContent>
           <MembersTable workspaceId={activeWorkspaceId} />
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>Routing readiness</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <RoutingReadinessPanel workspaceId={activeWorkspaceId} />
         </CardContent>
       </Card>
       <InviteMemberDialog

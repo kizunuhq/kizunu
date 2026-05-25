@@ -5,6 +5,7 @@ import type {
   InviteMemberRequest,
   InviteMemberResponse,
   ListMembersResponse,
+  RoutingReadinessResponse,
   UpdateMemberRequest,
   UpdateMemberResponse,
 } from '@kizunu/api-contracts/workspace'
@@ -31,3 +32,6 @@ export const updateMemberStatus = (
   body: UpdateMemberRequest,
 ): Promise<UpdateMemberResponse> =>
   patch<UpdateMemberResponse>(Routes.workspaces.member(workspaceId, membershipId), body)
+
+export const getRoutingReadiness = (workspaceId: string): Promise<RoutingReadinessResponse> =>
+  get<RoutingReadinessResponse>(Routes.workspaces.routingReadiness(workspaceId))
