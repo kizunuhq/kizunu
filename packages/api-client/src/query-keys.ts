@@ -22,4 +22,5 @@ export const QueryKeys = Object.freeze({
   directory: 'directory',
   connectorHealth: 'connectorHealth',
   channelHealth: 'channelHealth',
+  routingReadiness: 'routingReadiness',
 })

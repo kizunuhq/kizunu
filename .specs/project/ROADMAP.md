@@ -677,11 +677,17 @@ timeline, reachable HTTPS webhooks, and a live pilot acceptance run.
 - App-wide Meta config presence is deferred to feature `067`
   (safe-launch readiness gate).
 
-**Per-BDR WhatsApp number routing** - PLANNED
-- Make the 2-BDR pilot rule explicit: each Pipedrive deal owner must map to a
-  kizunu member, each member must have access to their own CoEx channel account,
-  and each member must have that account set as primary. A journey must never
-  fall back to another BDR's number when mapping or channel access is missing.
+**Per-BDR WhatsApp number routing** - COMPLETE
+- _Landed (feature `062`): new lightweight `RoutingModule` houses
+  `GetRoutingReadinessUseCase` and `GET /workspaces/:id/routing-readiness`.
+  The endpoint returns a flat list of members with per-member flags
+  `hasWhatsappAccess`, `hasPrimaryWhatsappChannel`, and
+  `mappedConnectorAccountIds`. The dispatcher's no-fallback invariant
+  (`ChannelAccessRepository.findPrimaryAccount` returns only the
+  requested user's primary) is now locked behind two focused integration
+  specs so a future refactor cannot silently route through another BDR's
+  channel. Web settings/members gains a "Routing readiness" card listing
+  each active member as Ready / Missing primary / No channel access._
 
 **Provider setup wizard shell** - PLANNED
 - Add the first-run wizard route and state machine: CRM, WhatsApp, templates,

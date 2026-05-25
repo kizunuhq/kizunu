@@ -11,6 +11,7 @@ import { ChannelModule } from './modules/channel/channel.module'
 import { CrmModule } from './modules/crm/crm.module'
 import { EngineModule } from './modules/engine/engine.module'
 import { IdentityModule } from './modules/identity/identity.module'
+import { RoutingModule } from './modules/routing/routing.module'
 import { WorkspaceModule } from './modules/workspace/workspace.module'
 import { HealthController } from './shared/http/health.controller'
 
@@ -28,6 +29,7 @@ import { HealthController } from './shared/http/health.controller'
     CrmModule,
     CadenceModule,
     EngineModule,
+    RoutingModule,
   ],
   controllers: [HealthController],
   providers: [
