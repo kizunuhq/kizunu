@@ -1,17 +1,12 @@
 import { useCurrentUser } from '@kizunu/api-client/identity/use-current-user'
-import { useResendEmailVerification } from '@kizunu/api-client/identity/use-resend-email-verification'
-import { Button, buttonVariants } from '@kizunu/web/components/primitives/button'
-import { getApiErrorMessage } from '@kizunu/web/lib/get-api-error-message'
+import { ResendEmailButton } from '@kizunu/web/components/composed/resend-email-button'
+import { buttonVariants } from '@kizunu/web/components/primitives/button'
 import { Link } from '@tanstack/react-router'
-import { toast } from 'sonner'
 
 export function VerifyErrorActions() {
-  const { user, isPending: isUserPending } = useCurrentUser()
-  const resend = useResendEmailVerification({
-    onError: (err) => toast.error(getApiErrorMessage(err)),
-  })
+  const { user, isPending } = useCurrentUser()
 
-  if (isUserPending) return null
+  if (isPending) return null
 
   if (!user) {
     return (
@@ -21,15 +16,5 @@ export function VerifyErrorActions() {
     )
   }
 
-  const label = resend.isSuccess ? 'Sent' : resend.isPending ? 'Sending…' : 'Resend email'
-
-  return (
-    <Button
-      variant="outline"
-      disabled={resend.isPending || resend.isSuccess}
-      onClick={() => resend.resendEmailVerification()}
-    >
-      {label}
-    </Button>
-  )
+  return <ResendEmailButton size="default" />
 }
