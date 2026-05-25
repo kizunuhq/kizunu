@@ -21,13 +21,6 @@ export function EmailVerificationBanner() {
             : 'Confirm your address to secure your account.'}
         </span>
         <Link
-          to="/auth/verify-email"
-          search={{ token: '' }}
-          className="hover:text-foreground underline-offset-2 hover:underline"
-        >
-          Open verify page
-        </Link>
-        <Link
           to="/settings/profile"
           className="hover:text-foreground underline-offset-2 hover:underline"
         >
