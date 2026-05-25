@@ -1,6 +1,7 @@
 import { forwardRef, Module } from '@nestjs/common'
 
 import { DirectoryModule } from '../_shared/directory/directory.module'
+import { ChannelModule } from '../channel/channel.module'
 import { EngineModule } from '../engine/engine.module'
 import { IdentityModule } from '../identity/identity.module'
 import { WorkspaceModule } from '../workspace/workspace.module'
@@ -11,6 +12,7 @@ import { CheckConnectorHealthUseCase } from './core/use-cases/check-connector-he
 import { CreateConnectorAccountUseCase } from './core/use-cases/create-connector-account.use-case'
 import { CreateMemberConnectorIdentityUseCase } from './core/use-cases/create-member-connector-identity.use-case'
 import { DeleteMemberConnectorIdentityUseCase } from './core/use-cases/delete-member-connector-identity.use-case'
+import { DryRunDealUseCase } from './core/use-cases/dry-run-deal.use-case'
 import { GetConnectorDirectoryUseCase } from './core/use-cases/get-connector-directory.use-case'
 import { ListAvailableConnectorsUseCase } from './core/use-cases/list-available-connectors.use-case'
 import { ListMemberConnectorIdentitiesUseCase } from './core/use-cases/list-member-connector-identities.use-case'
@@ -27,6 +29,7 @@ import { buildPipedriveConnector } from './plugins/pipedrive/pipedrive.connector
   imports: [
     DirectoryModule,
     WorkspaceModule,
+    ChannelModule,
     forwardRef(() => IdentityModule),
     forwardRef(() => EngineModule),
   ],
@@ -40,6 +43,7 @@ import { buildPipedriveConnector } from './plugins/pipedrive/pipedrive.connector
     LeadOwnerBackfillService,
     CreateConnectorAccountUseCase,
     CheckConnectorHealthUseCase,
+    DryRunDealUseCase,
     ListWorkspaceConnectorAccountsUseCase,
     CreateMemberConnectorIdentityUseCase,
     UpdateMemberConnectorIdentityUseCase,

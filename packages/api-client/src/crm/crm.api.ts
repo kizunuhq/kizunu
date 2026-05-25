@@ -2,6 +2,7 @@ import type {
   ConnectorHealth,
   CreateConnectorAccountRequest,
   CreateConnectorAccountResponse,
+  DryRunDealRequest,
   ListAvailableConnectorsResponse,
   ListConnectorAccountsResponse,
 } from '@kizunu/api-contracts/crm'
@@ -28,3 +29,10 @@ export const getConnectorHealth = (
   accountId: string,
 ): Promise<ConnectorHealth> =>
   get<ConnectorHealth>(Routes.connectorAccounts.health(workspaceId, accountId))
+
+export const dryRunDeal = (
+  workspaceId: string,
+  accountId: string,
+  body: DryRunDealRequest,
+): Promise<ConnectorHealth> =>
+  post<ConnectorHealth>(Routes.connectorAccounts.dryRun(workspaceId, accountId), body)
