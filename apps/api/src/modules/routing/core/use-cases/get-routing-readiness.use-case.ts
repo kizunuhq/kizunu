@@ -2,9 +2,8 @@ import type { RoutingReadinessResponse } from '@kizunu/api-contracts/workspace'
 import { ChannelAccessRepository } from '@kizunu/api/modules/channel/persistence/channel-access.repository'
 import { ConnectorAccountRepository } from '@kizunu/api/modules/crm/persistence/connector-account.repository'
 import { MemberConnectorIdentityRepository } from '@kizunu/api/modules/crm/persistence/member-connector-identity.repository'
-import { forwardRef, Inject, Injectable } from '@nestjs/common'
-
-import { WorkspaceMemberRepository } from '../../persistence/workspace-member.repository'
+import { WorkspaceMemberRepository } from '@kizunu/api/modules/workspace/persistence/workspace-member.repository'
+import { Injectable } from '@nestjs/common'
 
 const META_PLUGIN_IDS: ReadonlySet<string> = new Set(['meta-whatsapp', 'meta-whatsapp-coex'])
 
@@ -12,11 +11,8 @@ const META_PLUGIN_IDS: ReadonlySet<string> = new Set(['meta-whatsapp', 'meta-wha
 export class GetRoutingReadinessUseCase {
   constructor(
     private readonly members: WorkspaceMemberRepository,
-    @Inject(forwardRef(() => ChannelAccessRepository))
     private readonly channelAccesses: ChannelAccessRepository,
-    @Inject(forwardRef(() => ConnectorAccountRepository))
     private readonly connectorAccounts: ConnectorAccountRepository,
-    @Inject(forwardRef(() => MemberConnectorIdentityRepository))
     private readonly identities: MemberConnectorIdentityRepository,
   ) {}
 

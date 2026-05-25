@@ -1,6 +1,6 @@
 import type { Config } from '@kizunu/api/api.config'
 import { ConfigService } from '@kizunu/config-module/config.service'
-import { forwardRef, Module } from '@nestjs/common'
+import { Module } from '@nestjs/common'
 
 import { DirectoryModule } from '../_shared/directory/directory.module'
 import { WorkspaceModule } from '../workspace/workspace.module'
@@ -24,7 +24,7 @@ import { buildMetaWhatsappCoexPlugin } from './plugins/meta-whatsapp-coex/meta-w
 import { buildMetaWhatsappPlugin } from './plugins/meta-whatsapp/meta-whatsapp.plugin'
 
 @Module({
-  imports: [DirectoryModule, forwardRef(() => WorkspaceModule)],
+  imports: [DirectoryModule, WorkspaceModule],
   controllers: [ChannelAccountController, MyChannelController],
   providers: [
     {
