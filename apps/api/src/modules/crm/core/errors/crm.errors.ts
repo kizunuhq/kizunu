@@ -58,3 +58,11 @@ export class PipedriveCompanyDomainUnresolvedException extends ApplicationExcept
     )
   }
 }
+
+export class ConnectorHealthUnsupportedException extends ApplicationException {
+  constructor(connectorId: string) {
+    super('crm.health-unsupported', 'This CRM connector does not expose a health check.', 422, {
+      connectorId,
+    })
+  }
+}

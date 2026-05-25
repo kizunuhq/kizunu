@@ -1,8 +1,10 @@
+import type { ConnectorHealth } from '@kizunu/api-contracts/crm'
 import type { DirectoryResult } from '@kizunu/api-contracts/shared'
 import type { DirectoryInput } from '@kizunu/api/modules/_shared/directory/directory-input'
 import { Inject, Injectable } from '@nestjs/common'
 
 import {
+  ConnectorHealthUnsupportedException,
   DuplicateCrmConnectorException,
   InvalidConnectorCredentialsException,
   UnknownCrmConnectorException,
@@ -165,6 +167,19 @@ export class CrmConnectorRegistry {
       value,
       this.parseCredentials(connector, id, rawCredentials),
     )
+  }
+
+  /**
+   * Run the connector's health check. Connectors that omit the hook surface
+   * a 422 `crm.health-unsupported`. Credentials are parsed once via
+   * `configSchema` so the hook always receives `z.infer<S>`.
+   */
+  async checkHealth(id: string, rawCredentials: unknown): Promise<ConnectorHealth> {
+    const connector = this.get(id)
+    if (!connector.checkHealth) throw new ConnectorHealthUnsupportedException(id)
+    return connector.checkHealth({
+      credentials: this.parseCredentials(connector, id, rawCredentials),
+    })
   }
 
   async directory(

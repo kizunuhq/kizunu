@@ -6,6 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@kizunu/web/components/primitives/card'
+import { ConnectorAccountsTable } from '@kizunu/web/routes/_app/settings/connectors/-components/connector-accounts-table'
 import { EntryTriggersTable } from '@kizunu/web/routes/_app/settings/connectors/-components/entry-triggers-table'
 import { MemberIdentitiesCard } from '@kizunu/web/routes/_app/settings/connectors/-components/member-identities-card'
 import { CreateEntryTriggerDialog } from '@kizunu/web/routes/_app/settings/connectors/-dialogs/create-entry-trigger-dialog'
@@ -21,6 +22,14 @@ export function ConnectorsManager({ workspaceId }: ConnectorsManagerProps) {
 
   return (
     <div className="flex flex-col gap-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Connectors</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ConnectorAccountsTable workspaceId={workspaceId} />
+        </CardContent>
+      </Card>
       <Card>
         <CardHeader>
           <CardTitle>Entry triggers (stage → cadence)</CardTitle>

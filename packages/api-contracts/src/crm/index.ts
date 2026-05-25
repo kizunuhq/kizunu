@@ -1,3 +1,4 @@
+export * from './connector-health.contract'
 export * from './create-connector-account.contract'
 export * from './get-connector-directory.contract'
 export * from './list-available-connectors.contract'

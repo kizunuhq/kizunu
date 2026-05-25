@@ -1,3 +1,4 @@
+import type { ConnectorHealth } from '@kizunu/api-contracts/crm'
 import type { DirectoryResult } from '@kizunu/api-contracts/shared'
 import type { DirectoryInput } from '@kizunu/api/modules/_shared/directory/directory-input'
 import type { ZodType, z } from 'zod'
@@ -51,4 +52,5 @@ export interface CRMConnector<S extends ZodType = ZodType, I extends ZodType = S
   ): Promise<void>
   prepareCredentials?(input: { credentials: z.infer<I> }): Promise<z.infer<S>>
   directory?(input: DirectoryInput<z.infer<S>>): Promise<DirectoryResult>
+  checkHealth?(input: { credentials: z.infer<S> }): Promise<ConnectorHealth>
 }

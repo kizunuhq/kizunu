@@ -72,6 +72,23 @@ Settled before code (from `docs/v0.1-scope.md`; rationale in `docs/adr/`):
 
 - Route-folder promotion + no-naked-container rule (feature `046`, Phase 1.9 closure): every flat sub-route under `_app/settings/`, `_app/workspace/`, and `auth/` promoted to its own folder (`<feature>/index.tsx` + own `-components/`, `-dialogs/`, `-utils/`); area-shared `-`-folders survive only for cross-feature concerns (`auth/-components/auth-branding-panel.tsx` for `route.tsx`, `auth/-components/auth-error-block.tsx` for login + signup, `auth/-utils/login-error-copy.ts` for login + signup + reset-password, `workspace/-components/dashboard/` for `workspace/index.tsx`). `journey-status-dot` graduated to `components/composed/` because two features consume it. Two missing index redirects added so `/auth` and `/settings` no longer land on empty layouts: `auth/index.tsx` `beforeLoad → /auth/login`, `_app/settings/index.tsx` `beforeLoad → /settings/profile`. `web-patterns.md` §1 dropped the "flat-file feature-routes" carve-out and gained §1.5 "No naked container routes" (every URL-bearing folder either renders a page or redirects via `beforeLoad`; route groups `(area)/` and pathless layouts `_area/` exempt). §9 + §10 updated to match. 24 atomic commits across settings (8), workspace (5), auth (6), and docs/cleanup (5); `bun check` green at every commit (383 tests). Lesson: when adopting a layout rule, codify the "no escape hatch" version on day one — the original flat-file carve-out was meant to be temporary and survived three feature cycles before this sweep closed it.
 
+- Pipedrive connector health check (feature `060`, Phase 2.1): closes the
+  "valid token / readable user / pipelines / stages / fields / webhook
+  URL present" CONCERNS-adjacent gap for v1.0 pilot operators. New
+  generic `CRMConnector.checkHealth?` hook on the port; registry seam
+  `checkHealth(id, raw)` parses credentials once and dispatches.
+  Pipedrive's implementation (`runPipedriveHealth`) issues four GETs
+  in parallel — token rejection (any 401/403) forces
+  `overall=unreachable`, otherwise any per-check `fail` collapses to
+  `degraded`. New `GET .../health` endpoint; `WorkspaceAdminGuard`.
+  `ConnectorHealth` types live in `@kizunu/api-contracts/crm` with
+  closed-vocabulary const objects (`ConnectorHealthCheckStatus`,
+  `ConnectorHealthOverall`) per enums.md §1 because web pill styling
+  branches on overall. New composed primitive
+  `ConnectorHealthPill` (pill + tooltip listing failing checks + manual
+  refresh) renders inside a new Connectors card in settings/connectors.
+  Each row owns its own `useConnectorHealth` (no batch endpoint —
+  independent fetches keep the seam simple).
 - Token-first Pipedrive connector setup (feature `059`, Phase 2.1 opener):
   CRM connector port adopts the channel-plugin pattern of `inputSchema` +
   `prepareCredentials` hook (registry validates input → optional hook →

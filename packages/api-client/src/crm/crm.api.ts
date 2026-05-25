@@ -1,4 +1,5 @@
 import type {
+  ConnectorHealth,
   CreateConnectorAccountRequest,
   CreateConnectorAccountResponse,
   ListAvailableConnectorsResponse,
@@ -21,3 +22,9 @@ export const listConnectorAccounts = (
 
 export const listAvailableConnectors = (): Promise<ListAvailableConnectorsResponse> =>
   get<ListAvailableConnectorsResponse>(Routes.connectors.list)
+
+export const getConnectorHealth = (
+  workspaceId: string,
+  accountId: string,
+): Promise<ConnectorHealth> =>
+  get<ConnectorHealth>(Routes.connectorAccounts.health(workspaceId, accountId))

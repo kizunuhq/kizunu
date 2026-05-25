@@ -648,10 +648,18 @@ timeline, reachable HTTPS webhooks, and a live pilot acceptance run.
   `pipedriveCredentialsInputSchema` into `zodResolver`. Existing manual
   curl with `companyDomain` provided is preserved end-to-end._
 
-**Pipedrive connector health check** - PLANNED
-- Add a connector status/readiness check: valid token, readable user, readable
-  pipelines/stages, readable deal fields, and webhook URL present. Surface
-  reconnect/fix states in the web app.
+**Pipedrive connector health check** - COMPLETE
+- _Landed (feature `060`): new `CRMConnector.checkHealth?` hook (mirrors
+  the `directory?` shape) plus `CrmConnectorRegistry.checkHealth(id, raw)`.
+  Pipedrive ships `runPipedriveHealth` which issues `/users/me`,
+  `/pipelines`, `/stages`, `/dealFields` in parallel via `Promise.all`
+  and adds a synchronous `webhookToken` presence check. Token rejection
+  collapses overall to `unreachable`; otherwise any per-check fail goes
+  to `degraded`. `GET /workspaces/:id/connector-accounts/:accountId/health`
+  surfaces `{overall, checks}` (closed vocabularies declared as const-
+  object + derived type per enums.md §1). Web settings/connectors gains
+  a Connectors card with a per-row `ConnectorHealthPill` (composed
+  primitive) + tooltip listing failing checks + manual refresh button._
 
 **WhatsApp CoEx setup readiness** - PLANNED
 - Show whether Meta app config, CoEx channel, verify token, phone number, access
