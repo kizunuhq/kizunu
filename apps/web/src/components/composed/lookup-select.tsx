@@ -22,7 +22,11 @@ export function LookupSelect(props: LookupSelectProps) {
       disabled={props.disabled}
     >
       <SelectTrigger>
-        <SelectValue placeholder={props.placeholder} />
+        <SelectValue placeholder={props.placeholder}>
+          {(value: string) =>
+            props.options.find((option) => option.value === value)?.label ?? props.placeholder
+          }
+        </SelectValue>
       </SelectTrigger>
       <SelectContent>
         {props.options.map((option) => (

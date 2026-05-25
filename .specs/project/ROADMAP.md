@@ -881,6 +881,17 @@ timeline, reachable HTTPS webhooks, and a live pilot acceptance run.
   lost / recovery), CONCERNS gate, customer handoff. Tag v1.0 once
   every box is checked._
 
+**Base UI Select.Value renders the label, not the ID** - PLANNED
+- _Feature `085`: every Select trigger in `apps/web` currently shows
+  the raw `value` (a UUID, a plugin id) instead of the option's
+  label. Root cause: Base UI's `Select.Value` (unlike Radix) does not
+  reflect the selected `SelectItem`'s child text — it needs a
+  `children` render function or an `items` prop on `Select.Root`.
+  Fixes the two composed wrappers (`LookupSelect`, `PluginSelect`)
+  and the one inline trigger in the cadence-builder, and introduces
+  `.agents/rules/base-ui.md` to document the idioms (linked from
+  AGENTS.md alongside `react.md` and `web-patterns.md`)._
+
 **Deferred from v1.0** - DEFERRED
 - Native WhatsApp inbox/conversations, broad analytics, public self-host install
   wizard, Pipedrive OAuth, second CRM, second channel, and multi-workspace

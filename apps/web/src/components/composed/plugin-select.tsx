@@ -1,11 +1,5 @@
 import { useChannelPlugins } from '@kizunu/api-client/channel/use-channel-plugins'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@kizunu/web/components/primitives/select'
+import { LookupSelect } from '@kizunu/web/components/composed/lookup-select'
 
 export function PluginSelect({
   value,
@@ -15,19 +9,17 @@ export function PluginSelect({
   onChange: (value: string) => void
 }) {
   const plugins = useChannelPlugins()
+  const options = (plugins.data?.plugins ?? []).map((plugin) => ({
+    value: plugin.id,
+    label: plugin.name,
+  }))
 
   return (
-    <Select value={value} onValueChange={(next) => onChange(next ?? '')}>
-      <SelectTrigger>
-        <SelectValue placeholder="Choose a channel plugin" />
-      </SelectTrigger>
-      <SelectContent>
-        {(plugins.data?.plugins ?? []).map((plugin) => (
-          <SelectItem key={plugin.id} value={plugin.id}>
-            {plugin.name}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+    <LookupSelect
+      value={value}
+      placeholder="Choose a channel plugin"
+      options={options}
+      onChange={onChange}
+    />
   )
 }
