@@ -29,8 +29,8 @@ export class CreateConnectorAccountUseCase {
 
   async execute(input: CreateConnectorAccountInput): Promise<CreateConnectorAccountOutput> {
     const sanitized = stripClientWebhookToken(input.credentials)
-    const validated = this.registry.validateCredentials(input.connectorId, sanitized)
-    const enriched = withServerWebhookToken(validated)
+    const prepared = await this.registry.prepareCredentials(input.connectorId, sanitized)
+    const enriched = withServerWebhookToken(prepared)
     const { id } = await this.accounts.create({
       workspaceId: input.workspaceId,
       connectorId: input.connectorId,
