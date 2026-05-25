@@ -538,6 +538,15 @@ matches the v0.1 reference use case point-for-point.
   when onboarding the second customer or when an audit demands it.
 
 **Connector lookups** - COMPLETE (feature `054`)
+
+**Email-verification CTAs fix** - IN PROGRESS (feature `055`)
+- _Removes the dead-end "Open verify page" link from `EmailVerificationBanner`
+  and the matching "Verify" button on `settings/profile`'s email row (both used
+  to navigate to `/auth/verify-email?token=` and short-circuit to the panel's
+  "missing token" error). Replaces the profile row CTA with an in-context
+  Resend email button wired to `useResendEmailVerification`; the verify panel's
+  error state swaps "Request a new link" → `/auth/forgot-password` for a Resend
+  email button when signed in, or a "Back to sign in" link when signed out._
 - _Landed (feature `054`): replaces raw external-ID inputs with labeled
   provider-backed pickers across the connector + cadence surfaces.
   Generalized optional `directory(input)` capability + `manifest.directoryResources`
