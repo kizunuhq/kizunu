@@ -751,10 +751,12 @@ timeline, reachable HTTPS webhooks, and a live pilot acceptance run.
   deferred — the raw reason string is enough for feature `072`'s
   hard-coded recovery table.
 
-**Journey recovery web surface** - PLANNED
-- Upgrade the journeys UI to show precise blockers and fix links: no channel,
-  owner not mapped, template required, template variable missing, provider token
-  expired, provider failure.
+**Journey recovery web surface** - COMPLETE
+- _Landed (feature `072`): new `JourneyErrorCell` composed primitive
+  maps each `errorReason` to a human label + a "Fix it →" link.
+  Six reasons mapped from `LeadJourneyErrorReason` plus the
+  `template_variable_*` variants which surface the variable name
+  inline. Unknown reasons fall back to "Provider failure" → channels._
 
 **Pilot dry-run and selected-deal test** - PLANNED
 - Add a controlled validation path for one selected Pipedrive deal. It verifies

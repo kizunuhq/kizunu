@@ -1,6 +1,7 @@
 import { useLeadJourneys } from '@kizunu/api-client/engine/use-lead-journeys'
 import type { LeadJourneyStatusValue } from '@kizunu/api-contracts/engine'
 import { DataTable } from '@kizunu/web/components/composed/data-table'
+import { JourneyErrorCell } from '@kizunu/web/components/composed/journey-error-cell'
 import { JourneyStatusDot } from '@kizunu/web/components/composed/journey-status-dot'
 import { PageHeader } from '@kizunu/web/components/composed/page-header'
 import { Button } from '@kizunu/web/components/primitives/button'
@@ -113,12 +114,7 @@ const JOURNEY_COLUMNS: DataTableColumn<Journey>[] = [
   {
     key: 'errorReason',
     header: 'Error reason',
-    cell: (row: Journey) =>
-      row.errorReason ? (
-        <span className="font-mono text-xs text-amber-700">{row.errorReason}</span>
-      ) : (
-        <span className="text-muted-foreground">—</span>
-      ),
+    cell: (row: Journey) => <JourneyErrorCell errorReason={row.errorReason} />,
   },
 ]
 
