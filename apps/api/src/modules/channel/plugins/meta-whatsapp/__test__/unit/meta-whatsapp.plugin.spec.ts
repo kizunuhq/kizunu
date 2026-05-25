@@ -1,7 +1,5 @@
-import {
-  buildMetaWhatsappPlugin,
-  finalizeMetaCoexConnection,
-} from '@kizunu/api/modules/channel/plugins/meta-whatsapp/meta-whatsapp.plugin'
+import { finalizeMetaCoexConnection } from '@kizunu/api/modules/channel/plugins/meta-whatsapp-coex/meta-coex-finalize'
+import { buildMetaWhatsappPlugin } from '@kizunu/api/modules/channel/plugins/meta-whatsapp/meta-whatsapp.plugin'
 import { describe, expect, it, vi } from 'vite-plus/test'
 
 const credentials = {

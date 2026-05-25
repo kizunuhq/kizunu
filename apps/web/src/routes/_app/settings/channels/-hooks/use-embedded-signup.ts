@@ -1,22 +1,7 @@
-import { useConnectMetaCoex } from '@kizunu/api-client/channel/use-connect-meta-coex'
-import { Button } from '@kizunu/web/components/primitives/button'
-import { Field, FieldLabel } from '@kizunu/web/components/primitives/field'
-import { Input } from '@kizunu/web/components/primitives/input'
 import { useEffect, useState } from 'react'
 
 const FB_SDK_SRC = 'https://connect.facebook.net/en_US/sdk.js'
 const FB_VERSION = 'v22.0'
-
-interface CoexCallbackData {
-  type?: string
-  event?: string
-  data?: {
-    business_id?: string
-    waba_id?: string
-    phone_number_id?: string
-  }
-  error_message?: string
-}
 
 interface FacebookSdk {
   init: (options: {
@@ -49,40 +34,28 @@ declare global {
   }
 }
 
-/**
- * Loads the FB JS SDK on mount, listens for the Coex completion postMessage
- * from `*.facebook.com`, and posts the auth code to the connect endpoint.
- * Reads `appId` + `coexConfigId` via props because no public capability
- * endpoint exposes them yet — the parent screen supplies them from
- * operator-facing settings or build-time env defaults.
- */
-interface ConnectMetaCoexProps {
-  workspaceId: string
-  appId: string
-  coexConfigId: string
-  onSuccess?: () => void
+interface CoexCallbackData {
+  type?: string
+  event?: string
+  data?: {
+    business_id?: string
+    waba_id?: string
+    phone_number_id?: string
+  }
+  error_message?: string
 }
 
-export function ConnectMetaCoex({
-  workspaceId,
-  appId,
-  coexConfigId,
-  onSuccess,
-}: ConnectMetaCoexProps) {
-  const [name, setName] = useState('WhatsApp Coex')
-  const [status, setStatus] = useState<string | undefined>(undefined)
+interface UseEmbeddedSignupOptions {
+  appId: string
+  coexConfigId: string
+}
+
+export function useEmbeddedSignup({ appId, coexConfigId }: UseEmbeddedSignupOptions) {
   const [code, setCode] = useState<string | undefined>(undefined)
   const [businessId, setBusinessId] = useState<string | undefined>(undefined)
   const [wabaId, setWabaId] = useState<string | undefined>(undefined)
   const [phoneNumberId, setPhoneNumberId] = useState<string | undefined>(undefined)
-
-  const mutation = useConnectMetaCoex(workspaceId, {
-    onSuccess: () => {
-      setStatus('Channel connected.')
-      onSuccess?.()
-    },
-    onError: (error) => setStatus(`Connect failed: ${error.message}`),
-  })
+  const [status, setStatus] = useState<string | undefined>(undefined)
 
   useEffect(() => {
     loadFacebookSdk(appId)
@@ -133,31 +106,9 @@ export function ConnectMetaCoex({
     )
   }
 
-  function submit() {
-    if (!code || !businessId || !wabaId || !phoneNumberId) {
-      setStatus('Finish the Embedded Signup flow before submitting.')
-      return
-    }
-    mutation.connectMetaCoex({ code, businessId, wabaId, phoneNumberId, name })
-  }
+  const isReady = Boolean(code && businessId && wabaId && phoneNumberId)
 
-  const ready = Boolean(code && businessId && wabaId && phoneNumberId)
-
-  return (
-    <div className="flex flex-col gap-3">
-      <Field>
-        <FieldLabel htmlFor="coex-name">Channel name</FieldLabel>
-        <Input id="coex-name" value={name} onChange={(event) => setName(event.target.value)} />
-      </Field>
-      <Button type="button" onClick={startLogin}>
-        Connect WhatsApp Business
-      </Button>
-      <Button type="button" disabled={!ready || mutation.isPending} onClick={submit}>
-        Finish connect
-      </Button>
-      {status ? <p className="text-muted-foreground text-sm">{status}</p> : null}
-    </div>
-  )
+  return { code, businessId, wabaId, phoneNumberId, status, startLogin, isReady }
 }
 
 function loadFacebookSdk(appId: string) {

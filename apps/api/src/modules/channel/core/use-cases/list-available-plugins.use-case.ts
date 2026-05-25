@@ -2,6 +2,8 @@ import type { CredentialField } from '@kizunu/api-contracts/shared'
 import { Injectable } from '@nestjs/common'
 
 import type { ChannelCapability } from '../plugin/channel-capability'
+import type { ChannelPluginConnect } from '../plugin/channel-plugin-connect'
+import { ChannelPluginConnectKind } from '../plugin/channel-plugin-connect'
 import { ChannelPluginRegistry } from '../plugin/channel-plugin-registry'
 
 export interface AvailablePlugin {
@@ -9,6 +11,7 @@ export interface AvailablePlugin {
   name: string
   capabilities: ChannelCapability[]
   credentialFields: CredentialField[]
+  connect: ChannelPluginConnect
 }
 
 /**
@@ -17,6 +20,8 @@ export interface AvailablePlugin {
  * derives `credentialFields` from `inputSchema ?? configSchema` and asserts
  * the result is flat (a discriminated stored schema requires the plugin to
  * declare a non-discriminated `inputSchema` for the create-account path).
+ * OAuth plugins expose an empty `credentialFields`; the form renders an OAuth
+ * panel instead.
  */
 @Injectable()
 export class ListAvailablePluginsUseCase {
@@ -24,7 +29,10 @@ export class ListAvailablePluginsUseCase {
 
   execute(): AvailablePlugin[] {
     return this.registry.listManifests().map((manifest) => {
-      if (manifest.credentialFields.kind !== 'flat') {
+      if (
+        manifest.connect.kind !== ChannelPluginConnectKind.Oauth &&
+        manifest.credentialFields.kind !== 'flat'
+      ) {
         // Boot-time invariant: defineChannelPlugin guarantees inputSchema
         // produces a flat CredentialFields. Reaching here means the manifest
         // was wired through a different path.
@@ -36,7 +44,9 @@ export class ListAvailablePluginsUseCase {
         id: manifest.id,
         name: manifest.name,
         capabilities: manifest.capabilities,
-        credentialFields: manifest.credentialFields.fields,
+        credentialFields:
+          manifest.credentialFields.kind === 'flat' ? manifest.credentialFields.fields : [],
+        connect: manifest.connect,
       }
     })
   }

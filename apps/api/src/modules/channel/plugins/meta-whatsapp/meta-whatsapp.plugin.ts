@@ -1,25 +1,21 @@
 import {
   metaCredentialsClientSchema,
   metaCredentialsSchema,
-  type MetaCoexistenceCredentials,
+  MetaPluginId,
   type MetaCredentials,
 } from '@kizunu/api-contracts/channel'
-import { ConnectorDirectoryUnsupportedException } from '@kizunu/api/modules/_shared/directory/directory.errors'
+import { ChannelCapability } from '@kizunu/api/modules/channel/core/plugin/channel-capability'
+import type { ChannelPlugin } from '@kizunu/api/modules/channel/core/plugin/channel-plugin'
+import { defineChannelPlugin } from '@kizunu/api/modules/channel/core/plugin/define-channel-plugin'
 
-import { ChannelCapability } from '../../core/plugin/channel-capability'
-import type { ChannelPlugin } from '../../core/plugin/channel-plugin'
-import { defineChannelPlugin } from '../../core/plugin/define-channel-plugin'
-import { isWithinServiceWindow } from './customer-service-window'
+import { decideMetaAction } from './decide-meta-action'
+import { dispatchMetaDirectory } from './dispatch-meta-directory'
 import { exchangeForRefreshedToken } from './meta-coex-token'
-import { listMetaPhoneNumbers, listMetaTemplates } from './meta-directory'
 import { parseMetaInbound } from './meta-inbound'
 import { type FetchFn, META_GRAPH_API_BASE, sendMetaMessage } from './meta-send'
-import { subscribeMetaChannel, subscribeWabaToMeta } from './meta-subscribe'
+import { subscribeMetaChannel } from './meta-subscribe'
 
 const TEMPLATES_TTL_MS = 30_000
-
-const COEX_SUBSCRIBED_FIELDS = 'messages,smb_message_echoes,smb_app_state_sync'
-const VERIFY_TOKEN_BYTE_LENGTH = 32
 
 /**
  * App-wide Meta credentials read from `meta.*` config; required only when
@@ -51,10 +47,8 @@ export interface MetaWhatsappPluginOptions {
  *   `channelMode: 'cloud_api'` + the server-generated `verifyToken` and
  *   returns the full stored shape.
  *
- * Coexistence onboarding (Embedded Signup) does NOT flow through
- * `onAccountCreated`. Its credentials are constructed server-side by the
- * connect endpoint, which then calls {@link finalizeMetaCoexConnection}
- * directly to run the per-WABA subscription and stamp the verifyToken.
+ * Coex is registered as a separate plugin ({@link buildMetaWhatsappCoexPlugin})
+ * — see `plugins/meta-whatsapp-coex/`.
  *
  * `baseUrl`/`fetchFn` are injectable for tests; `config` carries the app-wide
  * Meta credentials needed when refreshing Coex tokens.
@@ -81,15 +75,7 @@ export function buildMetaWhatsappPlugin(
         { name: 'phoneNumbers' },
       ],
     },
-    validate(input) {
-      if (isWithinServiceWindow(input.now, input.lastInboundAt)) {
-        return { action: 'send', mode: 'freeform' }
-      }
-      if (input.hasApprovedTemplate) {
-        return { action: 'send', mode: 'template' }
-      }
-      return { action: 'error', reason: 'template_required' }
-    },
+    validate: decideMetaAction,
     async parseInbound(raw) {
       return parseMetaInbound(raw)
     },
@@ -97,20 +83,12 @@ export function buildMetaWhatsappPlugin(
       return sendMetaMessage({ payload, credentials, baseUrl, fetchFn })
     },
     async directory(input) {
-      const ctx = {
-        fetchFn,
-        baseUrl,
-        accountId: input.accountId,
-        credentials: input.credentials,
-      }
-      if (input.resource === 'templates') return listMetaTemplates(ctx)
-      if (input.resource === 'phoneNumbers') return listMetaPhoneNumbers(ctx)
-      throw new ConnectorDirectoryUnsupportedException({
-        connectorId: 'meta-whatsapp',
-        resource: input.resource,
-      })
+      return dispatchMetaDirectory(input, { baseUrl, fetchFn, connectorId: MetaPluginId.Cloud })
     },
     async refreshCredentials({ credentials }) {
+      // Defensive: post-058 the coexistence variant routes to the meta-whatsapp-coex
+      // plugin, but metaCredentialsSchema keeps both variants until a follow-up
+      // narrows it to cloud_api-only.
       if (credentials.channelMode !== 'coexistence') return credentials
       const refreshed = await exchangeForRefreshedToken({
         baseUrl,
@@ -139,63 +117,6 @@ export function buildMetaWhatsappPlugin(
       return { channelMode: 'cloud_api', ...credentials, verifyToken }
     },
   })
-}
-
-/**
- * Coexistence-onboarding hook for `ConnectMetaCoexUseCase`. Runs the per-WABA
- * `subscribed_apps` override with the Coex subscribed_fields and stamps a
- * fresh verifyToken on the row before persistence. The app-level subscription
- * is handled by Meta during Embedded Signup; this only finalizes the
- * per-channel webhook wiring.
- */
-export interface CoexConnectionInput {
-  channelAccountId: string
-  appUrl: string
-  wabaId: string
-  phoneNumberId: string
-  accessToken: string
-  refreshToken?: string
-  accessTokenExpiresAt?: string
-}
-
-export async function finalizeMetaCoexConnection(
-  input: CoexConnectionInput,
-  options?: { baseUrl?: string; fetchFn?: FetchFn },
-): Promise<MetaCoexistenceCredentials> {
-  const baseUrl = options?.baseUrl ?? META_GRAPH_API_BASE
-  const fetchFn = options?.fetchFn ?? globalThis.fetch
-  const verifyToken = await randomVerifyToken()
-  const callbackUrl = buildCallbackUrl(input.appUrl, input.channelAccountId)
-  await subscribeWabaToMeta({
-    baseUrl,
-    fetchFn,
-    wabaId: input.wabaId,
-    systemToken: input.accessToken,
-    callbackUrl,
-    verifyToken,
-    subscribedFields: COEX_SUBSCRIBED_FIELDS,
-  })
-  return {
-    channelMode: 'coexistence',
-    wabaId: input.wabaId,
-    phoneNumberId: input.phoneNumberId,
-    verifyToken,
-    accessToken: input.accessToken,
-    ...(input.refreshToken === undefined ? {} : { refreshToken: input.refreshToken }),
-    ...(input.accessTokenExpiresAt === undefined
-      ? {}
-      : { accessTokenExpiresAt: input.accessTokenExpiresAt }),
-  }
-}
-
-function buildCallbackUrl(appUrl: string, channelAccountId: string): string {
-  const trimmed = appUrl.endsWith('/') ? appUrl.slice(0, -1) : appUrl
-  return `${trimmed}/webhooks/meta/${channelAccountId}`
-}
-
-async function randomVerifyToken(): Promise<string> {
-  const { randomBytes } = await import('node:crypto')
-  return randomBytes(VERIFY_TOKEN_BYTE_LENGTH).toString('hex')
 }
 
 // Re-export the stored type so external consumers (use-cases, services)

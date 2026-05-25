@@ -71,15 +71,16 @@ export class ChannelAccountRepository {
   /**
    * Inbound-webhook seam for the per-channel URL. The Meta webhook controller
    * routes by `:channelAccountId` in the path, then loads the row's workspaceId
-   * (for MarkReplyUseCase) and credentials (for the per-channel `verifyToken`
-   * check + plugin parseInbound).
+   * (for MarkReplyUseCase), pluginId (for registry dispatch), and credentials
+   * (for the per-channel `verifyToken` check + plugin parseInbound).
    */
   async findWorkspaceAndCredentials(
     id: string,
-  ): Promise<{ workspaceId: string; credentials: unknown } | undefined> {
+  ): Promise<{ workspaceId: string; pluginId: string; credentials: unknown } | undefined> {
     const rows = await this.drizzle.db
       .select({
         workspaceId: channelAccounts.workspaceId,
+        pluginId: channelAccounts.pluginId,
         credentials: channelAccounts.credentials,
       })
       .from(channelAccounts)
@@ -87,7 +88,11 @@ export class ChannelAccountRepository {
       .limit(1)
     const row = rows[0]
     if (!row) return undefined
-    return { workspaceId: row.workspaceId, credentials: this.cipher.decrypt(row.credentials) }
+    return {
+      workspaceId: row.workspaceId,
+      pluginId: row.pluginId,
+      credentials: this.cipher.decrypt(row.credentials),
+    }
   }
 
   /** Directory seam: pluginId + decrypted credentials in one read, workspace scope enforced at the caller. */

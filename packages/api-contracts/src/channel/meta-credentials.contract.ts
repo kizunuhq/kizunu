@@ -31,7 +31,7 @@ const cloudApiCredentialsSchema = z
   })
   .strict()
 
-const coexistenceCredentialsSchema = z
+export const coexistenceCredentialsSchema = z
   .object({
     channelMode: z.literal('coexistence'),
     wabaId: z.string().min(1).register(credentialFieldRegistry, { label: 'WABA ID', type: 'text' }),
@@ -52,6 +52,8 @@ export const metaCredentialsSchema = z.discriminatedUnion('channelMode', [
   cloudApiCredentialsSchema,
   coexistenceCredentialsSchema,
 ])
+
+export const metaCoexistenceCredentialsSchema = coexistenceCredentialsSchema
 
 export type MetaCredentials = z.infer<typeof metaCredentialsSchema>
 export type MetaCloudApiCredentials = z.infer<typeof cloudApiCredentialsSchema>

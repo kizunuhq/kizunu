@@ -7,6 +7,7 @@ const plugins = [
     id: 'meta-whatsapp',
     name: 'WhatsApp (Meta Cloud API)',
     capabilities: ['freeform'],
+    connect: { kind: 'credentials' as const },
     credentialFields: [
       { key: 'appId', label: 'Meta App ID', type: 'text', required: true },
       { key: 'appSecret', label: 'Meta App Secret', type: 'secret', required: true },
@@ -16,15 +17,27 @@ const plugins = [
     ],
   },
   {
+    id: 'meta-whatsapp-coex',
+    name: 'WhatsApp (Coex / Embedded Signup)',
+    capabilities: ['freeform'],
+    connect: { kind: 'oauth' as const, provider: 'meta-coex' as const },
+    credentialFields: [],
+  },
+  {
     id: 'other',
     name: 'Other channel',
     capabilities: ['freeform'],
+    connect: { kind: 'credentials' as const },
     credentialFields: [{ key: 'apiKey', label: 'API key', type: 'secret', required: true }],
   },
 ]
 
 vi.mock('@kizunu/api-client/channel/use-channel-plugins', () => ({
   useChannelPlugins: () => ({ data: { plugins } }),
+}))
+
+vi.mock('@kizunu/api-client/channel/use-connect-meta-coex', () => ({
+  useConnectMetaCoex: () => ({ connectMetaCoex: vi.fn(), isPending: false }),
 }))
 
 vi.mock('@kizunu/web/components/composed/plugin-select', () => ({
@@ -41,6 +54,7 @@ vi.mock('@kizunu/web/components/composed/plugin-select', () => ({
 }))
 
 const FORM_ID = 'test-channel-account-form'
+const WORKSPACE_ID = 'ws-1'
 
 function selectPlugin(id: string) {
   fireEvent.change(screen.getByLabelText('Plugin'), { target: { value: id } })
@@ -53,8 +67,75 @@ function submitForm() {
 }
 
 describe('ChannelAccountForm', () => {
+  it('renders ChannelAccountFormBody and calls onPluginKindChange with credentials for a credentials plugin', async () => {
+    const onPluginKindChange = vi.fn()
+    render(
+      <ChannelAccountForm
+        formId={FORM_ID}
+        workspaceId={WORKSPACE_ID}
+        isPending={false}
+        onSubmit={() => {}}
+        onPluginKindChange={onPluginKindChange}
+      />,
+    )
+
+    selectPlugin('meta-whatsapp')
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('WABA ID')).toBeInTheDocument()
+    })
+    expect(onPluginKindChange).toHaveBeenCalledWith('credentials')
+  })
+
+  it('renders ConnectMetaCoexPanel and calls onPluginKindChange with oauth for an oauth plugin', async () => {
+    const onPluginKindChange = vi.fn()
+    render(
+      <ChannelAccountForm
+        formId={FORM_ID}
+        workspaceId={WORKSPACE_ID}
+        isPending={false}
+        onSubmit={() => {}}
+        onPluginKindChange={onPluginKindChange}
+      />,
+    )
+
+    selectPlugin('meta-whatsapp-coex')
+
+    await waitFor(() => {
+      expect(screen.getByText(/not configured for this deployment/i)).toBeInTheDocument()
+    })
+    expect(onPluginKindChange).toHaveBeenCalledWith('oauth')
+  })
+
+  it('resets credentials form state when switching from one credentials plugin to another', async () => {
+    render(
+      <ChannelAccountForm
+        formId={FORM_ID}
+        workspaceId={WORKSPACE_ID}
+        isPending={false}
+        onSubmit={() => {}}
+      />,
+    )
+
+    selectPlugin('meta-whatsapp')
+    fireEvent.change(screen.getByLabelText('WABA ID'), { target: { value: 'waba-9' } })
+    selectPlugin('other')
+    selectPlugin('meta-whatsapp')
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('WABA ID')).toHaveValue('')
+    })
+  })
+
   it('clears entered credentials when the selected plugin changes', async () => {
-    render(<ChannelAccountForm formId={FORM_ID} isPending={false} onSubmit={() => {}} />)
+    render(
+      <ChannelAccountForm
+        formId={FORM_ID}
+        workspaceId={WORKSPACE_ID}
+        isPending={false}
+        onSubmit={() => {}}
+      />,
+    )
 
     selectPlugin('meta-whatsapp')
     fireEvent.change(screen.getByLabelText('WABA ID'), { target: { value: 'waba-9' } })
@@ -68,7 +149,14 @@ describe('ChannelAccountForm', () => {
 
   it('submits credentials as an object keyed by each field when every required field is filled', async () => {
     const onSubmit = vi.fn()
-    render(<ChannelAccountForm formId={FORM_ID} isPending={false} onSubmit={onSubmit} />)
+    render(
+      <ChannelAccountForm
+        formId={FORM_ID}
+        workspaceId={WORKSPACE_ID}
+        isPending={false}
+        onSubmit={onSubmit}
+      />,
+    )
 
     selectPlugin('meta-whatsapp')
     fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'Primary WA' } })
@@ -96,7 +184,14 @@ describe('ChannelAccountForm', () => {
 
   it('surfaces a per-field error when a required credential is missing', async () => {
     const onSubmit = vi.fn()
-    render(<ChannelAccountForm formId={FORM_ID} isPending={false} onSubmit={onSubmit} />)
+    render(
+      <ChannelAccountForm
+        formId={FORM_ID}
+        workspaceId={WORKSPACE_ID}
+        isPending={false}
+        onSubmit={onSubmit}
+      />,
+    )
 
     selectPlugin('meta-whatsapp')
     fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'Primary' } })
@@ -113,6 +208,7 @@ describe('ChannelAccountForm', () => {
     render(
       <ChannelAccountForm
         formId={FORM_ID}
+        workspaceId={WORKSPACE_ID}
         isPending={false}
         onSubmit={() => {}}
         error="Something blew up"

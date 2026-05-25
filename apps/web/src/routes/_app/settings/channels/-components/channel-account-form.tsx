@@ -6,6 +6,7 @@ import { Field, FieldGroup, FieldLabel } from '@kizunu/web/components/primitives
 import { useState } from 'react'
 
 import { ChannelAccountFormBody } from './channel-account-form-body'
+import { ConnectMetaCoexPanel } from './connect-meta-coex-panel'
 
 export interface ChannelAccountFormValues {
   pluginId: string
@@ -15,25 +16,42 @@ export interface ChannelAccountFormValues {
 
 interface ChannelAccountFormProps {
   formId: string
+  workspaceId: string
   isPending: boolean
   error?: string | null
+  preselectedPluginId?: string
   onSubmit: (values: ChannelAccountFormValues) => void
+  onOauthSuccess?: () => void
+  onOauthError?: (message: string) => void
+  onPluginKindChange?: (kind: 'credentials' | 'oauth' | undefined) => void
 }
 
-/**
- * Outer shell: owns the plugin picker (pure ephemeral state, not part of the
- * submitted shape) and re-keys the inner form body on plugin change so the
- * inner `useForm` initializes with the right per-plugin schema each time.
- * The body is dumb — it receives only the picked plugin's fields + schema and
- * never knows about plugin switching.
- */
 export function ChannelAccountForm(props: ChannelAccountFormProps) {
-  const { formId, isPending, error, onSubmit } = props
+  const {
+    formId,
+    workspaceId,
+    isPending,
+    error,
+    preselectedPluginId,
+    onSubmit,
+    onOauthSuccess,
+    onOauthError,
+    onPluginKindChange,
+  } = props
   const plugins = useChannelPlugins()
-  const [pluginId, setPluginId] = useState('')
-  const fields = userInputFieldsFor(
-    plugins.data?.plugins.find((plugin) => plugin.id === pluginId)?.credentialFields,
-  )
+  const [pluginId, setPluginId] = useState(preselectedPluginId ?? '')
+
+  const selected = plugins.data?.plugins.find((p) => p.id === pluginId)
+  const connectKind = selected?.connect.kind
+
+  function handlePluginChange(next: string) {
+    setPluginId(next)
+    const kind = plugins.data?.plugins.find((p) => p.id === next)?.connect.kind
+    onPluginKindChange?.(kind)
+  }
+
+  const appId = import.meta.env.VITE_META_APP_ID ?? ''
+  const coexConfigId = import.meta.env.VITE_META_COEX_CONFIG_ID ?? ''
 
   return (
     <div className="flex flex-col gap-3">
@@ -41,15 +59,26 @@ export function ChannelAccountForm(props: ChannelAccountFormProps) {
       <FieldGroup>
         <Field>
           <FieldLabel>Plugin</FieldLabel>
-          <PluginSelect value={pluginId} onChange={setPluginId} />
+          <PluginSelect value={pluginId} onChange={handlePluginChange} />
         </Field>
       </FieldGroup>
-      {pluginId && (
+      {pluginId && connectKind === 'oauth' && (
+        <ConnectMetaCoexPanel
+          key={pluginId}
+          workspaceId={workspaceId}
+          appId={appId}
+          coexConfigId={coexConfigId}
+          isPending={isPending}
+          onSuccess={onOauthSuccess ?? (() => {})}
+          onError={onOauthError ?? (() => {})}
+        />
+      )}
+      {pluginId && connectKind === 'credentials' && (
         <ChannelAccountFormBody
           key={pluginId}
           formId={formId}
           pluginId={pluginId}
-          fields={fields}
+          fields={userInputFieldsFor(selected?.credentialFields)}
           isPending={isPending}
           onSubmit={onSubmit}
         />

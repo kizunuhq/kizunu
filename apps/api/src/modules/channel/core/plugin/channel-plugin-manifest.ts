@@ -3,6 +3,7 @@ import type { DirectoryResourceDescriptor } from '@kizunu/api/modules/_shared/di
 import type { ZodType } from 'zod'
 
 import type { ChannelCapability } from './channel-capability'
+import type { ChannelPluginConnect } from './channel-plugin-connect'
 
 /**
  * Static description of a channel plugin.
@@ -36,5 +37,6 @@ export interface ChannelPluginManifest<S extends ZodType = ZodType, I extends Zo
   configSchema: S
   inputSchema?: I
   credentialFields: CredentialFields
+  connect: ChannelPluginConnect
   directoryResources?: readonly DirectoryResourceDescriptor[]
 }

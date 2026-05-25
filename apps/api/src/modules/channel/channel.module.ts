@@ -19,6 +19,7 @@ import { ChannelAccountController } from './http/controllers/channel-account.con
 import { MyChannelController } from './http/controllers/my-channel.controller'
 import { ChannelAccessRepository } from './persistence/channel-access.repository'
 import { ChannelAccountRepository } from './persistence/channel-account.repository'
+import { buildMetaWhatsappCoexPlugin } from './plugins/meta-whatsapp-coex/meta-whatsapp-coex.plugin'
 import { buildMetaWhatsappPlugin } from './plugins/meta-whatsapp/meta-whatsapp.plugin'
 
 @Module({
@@ -27,14 +28,16 @@ import { buildMetaWhatsappPlugin } from './plugins/meta-whatsapp/meta-whatsapp.p
   providers: [
     {
       provide: CHANNEL_PLUGINS,
-      useFactory: (config: ConfigService<Config>) => [
-        buildMetaWhatsappPlugin({
-          config: {
-            appId: config.get('meta.appId') ?? '',
-            appSecret: config.get('meta.appSecret') ?? '',
-          },
-        }),
-      ],
+      useFactory: (config: ConfigService<Config>) => {
+        const metaConfig = {
+          appId: config.get('meta.appId') ?? '',
+          appSecret: config.get('meta.appSecret') ?? '',
+        }
+        return [
+          buildMetaWhatsappPlugin({ config: metaConfig }),
+          buildMetaWhatsappCoexPlugin({ config: metaConfig }),
+        ]
+      },
       inject: [ConfigService],
     },
     ChannelPluginRegistry,

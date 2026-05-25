@@ -158,6 +158,28 @@ describe('ResourceDialog', () => {
     expect(screen.queryByRole('button', { name: 'Cancel' })).toBeNull()
   })
 
+  it('hides the action button when hideAction is true but keeps Cancel', () => {
+    render(
+      <ResourceDialog open onOpenChange={() => {}} title="OAuth" actionLabel="Connect" hideAction>
+        <p>Body</p>
+      </ResourceDialog>,
+    )
+
+    expect(screen.queryByRole('button', { name: 'Connect' })).toBeNull()
+    expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument()
+  })
+
+  it('renders the action button when hideAction is not set', () => {
+    render(
+      <ResourceDialog open onOpenChange={() => {}} title="Normal" actionLabel="Save">
+        <p>Body</p>
+      </ResourceDialog>,
+    )
+
+    expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument()
+  })
+
   it('renders the description when provided and omits it otherwise', () => {
     const { rerender } = render(
       <ResourceDialog

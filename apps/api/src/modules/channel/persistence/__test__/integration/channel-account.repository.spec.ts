@@ -68,7 +68,11 @@ describe('ChannelAccountRepository (integration)', () => {
 
     const found = await repository.findWorkspaceAndCredentials(id)
 
-    expect(found).toEqual({ workspaceId, credentials: sampleCredentials })
+    expect(found).toEqual({
+      workspaceId,
+      pluginId: 'meta-whatsapp',
+      credentials: sampleCredentials,
+    })
   })
 
   it('reads pre-030 plaintext credentials unchanged (backward compatibility)', async () => {

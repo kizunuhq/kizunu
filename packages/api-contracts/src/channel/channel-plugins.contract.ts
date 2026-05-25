@@ -13,6 +13,11 @@ export const ChannelCredentialFieldSchema = z.object({
   serverGenerated: z.boolean().optional(),
 })
 
+export const ChannelPluginConnectSchema = z.discriminatedUnion('kind', [
+  z.object({ kind: z.literal('credentials') }),
+  z.object({ kind: z.literal('oauth'), provider: z.literal('meta-coex') }),
+])
+
 export const ChannelPluginsResponseSchema = z.object({
   plugins: z.array(
     z.object({
@@ -20,10 +25,13 @@ export const ChannelPluginsResponseSchema = z.object({
       name: z.string(),
       capabilities: z.array(z.enum(['freeform', 'template', 'media'])),
       credentialFields: z.array(ChannelCredentialFieldSchema),
+      connect: ChannelPluginConnectSchema,
     }),
   ),
 })
 
 export type ChannelCredentialField = z.infer<typeof ChannelCredentialFieldSchema>
+
+export type ChannelPluginConnect = z.infer<typeof ChannelPluginConnectSchema>
 
 export type ChannelPluginsResponse = z.infer<typeof ChannelPluginsResponseSchema>
