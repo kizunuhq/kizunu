@@ -6,6 +6,7 @@ import {
   type CreateTemplateRequest,
   CreateTemplateRequestSchema,
 } from '@kizunu/api-contracts/cadence'
+import { isMetaPluginId } from '@kizunu/api-contracts/channel'
 import { FormError } from '@kizunu/web/components/composed/form-error'
 import { LookupSelect } from '@kizunu/web/components/composed/lookup-select'
 import { PluginSelect } from '@kizunu/web/components/composed/plugin-select'
@@ -53,12 +54,12 @@ export function TemplateForm(props: TemplateFormProps) {
   })
 
   const channelPluginId = useWatch({ control, name: 'channelPluginId' })
-  const metaAccount = (channels.data?.accounts ?? []).find(
-    (account) => account.pluginId === 'meta-whatsapp',
+  const metaAccount = (channels.data?.accounts ?? []).find((account) =>
+    isMetaPluginId(account.pluginId),
   )
   const metaTemplates = useDirectoryMetaTemplates(
     workspaceId,
-    channelPluginId === 'meta-whatsapp' && metaAccount ? metaAccount.id : '',
+    isMetaPluginId(channelPluginId) && metaAccount ? metaAccount.id : '',
   )
   const mode = decideMode({
     channelPluginId,
@@ -189,6 +190,6 @@ function decideMode(input: {
   hasMetaAccount: boolean
   needsReconnect: boolean
 }): TemplateInputMode {
-  if (input.channelPluginId !== 'meta-whatsapp' || !input.hasMetaAccount) return 'plain-text'
+  if (!isMetaPluginId(input.channelPluginId) || !input.hasMetaAccount) return 'plain-text'
   return input.needsReconnect ? 'reconnect' : 'meta-lookup'
 }
