@@ -8,7 +8,7 @@
  * server-to-server call against the provider's token endpoint and does not
  * need to know kizunu's public base URL.
  */
-export interface RefreshCredentialsInput {
+export interface RefreshCredentialsInput<T = unknown> {
   channelAccountId: string
-  credentials: unknown
+  credentials: T
 }

@@ -10,8 +10,8 @@
  * include it in callback URLs the provider should call back into.
  * `appUrl` is the kizunu-side base URL the provider will hit.
  */
-export interface OnAccountCreatedInput {
+export interface OnAccountCreatedInput<T = unknown> {
   channelAccountId: string
   appUrl: string
-  credentials: unknown
+  credentials: T
 }
