@@ -3,6 +3,7 @@ import { PageHeader } from '@kizunu/web/components/composed/page-header'
 import { SettingsRow } from '@kizunu/web/components/composed/settings-row'
 import { buttonVariants } from '@kizunu/web/components/primitives/button'
 import { Card } from '@kizunu/web/components/primitives/card'
+import { EmailRowAction } from '@kizunu/web/routes/_app/settings/profile/-components/email-row-action'
 import { createFileRoute, Link } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/_app/settings/profile/')({
@@ -21,22 +22,7 @@ function ProfilePage() {
         <SettingsRow
           title="Email"
           description={user?.email ?? '—'}
-          action={
-            isVerified ? (
-              <span className="text-kizunu-green inline-flex items-center gap-1 font-mono text-xs">
-                <span className="bg-kizunu-green inline-block size-1.5 rounded-full" />
-                Verified
-              </span>
-            ) : (
-              <Link
-                to="/auth/verify-email"
-                search={{ token: '' }}
-                className={buttonVariants({ variant: 'outline', size: 'sm' })}
-              >
-                Verify
-              </Link>
-            )
-          }
+          action={<EmailRowAction isVerified={isVerified} />}
         />
         <SettingsRow
           title="Password"
