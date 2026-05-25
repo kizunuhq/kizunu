@@ -539,7 +539,21 @@ matches the v0.1 reference use case point-for-point.
 
 **Connector lookups** - COMPLETE (feature `054`)
 
-**Channel credentials zod builder** - IN PROGRESS (feature `056`)
+**Connector credentials zod builder** - IN PROGRESS (feature `057`)
+- _Applies the channel-port refactor from 056 to the CRM connector port.
+  CRMConnector becomes generic on its Zod schema via defineCrmConnector,
+  every connector method receives z.infer<S> typed credentials, and
+  CrmConnectorRegistry exposes typed-bridge methods so use-cases stop
+  calling connector.X(..., raw) directly. pipedriveCredentialsSchema
+  moves to @kizunu/api-contracts/crm with .register() annotations against
+  the shared credentialFieldRegistry. New GET /connectors endpoint mirrors
+  GET /channel-plugins. The web connectors form drops its JSON textarea
+  and uses the same CredentialFieldsInput + zodResolver wiring channels
+  uses. Reuses the @kizunu/api-contracts/shared/credentials/ foundation
+  056 introduced — no changes to the walker, registry, CredentialField
+  shape, or .register() pattern._
+
+**Channel credentials zod builder** - COMPLETE (feature `056`)
 - _Removes the `unknown`/re-parse pattern from the channel plugin port by
   making `ChannelPlugin<S extends ZodTypeAny>` and its manifest generic on
   the credentials schema. A new `defineChannelPlugin(spec)` factory captures

@@ -1,5 +1,4 @@
 import type { CadenceRepository } from '@kizunu/api/modules/cadence/persistence/cadence.repository'
-import type { CRMConnector } from '@kizunu/api/modules/crm/core/connector/crm-connector'
 import type { CrmConnectorRegistry } from '@kizunu/api/modules/crm/core/connector/crm-connector-registry'
 import type { NormalizedEvent } from '@kizunu/api/modules/crm/core/connector/normalized-event'
 import type {
@@ -41,7 +40,7 @@ function buildUseCase(scenario: BuildScenario) {
 
   const ownerExternalId =
     'ownerExternalId' in scenario ? (scenario.ownerExternalId ?? null) : 'user-42'
-  const connector = {
+  const registry = {
     fetchLead: async () => ({
       externalId: 'deal-99',
       ownerExternalId,
@@ -49,8 +48,7 @@ function buildUseCase(scenario: BuildScenario) {
       phone: '5511999',
       raw: {},
     }),
-  } as unknown as CRMConnector
-  const registry = { get: () => connector } as unknown as CrmConnectorRegistry
+  } as unknown as CrmConnectorRegistry
   const triggers = {
     findCadenceByStage: async () =>
       scenario.cadenceId ? { cadenceId: scenario.cadenceId } : undefined,

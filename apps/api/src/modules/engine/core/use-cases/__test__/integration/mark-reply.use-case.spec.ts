@@ -21,7 +21,13 @@ const service = { db } as unknown as DrizzleService
 const moveStageCalls: Array<{ externalId: string; stageId: string }> = []
 
 const fakeConnector = {
-  manifest: { id: 'fake-crm', name: 'Fake CRM', capabilities: [], configSchema: z.object({}) },
+  manifest: {
+    id: 'fake-crm',
+    name: 'Fake CRM',
+    capabilities: [],
+    configSchema: z.object({}),
+    credentialFields: { kind: 'flat' as const, fields: [] },
+  },
   parseWebhook: () => [],
   fetchLead: async () => ({ externalId: '', ownerExternalId: null, name: '', raw: {} }),
   logActivity: async () => ({ externalActivityId: 'a' }),
@@ -33,13 +39,13 @@ const fakeConnector = {
 } as unknown as CRMConnector
 
 function buildUseCase() {
+  const crmRegistry = new CrmConnectorRegistry([fakeConnector])
   return new MarkReplyUseCase(
     service,
     new LeadJourneyRepository(service),
     new CadenceRepository(service),
     new ConnectorAccountRepository(service, buildCredentialsCipher()),
-    new CrmConnectorRegistry([fakeConnector]),
-    new CadenceActionExecutor(),
+    new CadenceActionExecutor(crmRegistry),
   )
 }
 

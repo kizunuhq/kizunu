@@ -39,6 +39,7 @@ function buildConnector(
       name: 'Pipedrive',
       capabilities: [],
       configSchema: z.unknown(),
+      credentialFields: { kind: 'flat', fields: [] },
       directoryResources: [{ name: 'users' }, { name: 'stages', paramsSchema: STAGE_PARAMS }],
     },
     parseWebhook: () => [],

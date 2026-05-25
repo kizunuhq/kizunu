@@ -249,7 +249,8 @@ export class JourneyDispatcher {
   private async logTouch(journey: LockedJourney, stepOrder: number): Promise<string | undefined> {
     const account = await this.connectors.findById(journey.connectorAccountId)
     if (!account) return undefined
-    const { externalActivityId } = await this.crmRegistry.get(account.connectorId).logActivity(
+    const { externalActivityId } = await this.crmRegistry.logActivity(
+      account.connectorId,
       journey.leadExternalId,
       {
         type: 'task',
@@ -266,7 +267,7 @@ export class JourneyDispatcher {
     const account = await this.connectors.findById(journey.connectorAccountId)
     if (!account) return
     await this.executor.execute(actions, {
-      connector: this.crmRegistry.get(account.connectorId),
+      connectorId: account.connectorId,
       credentials: account.credentials,
       externalId: journey.leadExternalId,
     })

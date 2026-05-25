@@ -1,3 +1,5 @@
+import type { DirectoryResult } from '@kizunu/api-contracts/shared'
+import type { DirectoryInput } from '@kizunu/api/modules/_shared/directory/directory-input'
 import { Inject, Injectable } from '@nestjs/common'
 
 import {
@@ -5,16 +7,26 @@ import {
   InvalidConnectorCredentialsException,
   UnknownCrmConnectorException,
 } from '../errors/crm.errors'
+import type { CrmActivity } from './crm-activity'
 import type { CRMConnector } from './crm-connector'
 import type { CrmConnectorManifest } from './crm-connector-manifest'
+import type { NormalizedEvent } from './normalized-event'
+import type { NormalizedLead } from './normalized-lead'
+import type { NormalizedOwner } from './normalized-owner'
+import type { StageRef } from './stage-ref'
 
 /** DI token for the array of CRM connectors wired into the module. */
 export const CRM_CONNECTORS = Symbol('CRM_CONNECTORS')
 
 /**
- * Resolves CRM connectors by id and validates ConnectorAccount credentials against a
- * connector's `configSchema`. Connectors are injected as a multi-provider array and
- * indexed at construction; a duplicate id is a wiring error and fails fast.
+ * Resolves CRM connectors by id and parses ConnectorAccount credentials at a
+ * single seam. Use-cases call the typed-bridge methods instead of reaching
+ * for `connector.X` directly; the bridge parses raw credentials against the
+ * connector's `configSchema` once and passes the typed value to the
+ * connector method.
+ *
+ * Connectors are injected as a multi-provider array and indexed at
+ * construction; a duplicate id is a wiring error and fails fast.
  */
 @Injectable()
 export class CrmConnectorRegistry {
@@ -46,6 +58,109 @@ export class CrmConnectorRegistry {
   validateCredentials(id: string, credentials: unknown): unknown {
     const connector = this.get(id)
     const result = connector.manifest.configSchema.safeParse(credentials)
+    if (!result.success) throw new InvalidConnectorCredentialsException(id)
+    return result.data
+  }
+
+  parseWebhook(id: string, raw: unknown, rawCredentials: unknown): NormalizedEvent[] {
+    const connector = this.get(id)
+    return connector.parseWebhook(raw, this.parseCredentials(connector, id, rawCredentials))
+  }
+
+  async fetchLead(
+    id: string,
+    externalId: string,
+    rawCredentials: unknown,
+  ): Promise<NormalizedLead> {
+    const connector = this.get(id)
+    return connector.fetchLead(externalId, this.parseCredentials(connector, id, rawCredentials))
+  }
+
+  async fetchOwner(
+    id: string,
+    externalId: string,
+    rawCredentials: unknown,
+  ): Promise<NormalizedOwner | null> {
+    const connector = this.get(id)
+    if (!connector.fetchOwner) return null
+    return connector.fetchOwner(externalId, this.parseCredentials(connector, id, rawCredentials))
+  }
+
+  async logActivity(
+    id: string,
+    externalId: string,
+    activity: CrmActivity,
+    rawCredentials: unknown,
+  ): Promise<{ externalActivityId: string }> {
+    const connector = this.get(id)
+    return connector.logActivity(
+      externalId,
+      activity,
+      this.parseCredentials(connector, id, rawCredentials),
+    )
+  }
+
+  async moveStage(
+    id: string,
+    externalId: string,
+    stage: StageRef,
+    rawCredentials: unknown,
+  ): Promise<void> {
+    const connector = this.get(id)
+    return connector.moveStage(
+      externalId,
+      stage,
+      this.parseCredentials(connector, id, rawCredentials),
+    )
+  }
+
+  async markLost(
+    id: string,
+    externalId: string,
+    reason: string,
+    rawCredentials: unknown,
+  ): Promise<void> {
+    const connector = this.get(id)
+    return connector.markLost(
+      externalId,
+      reason,
+      this.parseCredentials(connector, id, rawCredentials),
+    )
+  }
+
+  async setField(
+    id: string,
+    externalId: string,
+    field: string,
+    value: unknown,
+    rawCredentials: unknown,
+  ): Promise<void> {
+    const connector = this.get(id)
+    return connector.setField(
+      externalId,
+      field,
+      value,
+      this.parseCredentials(connector, id, rawCredentials),
+    )
+  }
+
+  async directory(
+    id: string,
+    input: Omit<DirectoryInput, 'credentials'>,
+    rawCredentials: unknown,
+  ): Promise<DirectoryResult> {
+    const connector = this.get(id)
+    if (!connector.directory) {
+      throw new InvalidConnectorCredentialsException(id)
+    }
+    return connector.directory({
+      ...input,
+      credentials: this.parseCredentials(connector, id, rawCredentials),
+    })
+  }
+
+  private parseCredentials(connector: CRMConnector, id: string, raw: unknown): unknown {
+    const result = connector.manifest.configSchema.safeParse(raw)
     if (!result.success) throw new InvalidConnectorCredentialsException(id)
     return result.data
   }

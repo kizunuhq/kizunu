@@ -62,6 +62,8 @@ function createRegistry(fetchOwner?: CRMConnector['fetchOwner']) {
   const connector = { manifest: { id: 'pipedrive' }, fetchOwner } as unknown as CRMConnector
   return {
     get: () => connector,
+    fetchOwner: async (_id: string, externalId: string, credentials: unknown) =>
+      fetchOwner ? ((await fetchOwner(externalId, credentials)) ?? null) : null,
   } as unknown as CrmConnectorRegistry
 }
 
