@@ -31,6 +31,7 @@ function buildPlugin(
       capabilities: [],
       configSchema: z.unknown(),
       credentialFields: { kind: 'flat', fields: [] },
+      connect: { kind: 'credentials' as const },
       directoryResources: [{ name: 'templates' }, { name: 'phoneNumbers' }],
     },
     send: async () => ({ externalMessageId: '', status: 'sent' as const }),

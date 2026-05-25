@@ -41,6 +41,7 @@ function manifest(id: string): ChannelPlugin['manifest'] {
       safeParse: (value: unknown) => ({ success: true, data: value }),
     } as unknown as ChannelPlugin['manifest']['configSchema'],
     credentialFields: { kind: 'flat', fields: [] },
+    connect: { kind: 'credentials' as const },
   }
 }
 

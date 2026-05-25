@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { ChannelCapability } from '../channel-capability'
 import type { ChannelDecision } from '../channel-decision'
 import type { ChannelPlugin } from '../channel-plugin'
+import { ChannelPluginConnectKind } from '../channel-plugin-connect'
 import type { ChannelPluginManifest } from '../channel-plugin-manifest'
 import type { InboundMessage } from '../inbound-message'
 import type { SendPayload } from '../send-payload'
@@ -36,6 +37,7 @@ export class FakeChannelPlugin implements ChannelPlugin<typeof fakeConfigSchema>
         { key: 'sender', label: 'Sender', type: CredentialFieldType.Text, required: true },
       ],
     },
+    connect: { kind: ChannelPluginConnectKind.Credentials },
   }
 
   async send(_payload: SendPayload, _credentials: FakeCredentials): Promise<SendResult> {
