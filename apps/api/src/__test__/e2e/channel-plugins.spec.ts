@@ -47,4 +47,24 @@ describe('Channel plugins (e2e)', () => {
       { key: 'systemToken', label: 'System token', type: 'secret', required: true },
     ])
   })
+
+  it('lists both Meta plugins with their correct connect descriptors', async () => {
+    const agent = request.agent(app.getHttpServer())
+    await agent.post('/auth/register').send(owner)
+
+    const response = await agent.get('/channel-plugins')
+
+    expect(response.status).toBe(OK)
+
+    const cloudApi = response.body.plugins.find(
+      (plugin: { id: string }) => plugin.id === 'meta-whatsapp',
+    )
+    expect(cloudApi.connect).toEqual({ kind: 'credentials' })
+
+    const coex = response.body.plugins.find(
+      (plugin: { id: string }) => plugin.id === 'meta-whatsapp-coex',
+    )
+    expect(coex.connect).toEqual({ kind: 'oauth', provider: 'meta-coex' })
+    expect(coex.credentialFields).toEqual([])
+  })
 })
