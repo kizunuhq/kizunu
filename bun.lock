@@ -136,6 +136,7 @@
         "@nestjs/common": "^11.1.17",
         "@nestjs/core": "^11.1.17",
         "drizzle-orm": "catalog:",
+        "evlog": "^2.18.1",
         "pg": "^8.20.0",
       },
       "devDependencies": {
