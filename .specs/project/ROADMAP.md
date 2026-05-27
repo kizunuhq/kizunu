@@ -1,6 +1,6 @@
 # Roadmap
 
-**Current focus:** v1.0 pilot-plus customer fit (Phase 2.1).
+**Current focus:** Phase 2.2 — observability spike (wide events via `evlog`).
 
 Forward-looking only. Features collapse to `HISTORY.md` the moment they ship.
 This file should never grow past two screens — if it does, sweep completed
@@ -10,13 +10,30 @@ work into HISTORY first.
 
 ## Now
 
-_Nothing in flight. Add the next PLANNED / IN PROGRESS feature here when work
-starts (one block per feature: title + status + a few bullet points of scope)._
+- **`086` Observability spike: wide events via `evlog`** — IN PROGRESS.
+  Replace scattered `console.log` in `apps/api` with
+  [evlog](https://github.com/HugoRCD/evlog) wide events — one structured event
+  per request, accumulated context, errors carrying `why` / `fix` / `link`.
+  Scope of this slice:
+  - Adopt the evlog NestJS adapter on **one hot route** end-to-end —
+    `POST /channel-accounts/meta-whatsapp/oauth/finish` (the Coex Finish path:
+    long, multi-step, today the noisiest `console.*` source) — to validate
+    ergonomics + footprint before sweeping the codebase.
+  - Stdout/JSONL drain only; OTLP drain into self-hosted Monoscope stays
+    deferred until the Kamal pipeline (`028`) is live and an S3 bucket is
+    decided (still tracked under Later).
+  - Author `.agents/rules/observability.md` codifying the wide-event pattern
+    (one event per request, context accumulation, error envelope), plus an
+    ADR recording the decision.
 
 ## Next
 
 _Queued for after Now clears. Source: open CONCERNS items, the active pilot's
 feedback, deferred slices listed under Later._
+
+- **Sweep remaining `console.*` in `apps/api` onto evlog** — follow-up to
+  `086` once the spike validates the shape; one module at a time, guided by
+  the rule introduced in `086`.
 
 ## Later
 
@@ -42,6 +59,15 @@ Known deferred work, ordered roughly by likelihood we pick it up next.
   builds one GHCR image per app (`:sha-<short>` + `:latest`); staging
   auto-tracks `:latest`, production is a manual pinned promotion. Blocked on:
   where Kamal runs in CI + secrets, and server topology.
+- **Observability drain: self-hosted Monoscope** — once `086` (evlog spike,
+  Now) lands stdout/JSONL, swap the drain for OTLP into self-hosted
+  [Monoscope](https://github.com/monoscope-tech/monoscope) (Arrow/TimeFusion
+  columnar storage on an S3-compatible bucket, OTLP-native, AGPL-3.0, embedded
+  MCP server so Claude / Cursor query logs directly). Blocked on Kamal deploy
+  pipeline `028` (need somewhere to run Monoscope) and an S3 bucket decision
+  (MinIO sidecar vs. external provider). Out of scope at the same time:
+  OpenTelemetry SDK auto-instrumentation and process-level metrics
+  (CPU / memory / queue depth) — revisit when async workers ship.
 - **Second channel plugin** (email SMTP or Telegram).
 - **Second CRM connector** (HubSpot or RD Station).
 - **First community-contributed plugin.**
@@ -56,8 +82,8 @@ Past phases collapse to one line. Full feature blurbs in
 - **v0.1 — Pilot end-to-end** — COMPLETE. Features `002`–`020`.
 - **Phase 1.5 — Differentiation** — COMPLETE. Feature `021`.
 - **Phase 1.6 — Auth & identity enrichment** — COMPLETE. Features `022`–`026`, `040`.
-- **Phase 1.7 — Delivery & infra** — CI gate `027` COMPLETE; deploy pipeline
-  `028` deferred (see Later).
+- **Phase 1.7 — Delivery & infra** — CI gate `027` COMPLETE (deploy pipeline
+  `028` still deferred — see Later).
 - **Phase 1.8 — WhatsApp Coexistence onboarding** — COMPLETE. Features `029`–`031`, `058`.
 - **Phase 1.9 — Web frontend polish & doctrine** — COMPLETE. Features `032`–`039`, `041`–`046`.
 - **Phase 2.0 — Pilot delivery hardening** — COMPLETE. Features `047`–`049`, `053`–`057`.
