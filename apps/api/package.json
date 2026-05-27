@@ -23,6 +23,7 @@
     "@nestjs/throttler": "^6.4.0",
     "cookie-parser": "^1.4.7",
     "drizzle-orm": "catalog:",
+    "evlog": "^2.18.1",
     "nestjs-zod": "^5.2.1",
     "nodemailer": "^8.0.7",
     "pg": "^8.20.0",

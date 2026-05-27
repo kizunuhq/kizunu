@@ -1,9 +1,10 @@
-import { MetaPluginId } from '@kizunu/api-contracts/channel'
+import { MetaPluginId, type MetaCoexistenceCredentials } from '@kizunu/api-contracts/channel'
 import type { Config } from '@kizunu/api/api.config'
 import { finalizeMetaCoexConnection } from '@kizunu/api/modules/channel/plugins/meta-whatsapp-coex/meta-coex-finalize'
 import { MetaCoexNotConfiguredException } from '@kizunu/api/modules/channel/plugins/meta-whatsapp-coex/meta-coex-not-configured.exception'
 import { ConfigService } from '@kizunu/config-module/config.service'
 import { Injectable } from '@nestjs/common'
+import { useLogger } from 'evlog/nestjs'
 
 import { ChannelAccountRepository } from '../../persistence/channel-account.repository'
 import {
@@ -52,10 +53,42 @@ export class ConnectMetaCoexUseCase {
   ) {}
 
   async execute(input: ConnectMetaCoexInput): Promise<ConnectMetaCoexOutput> {
+    const log = useLogger()
+    log.set({ workspaceId: input.workspaceId, pluginId: MetaPluginId.Coex })
+
+    log.set({ step: 'assert-configured' })
     const meta = this.assertConfigured()
+
+    log.set({ step: 'oauth-exchange' })
     const token = await this.exchange(meta, input.code)
+
+    log.set({ step: 'coex-finalize' })
     const channelAccountId = Bun.randomUUIDv7()
-    const credentials = await finalizeMetaCoexConnection(
+    const credentials = await this.finalize(input, channelAccountId, token)
+
+    log.set({ step: 'persist-account' })
+    await this.accounts.create({
+      id: channelAccountId,
+      workspaceId: input.workspaceId,
+      pluginId: MetaPluginId.Coex,
+      name: input.name,
+      credentials,
+    })
+
+    return {
+      id: channelAccountId,
+      pluginId: MetaPluginId.Coex,
+      channelMode: 'coexistence',
+      name: input.name,
+    }
+  }
+
+  private async finalize(
+    input: ConnectMetaCoexInput,
+    channelAccountId: string,
+    token: ExchangedToken,
+  ): Promise<MetaCoexistenceCredentials> {
+    return await finalizeMetaCoexConnection(
       {
         channelAccountId,
         appUrl: this.config.get('appUrl') ?? '',
@@ -68,19 +101,6 @@ export class ConnectMetaCoexUseCase {
       },
       { baseUrl: this.baseUrl, fetchFn: this.fetchFn },
     )
-    await this.accounts.create({
-      id: channelAccountId,
-      workspaceId: input.workspaceId,
-      pluginId: MetaPluginId.Coex,
-      name: input.name,
-      credentials,
-    })
-    return {
-      id: channelAccountId,
-      pluginId: MetaPluginId.Coex,
-      channelMode: 'coexistence',
-      name: input.name,
-    }
   }
 
   private assertConfigured(): { appId: string; appSecret: string; coexConfigId: string } {

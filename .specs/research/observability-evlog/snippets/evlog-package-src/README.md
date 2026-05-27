@@ -1,0 +1,1438 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/HugoRCD/evlog/main/assets/evlog-banner.gif" width="100%" alt="evlog — Digging through logs is not observability. It's hope" />
+</p>
+
+# evlog
+
+[![npm version](https://img.shields.io/npm/v/evlog?color=black)](https://npmjs.com/package/evlog)
+[![npm downloads](https://img.shields.io/npm/dm/evlog?color=black)](https://npm.chart.dev/evlog)
+[![CI](https://img.shields.io/github/actions/workflow/status/HugoRCD/evlog/ci.yml?branch=main&color=black)](https://github.com/HugoRCD/evlog/actions/workflows/ci.yml)
+[![TypeScript](https://img.shields.io/badge/TypeScript-black?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Documentation](https://img.shields.io/badge/Documentation-black?logo=readme&logoColor=white)](https://evlog.dev)
+[![license](https://img.shields.io/github/license/HugoRCD/evlog?color=black)](https://github.com/HugoRCD/evlog/blob/main/LICENSE)
+
+**Digging through logs is not observability. It's hope.**
+
+A single request generates 10+ log lines. When production breaks at 3am, you're sifting scattered lines for a needle of signal. Your errors say "Something went wrong" — thanks, very helpful.
+
+**evlog is different.** One wide event per operation. All the context. Errors that explain *why* and what to do next.
+
+## Why evlog?
+
+### The Problem
+
+```typescript
+// server/api/checkout.post.ts
+
+// Scattered logs - impossible to debug
+console.log('Request received')
+console.log('User:', user.id)
+console.log('Cart loaded')
+console.log('Payment failed')  // Good luck finding this at 3am
+
+throw new Error('Something went wrong')
+```
+
+### The Solution
+
+```typescript
+// server/api/checkout.post.ts
+import { useLogger } from 'evlog'
+
+// One comprehensive event per request
+export default defineEventHandler(async (event) => {
+  const log = useLogger(event)  // Auto-injected by evlog
+
+  log.set({ user: { id: user.id, plan: 'premium' } })
+  log.set({ cart: { items: 3, total: 9999 } })
+  log.error(error, { step: 'payment' })
+
+  // Emits ONE event with ALL context + duration (automatic)
+})
+```
+
+Output:
+
+```json
+{
+  "timestamp": "2025-01-24T10:23:45.612Z",
+  "level": "error",
+  "service": "my-app",
+  "method": "POST",
+  "path": "/api/checkout",
+  "duration": "1.2s",
+  "user": { "id": "123", "plan": "premium" },
+  "cart": { "items": 3, "total": 9999 },
+  "error": { "message": "Card declined", "step": "payment" }
+}
+```
+
+### Built for AI-Assisted Development
+
+We're in the age of AI agents writing and debugging code. When an agent encounters an error, it needs **clear, structured context** to understand what happened and how to fix it.
+
+Traditional logs force agents to grep through noise. evlog gives them:
+- **One event per request** with all context in one place
+- **Self-documenting errors** with `why` and `fix` fields
+- **Structured JSON** that's easy to parse and reason about
+
+Your AI copilot will thank you.
+
+---
+
+## Installation
+
+```bash
+npm install evlog
+```
+
+## Nuxt Integration
+
+The recommended way to use evlog. Zero config, everything just works.
+
+```typescript
+// nuxt.config.ts
+export default defineNuxtConfig({
+  modules: ['evlog/nuxt'],
+
+  evlog: {
+    env: {
+      service: 'my-app',
+    },
+    // Optional: only log specific routes (supports glob patterns)
+    include: ['/api/**'],
+  },
+})
+```
+
+> **Tip:** Use `$production` to enable [sampling](#sampling) only in production:
+> ```typescript
+> export default defineNuxtConfig({
+>   modules: ['evlog/nuxt'],
+>   evlog: { env: { service: 'my-app' } },
+>   $production: {
+>     evlog: { sampling: { rates: { info: 10, warn: 50, debug: 0 } } },
+>   },
+> })
+> ```
+
+That's it. Now use `useLogger(event)` in any API route:
+
+```typescript
+// server/api/checkout.post.ts
+import { useLogger, createError } from 'evlog'
+
+export default defineEventHandler(async (event) => {
+  const log = useLogger(event)
+
+  // Authenticate user and add to wide event
+  const user = await requireAuth(event)
+  log.set({ user: { id: user.id, plan: user.plan } })
+
+  // Load cart and add to wide event
+  const cart = await getCart(user.id)
+  log.set({ cart: { items: cart.items.length, total: cart.total } })
+
+  // Process payment
+  try {
+    const payment = await processPayment(cart, user)
+    log.set({ payment: { id: payment.id, method: payment.method } })
+  } catch (error) {
+    log.error(error, { step: 'payment' })
+
+    throw createError({
+      message: 'Payment failed',
+      status: 402,
+      why: error.message,
+      fix: 'Try a different payment method or contact your bank',
+    })
+  }
+
+  // Create order
+  const order = await createOrder(cart, user)
+  log.set({ order: { id: order.id, status: order.status } })
+
+  return order
+  // log.emit() called automatically at request end
+})
+```
+
+The wide event emitted at the end contains **everything**:
+
+```json
+{
+  "timestamp": "2026-01-24T10:23:45.612Z",
+  "level": "info",
+  "service": "my-app",
+  "method": "POST",
+  "path": "/api/checkout",
+  "duration": "1.2s",
+  "user": { "id": "user_123", "plan": "premium" },
+  "cart": { "items": 3, "total": 9999 },
+  "payment": { "id": "pay_xyz", "method": "card" },
+  "order": { "id": "order_abc", "status": "created" },
+  "status": 200
+}
+```
+
+## Nitro Integration
+
+Works with **any framework powered by Nitro**: Nuxt, Analog, Vinxi, SolidStart, TanStack Start, and more.
+
+### Nitro v3
+
+```typescript
+// nitro.config.ts
+import { defineConfig } from 'nitro'
+import evlog from 'evlog/nitro/v3'
+
+export default defineConfig({
+  modules: [
+    evlog({ env: { service: 'my-api' } })
+  ],
+})
+```
+
+### Nitro v2
+
+```typescript
+// nitro.config.ts
+import { defineNitroConfig } from 'nitropack/config'
+import evlog from 'evlog/nitro'
+
+export default defineNitroConfig({
+  modules: [
+    evlog({ env: { service: 'my-api' } })
+  ],
+})
+```
+
+Then use `useLogger` in any route. Import from `evlog/nitro/v3` (v3) or `evlog/nitro` (v2):
+
+```typescript
+// routes/api/documents/[id]/export.post.ts
+// Nitro v3: import { defineHandler } from 'nitro/h3' + import { useLogger } from 'evlog/nitro/v3'
+// Nitro v2: import { defineEventHandler } from 'h3' + import { useLogger } from 'evlog/nitro'
+import { defineEventHandler } from 'h3'
+import { useLogger } from 'evlog/nitro'
+import { createError } from 'evlog'
+
+export default defineEventHandler(async (event) => {
+  const log = useLogger(event)
+
+  // Get document ID from route params
+  const documentId = getRouterParam(event, 'id')
+  log.set({ document: { id: documentId } })
+
+  // Parse request body for export options
+  const body = await readBody(event)
+  log.set({ export: { format: body.format, includeComments: body.includeComments } })
+
+  // Load document from database
+  const document = await db.documents.findUnique({ where: { id: documentId } })
+  if (!document) {
+    throw createError({
+      message: 'Document not found',
+      status: 404,
+      why: `No document with ID "${documentId}" exists`,
+      fix: 'Check the document ID and try again',
+    })
+  }
+  log.set({ document: { id: documentId, title: document.title, pages: document.pages.length } })
+
+  // Generate export
+  try {
+    const exportResult = await generateExport(document, body.format)
+    log.set({ export: { format: body.format, size: exportResult.size, pages: exportResult.pages } })
+
+    return { url: exportResult.url, expiresAt: exportResult.expiresAt }
+  } catch (error) {
+    log.error(error, { step: 'export-generation' })
+
+    throw createError({
+      message: 'Export failed',
+      status: 500,
+      why: `Failed to generate ${body.format} export: ${error.message}`,
+      fix: 'Try a different format or contact support',
+    })
+  }
+  // log.emit() called automatically - outputs one comprehensive wide event
+})
+```
+
+Output when the export completes:
+
+```json
+{
+  "timestamp": "2025-01-24T14:32:10.123Z",
+  "level": "info",
+  "service": "document-api",
+  "method": "POST",
+  "path": "/api/documents/doc_123/export",
+  "duration": "2.4s",
+  "document": { "id": "doc_123", "title": "Q4 Report", "pages": 24 },
+  "export": { "format": "pdf", "size": 1240000, "pages": 24 },
+  "status": 200
+}
+```
+
+## Standalone TypeScript
+
+For scripts, workers, or any TypeScript project:
+
+```typescript
+// scripts/migrate.ts
+import { initLogger, log, createRequestLogger } from 'evlog'
+
+// Initialize once at script start
+initLogger({
+  env: {
+    service: 'migration-script',
+    environment: 'production',
+  },
+})
+
+// Simple logging
+log.info('migration', 'Starting database migration')
+log.info({ action: 'migration', tables: ['users', 'orders'] })
+
+// Or use request logger for a logical operation
+const migrationLog = createRequestLogger({ action: 'full-migration' })
+
+migrationLog.set({ tables: ['users', 'orders', 'products'] })
+migrationLog.set({ rowsProcessed: 15000 })
+migrationLog.emit()
+```
+
+```typescript
+// workers/sync-job.ts
+import { initLogger, createRequestLogger, createError } from 'evlog'
+
+initLogger({
+  env: {
+    service: 'sync-worker',
+    environment: process.env.NODE_ENV,
+  },
+})
+
+async function processSyncJob(job: Job) {
+  const log = createRequestLogger({ jobId: job.id, type: 'sync' })
+
+  try {
+    log.set({ source: job.source, target: job.target })
+
+    const result = await performSync(job)
+    log.set({ recordsSynced: result.count })
+
+    return result
+  } catch (error) {
+    log.error(error, { step: 'sync' })
+    throw error
+  } finally {
+    log.emit()
+  }
+}
+```
+
+## Cloudflare Workers
+
+Use the Workers adapter for structured logs and correct platform severity. With `initWorkersLogger({ drain })`, use **`defineWorkerFetch`** so async drains are registered with `waitUntil` automatically (Cloudflare only passes `ExecutionContext` as the third `fetch` argument — there is no global).
+
+```typescript
+// src/index.ts
+import { defineWorkerFetch, initWorkersLogger } from 'evlog/workers'
+
+initWorkersLogger({
+  env: { service: 'edge-api' },
+})
+
+export default defineWorkerFetch(async (request, _env, _ctx, log) => {
+  try {
+    log.set({ route: 'health' })
+    const response = new Response('ok', { status: 200 })
+    log.emit({ status: response.status })
+    return response
+  } catch (error) {
+    log.error(error as Error)
+    log.emit({ status: 500 })
+    throw error
+  }
+})
+```
+
+If you keep a raw `export default { fetch }`, pass `{ executionCtx: ctx }` to `createWorkersLogger` or `waitUntil` on `createRequestLogger`.
+
+```typescript
+// Lower-level (equivalent)
+import { createWorkersLogger } from 'evlog/workers'
+
+export default {
+  async fetch(request: Request, _env: unknown, ctx: ExecutionContext) {
+    const log = createWorkersLogger(request, { executionCtx: ctx })
+    // ...
+  },
+}
+```
+
+Disable invocation logs to avoid duplicate request logs:
+
+```toml
+# wrangler.toml
+[observability.logs]
+invocation_logs = false
+```
+
+Notes:
+- Prefer **`defineWorkerFetch`** so you do not have to pass `executionCtx` yourself when using a drain
+- `requestId` defaults to `cf-ray` when available
+- `request.cf` is included (colo, country, asn) unless disabled
+- Use `headerAllowlist` to avoid logging sensitive headers
+
+## Hono
+
+```typescript
+// src/index.ts
+import { Hono } from 'hono'
+import { initLogger } from 'evlog'
+import { evlog, type EvlogVariables } from 'evlog/hono'
+
+initLogger({ env: { service: 'hono-api' } })
+
+const app = new Hono<EvlogVariables>()
+app.use(evlog())
+
+app.get('/api/users', (c) => {
+  const log = c.get('log')
+  log.set({ users: { count: 42 } })
+  return c.json({ users: [] })
+})
+```
+
+See the full [hono example](https://github.com/HugoRCD/evlog/tree/main/examples/hono) for a complete working project.
+
+## Express
+
+```typescript
+// src/index.ts
+import express from 'express'
+import { initLogger } from 'evlog'
+import { evlog, useLogger } from 'evlog/express'
+
+initLogger({ env: { service: 'express-api' } })
+
+const app = express()
+app.use(evlog())
+
+app.get('/api/users', (req, res) => {
+  req.log.set({ users: { count: 42 } })
+  res.json({ users: [] })
+})
+```
+
+Use `useLogger()` to access the logger from anywhere in the call stack without passing `req`.
+
+See the full [express example](https://github.com/HugoRCD/evlog/tree/main/examples/express) for a complete working project.
+
+## Fastify
+
+```typescript
+// src/index.ts
+import Fastify from 'fastify'
+import { initLogger } from 'evlog'
+import { evlog, useLogger } from 'evlog/fastify'
+
+initLogger({ env: { service: 'fastify-api' } })
+
+const app = Fastify({ logger: false })
+await app.register(evlog)
+
+app.get('/api/users', async (request) => {
+  request.log.set({ users: { count: 42 } })
+  return { users: [] }
+})
+```
+
+`request.log` is the evlog wide-event logger (shadows Fastify's built-in pino logger on the request). Use `useLogger()` to access the logger from anywhere in the call stack.
+
+See the full [fastify example](https://github.com/HugoRCD/evlog/tree/main/examples/fastify) for a complete working project.
+
+## Elysia
+
+```typescript
+// src/index.ts
+import { Elysia } from 'elysia'
+import { initLogger } from 'evlog'
+import { evlog, useLogger } from 'evlog/elysia'
+
+initLogger({ env: { service: 'elysia-api' } })
+
+const app = new Elysia()
+  .use(evlog())
+  .get('/api/users', ({ log }) => {
+    log.set({ users: { count: 42 } })
+    return { users: [] }
+  })
+  .listen(3000)
+```
+
+Use `useLogger()` to access the logger from anywhere in the call stack.
+
+See the full [elysia example](https://github.com/HugoRCD/evlog/tree/main/examples/elysia) for a complete working project.
+
+## React Router
+
+```typescript
+// app/root.tsx
+import { initLogger } from 'evlog'
+import { evlog, loggerContext } from 'evlog/react-router'
+
+initLogger({ env: { service: 'react-router-api' } })
+
+export const middleware: Route.MiddlewareFunction[] = [
+  evlog(),
+]
+
+// app/routes/api.users.$id.tsx
+import { loggerContext } from 'evlog/react-router'
+
+export async function loader({ params, context }: Route.LoaderArgs) {
+  const log = context.get(loggerContext)
+  log.set({ users: { count: 42 } })
+  return { users: [] }
+}
+```
+
+Use `context.get(loggerContext)` in loaders/actions, or `useLogger()` from anywhere in the call stack. Requires `v8_middleware: true` in `react-router.config.ts`.
+
+See the full [react-router example](https://github.com/HugoRCD/evlog/tree/main/examples/react-router) for a complete working project.
+
+## NestJS
+
+```typescript
+// src/app.module.ts
+import { Module } from '@nestjs/common'
+import { EvlogModule } from 'evlog/nestjs'
+
+@Module({
+  imports: [EvlogModule.forRoot()],
+})
+export class AppModule {}
+
+// In any controller or service:
+import { useLogger } from 'evlog/nestjs'
+const log = useLogger()
+log.set({ users: { count: 42 } })
+```
+
+`EvlogModule.forRoot()` registers a global middleware that creates a request-scoped logger for every request. Use `useLogger()` to access it anywhere in the call stack, or `req.log` directly. Supports `forRootAsync()` for async configuration.
+
+See the full [nestjs example](https://github.com/HugoRCD/evlog/tree/main/examples/nestjs) for a complete working project.
+
+## oRPC
+
+```typescript
+// server/orpc.ts
+import { os } from '@orpc/server'
+import { RPCHandler } from '@orpc/server/fetch'
+import { initLogger } from 'evlog'
+import { evlog, withEvlog, type EvlogOrpcContext } from 'evlog/orpc'
+
+initLogger({ env: { service: 'orpc-api' } })
+
+const base = os.$context<EvlogOrpcContext>().use(evlog())
+
+const router = {
+  ping: base.handler(({ context }) => {
+    context.log.set({ pinged: true })
+    return { ok: true }
+  }),
+}
+
+const handler = withEvlog(new RPCHandler(router))
+
+export default async function fetch(request: Request) {
+  const { matched, response } = await handler.handle(request, { prefix: '/rpc' })
+  return matched ? response : new Response('Not Found', { status: 404 })
+}
+```
+
+`withEvlog()` wraps the handler and emits one wide event per request; `os.use(evlog())` exposes `context.log` to procedures and tags each event with the procedure path as `operation`. Use `useLogger()` from `evlog/orpc` to access the logger off-context.
+
+See the full [orpc example](https://github.com/HugoRCD/evlog/tree/main/examples/orpc) for a complete working project.
+
+## Browser
+
+Use the `log` API on the client side for structured browser logging:
+
+```typescript
+import { log } from 'evlog/client'
+
+log.info('checkout', 'User initiated checkout')
+log.error({ action: 'payment', error: 'validation_failed' })
+```
+
+In Nuxt, `log` is auto-imported -- no import needed in Vue components:
+
+```vue
+<script setup>
+log.info('checkout', 'User initiated checkout')
+</script>
+```
+
+Client logs output to the browser console with colored tags in development.
+
+### Client Transport
+
+To send client logs to the server for centralized logging, enable the transport:
+
+```typescript
+// nuxt.config.ts
+export default defineNuxtConfig({
+  modules: ['evlog/nuxt'],
+  evlog: {
+    transport: {
+      enabled: true,  // Send client logs to server
+    },
+  },
+})
+```
+
+When enabled:
+1. Client logs are sent to `/api/_evlog/ingest` via POST
+2. Server enriches with environment context (service, version, etc.)
+3. `evlog:drain` hook is called with `source: 'client'`
+4. External services receive the log
+
+For a **framework-agnostic** batched HTTP drain (e.g. vanilla JS or custom endpoints), use `createHttpLogDrain` from [`evlog/http`](https://www.evlog.dev/extend/drain-pipeline#http-drain-browser-to-server). The legacy import path `evlog/browser` is deprecated and will be removed in the next major release.
+
+## Structured Errors
+
+Errors should tell you **what** happened, **why**, and **how to fix it**.
+
+```typescript
+// server/api/repos/sync.post.ts
+import { useLogger, createError } from 'evlog'
+
+export default defineEventHandler(async (event) => {
+  const log = useLogger(event)
+
+  log.set({ repo: { owner: 'acme', name: 'my-project' } })
+
+  try {
+    const result = await syncWithGitHub()
+    log.set({ sync: { commits: result.commits, files: result.files } })
+    return result
+  } catch (error) {
+    log.error(error, { step: 'github-sync' })
+
+    throw createError({
+      message: 'Failed to sync repository',
+      status: 503,
+      why: 'GitHub API rate limit exceeded',
+      fix: 'Wait 1 hour or use a different token',
+      link: 'https://docs.github.com/en/rest/rate-limit',
+      cause: error,
+    })
+  }
+})
+```
+
+Console output (development):
+
+```
+Error: Failed to sync repository
+Why: GitHub API rate limit exceeded
+Fix: Wait 1 hour or use a different token
+More info: https://docs.github.com/en/rest/rate-limit
+```
+
+## Enrichment Hook
+
+Use the `evlog:enrich` hook to add derived context after emit, before drain.
+
+```typescript
+// server/plugins/evlog-enrich.ts
+export default defineNitroPlugin((nitroApp) => {
+  nitroApp.hooks.hook('evlog:enrich', (ctx) => {
+    ctx.event.deploymentId = process.env.DEPLOYMENT_ID
+  })
+})
+```
+
+### Built-in Enrichers
+
+```typescript
+// server/plugins/evlog-enrich.ts
+import {
+  createGeoEnricher,
+  createRequestSizeEnricher,
+  createTraceContextEnricher,
+  createUserAgentEnricher,
+} from 'evlog/enrichers'
+
+export default defineNitroPlugin((nitroApp) => {
+  const enrich = [
+    createUserAgentEnricher(),
+    createGeoEnricher(),
+    createRequestSizeEnricher(),
+    createTraceContextEnricher(),
+  ]
+
+  nitroApp.hooks.hook('evlog:enrich', (ctx) => {
+    for (const enricher of enrich) enricher(ctx)
+  })
+})
+```
+
+Each enricher adds a specific field to the event:
+
+| Enricher | Event Field | Shape |
+|----------|-------------|-------|
+| `createUserAgentEnricher()` | `event.userAgent` | `{ raw, browser?: { name, version? }, os?: { name, version? }, device?: { type } }` |
+| `createGeoEnricher()` | `event.geo` | `{ country?, region?, regionCode?, city?, latitude?, longitude? }` |
+| `createRequestSizeEnricher()` | `event.requestSize` | `{ requestBytes?, responseBytes? }` |
+| `createTraceContextEnricher()` | `event.traceContext` + `event.traceId` + `event.spanId` | `{ traceparent?, tracestate?, traceId?, spanId? }` |
+
+All enrichers accept an optional `{ overwrite?: boolean }` option. By default (`overwrite: false`), user-provided data on the event takes precedence over enricher-computed values. Set `overwrite: true` to always replace existing fields.
+
+> **Cloudflare geo note:** Only `cf-ipcountry` is a real Cloudflare HTTP header. The `cf-region`, `cf-city`, `cf-latitude`, `cf-longitude` headers are NOT standard -- they are properties of `request.cf`. For full geo data on Cloudflare, write a custom enricher that reads `request.cf`, or use a Workers middleware to forward `cf` properties as custom headers.
+
+### Custom Enrichers
+
+The `evlog:enrich` hook receives an `EnrichContext` with these fields:
+
+```typescript
+interface EnrichContext {
+  event: WideEvent        // The emitted wide event (mutable -- modify it directly)
+  request?: {             // Request metadata
+    method?: string
+    path?: string
+    requestId?: string
+  }
+  headers?: Record<string, string>  // Safe HTTP headers (sensitive headers filtered)
+  response?: {            // Response metadata
+    status?: number
+    headers?: Record<string, string>
+  }
+}
+```
+
+Example custom enricher:
+
+```typescript
+// server/plugins/evlog-enrich.ts
+export default defineNitroPlugin((nitroApp) => {
+  nitroApp.hooks.hook('evlog:enrich', (ctx) => {
+    // Add deployment metadata
+    ctx.event.deploymentId = process.env.DEPLOYMENT_ID
+    ctx.event.region = process.env.FLY_REGION
+
+    // Extract data from headers
+    const tenantId = ctx.headers?.['x-tenant-id']
+    if (tenantId) {
+      ctx.event.tenantId = tenantId
+    }
+  })
+})
+```
+
+## Audit Logs
+
+Audit logs are not a parallel system: they are a typed `audit` field on the wide event plus a few helpers. Add 1 enricher + 1 drain wrapper + `log.audit()` and you get tamper-evident, redact-aware, force-kept audit events through the same pipeline.
+
+```typescript
+// server/plugins/evlog.ts
+import { auditEnricher, auditOnly, signed } from 'evlog'
+import { createAxiomDrain } from 'evlog/axiom'
+import { createFsDrain } from 'evlog/fs'
+
+export default defineNitroPlugin((nitroApp) => {
+  const enrich = [auditEnricher({ tenantId: ctx => ctx.headers?.['x-tenant-id'] })]
+  const audits = auditOnly(signed(createFsDrain({ path: '.audit/' }), { strategy: 'hash-chain' }), { await: true })
+  const main = createAxiomDrain()
+
+  nitroApp.hooks.hook('evlog:enrich', async ctx => { for (const e of enrich) await e(ctx) })
+  nitroApp.hooks.hook('evlog:drain', async ctx => { await Promise.all([main(ctx), audits(ctx)]) })
+})
+```
+
+```typescript
+// server/api/invoice/[id]/refund.post.ts
+import { auditDiff } from 'evlog'
+
+export default defineEventHandler(async (event) => {
+  const log = useLogger(event)
+  const before = await db.invoice.get(id)
+  const after = await db.invoice.refund(id)
+
+  log.audit?.({
+    action: 'invoice.refund',
+    actor: { type: 'user', id: user.id, email: user.email },
+    target: { type: 'invoice', id: after.id },
+    outcome: 'success',
+    changes: auditDiff(before, after),
+  })
+})
+```
+
+| Symbol | Kind | Purpose |
+|--------|------|---------|
+| `log.audit(fields)` / `log.audit.deny(reason, fields)` | method | Sugar over `log.set({ audit })` + force-keep |
+| `audit(fields)` | function | Standalone for jobs / scripts |
+| `withAudit({ action, target })(fn)` | wrapper | Auto-emit success / failure / denied |
+| `defineAuditAction(name, opts?)` | factory | Typed action registry |
+| `auditDiff(before, after)` | helper | Redact-aware JSON Patch for `changes` |
+| `mockAudit()` | test util | Capture and assert audits in tests |
+| `auditEnricher({ tenantId? })` | enricher | Auto-fill `req`/`trace`/`ip`/`ua`/`tenantId` context |
+| `auditOnly(drain, { await? })` | wrapper | Routes only events with `event.audit` |
+| `signed(drain, { strategy: 'hmac' \| 'hash-chain', ... })` | wrapper | Tamper-evident integrity |
+| `auditRedactPreset` | preset | Strict PII for audit events |
+
+`AuditFields` is exported and merges with `BaseWideEvent` — augment it with `declare module` if you need extra typed fields. Audit events are always force-kept by tail sampling and get a deterministic `idempotencyKey` so retries are safe across drains.
+
+See [the Audit Logs guide](https://evlog.dev/use-cases/audit/overview) for compliance, GDPR, and recipe details.
+
+## AI SDK Integration
+
+Capture token usage, tool calls, model info, and streaming metrics from the [Vercel AI SDK](https://ai-sdk.dev) into wide events. Requires `ai >= 6.0.0`.
+
+```typescript
+import { streamText } from 'ai'
+import { createAILogger } from 'evlog/ai'
+
+export default defineEventHandler(async (event) => {
+  const log = useLogger(event)
+  const ai = createAILogger(log)
+
+  const result = streamText({
+    model: ai.wrap('anthropic/claude-sonnet-4.6'),  // string or model object
+    messages,
+    onFinish: ({ text }) => saveConversation(text),  // no conflict
+  })
+
+  return result.toTextStreamResponse()
+})
+```
+
+The middleware captures: `inputTokens`, `outputTokens`, `cacheReadTokens`, `reasoningTokens`, `model`, `provider`, `finishReason`, `toolCalls`, `steps`, `msToFirstChunk`, `msToFinish`, `tokensPerSecond`.
+
+For embeddings: `ai.captureEmbed({ usage })`.
+
+The same metadata is also exposed as a public API for custom analytics, billing, or user-facing dashboards:
+
+```typescript
+const ai = createAILogger(log, {
+  cost: { 'claude-sonnet-4.6': { input: 3, output: 15 } },
+})
+
+await generateText({ model: ai.wrap('anthropic/claude-sonnet-4.6'), prompt })
+
+const metadata = ai.getMetadata()       // structured snapshot (AIMetadata)
+const cost = ai.getEstimatedCost()      // dollars, or undefined
+
+ai.onUpdate((metadata) => {             // incremental updates per step
+  pushToClient({ tokens: metadata.totalTokens, cost: metadata.estimatedCost })
+})
+```
+
+## Adapters
+
+Send your logs to external observability platforms with built-in adapters.
+
+### Axiom
+
+```typescript
+// server/plugins/evlog-drain.ts
+import { createAxiomDrain } from 'evlog/axiom'
+
+export default defineNitroPlugin((nitroApp) => {
+  nitroApp.hooks.hook('evlog:drain', createAxiomDrain())
+})
+```
+
+Set environment variables:
+
+```bash
+NUXT_AXIOM_API_KEY=xaat-your-token
+NUXT_AXIOM_DATASET=your-dataset
+```
+
+### OTLP (OpenTelemetry)
+
+Works with Grafana, Datadog, Honeycomb, and any OTLP-compatible backend.
+
+```typescript
+// server/plugins/evlog-drain.ts
+import { createOTLPDrain } from 'evlog/otlp'
+
+export default defineNitroPlugin((nitroApp) => {
+  nitroApp.hooks.hook('evlog:drain', createOTLPDrain())
+})
+```
+
+Set environment variables:
+
+```bash
+NUXT_OTLP_ENDPOINT=http://localhost:4318
+```
+
+### Datadog
+
+```typescript
+// server/plugins/evlog-drain.ts
+import { createDatadogDrain } from 'evlog/datadog'
+
+export default defineNitroPlugin((nitroApp) => {
+  nitroApp.hooks.hook('evlog:drain', createDatadogDrain())
+})
+```
+
+Set environment variables:
+
+```bash
+NUXT_DATADOG_API_KEY=your-api-key
+# Optional — defaults to datadoghq.com
+NUXT_DATADOG_SITE=datadoghq.eu
+```
+
+You can also use standard Datadog names: `DD_API_KEY` and `DD_SITE`.
+
+Wide events are sent with a short **`message` line** (method, path, level) and full context under the **`evlog`** attribute (facets like `@evlog.path`). See the [Datadog adapter docs](https://www.evlog.dev/integrate/adapters/datadog).
+
+### PostHog
+
+```typescript
+// server/plugins/evlog-drain.ts
+import { createPostHogDrain } from 'evlog/posthog'
+
+export default defineNitroPlugin((nitroApp) => {
+  nitroApp.hooks.hook('evlog:drain', createPostHogDrain())
+})
+```
+
+Set environment variables:
+
+```bash
+NUXT_POSTHOG_API_KEY=phc_your-key
+NUXT_POSTHOG_HOST=https://us.i.posthog.com  # Optional: for EU or self-hosted
+```
+
+### Sentry
+
+```typescript
+// server/plugins/evlog-drain.ts
+import { createSentryDrain } from 'evlog/sentry'
+
+export default defineNitroPlugin((nitroApp) => {
+  nitroApp.hooks.hook('evlog:drain', createSentryDrain())
+})
+```
+
+Set environment variables:
+
+```bash
+NUXT_SENTRY_DSN=https://public@o0.ingest.sentry.io/123
+```
+
+### Better Stack
+
+```typescript
+// server/plugins/evlog-drain.ts
+import { createBetterStackDrain } from 'evlog/better-stack'
+
+export default defineNitroPlugin((nitroApp) => {
+  nitroApp.hooks.hook('evlog:drain', createBetterStackDrain())
+})
+```
+
+Set environment variables:
+
+```bash
+NUXT_BETTER_STACK_API_KEY=your-source-token
+```
+
+### HyperDX
+
+```typescript
+// server/plugins/evlog-drain.ts
+import { createHyperDXDrain } from 'evlog/hyperdx'
+
+export default defineNitroPlugin((nitroApp) => {
+  nitroApp.hooks.hook('evlog:drain', createHyperDXDrain())
+})
+```
+
+Set environment variables:
+
+```bash
+NUXT_HYPERDX_API_KEY=your-api-key
+# Optional — defaults to https://in-otel.hyperdx.io
+NUXT_HYPERDX_ENDPOINT=https://in-otel.hyperdx.io
+```
+
+### File System
+
+Write wide events to local NDJSON files (`.evlog/logs/` by default):
+
+```typescript
+// server/plugins/evlog-drain.ts
+import { createFsDrain } from 'evlog/fs'
+
+export default defineNitroPlugin((nitroApp) => {
+  nitroApp.hooks.hook('evlog:drain', createFsDrain())
+})
+```
+
+Set environment variables:
+
+```bash
+NUXT_EVLOG_FS_DIR=.evlog/logs
+```
+
+### Memory
+
+In-memory ring buffer — works in any runtime, including Cloudflare Workers:
+
+```typescript
+// server/plugins/evlog-drain.ts
+import { createMemoryDrain } from 'evlog/memory'
+
+export default defineNitroPlugin((nitroApp) => {
+  nitroApp.hooks.hook('evlog:drain', createMemoryDrain())
+})
+```
+
+Optional environment variables:
+
+```bash
+NUXT_EVLOG_MEMORY_STORE=default
+NUXT_EVLOG_MEMORY_MAX_EVENTS=1000
+```
+
+Pair with `readMemoryLogs()` for dev-only agent access over HTTP. See the [Memory adapter docs](https://www.evlog.dev/integrate/adapters/self-hosted/memory).
+
+### Multiple Destinations
+
+Send logs to multiple services:
+
+```typescript
+// server/plugins/evlog-drain.ts
+import { createAxiomDrain } from 'evlog/axiom'
+import { createOTLPDrain } from 'evlog/otlp'
+
+export default defineNitroPlugin((nitroApp) => {
+  const axiom = createAxiomDrain()
+  const otlp = createOTLPDrain()
+
+  nitroApp.hooks.hook('evlog:drain', async (ctx) => {
+    await Promise.allSettled([axiom(ctx), otlp(ctx)])
+  })
+})
+```
+
+### Custom Adapters
+
+Build your own adapter for any destination:
+
+```typescript
+// server/plugins/evlog-drain.ts
+export default defineNitroPlugin((nitroApp) => {
+  nitroApp.hooks.hook('evlog:drain', async (ctx) => {
+    await fetch('https://your-service.com/logs', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(ctx.event),
+    })
+  })
+})
+```
+
+> See the [full documentation](https://www.evlog.dev/integrate/adapters/overview) for adapter configuration options, troubleshooting, and advanced patterns.
+
+## Drain Pipeline
+
+For production use, wrap your drain adapter with `createDrainPipeline` to get **batching**, **retry with backoff**, and **buffer overflow protection**.
+
+Without a pipeline, each event triggers a separate network call. The pipeline buffers events and sends them in batches, reducing overhead and handling transient failures automatically.
+
+```typescript
+// server/plugins/evlog-drain.ts
+import type { DrainContext } from 'evlog'
+import { createDrainPipeline } from 'evlog/pipeline'
+import { createAxiomDrain } from 'evlog/axiom'
+
+export default defineNitroPlugin((nitroApp) => {
+  const pipeline = createDrainPipeline<DrainContext>({
+    batch: { size: 50, intervalMs: 5000 },
+    retry: { maxAttempts: 3, backoff: 'exponential', initialDelayMs: 1000 },
+    onDropped: (events, error) => {
+      console.error(`[evlog] Dropped ${events.length} events:`, error?.message)
+    },
+  })
+
+  const drain = pipeline(createAxiomDrain())
+
+  nitroApp.hooks.hook('evlog:drain', drain)
+  nitroApp.hooks.hook('close', () => drain.flush())
+})
+```
+
+### How it works
+
+1. Events are buffered in memory as they arrive
+2. A batch is flushed when either the **batch size** is reached or the **interval** expires (whichever comes first)
+3. If the drain function fails, the batch is retried with the configured **backoff strategy**
+4. If all retries are exhausted, `onDropped` is called with the lost events
+5. If the buffer exceeds `maxBufferSize`, the oldest events are dropped to prevent memory leaks
+
+### Options
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `batch.size` | `50` | Maximum events per batch |
+| `batch.intervalMs` | `5000` | Max time (ms) before flushing a partial batch |
+| `retry.maxAttempts` | `3` | Total attempts (including first) |
+| `retry.backoff` | `'exponential'` | `'exponential'` \| `'linear'` \| `'fixed'` |
+| `retry.initialDelayMs` | `1000` | Base delay for first retry |
+| `retry.maxDelayMs` | `30000` | Upper bound for any retry delay |
+| `maxBufferSize` | `1000` | Max buffered events before dropping oldest |
+| `onDropped` | -- | Callback when events are dropped |
+
+### Returned drain function
+
+The function returned by `pipeline(drain)` is hook-compatible and exposes:
+
+- **`drain(ctx)`** -- Push a single event into the buffer
+- **`drain.flush()`** -- Force-flush all buffered events (call on server shutdown)
+- **`drain.pending`** -- Number of events currently buffered
+
+## API Reference
+
+### `initLogger(config)`
+
+Initialize the logger. Required for standalone usage, automatic with Nuxt/Nitro plugins.
+
+```typescript
+initLogger({
+  enabled: boolean       // Optional. Enable/disable all logging (default: true)
+  env: {
+    service: string      // Service name
+    environment: string  // 'production' | 'development' | 'test'
+    version?: string     // App version
+    commitHash?: string  // Git commit
+    region?: string      // Deployment region
+  },
+  pretty?: boolean       // Pretty print (default: true in dev)
+  silent?: boolean       // Suppress console output (default: false). Events still go to drains.
+  stringify?: boolean    // JSON.stringify output (default: true, false for Workers)
+  include?: string[]     // Route patterns to log (glob), e.g. ['/api/**']
+  sampling?: {
+    rates?: {            // Head sampling (random per level)
+      info?: number      // 0-100, default 100
+      warn?: number      // 0-100, default 100
+      debug?: number     // 0-100, default 100
+      error?: number     // 0-100, default 100 (always logged unless set to 0)
+    }
+    keep?: Array<{       // Tail sampling (force keep based on outcome)
+      status?: number    // Keep if status >= value
+      duration?: number  // Keep if duration >= value (ms)
+      path?: string      // Keep if path matches glob pattern
+    }>
+  }
+})
+```
+
+### Sampling
+
+At scale, logging everything can become expensive. evlog supports two sampling strategies:
+
+#### Head Sampling (rates)
+
+Random sampling based on log level, decided before the request completes:
+
+```typescript
+initLogger({
+  sampling: {
+    rates: {
+      info: 10,   // Keep 10% of info logs
+      warn: 50,   // Keep 50% of warning logs
+      debug: 0,   // Disable debug logs
+      // error defaults to 100% (always logged)
+    },
+  },
+})
+```
+
+#### Tail Sampling (keep)
+
+Force-keep logs based on request outcome, evaluated after the request completes. Useful to always capture slow requests or critical paths:
+
+```typescript
+// nuxt.config.ts
+export default defineNuxtConfig({
+  modules: ['evlog/nuxt'],
+  evlog: {
+    sampling: {
+      rates: { info: 10 },  // Only 10% of info logs
+      keep: [
+        { duration: 1000 },           // Always keep if duration >= 1000ms
+        { status: 400 },              // Always keep if status >= 400
+        { path: '/api/critical/**' }, // Always keep critical paths
+      ],
+    },
+  },
+})
+```
+
+#### Custom Tail Sampling Hook
+
+For business-specific conditions (premium users, feature flags), use the `evlog:emit:keep` Nitro hook:
+
+```typescript
+// server/plugins/evlog-custom.ts
+export default defineNitroPlugin((nitroApp) => {
+  nitroApp.hooks.hook('evlog:emit:keep', (ctx) => {
+    // Always keep logs for premium users
+    if (ctx.context.user?.premium) {
+      ctx.shouldKeep = true
+    }
+  })
+})
+```
+
+### Pretty Output Format
+
+In development, evlog uses a compact tree format:
+
+```
+16:45:31.060 INFO [my-app] GET /api/checkout 200 in 234ms
+  |- user: id=123 plan=premium
+  |- cart: items=3 total=9999
+  +- payment: id=pay_xyz method=card
+```
+
+In production (`pretty: false`), logs are emitted as JSON for machine parsing.
+
+### `log`
+
+Simple logging API.
+
+```typescript
+log.info('tag', 'message')     // Tagged log
+log.info({ key: 'value' })     // Wide event
+log.error('tag', 'message')
+log.warn('tag', 'message')
+log.debug('tag', 'message')
+```
+
+### `createRequestLogger(options)`
+
+Create a request-scoped logger for wide events.
+
+```typescript
+const log = createRequestLogger({
+  method: 'POST',
+  path: '/checkout',
+  requestId: 'req_123',
+})
+
+log.set({ user: { id: '123' } })  // Add context
+log.error(error, { step: 'x' })   // Log error with context
+log.emit()                         // Emit final event
+log.getContext()                   // Get current context
+```
+
+### Wide event lifecycle and `log.fork()`
+
+The framework emits **one wide event per HTTP request** when the response finishes (or on error). After `emit()` runs — including when head sampling drops the event (`emit()` returns `null`) — that logger instance is **sealed**: further `set`, `error`, `info`, and `warn` calls are ignored and emit a **`[evlog]` console warning** listing dropped keys. A second `emit()` is ignored with a warning. This avoids silent data loss when async work (unawaited promises, `setTimeout`, etc.) still resolves `useLogger()` to the same logger via `AsyncLocalStorage` after the response has already been logged.
+
+**`log.fork(label, fn)`** runs work under a **child** request logger: inside `fn`, `useLogger()` returns the child. When `fn` settles, the child emits its **own** wide event with `operation` set to `label` and `_parentRequestId` set to the parent’s `requestId` (query and dashboard correlation). The parent event may be emitted **before** the child event; they are two separate events ordered by time.
+
+`fork` is attached by integrations that use `AsyncLocalStorage` for `useLogger()`. Standalone `createLogger()` instances do not have `fork`.
+
+| Integration | `log.fork()` |
+|-------------|----------------|
+| Express, Fastify, NestJS, SvelteKit, React Router, Elysia | Yes |
+| Next.js `withEvlog` | Yes |
+| Hono (`c.get('log')` only) | Not yet |
+| Nitro / Nuxt `useLogger(event)` | Not yet — use post-emit warnings; see [Wide events](https://evlog.dev/learn/wide-events) |
+
+```typescript
+import { evlog, useLogger } from 'evlog/express'
+
+app.post('/checkout', (req, res) => {
+  const log = req.log
+  log.set({ order_dispatched: true })
+
+  log.fork!('process_order', async () => {
+    const childLog = useLogger()
+    childLog.set({ inventory_checked: true })
+    // child emits automatically when this async function completes
+  })
+
+  res.json({ ok: true })
+})
+```
+
+Use optional chaining if `fork` might be absent: `log.fork?.('task', async () => { ... })`.
+
+### `initWorkersLogger(options?)`
+
+Initialize evlog for Cloudflare Workers (object logs + correct severity).
+
+```typescript
+import { initWorkersLogger } from 'evlog/workers'
+
+initWorkersLogger({
+  env: { service: 'edge-api' },
+})
+```
+
+### `defineWorkerFetch(handler)`
+
+Recommended for Workers when using **`initWorkersLogger({ drain })`**. Wraps your handler so `createWorkersLogger` always receives `executionCtx` — you do not pass `ctx` into the factory yourself. Cloudflare does not expose `ExecutionContext` globally (only as `fetch`’s third argument), so this is the “automatic” option for plain Workers scripts.
+
+```typescript
+import { defineWorkerFetch, initWorkersLogger } from 'evlog/workers'
+
+initWorkersLogger({ env: { service: 'edge-api' }, drain })
+
+export default defineWorkerFetch(async (request, env, ctx, log) => {
+  log.emit({ status: 200 })
+  return new Response('ok')
+})
+```
+
+### `createWorkersLogger(request, options?)`
+
+Create a request-scoped logger for Workers. Auto-extracts `cf-ray`, `request.cf`, method, and path.
+
+```typescript
+import { createWorkersLogger } from 'evlog/workers'
+
+// ctx is the third argument to fetch(request, env, ctx)
+const log = createWorkersLogger(request, {
+  requestId: 'custom-id',      // Override cf-ray (default: cf-ray header)
+  headers: ['x-request-id'],   // Headers to include (default: none)
+  executionCtx: ctx,           // With initWorkersLogger({ drain }), registers async drain via waitUntil
+})
+
+// Or pass waitUntil directly: waitUntil: ctx.waitUntil.bind(ctx)
+
+log.set({ user: { id: '123' } })
+log.emit({ status: 200 })
+```
+
+### `createError(options)`
+
+Create a structured error with HTTP status support. Import from `evlog` directly to avoid conflicts with Nuxt/Nitro's `createError`.
+
+> **Note**: `createEvlogError` is also available as an auto-imported alias in Nuxt/Nitro to avoid conflicts.
+
+```typescript
+import { createError } from 'evlog'
+
+createError({
+  message: string   // What happened
+  status?: number   // HTTP status code (default: 500)
+  why?: string      // Why it happened
+  fix?: string      // How to fix it
+  link?: string     // Documentation URL
+  cause?: Error     // Original error
+  internal?: Record<string, unknown>  // Backend-only; never in HTTP body or toJSON()
+})
+```
+
+**`internal`** — Optional context for support, auditing, or debugging (IDs, gateway codes, raw diagnostics). It is stored on `EvlogError` and exposed as `error.internal` in server code. It is **not** included in JSON error responses, `toJSON()`, or `parseError()` results. When the error is passed to `log.error()` (or thrown in integrations that record errors on the wide event), `internal` is copied into the emitted event under `error.internal`.
+
+### `parseError(error)`
+
+Parse a caught error into a flat structure with all evlog fields. Auto-imported in Nuxt.
+
+```typescript
+import { parseError } from 'evlog'
+
+try {
+  await $fetch('/api/checkout')
+} catch (err) {
+  const error = parseError(err)
+
+  // Direct access to all fields
+  console.log(error.message)  // "Payment failed"
+  console.log(error.status)   // 402
+  console.log(error.why)      // "Card declined"
+  console.log(error.fix)      // "Try another card"
+  console.log(error.link)     // "https://docs.example.com/..."
+
+  // Use with toast
+  toast.add({
+    title: error.message,
+    description: error.why,
+    color: 'error',
+  })
+}
+```
+
+## Framework Support
+
+| Framework | Integration |
+|-----------|-------------|
+| **Nuxt** | `modules: ['evlog/nuxt']` |
+| **Next.js** | `createEvlog()` factory with `import { createEvlog } from 'evlog/next'` ([example](./examples/nextjs)) |
+| **SvelteKit** | `export const { handle, handleError } = createEvlogHooks()` with `import { createEvlogHooks } from 'evlog/sveltekit'` ([example](./examples/sveltekit)) |
+| **Nitro v3** | `modules: [evlog()]` with `import evlog from 'evlog/nitro/v3'` |
+| **Nitro v2** | `modules: [evlog()]` with `import evlog from 'evlog/nitro'` |
+| **TanStack Start** | Nitro v3 module setup ([example](./examples/tanstack-start)) |
+| **React Router** | `evlog()` middleware with `import { evlog } from 'evlog/react-router'` ([example](./examples/react-router)) |
+| **NestJS** | `EvlogModule.forRoot()` with `import { EvlogModule } from 'evlog/nestjs'` ([example](./examples/nestjs)) |
+| **Express** | `app.use(evlog())` with `import { evlog } from 'evlog/express'` ([example](./examples/express)) |
+| **Hono** | `app.use(evlog())` with `import { evlog } from 'evlog/hono'` ([example](./examples/hono)) |
+| **Fastify** | `app.register(evlog)` with `import { evlog } from 'evlog/fastify'` ([example](./examples/fastify)) |
+| **Elysia** | `.use(evlog())` with `import { evlog } from 'evlog/elysia'` ([example](./examples/elysia)) |
+| **oRPC** | `withEvlog(handler)` + `os.use(evlog())` with `import { evlog, withEvlog } from 'evlog/orpc'` ([example](./examples/orpc)) |
+| **Cloudflare Workers** | Manual setup with `import { initWorkersLogger, createWorkersLogger } from 'evlog/workers'` ([example](./examples/workers)) |
+| **Custom** | Build your own with `import { createMiddlewareLogger } from 'evlog/toolkit'` ([guide](https://evlog.dev/extend/custom-framework)) |
+| **Analog** | Nitro v2 module setup |
+| **Vinxi** | Nitro v2 module setup |
+| **SolidStart** | Nitro v2 module setup ([example](./examples/solidstart)) |
+
+## Agent Skills
+
+evlog provides [Agent Skills](https://www.evlog.dev/reference/agent-skills) to help AI coding assistants understand and implement proper logging patterns in your codebase.
+
+### Installation
+
+```bash
+npx skills add https://www.evlog.dev
+```
+
+### What it does
+
+Once installed, your AI assistant will:
+- Review your logging code and suggest wide event patterns
+- Help refactor scattered `console.log` calls into structured events
+- Guide you to use `createError()` for self-documenting errors
+- Ensure proper use of `useLogger(event)` in Nuxt/Nitro routes
+
+### Examples
+
+```
+Add logging to this endpoint
+Review my logging code
+Help me set up logging for this service
+```
+
+## Philosophy
+
+Inspired by [Logging Sucks](https://loggingsucks.com/) by [Boris Tane](https://x.com/boristane).
+
+1. **Wide Events**: One log per request with all context
+2. **Structured Errors**: Errors that explain themselves
+3. **Request Scoping**: Accumulate context, emit once
+4. **Pretty for Dev, JSON for Prod**: Human-readable locally, machine-parseable in production
+
+## License
+
+[MIT](./LICENSE)
+
+Made by [@HugoRCD](https://github.com/HugoRCD)
