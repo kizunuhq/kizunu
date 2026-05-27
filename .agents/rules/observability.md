@@ -63,8 +63,11 @@ There is no second log line.
 
 Unhandled (non-`ApplicationException`) throws hit the new
 `UnhandledExceptionFilter` (last-resort `@Catch()`), which captures
-the throw into the wide event and rethrows so Nest's built-in
-catch-all renders the default 500.
+the throw into the wide event and then delegates to
+`BaseExceptionFilter` (`@nestjs/core`) so Nest's default rendering
+applies — `HttpException` subclasses (`UnauthorizedException`,
+`NotFoundException`, etc.) keep their mapped status, anything else
+becomes a 500.
 
 **Do not** throw `createError(...)` (evlog's structured-error
 constructor) from a domain use case. It would render the evlog wire

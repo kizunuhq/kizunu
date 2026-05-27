@@ -43,11 +43,11 @@ import { buildEvlogOptions } from './shared/observability/evlog-options'
   providers: [
     {
       provide: APP_FILTER,
-      useClass: ApplicationExceptionFilter,
+      useClass: UnhandledExceptionFilter,
     },
     {
       provide: APP_FILTER,
-      useClass: UnhandledExceptionFilter,
+      useClass: ApplicationExceptionFilter,
     },
     {
       provide: APP_GUARD,

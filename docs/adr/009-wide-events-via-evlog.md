@@ -93,8 +93,15 @@ sweep across `apps/api` follows under "Next" on `ROADMAP.md`.
   `useLogger().error(exception)` inside its `catch` so the wide
   event captures the structured error. HTTP wire envelope unchanged.
   Add a new `UnhandledExceptionFilter` (`@Catch()`, last-resort)
-  for unhandled throws — captures into the wide event, rethrows so
-  Nest's default 500 renders.
+  that extends `BaseExceptionFilter` from `@nestjs/core` — captures
+  the throw into the wide event, then delegates to `super.catch` so
+  Nest's default rendering applies (`HttpException` subclasses keep
+  their mapped status; anything else becomes a 500). The two filters
+  are registered as global `APP_FILTER` providers in an order chosen
+  for Nest's reverse-iteration semantics — `UnhandledExceptionFilter`
+  is registered first so `ApplicationExceptionFilter` (registered
+  second) is the latest-registered and runs first for the exception
+  type it owns.
 - **B — Replace.** Adopt the upstream `EvlogExceptionFilter`
   example pattern (`@Catch()` renders `{ message, why, fix, link }`
   to the HTTP response). Would break `@kizunu/api-contracts` for
@@ -122,8 +129,10 @@ The integration shape:
    `{ code, message, context }` HTTP response.
 3. `UnhandledExceptionFilter`
    (`packages/nestjs-shared/src/lib/filters/unhandled-exception.filter.ts`)
-   captures any other throw into the wide event and rethrows; Nest's
-   built-in catch-all renders the default 500.
+   captures any other throw into the wide event and delegates to
+   `BaseExceptionFilter.catch` so Nest renders the response
+   (`HttpException` subclasses keep their mapped status; anything
+   else becomes a 500).
 4. The Coex Finish use case (`ConnectMetaCoexUseCase`) is the spike's
    test bed — four kebab-case `step` markers
    (`assert-configured`, `oauth-exchange`, `coex-finalize`,
