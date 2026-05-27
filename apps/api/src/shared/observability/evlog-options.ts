@@ -49,9 +49,9 @@ export function redactionEnricher(ctx: EnrichContext): void {
 }
 
 export function buildEvlogOptions(config: ConfigService<Config>): EvlogNestJSOptions {
-  // Service auto-detection picks the workspace-root package name in a Bun
-  // monorepo; pin both fields explicitly so wide events carry the expected
-  // identifier in production logs.
+  // Pin service + environment explicitly so wide events carry a stable
+  // identifier instead of whatever evlog's auto-detection picks from the
+  // package.json closest to the runtime entry point.
   initLogger({
     env: {
       service: SERVICE_NAME,

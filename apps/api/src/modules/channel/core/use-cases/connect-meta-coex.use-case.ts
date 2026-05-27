@@ -1,4 +1,4 @@
-import { MetaPluginId } from '@kizunu/api-contracts/channel'
+import { MetaPluginId, type MetaCoexistenceCredentials } from '@kizunu/api-contracts/channel'
 import type { Config } from '@kizunu/api/api.config'
 import { finalizeMetaCoexConnection } from '@kizunu/api/modules/channel/plugins/meta-whatsapp-coex/meta-coex-finalize'
 import { MetaCoexNotConfiguredException } from '@kizunu/api/modules/channel/plugins/meta-whatsapp-coex/meta-coex-not-configured.exception'
@@ -87,7 +87,7 @@ export class ConnectMetaCoexUseCase {
     input: ConnectMetaCoexInput,
     channelAccountId: string,
     token: ExchangedToken,
-  ): Promise<Awaited<ReturnType<typeof finalizeMetaCoexConnection>>> {
+  ): Promise<MetaCoexistenceCredentials> {
     return await finalizeMetaCoexConnection(
       {
         channelAccountId,
