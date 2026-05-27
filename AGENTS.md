@@ -118,6 +118,13 @@ writing code in their area:
   `DataTable` + `TablePagination` composition; `ResourceDialog` / `DeleteResourceDialog`
   for modals; mutation hooks return `{ <domainName>: mutate, ... }` with hook-owned
   invalidation; error-handling table. Anchored by ADR-007 (`docs/adr/007-web-frontend-layering.md`).
+- **`observability.md`** — `apps/api/` request handlers use `evlog/nestjs` for one
+  wide event per request via `useLogger().set(...)`; never `console.*` inside a
+  handler. `ApplicationException` stays the HTTP wire (`{ code, message, context }`);
+  the filter enriches the wide event without changing the response. Credentials
+  redacted by a central enricher (`REDACTION_KEYS` in
+  `apps/api/src/shared/observability/evlog-options.ts`). Anchored by ADR-009
+  (`docs/adr/009-wide-events-via-evlog.md`).
 - **`test.md`** — see Testing below.
 
 ### Style basics (always)
