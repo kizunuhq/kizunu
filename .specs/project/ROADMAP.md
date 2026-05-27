@@ -1,6 +1,6 @@
 # Roadmap
 
-**Current focus:** Phase 2.2 — observability spike (wide events via `evlog`).
+**Current focus:** Phase 2.2 — observability rollout (the `evlog` spike landed; sweep next).
 
 Forward-looking only. Features collapse to `HISTORY.md` the moment they ship.
 This file should never grow past two screens — if it does, sweep completed
@@ -10,30 +10,19 @@ work into HISTORY first.
 
 ## Now
 
-- **`086` Observability spike: wide events via `evlog`** — IN PROGRESS.
-  Replace scattered `console.log` in `apps/api` with
-  [evlog](https://github.com/HugoRCD/evlog) wide events — one structured event
-  per request, accumulated context, errors carrying `why` / `fix` / `link`.
-  Scope of this slice:
-  - Adopt the evlog NestJS adapter on **one hot route** end-to-end —
-    `POST /channel-accounts/meta-whatsapp/oauth/finish` (the Coex Finish path:
-    long, multi-step, today the noisiest `console.*` source) — to validate
-    ergonomics + footprint before sweeping the codebase.
-  - Stdout/JSONL drain only; OTLP drain into self-hosted Monoscope stays
-    deferred until the Kamal pipeline (`028`) is live and an S3 bucket is
-    decided (still tracked under Later).
-  - Author `.agents/rules/observability.md` codifying the wide-event pattern
-    (one event per request, context accumulation, error envelope), plus an
-    ADR recording the decision.
+_Nothing in flight. Add the next PLANNED / IN PROGRESS feature here when work
+starts (one block per feature: title + status + a few bullet points of scope)._
 
 ## Next
 
 _Queued for after Now clears. Source: open CONCERNS items, the active pilot's
 feedback, deferred slices listed under Later._
 
-- **Sweep remaining `console.*` in `apps/api` onto evlog** — follow-up to
-  `086` once the spike validates the shape; one module at a time, guided by
-  the rule introduced in `086`.
+- **Sweep `apps/api` onto evlog wide events** — follow-up to the `086`
+  spike now that the pattern is anchored by `.agents/rules/observability.md`
+  and ADR-009. One module at a time (`identity`, `workspace`, `cadence`,
+  `crm`, `engine`, `routing`), gated by the rule, no "while I'm here"
+  sweeps in unrelated PRs.
 
 ## Later
 
@@ -88,6 +77,8 @@ Past phases collapse to one line. Full feature blurbs in
 - **Phase 1.9 — Web frontend polish & doctrine** — COMPLETE. Features `032`–`039`, `041`–`046`.
 - **Phase 2.0 — Pilot delivery hardening** — COMPLETE. Features `047`–`049`, `053`–`057`.
 - **Phase 2.1 — v1.0 pilot-plus customer fit** — COMPLETE through `085`.
+- **Phase 2.2 — Observability** — evlog spike `086` COMPLETE; rest of
+  `apps/api` sweep queued in Next.
 
 ---
 

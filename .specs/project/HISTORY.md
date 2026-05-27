@@ -1000,3 +1000,60 @@ audit timeline, reachable HTTPS webhooks, and a live pilot acceptance run.
   trigger in the cadence-builder, and introduced `.agents/rules/base-ui.md`
   to document the idioms (linked from AGENTS.md alongside `react.md` and
   `web-patterns.md`)._
+
+---
+
+## Phase 2.2 — Observability
+
+**Goal:** Replace `apps/api`'s structureless logging with one wide event per
+request — a single grep-able JSON line carrying correlation fields, accumulated
+context, and the structured error envelope when things fail. The drain stays
+stdout (containers capture it for free); OTLP / self-hosted Monoscope are
+deferred to a later phase, gated on the Kamal deploy pipeline (`028`) + an S3
+bucket decision.
+
+### Features
+
+**Wide-event observability spike via `evlog`** — COMPLETE
+
+- _Landed (feature `086`): `evlog@^2.18.1` (`evlog/nestjs`) wired into
+  `ApiModule` via `EvlogModule.forRootAsync(...)`, fed by a single
+  `buildEvlogOptions(config)` factory at
+  `apps/api/src/shared/observability/evlog-options.ts` — pins
+  `service: 'kizunu-api'`, excludes `/health`, and attaches a redaction
+  enricher that walks `event.{input,request,body,credentials}` and masks
+  any key in a closed-vocabulary `REDACTION_KEYS` list (`credentials`,
+  `accessToken`, `appSecret`, `verifyToken`, `client_secret`, `code`)
+  while leaving `error.code` (the `ApplicationException` dot-namespaced
+  code) untouched._
+- _End-to-end on one hot route — the Coex Embedded-Signup finish handler,
+  `POST /workspaces/:id/channel-accounts/meta-whatsapp/connect` — where
+  `ConnectMetaCoexUseCase` attaches `workspaceId` + `pluginId` plus four
+  kebab-case `step` markers (`assert-configured`, `oauth-exchange`,
+  `coex-finalize`, `persist-account`) via `useLogger().set(...)`._
+- _Filter composition keeps the HTTP wire frozen at
+  `{ code, message, context }`: `ApplicationExceptionFilter` enriches the
+  wide event with a guarded `useLogger().error(exception)` and renders
+  the existing envelope; a new `UnhandledExceptionFilter` extends
+  `BaseExceptionFilter` (`@nestjs/core`) and delegates to `super.catch`
+  after logging — `HttpException` subclasses (`UnauthorizedException`,
+  `NotFoundException`, etc.) keep their mapped status; anything else
+  becomes a 500. The two filters are registered as global `APP_FILTER`
+  providers in an order chosen for Nest's reverse-iteration semantics
+  (`UnhandledExceptionFilter` first, `ApplicationExceptionFilter` second
+  → `ApplicationException` is the latest-registered and runs first)._
+- _Doctrine codified: `.agents/rules/observability.md` (linked from
+  AGENTS.md "Conventions and rules" alongside `react.md` /
+  `web-patterns.md` / `base-ui.md`) and ADR-009
+  (`docs/adr/009-wide-events-via-evlog.md`) anchor the wide-event
+  pattern, the redaction vocabulary, the "no `createError` from a domain
+  use case" rule, and the deferred OTLP/Monoscope drain (still in
+  `ROADMAP.md` → Later, blocked on `028` + the S3 decision). Commit-pinned
+  upstream snippets live at `.specs/research/observability-evlog/`._
+- _Lesson learned (captured during CI on PR #112): Nest registers global
+  `APP_FILTER` providers in **reverse** order — the latest-registered
+  runs first. A `@Catch()` (universal) filter MUST extend
+  `BaseExceptionFilter` and call `super.catch(exception, host)` rather
+  than `throw exception`; rethrowing exits the filter chain and Nest
+  renders an unmapped 500. Order the two providers so the more-specific
+  filter is registered last._
